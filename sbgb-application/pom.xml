@@ -14,10 +14,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>de.articdive</groupId>
+            <artifactId>jnoise-pipeline</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

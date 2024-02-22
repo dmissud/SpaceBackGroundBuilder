@@ -1,4 +1,6 @@
 HELP.md
+
+### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -18,7 +20,7 @@ target/
 *.iws
 *.iml
 *.ipr
-
+out/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -31,3 +33,35 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Eclipse ###
+*.log
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+### OS specific ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Packages
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
