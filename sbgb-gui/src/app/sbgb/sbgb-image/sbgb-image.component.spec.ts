@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SbgbTopmenuComponent } from './sbgb-topmenu.component';
+import { SbgbImageComponent } from './sbgb-image.component';
 
-describe('SbgbTopmenuComponent', () => {
-  let component: SbgbTopmenuComponent;
-  let fixture: ComponentFixture<SbgbTopmenuComponent>;
+describe('SbgbImageComponent', () => {
+  let component: SbgbImageComponent;
+  let fixture: ComponentFixture<SbgbImageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SbgbTopmenuComponent]
+      imports: [SbgbImageComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(SbgbTopmenuComponent);
+    fixture = TestBed.createComponent(SbgbImageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

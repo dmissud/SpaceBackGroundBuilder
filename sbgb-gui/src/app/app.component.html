@@ -1,3 +1,48 @@
-<body class="mat-typography mat-app-background">
-<app-sbgb-topmenu></app-sbgb-topmenu>
-</body>
+<header>
+  <mat-toolbar color="primary">
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <a
+      mat-button
+      class="nav-link"
+      routerLink="/home"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >Home</a>
+    <a
+      mat-button
+      class="nav-link"
+      routerLink="/sbgb"
+      routerLinkActive="active-link"
+    >Image Builder</a>
+    <span class="example-spacer"></span>
+    <a
+      mat-button
+      class="docs-button docs-navbar-hide-small"
+      href="https://github.com/dmissud/SpaceBAckGroundBuilder"
+      target="_blank"
+      aria-label="GitHub Repository"
+    >
+      <img
+        class="docs-angular-logo"
+        src="../../../assets/img/homepage/github-circle-white-transparent.svg"
+        alt="angular"
+      />
+      GitHub
+    </a>
+    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+      <mat-icon>favorite</mat-icon>
+    </button>
+    <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+      <mat-icon>share</mat-icon>
+    </button>
+    <span class="version-info">Current {{ name }} build: {{ version }}</span>
+  </mat-toolbar>
+  <nav class="navbar">
+  </nav>
+</header>
+<main>
+  <router-outlet></router-outlet>
+</main>
+

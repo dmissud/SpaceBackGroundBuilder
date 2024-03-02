@@ -16,9 +16,4 @@ public class GoToSwagger {
         return RouterFunctions.route(RequestPredicates.GET("/"),
                 request -> ServerResponse.temporaryRedirect(URI.create("/swagger-ui.html")).build());
     }
-
-    @Bean
-    public RouterFunction<ServerResponse> allRoutes(MyRouterHandlers myRouterHandlers) {
-        return RouterFunctions.route(RequestPredicates.GET("/**"), myRouterHandlers::notFound);
-    }
 }
