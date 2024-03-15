@@ -5,6 +5,7 @@ import {MatAnchor, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 
 import * as packageInfo from '../../package.json'
+import {MatSnackBar} from "@angular/material/snack-bar";
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -13,6 +14,9 @@ import * as packageInfo from '../../package.json'
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
+  constructor(private _snackBar: MatSnackBar) {
+  }
+
   title = 'sbgb-gui';
   get name(): string {
     return this._name;

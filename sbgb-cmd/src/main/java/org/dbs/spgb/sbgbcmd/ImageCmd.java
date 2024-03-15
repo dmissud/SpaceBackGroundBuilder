@@ -1,6 +1,6 @@
 package org.dbs.spgb.sbgbcmd;
 
-import org.dbs.spgb.domain.SpaceBackGroundFactory;
+import org.dbs.spgb.domain.model.SpaceBackGround;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
@@ -14,10 +14,10 @@ public class ImageCmd {
 
     @ShellMethod("Generate Spring Boot Shell command")
     public void buildImage(long seed, String fileName) {
-        SpaceBackGroundFactory spaceBackGroundFactory = new SpaceBackGroundFactory.Builder()
+        SpaceBackGround spaceBackGround = new SpaceBackGround.Builder()
                 .build();
 
-        BufferedImage image = spaceBackGroundFactory.create(seed);
+        BufferedImage image = spaceBackGround.create(seed);
 
         // Add .png extension if not present
         if (!fileName.endsWith(".png")) {
