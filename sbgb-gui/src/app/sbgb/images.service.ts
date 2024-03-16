@@ -15,8 +15,10 @@ export class ImagesService {
   constructor(private http: HttpClient) { }
 
   buildImage(sbgb: Sbgb): Observable<HttpResponse<Blob>> {
-    return this.http.post<Blob>(this.appUrl + this.imagesApiUrl,
-      sbgb,
+    const payload = {
+      sizeCmd: sbgb
+    };
+    return this.http.post<Blob>(this.appUrl + this.imagesApiUrl, payload,
       { observe: 'response', responseType: 'blob' as 'json' });
   }
 }
