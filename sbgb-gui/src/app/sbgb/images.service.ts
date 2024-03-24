@@ -16,7 +16,8 @@ export class ImagesService {
 
   buildImage(sbgb: Sbgb): Observable<HttpResponse<Blob>> {
     const payload = {
-      sizeCmd: sbgb
+      sizeCmd: sbgb.image,
+      colorCmd: sbgb.color
     };
     return this.http.post<Blob>(this.appUrl + this.imagesApiUrl, payload,
       { observe: 'response', responseType: 'blob' as 'json' });

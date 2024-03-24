@@ -1,10 +1,16 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
+import {createFeatureSelector, createSelector} from '@ngrx/store';
 import * as fromSbgb from './sbgb.reducer'
+
 export const selectSbgbState = createFeatureSelector<fromSbgb.SbgbState>('sbgbs');
 
 export const selectImageBuild = createSelector(
   selectSbgbState,
   (sbgbState) => sbgbState.image
+);
+
+export const selectImageIsBuilding = createSelector(
+  selectSbgbState,
+  (sbgbState) => sbgbState.building
 );
 
 export const selectInfoMessage = createSelector(

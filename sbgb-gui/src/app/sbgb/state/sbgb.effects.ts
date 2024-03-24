@@ -25,12 +25,10 @@ export class SbgbEffects {
               this.loadImage(resolve, reject, response);
             })
           ),
-          map((image) => {
-            console.log('Image built successfully'); // Logging command inserted here
-            return ImageApiActions.imagesBuildSuccess({image})
-          }),
+          map((image) =>
+            ImageApiActions.imagesBuildSuccess({build: false, image})),
           catchError((error) =>
-            of(ImageApiActions.imagesBuildFail({message: error}))
+            of(ImageApiActions.imagesBuildFail({build: false, message: error}))
           )
         )
       )
