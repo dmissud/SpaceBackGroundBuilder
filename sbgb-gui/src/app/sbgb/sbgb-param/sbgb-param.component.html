@@ -1,0 +1,47 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <h2>Paramètre de Build</h2>
+  <button mat-raised-button color="primary" (click)="computeImage()">Build</button>
+</div>
+<form [formGroup]="_myForm"
+      style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
+  <section>
+    <mat-form-field>
+      <mat-label>Width</mat-label>
+      <input matInput type="number" formControlName="width">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Height</mat-label>
+      <input type="number" matInput formControlName="height">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Seed</mat-label>
+      <input type="number" matInput formControlName="seed">
+    </mat-form-field>
+  </section>
+  <section>
+    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+      <label for="backgroundColor">Background</label>
+      <input id="backgroundColor" type="color" formControlName="backgroundColor">
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+      <label for="backThreshold">Back Threshold {{ _myForm.get("backThreshold")?.value }}</label>
+      <mat-slider min="0.01" max="0.97" step="0.01" discrete="false">
+        <input id="backThreshold" matSliderThumb formControlName="backThreshold">
+      </mat-slider>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
+      <label for="middleColor">Middle</label>
+      <input id="middleColor" type="color" formControlName="middleColor">
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+      <label for="middleThreshold">Back Threshold {{ _myForm.get("middleThreshold")?.value }}</label>
+      <mat-slider min="0.1" max="0.99" step="0.01" discrete="false">
+        <input id="middleThreshold" matSliderThumb formControlName="middleThreshold">
+      </mat-slider>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
+      <label for="foregroundColor">Foreground</label>
+      <input id="foregroundColor" type="color" formControlName="foregroundColor">
+    </div>
+  </section>
+</form>

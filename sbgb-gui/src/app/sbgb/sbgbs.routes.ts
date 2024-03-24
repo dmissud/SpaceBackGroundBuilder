@@ -1,6 +1,6 @@
 import {Routes} from "@angular/router";
-import {SbgbImageComponent} from "./sbgb-image/sbgb-image.component";
+import {SbgbShellComponent} from "./sbgb-shell/sbgb-shell.component";
 
 export const routes: Routes = [
-  {path: '', component: SbgbImageComponent}
+  {path: '', component: SbgbShellComponent}
 ];
