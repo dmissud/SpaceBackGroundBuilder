@@ -1,15 +1,11 @@
 package org.dbs.spgb.port.in;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.awt.*;
 import java.io.IOException;
 
 public interface BuildNoiseImageUseCase {
@@ -42,17 +38,20 @@ public interface BuildNoiseImageUseCase {
         public static class ColorCmd {
             @NotNull
             @Valid
-            private Color back;
+            @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+            private String back;
             @NotNull
             @Valid
-            private Color middle;
+            @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+            private String middle;
             @NotNull
             @Valid
-            private Color front;
+            @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+            private String fore;
             @DecimalMin("0.1")
-            private double backTreshold;
+            private double backThreshold;
             @DecimalMin("0.1")
-            private double middleTreshold;
+            private double middleThreshold;
         }
     }
 }

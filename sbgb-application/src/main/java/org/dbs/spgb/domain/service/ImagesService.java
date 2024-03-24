@@ -6,6 +6,7 @@ import org.dbs.spgb.domain.model.SpaceBackGround;
 import org.dbs.spgb.port.in.BuildNoiseImageUseCase;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,11 +28,11 @@ public class ImagesService implements BuildNoiseImageUseCase {
 
     private DefaultNoiseColorCalculator createDefaultNoiseColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
         return new DefaultNoiseColorCalculator(
-                colorCmd.getBack(),
-                colorCmd.getMiddle(),
-                colorCmd.getFront(),
-                colorCmd.getBackTreshold(),
-                colorCmd.getMiddleTreshold());
+                Color.decode(colorCmd.getBack()),
+                Color.decode(colorCmd.getMiddle()),
+                Color.decode(colorCmd.getFore()),
+                colorCmd.getBackThreshold(),
+                colorCmd.getMiddleThreshold());
     }
 
     private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
