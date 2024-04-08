@@ -2,8 +2,11 @@ package org.dbs.spgb.domain.service;
 
 import org.dbs.spgb.common.UseCase;
 import org.dbs.spgb.domain.model.DefaultNoiseColorCalculator;
-import org.dbs.spgb.domain.model.SpaceBackGround;
+import org.dbs.spgb.domain.model.NoiseImage;
+import org.dbs.spgb.domain.model.NoiseImageCalculator;
 import org.dbs.spgb.port.in.BuildNoiseImageUseCase;
+import org.dbs.spgb.port.in.CreateNoiseImageUseCase;
+import org.dbs.spgb.port.in.ImageRequestCmd;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,17 +15,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @UseCase
-public class ImagesService implements BuildNoiseImageUseCase {
+public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUseCase {
 
     @Override
     public byte[] buildNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
+
         DefaultNoiseColorCalculator noiseColorCalculator = createDefaultNoiseColorCalculator(imageRequestCmd.getColorCmd());
-        SpaceBackGround spaceBackGround = new SpaceBackGround.Builder()
+        NoiseImageCalculator noiseImageCalculator = new NoiseImageCalculator.Builder()
                 .withHeight(imageRequestCmd.getSizeCmd().getHeight())
                 .withWidth(imageRequestCmd.getSizeCmd().getWidth())
                 .withNoiseColorCalculator(noiseColorCalculator)
                 .build();
-        BufferedImage image = spaceBackGround.create(imageRequestCmd.getSizeCmd().getSeed());
+        BufferedImage image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
         return convertImageToByteArray(image);
     }
 
@@ -39,5 +43,10 @@ public class ImagesService implements BuildNoiseImageUseCase {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
         return outputStream.toByteArray();
+    }
+
+    @Override
+    public NoiseImage createNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
+        return null;
     }
 }

@@ -1,1 +1,43 @@
+version: '3.8'
+
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,EXTERNAL://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    ports:
+      - 9092:9092
+
+  db_sbgb:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user_sbgb
+      POSTGRES_PASSWORD: pw_sbgb
+      POSTGRES_DB: db-sbgb
+    ports:
+      - 5432:5432
+    volumes:
+      - db_sbgb-data:/var/lib/postgresql/data
+
+volumes:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:
+  db_sbgb-data:

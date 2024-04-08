@@ -8,18 +8,23 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 @Slf4j
-public class SpaceBackGround {
+public class NoiseImageCalculator {
+
+    public static final int DEFAULT_IMAGE_WIDTH = 4000;
+    public static final int DEFAULT_IMAGE_HEIGHT = 4000;
+    public static final Interpolation DEFAULT_INTERPOLATION = Interpolation.COSINE;
+    public static final FadeFunction DEFAULT_FADE_FUNCTION = FadeFunction.CUBIC_POLY;
 
     private final int width;
     private final int height;
     private final PerlinGenerator perlinGenerator;
     private final NoiseColorCalculator noiseColorCalculator;
 
-    private SpaceBackGround(int width,
-                            int height,
-                            Interpolation interpolation,
-                            FadeFunction fadeFunction,
-                            NoiseColorCalculator noiseColorCalculator) {
+    private NoiseImageCalculator(int width,
+                                 int height,
+                                 Interpolation interpolation,
+                                 FadeFunction fadeFunction,
+                                 NoiseColorCalculator noiseColorCalculator) {
         this.width = width;
         this.height = height;
         this.noiseColorCalculator = noiseColorCalculator;
@@ -28,6 +33,7 @@ public class SpaceBackGround {
 
     public BufferedImage create(long seed) {
         perlinGenerator.createNoisePipeline(seed, this.width, this.height);
+        perlinGenerator.performNormalization();
         return buildImage();
     }
 
@@ -39,10 +45,10 @@ public class SpaceBackGround {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                g2d.setColor(noiseColorCalculator.calculateNoiseColor(perlinGenerator.scaleNoiseNormalizedValue(x, y)));
-                g2d.drawLine(x, y, x, y);
+                img.setRGB(x, y, noiseColorCalculator.calculateNoiseColor(perlinGenerator.scaleNoiseNormalizedValue(x, y)).getRGB());
             }
         }
+        g2d.dispose();
 
         return img;
     }
@@ -55,10 +61,10 @@ public class SpaceBackGround {
         private FadeFunction fadeFunction;
         private NoiseColorCalculator noiseColorCalculator;
         public Builder() {
-            this.width = 4000;
-            this.height = 4000;
-            this.interpolation = Interpolation.COSINE;
-            this.fadeFunction = FadeFunction.CUBIC_POLY;
+            this.width = DEFAULT_IMAGE_WIDTH;
+            this.height = DEFAULT_IMAGE_HEIGHT;
+            this.interpolation = DEFAULT_INTERPOLATION;
+            this.fadeFunction = DEFAULT_FADE_FUNCTION;
         }
 
         public Builder withWidth(int width) {
@@ -86,8 +92,8 @@ public class SpaceBackGround {
             return this;
         }
 
-        public SpaceBackGround build() {
-            return new SpaceBackGround(width, height, interpolation, fadeFunction, noiseColorCalculator);
+        public NoiseImageCalculator build() {
+            return new NoiseImageCalculator(width, height, interpolation, fadeFunction, noiseColorCalculator);
         }
     }
 

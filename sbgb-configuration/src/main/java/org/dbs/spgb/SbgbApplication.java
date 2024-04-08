@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         info = @Info(title = "SBGB Api", version = "1.0", description = "API for build a Space Background based on Perlin Algorythme"),
         servers = {@Server(description = "Local", url = "http://localhost:8080/")}
 )
-
 @ContextDescription
 public class SbgbApplication {
 

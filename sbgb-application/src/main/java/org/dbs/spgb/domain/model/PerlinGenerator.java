@@ -27,12 +27,18 @@ public class PerlinGenerator {
                 .build();
         this.width = width;
         this.height = height;
-        normalize();
     }
+
 
     public double scaleNoiseNormalizedValue(int x, int y) {
         return normalizeNoiseValue(scaleNoiseValue(x, y));
     }
+
+    public void performNormalization() {
+        normalizeMinimumAndMaximumValues();
+        log.info("Normalized({}, {})", this.minVal, this.maxVal);
+    }
+
     private double scaleNoiseValue(int x, int y) {
         return this.noisePipeline.evaluateNoise(x * 1.0 / this.width, y * 1.0 / this.height);
     }
@@ -42,7 +48,7 @@ public class PerlinGenerator {
     }
 
 
-    private void normalize() {
+    private void normalizeMinimumAndMaximumValues() {
         this.maxVal = 0;
         this.minVal = 1.0;
         for (int x = 0; x < width; x++) {
@@ -52,8 +58,5 @@ public class PerlinGenerator {
                 if (noiseVal < minVal) minVal = noiseVal;
             }
         }
-        log.info("Normalized({}, {})", this.minVal, this.maxVal);
     }
-
-
 }
