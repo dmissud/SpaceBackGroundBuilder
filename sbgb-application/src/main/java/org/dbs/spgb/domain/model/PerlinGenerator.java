@@ -49,14 +49,16 @@ public class PerlinGenerator {
 
 
     private void normalizeMinimumAndMaximumValues() {
-        this.maxVal = 0;
-        this.minVal = 1.0;
+        double currentMax = Double.NEGATIVE_INFINITY;
+        double currentMin = Double.POSITIVE_INFINITY;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 double noiseVal = scaleNoiseValue(x, y);
-                if (noiseVal > maxVal) maxVal = noiseVal;
-                if (noiseVal < minVal) minVal = noiseVal;
+                if (noiseVal > currentMax) currentMax = noiseVal;
+                if (noiseVal < currentMin) currentMin = noiseVal;
             }
         }
+        this.maxVal = currentMax;
+        this.minVal = currentMin;
     }
 }

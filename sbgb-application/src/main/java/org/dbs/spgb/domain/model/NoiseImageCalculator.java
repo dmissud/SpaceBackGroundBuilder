@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class NoiseImageCalculator {
@@ -42,13 +43,13 @@ public class NoiseImageCalculator {
         Graphics2D g2d = img.createGraphics();
         g2d.setBackground(noiseColorCalculator.getBackGroundColor());
         g2d.clearRect(0, 0, width, height);
+        g2d.dispose();
 
-        for (int x = 0; x < width; x++) {
+        IntStream.range(0, width).parallel().forEach(x -> {
             for (int y = 0; y < height; y++) {
                 img.setRGB(x, y, noiseColorCalculator.calculateNoiseColor(perlinGenerator.scaleNoiseNormalizedValue(x, y)).getRGB());
             }
-        }
-        g2d.dispose();
+        });
 
         return img;
     }
