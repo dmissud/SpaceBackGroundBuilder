@@ -20,10 +20,23 @@ class ImagesServiceTest {
 
     @Test
     void buildNoiseImageTest() throws IOException {
-        ImagesService imagesService = new ImagesService();
-        ImageRequestCmd.SizeCmd sizeCmd = new ImageRequestCmd.SizeCmd(500, 500, 2659);
-        ImageRequestCmd.ColorCmd colorCmd = new ImageRequestCmd.ColorCmd("#01FD37", "#B537FD", "#FD7812", 0.7, 0.75);
-        ImageRequestCmd imageRequestCmd = new ImageRequestCmd(sizeCmd, colorCmd);
+        ImagesService imagesService = new ImagesService(noiseImage -> noiseImage);
+        ImageRequestCmd.SizeCmd sizeCmd = ImageRequestCmd.SizeCmd.builder()
+                .height(500)
+                .width(500)
+                .seed(2659)
+                .build();
+        ImageRequestCmd.ColorCmd colorCmd = ImageRequestCmd.ColorCmd.builder()
+                .back("#01FD37")
+                .middle("#B537FD")
+                .fore("#FD7812")
+                .backThreshold(0.7)
+                .middleThreshold(0.75)
+                .build();
+        ImageRequestCmd imageRequestCmd = ImageRequestCmd.builder()
+                .sizeCmd(sizeCmd)
+                .colorCmd(colorCmd)
+                .build();
 
         byte[] result = imagesService.buildNoiseImage(imageRequestCmd);
 
