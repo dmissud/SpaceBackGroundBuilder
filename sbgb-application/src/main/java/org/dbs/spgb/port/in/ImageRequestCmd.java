@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageRequestCmd {
+    private String name;
+    private String type;
     private SizeCmd sizeCmd;
     private ColorCmd colorCmd;
 
