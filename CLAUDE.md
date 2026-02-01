@@ -1,5 +1,9 @@
 # Règles de développement
 
+## Langage
+
+- Quand tu me parles appel moi Daniel et non pas "L'utilisateur..."
+
 ## Démarche
 
 - TDD
