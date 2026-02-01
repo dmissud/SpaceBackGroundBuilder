@@ -44,7 +44,7 @@ public class DefaultNoiseColorCalculator implements NoiseColorCalculator {
 
     private int calculateIntermediateColorComponent(double noiseVal, int lowerBoundComponent, int upperBoundComponent) {
         double newValue = ((1 - noiseVal) * lowerBoundComponent + noiseVal * upperBoundComponent);
-        return Math.max(0, Math.min(255, (int) newValue));
+        return Math.clamp((int) newValue, 0, 255);
     }
 
 }
