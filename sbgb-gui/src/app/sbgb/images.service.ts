@@ -9,17 +9,19 @@ import {Sbgb} from "./sbgb.model";
 })
 export class ImagesService {
 
-  private imagesApiUrl: string = '/images';
+  private imagesApiUrl: string = '/images/build';
   appUrl = environment.API_DATA_PROVIDER_URL;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
 
   buildImage(sbgb: Sbgb): Observable<HttpResponse<Blob>> {
     const payload = {
       sizeCmd: sbgb.image,
       colorCmd: sbgb.color
     };
-    return this.http.post<Blob>(this.appUrl + this.imagesApiUrl, payload,
-      { observe: 'response', responseType: 'blob' as 'json' });
+    return this.http.post<Blob>(this.appUrl + this.imagesApiUrl, payload, {
+      observe: 'response', responseType: 'blob' as 'json'
+    });
   }
 }

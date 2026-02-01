@@ -1,1 +1,16 @@
+version: '3.8'
+
 services:
+  db_sbgb:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user_sbgb
+      POSTGRES_PASSWORD: pw_sbgb
+      POSTGRES_DB: db-sbgb
+    ports:
+      - 5432:5432
+    volumes:
+      - db_sbgb-data:/var/lib/postgresql/data
+
+volumes:
+  db_sbgb-data:

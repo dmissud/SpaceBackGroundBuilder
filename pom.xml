@@ -12,8 +12,13 @@
     <description>SpaceBackGroundBuilder</description>
 
     <properties>
-        <java.version>17</java.version>
-        <spring-boot.version>3.2.2</spring-boot.version>
+        <java.version>21</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <spring-boot.version>3.2.4</spring-boot.version>
         <mockito-core.version>5.10.0</mockito-core.version>
         <cucumber-junit-platform-engine.version>7.15.0</cucumber-junit-platform-engine.version>
         <junit-jupiter-engine.version>5.10.2</junit-jupiter-engine.version>
@@ -21,7 +26,9 @@
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <jnoise-pipeline.version>4.1.0</jnoise-pipeline.version>
         <logback-classic.version>1.4.14</logback-classic.version>
-        <springdoc-openapi-starter-webflux-ui.version>2.3.0</springdoc-openapi-starter-webflux-ui.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <postgresql.version>42.7.3</postgresql.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.5.0</springdoc-openapi-starter-webmvc-ui.version>
     </properties>
 
     <modules>
@@ -72,13 +79,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webflux-ui -->
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-                <version>${springdoc-openapi-starter-webflux-ui.version}</version>
-            </dependency>
-
             <!-- https://mvnrepository.com/artifact/de.articdive/jnoise-core -->
             <dependency>
                 <groupId>de.articdive</groupId>
@@ -86,15 +86,64 @@
                 <version>${jnoise-pipeline.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+            </dependency>
+
+
+            <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-classic.version}</version>
+            </dependency>
+
+            <!-- Add mapstruct dependency -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+
             <!-- JUnit 5 -->
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit-jupiter-engine.version}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Cucumber -->
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber-junit-platform-engine.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-spring</artifactId>
+                <version>${cucumber-junit-platform-engine.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-junit-platform-engine</artifactId>
@@ -116,12 +165,6 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj-core.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback-classic.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
