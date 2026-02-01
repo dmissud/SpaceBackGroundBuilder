@@ -67,7 +67,7 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
 
         NoiseImage noiseImage = new NoiseImage(
                 UUID.randomUUID(),
-                "Noise Image",
+                imageRequestCmd.getName() + " (" + imageRequestCmd.getType() + ")",
                 0,
                 structure,
                 color,
