@@ -12,6 +12,7 @@ import org.dbs.spgb.port.in.CreateNoiseImageUseCase;
 import org.dbs.spgb.port.in.ImageRequestCmd;
 import org.dbs.spgb.spgbexposition.common.LogExecutionTime;
 import org.dbs.spgb.spgbexposition.resources.dto.NoiseImageDTO;
+import org.dbs.spgb.spgbexposition.resources.mapper.MapperNoiseImage;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
@@ -32,8 +33,7 @@ import java.io.IOException;
 public class ImageResource {
     private final BuildNoiseImageUseCase buildNoiseImageUseCase;
     private final CreateNoiseImageUseCase createNoiseImageUseCase;
-
-    //    private final MapperNoiseImage mapperNoiseImage;
+    private final MapperNoiseImage mapperNoiseImage;
     @PostMapping(value = "/images/build", produces = MediaType.IMAGE_PNG_VALUE)
     @Operation(
             description = "Create an image",
@@ -46,7 +46,7 @@ public class ImageResource {
         return ResponseEntity.ok(bytes);
     }
 
-    @PostMapping(value = "/images/create", produces = MediaType.IMAGE_PNG_VALUE)
+    @PostMapping(value = "/images/create", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
             description = "Create an image",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -54,24 +54,16 @@ public class ImageResource {
                     description = "The parameters for new image generation. It includes the size of the image (height, width, seed) and colors for the back, middle and front parts of the image with respective threshold values"))
     @LogExecutionTime
     public ResponseEntity<NoiseImageDTO> createImage(@Valid @RequestBody final ImageRequestCmd imageRequestCmd) throws IOException {
-        NoiseImage noiseImageCalculator = createNoiseImageUseCase.createNoiseImage(imageRequestCmd);
-        //Transformer NoiseImageCalculator en NoiseImageDTO
-        NoiseImageDTO noiseImageDTO = null; //mapperNoiseImageToNoisImageDTO();
-        //Continuer avec le mappage de noiseImageCalculator à noiseImageDTO...
+        NoiseImage noiseImage = createNoiseImageUseCase.createNoiseImage(imageRequestCmd);
+
+        NoiseImageDTO noiseImageDTO = mapperNoiseImage.toDTO(noiseImage);
 
         Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass())
                 .createImage(imageRequestCmd)).withSelfRel();
-//        Link updateLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass())
-//                .updateImage(imageRequestCmd)).withRel("update");
-//        Link deleteLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass())
-//                .deleteImage(imageRequestCmd)).withRel("delete");
 
         noiseImageDTO.get_links().put("self", selfLink);
-//        noiseImageDTO.get_links().put("update", updateLink);
-//        noiseImageDTO.get_links().put("delete", deleteLink);
 
         return ResponseEntity.created(selfLink.toUri())
-                .contentType(MediaType.IMAGE_PNG)
                 .body(noiseImageDTO);
     }
 }
