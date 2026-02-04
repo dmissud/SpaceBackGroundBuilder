@@ -49,6 +49,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly FOREGROUND_COLOR = 'foregroundColor';
   private static readonly BACK_THRESHOLD = 'backThreshold';
   private static readonly MIDDLE_THRESHOLD = 'middleThreshold';
+  private static readonly INTERPOLATION_TYPE = 'interpolationType';
   private static readonly NAME = 'name';
   private static readonly DESCRIPTION = 'description';
 
@@ -77,6 +78,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.FOREGROUND_COLOR]: new FormControl('#FFFFFF'),
       [SbgbParamComponent.BACK_THRESHOLD]: new FormControl('0.7'),
       [SbgbParamComponent.MIDDLE_THRESHOLD]: new FormControl('0.75'),
+      [SbgbParamComponent.INTERPOLATION_TYPE]: new FormControl('LINEAR'),
       [SbgbParamComponent.NAME]: new FormControl(''),
       [SbgbParamComponent.DESCRIPTION]: new FormControl(''),
     });
@@ -149,6 +151,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.FOREGROUND_COLOR]: sbgb.imageColor.fore,
             [SbgbParamComponent.BACK_THRESHOLD]: sbgb.imageColor.backThreshold,
             [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
+            [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
             [SbgbParamComponent.NAME]: sbgb.name || '',
             [SbgbParamComponent.DESCRIPTION]: sbgb.description || '',
           }, {emitEvent: false});
@@ -320,13 +323,14 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       c1.fore !== c2.fore ||
       Number(c1.backThreshold) !== Number(c2.backThreshold) ||
       Number(c1.middleThreshold) !== Number(c2.middleThreshold) ||
+      c1.interpolationType !== c2.interpolationType ||
       referenceSbgb.name !== currentSbgb.name ||
       referenceSbgb.description !== currentSbgb.description;
   }
 
   private getSbgbFromForm(): Sbgb {
     const {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue} = this.extractImageFormValues();
-    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue}
+    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
     return {
@@ -347,7 +351,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         middle: middleColorValue,
         fore: foregroundColorValue,
         backThreshold: Number(backThresholdValue),
-        middleThreshold: Number(middleThresholdValue)
+        middleThreshold: Number(middleThresholdValue),
+        interpolationType: interpolationTypeValue
       }
     };
   }
@@ -375,7 +380,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let middleColorValue = this._myForm.controls[SbgbParamComponent.MIDDLE_COLOR].value;
     let backThresholdValue = this._myForm.controls[SbgbParamComponent.BACK_THRESHOLD].value;
     let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
-    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue};
+    let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
+    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue};
   }
 
 }

@@ -74,6 +74,20 @@
     </mat-form-field>
   </section>
   <section>
+    <mat-form-field style="width: 250px;">
+      <mat-label>Type d'interpolation</mat-label>
+      <select matNativeControl formControlName="interpolationType">
+        <option value="LINEAR">Linear</option>
+        <option value="SMOOTHSTEP">Smoothstep</option>
+        <option value="SMOOTHERSTEP">Smootherstep</option>
+        <option value="COSINE">Cosine</option>
+        <option value="POWER_2">Power 2</option>
+        <option value="POWER_3">Power 3</option>
+      </select>
+      <mat-icon matSuffix matTooltip="Type d'interpolation pour les transitions de couleurs. LINEAR: transition uniforme, SMOOTHSTEP/SMOOTHERSTEP: transitions douces, COSINE: transition naturelle, POWER: transitions accentuées.">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+  <section>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
       <div style="display: flex; align-items: center;">
         <label for="backgroundColor">Background</label>

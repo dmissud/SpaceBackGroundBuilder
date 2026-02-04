@@ -14,6 +14,7 @@ export interface Color {
   fore: string;
   backThreshold: number;
   middleThreshold: number;
+  interpolationType: string;
 }
 
 export interface Sbgb {

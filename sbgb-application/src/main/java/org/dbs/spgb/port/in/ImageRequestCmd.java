@@ -74,5 +74,8 @@ public class ImageRequestCmd {
         private double backThreshold;
         @DecimalMin("0.1")
         private double middleThreshold;
+        @NotNull
+        @Builder.Default
+        private String interpolationType = "LINEAR";
     }
 }

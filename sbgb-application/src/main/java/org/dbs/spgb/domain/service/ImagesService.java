@@ -47,12 +47,14 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
     }
 
     private DefaultNoiseColorCalculator createDefaultNoiseColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
+        InterpolationType interpolationType = InterpolationType.valueOf(colorCmd.getInterpolationType());
         return new DefaultNoiseColorCalculator(
                 Color.decode(colorCmd.getBack()),
                 Color.decode(colorCmd.getMiddle()),
                 Color.decode(colorCmd.getFore()),
                 colorCmd.getBackThreshold(),
-                colorCmd.getMiddleThreshold());
+                colorCmd.getMiddleThreshold(),
+                interpolationType);
     }
 
     private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
@@ -90,7 +92,8 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 imageRequestCmd.getColorCmd().getMiddle(),
                 imageRequestCmd.getColorCmd().getFore(),
                 imageRequestCmd.getColorCmd().getBackThreshold(),
-                imageRequestCmd.getColorCmd().getMiddleThreshold());
+                imageRequestCmd.getColorCmd().getMiddleThreshold(),
+                imageRequestCmd.getColorCmd().getInterpolationType());
 
         UUID id = existingImage.map(NoiseImage::getId).orElse(UUID.randomUUID());
 

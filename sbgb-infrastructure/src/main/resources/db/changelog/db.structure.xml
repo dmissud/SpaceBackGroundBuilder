@@ -9,4 +9,5 @@
     <include file="/db/changelog/2026/02/03-01-add-fractal-params.xml"/>
     <include file="/db/changelog/2026/02/03-02-add-name-column.xml"/>
     <include file="/db/changelog/2026/02/04-01-add-scale-column.xml"/>
+    <include file="/db/changelog/2026/02/04-02-add-interpolation-type-column.xml"/>
 </databaseChangeLog>
