@@ -30,7 +30,8 @@ import {Sbgb} from "../sbgb.model";
     ReactiveFormsModule,
     MatTooltip,
     MatIcon,
-    MatSuffix
+    MatSuffix,
+    NgIf
   ],
   templateUrl: './sbgb-param.component.html',
   styleUrl: './sbgb-param.component.scss'
