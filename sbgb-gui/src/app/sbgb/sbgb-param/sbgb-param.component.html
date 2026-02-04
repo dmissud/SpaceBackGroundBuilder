@@ -1,46 +1,116 @@
 <div style="display: flex; justify-content: space-between; align-items: center;">
   <h2>Paramètre de Build</h2>
-  <button mat-raised-button color="primary" (click)="computeImage()">Build</button>
+  <div>
+    <button mat-raised-button
+            color="primary"
+            (click)="computeImage()"
+            [disabled]="!canBuild()"
+            [matTooltip]="getBuildTooltip()"
+            matTooltipPosition="below"
+            style="margin-right: 8px;">
+      Build
+    </button>
+    <button mat-raised-button
+            color="accent"
+            (click)="saveImage()"
+            [disabled]="!canSave()"
+            [matTooltip]="getSaveTooltip()"
+            matTooltipPosition="below">
+      Sauvegarder
+    </button>
+  </div>
 </div>
 <form [formGroup]="_myForm"
       style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
+  <section style="width: 100%; display: flex; gap: 10px;">
+    <mat-form-field style="flex: 1;">
+      <mat-label>Nom de l'image</mat-label>
+      <input matInput type="text" formControlName="name">
+      <mat-icon matSuffix matTooltip="Nom pour identifier cette image mémorisée.">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="flex: 2;">
+      <mat-label>Description</mat-label>
+      <input matInput type="text" formControlName="description">
+      <mat-icon matSuffix matTooltip="Description additionnelle de l'image.">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
   <section>
     <mat-form-field>
       <mat-label>Width</mat-label>
       <input matInput type="number" formControlName="width">
+      <mat-icon matSuffix matTooltip="Largeur de l'image générée (en pixels).">help_outline</mat-icon>
     </mat-form-field>
     <mat-form-field>
       <mat-label>Height</mat-label>
       <input type="number" matInput formControlName="height">
+      <mat-icon matSuffix matTooltip="Hauteur de l'image générée (en pixels).">help_outline</mat-icon>
     </mat-form-field>
     <mat-form-field>
       <mat-label>Seed</mat-label>
       <input type="number" matInput formControlName="seed">
+      <mat-icon matSuffix matTooltip="Graine aléatoire utilisée pour initialiser le générateur de bruit. Une même graine produit la même image.">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+  <section>
+    <mat-form-field>
+      <mat-label>Octaves</mat-label>
+      <input type="number" matInput formControlName="octaves" min="1" max="10">
+      <mat-icon matSuffix matTooltip="Nombre de couches de bruit superposées. Plus d'octaves ajoutent des détails plus fins.">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Persistence</mat-label>
+      <input type="number" matInput formControlName="persistence" step="0.1" min="0" max="1">
+      <mat-icon matSuffix matTooltip="Détermine à quel point chaque octave successive contribue à la forme finale (amplitude).">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Lacunarity</mat-label>
+      <input type="number" matInput formControlName="lacunarity" step="0.1" min="1">
+      <mat-icon matSuffix matTooltip="Détermine le saut de fréquence entre chaque octave.">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Scale</mat-label>
+      <input type="number" matInput formControlName="scale" step="1" min="1" max="1000">
+      <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
     </mat-form-field>
   </section>
   <section>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <label for="backgroundColor">Background</label>
+      <div style="display: flex; align-items: center;">
+        <label for="backgroundColor">Background</label>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de faible intensité de bruit.">help_outline</mat-icon>
+      </div>
       <input id="backgroundColor" type="color" formControlName="backgroundColor">
     </div>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <label for="backThreshold">Back Threshold {{ _myForm.get("backThreshold")?.value }}</label>
+      <div style="display: flex; align-items: center;">
+        <label for="backThreshold">Back Threshold {{ _myForm.get("backThreshold")?.value }}</label>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur de fond et la couleur intermédiaire.">help_outline</mat-icon>
+      </div>
       <mat-slider min="0.01" max="0.97" step="0.01" discrete="false">
         <input id="backThreshold" matSliderThumb formControlName="backThreshold">
       </mat-slider>
     </div>
     <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
-      <label for="middleColor">Middle</label>
+      <div style="display: flex; align-items: center;">
+        <label for="middleColor">Middle</label>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones d'intensité de bruit moyenne.">help_outline</mat-icon>
+      </div>
       <input id="middleColor" type="color" formControlName="middleColor">
     </div>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <label for="middleThreshold">Back Threshold {{ _myForm.get("middleThreshold")?.value }}</label>
+      <div style="display: flex; align-items: center;">
+        <label for="middleThreshold">Middle Threshold {{ _myForm.get("middleThreshold")?.value }}</label>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur intermédiaire et la couleur de premier plan.">help_outline</mat-icon>
+      </div>
       <mat-slider min="0.1" max="0.99" step="0.01" discrete="false">
         <input id="middleThreshold" matSliderThumb formControlName="middleThreshold">
       </mat-slider>
     </div>
     <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
-      <label for="foregroundColor">Foreground</label>
+      <div style="display: flex; align-items: center;">
+        <label for="foregroundColor">Foreground</label>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de forte intensité de bruit.">help_outline</mat-icon>
+      </div>
       <input id="foregroundColor" type="color" formControlName="foregroundColor">
     </div>
   </section>

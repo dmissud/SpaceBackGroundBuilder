@@ -16,4 +16,8 @@ public class ImageStructure {
     private int height;
     private int width;
     private int seed;
+    private int octaves;
+    private double persistence;
+    private double lacunarity;
+    private double scale;
 }

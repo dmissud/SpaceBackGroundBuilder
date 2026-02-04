@@ -39,5 +39,5 @@ Cette analyse présente le fonctionnement actuel du générateur et propose des 
 
 ## 3. Prochaines étapes suggérées
 1.  **Implémentation du parallélisme** [TERMINE]
-2.  **Introduction du bruit fractal (octaves)** pour transformer la qualité visuelle.
-3.  **Rendre les paramètres configurables** (échelle, octaves, persistance).
+2. **Introduction du bruit fractal (octaves)** [TERMINE]
+3. **Rendre les paramètres configurables** (échelle, octaves, persistance) [TERMINE]

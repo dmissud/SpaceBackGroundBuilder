@@ -23,3 +23,13 @@ export const selectErrorMessage = createSelector(
   (sbgbState) => sbgbState.errorMessage
 );
 
+export const selectSbgbs = createSelector(
+  selectSbgbState,
+  (sbgbState) => sbgbState.sbgbs
+);
+
+export const selectCurrentSbgb = createSelector(
+  selectSbgbState,
+  (sbgbState) => sbgbState.sbgb
+);
+

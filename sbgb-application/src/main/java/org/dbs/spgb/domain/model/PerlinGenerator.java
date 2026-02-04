@@ -20,9 +20,18 @@ public class PerlinGenerator {
         this.fadeFunction = fadeFunction;
     }
 
-    public void createNoisePipeline(long seed, int width, int height) { // Interpolation.COSINE, FadeFunction.CUBIC_POLY
-        noisePipeline = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
-                .scale(100)
+    public void createNoisePipeline(long seed, int width, int height, int octaves, double persistence, double lacunarity, double scale) {
+        var builder = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
+                .scale(scale);
+        
+        try {
+            java.lang.reflect.Method fbmMethod = builder.getClass().getMethod("fbm", int.class, double.class, double.class);
+            fbmMethod.invoke(builder, octaves, persistence, lacunarity);
+        } catch (Exception e) {
+            log.warn("fbm method not found on builder, using single octave Perlin. Check JNoise version. Error: {}", e.getMessage());
+        }
+
+        noisePipeline = builder
                 .clamp(0.0, 3.0)
                 .build();
         this.width = width;

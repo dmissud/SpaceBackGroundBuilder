@@ -13,8 +13,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ImageRequestCmd {
     private String name;
+    private String description;
     private String type;
+    private boolean forceUpdate;
+    @Valid
+    @NotNull
     private SizeCmd sizeCmd;
+    @Valid
+    @NotNull
     private ColorCmd colorCmd;
 
     @Getter
@@ -30,6 +36,21 @@ public class ImageRequestCmd {
         private int width;
         @Min(1)
         private int seed;
+        @Min(1)
+        @Max(10)
+        @Builder.Default
+        private int octaves = 1;
+        @DecimalMin("0.0")
+        @DecimalMax("1.0")
+        @Builder.Default
+        private double persistence = 0.5;
+        @DecimalMin("1.0")
+        @Builder.Default
+        private double lacunarity = 2.0;
+        @DecimalMin("1.0")
+        @DecimalMax("1000.0")
+        @Builder.Default
+        private double scale = 100.0;
     }
 
     @Getter

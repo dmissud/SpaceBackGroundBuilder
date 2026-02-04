@@ -19,6 +19,7 @@ import java.util.UUID;
 public class NoiseImage {
     @Id
     private UUID id;
+    private String name;
     private String description;
     private int note;
     @Embedded

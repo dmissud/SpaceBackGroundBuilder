@@ -2,6 +2,10 @@ export interface Image {
   width: number;
   height: number;
   seed: number;
+  octaves: number;
+  persistence: number;
+  lacunarity: number;
+  scale: number;
 }
 
 export interface Color {
@@ -13,8 +17,11 @@ export interface Color {
 }
 
 export interface Sbgb {
-  image: Image;
-  color: Color;
+  id?: string;
+  name?: string;
+  description?: string;
+  imageStructure: Image;
+  imageColor: Color;
 }
 
 

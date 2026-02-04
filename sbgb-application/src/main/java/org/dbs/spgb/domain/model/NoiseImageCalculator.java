@@ -18,22 +18,34 @@ public class NoiseImageCalculator {
 
     private final int width;
     private final int height;
+    private final int octaves;
+    private final double persistence;
+    private final double lacunarity;
+    private final double scale;
     private final PerlinGenerator perlinGenerator;
     private final NoiseColorCalculator noiseColorCalculator;
 
     private NoiseImageCalculator(int width,
                                  int height,
+                                 int octaves,
+                                 double persistence,
+                                 double lacunarity,
+                                 double scale,
                                  Interpolation interpolation,
                                  FadeFunction fadeFunction,
                                  NoiseColorCalculator noiseColorCalculator) {
         this.width = width;
         this.height = height;
+        this.octaves = octaves;
+        this.persistence = persistence;
+        this.lacunarity = lacunarity;
+        this.scale = scale;
         this.noiseColorCalculator = noiseColorCalculator;
         this.perlinGenerator = new PerlinGenerator(interpolation, fadeFunction);
     }
 
     public BufferedImage create(long seed) {
-        perlinGenerator.createNoisePipeline(seed, this.width, this.height);
+        perlinGenerator.createNoisePipeline(seed, this.width, this.height, this.octaves, this.persistence, this.lacunarity, this.scale);
         perlinGenerator.performNormalization();
         return buildImage();
     }
@@ -58,18 +70,46 @@ public class NoiseImageCalculator {
     public static class Builder {
         private int width;
         private int height;
+        private int octaves;
+        private double persistence;
+        private double lacunarity;
+        private double scale;
         private Interpolation interpolation;
         private FadeFunction fadeFunction;
         private NoiseColorCalculator noiseColorCalculator;
         public Builder() {
             this.width = DEFAULT_IMAGE_WIDTH;
             this.height = DEFAULT_IMAGE_HEIGHT;
+            this.octaves = 1;
+            this.persistence = 0.5;
+            this.lacunarity = 2.0;
+            this.scale = 100.0;
             this.interpolation = DEFAULT_INTERPOLATION;
             this.fadeFunction = DEFAULT_FADE_FUNCTION;
         }
 
         public Builder withWidth(int width) {
             this.width = width;
+            return this;
+        }
+
+        public Builder withOctaves(int octaves) {
+            this.octaves = octaves;
+            return this;
+        }
+
+        public Builder withPersistence(double persistence) {
+            this.persistence = persistence;
+            return this;
+        }
+
+        public Builder withLacunarity(double lacunarity) {
+            this.lacunarity = lacunarity;
+            return this;
+        }
+
+        public Builder withScale(double scale) {
+            this.scale = scale;
             return this;
         }
 
@@ -94,7 +134,7 @@ public class NoiseImageCalculator {
         }
 
         public NoiseImageCalculator build() {
-            return new NoiseImageCalculator(width, height, interpolation, fadeFunction, noiseColorCalculator);
+            return new NoiseImageCalculator(width, height, octaves, persistence, lacunarity, scale, interpolation, fadeFunction, noiseColorCalculator);
         }
     }
 
