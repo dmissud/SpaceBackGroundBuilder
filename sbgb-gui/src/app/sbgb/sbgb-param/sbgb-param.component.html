@@ -73,7 +73,25 @@
       <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
     </mat-form-field>
   </section>
-  <section>
+  <section style="display: flex; gap: 10px; align-items: center;">
+    <div style="display: flex; flex-direction: column;">
+      <label style="display: flex; align-items: center; margin-bottom: 8px;">
+        <input type="checkbox" formControlName="useMultiLayer" style="margin-right: 8px;">
+        Mode Multi-Layer
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active le rendu multi-couches avec blend modes pour un réalisme accru.">help_outline</mat-icon>
+      </label>
+    </div>
+    <mat-form-field style="width: 200px;" *ngIf="_myForm.get('useMultiLayer')?.value">
+      <mat-label>Preset</mat-label>
+      <select matNativeControl formControlName="preset">
+        <option value="CUSTOM">Custom</option>
+        <option value="DEEP_SPACE">Deep Space</option>
+        <option value="NEBULA_DENSE">Nebula Dense</option>
+        <option value="STARFIELD">Starfield</option>
+        <option value="COSMIC_DUST">Cosmic Dust</option>
+      </select>
+      <mat-icon matSuffix matTooltip="Preset de configuration multi-couches. DEEP_SPACE: espace profond, NEBULA_DENSE: nébuleuse dense, STARFIELD: champ d'étoiles, COSMIC_DUST: poussière cosmique.">help_outline</mat-icon>
+    </mat-form-field>
     <mat-form-field style="width: 250px;">
       <mat-label>Type d'interpolation</mat-label>
       <select matNativeControl formControlName="interpolationType">

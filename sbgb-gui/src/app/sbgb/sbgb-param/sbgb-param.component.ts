@@ -44,6 +44,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly CONTROL_PERSISTENCE = 'persistence';
   private static readonly CONTROL_LACUNARITY = 'lacunarity';
   private static readonly CONTROL_SCALE = 'scale';
+  private static readonly CONTROL_PRESET = 'preset';
+  private static readonly CONTROL_USE_MULTI_LAYER = 'useMultiLayer';
   private static readonly BACKGROUND_COLOR = 'backgroundColor';
   private static readonly MIDDLE_COLOR = 'middleColor';
   private static readonly FOREGROUND_COLOR = 'foregroundColor';
@@ -73,6 +75,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.CONTROL_PERSISTENCE]: new FormControl(0.5),
       [SbgbParamComponent.CONTROL_LACUNARITY]: new FormControl(2.0),
       [SbgbParamComponent.CONTROL_SCALE]: new FormControl(100.0),
+      [SbgbParamComponent.CONTROL_PRESET]: new FormControl('CUSTOM'),
+      [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: new FormControl(false),
       [SbgbParamComponent.BACKGROUND_COLOR]: new FormControl('#000000'),
       [SbgbParamComponent.MIDDLE_COLOR]: new FormControl('#FFA500'),
       [SbgbParamComponent.FOREGROUND_COLOR]: new FormControl('#FFFFFF'),
@@ -146,6 +150,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.CONTROL_PERSISTENCE]: sbgb.imageStructure.persistence,
             [SbgbParamComponent.CONTROL_LACUNARITY]: sbgb.imageStructure.lacunarity,
             [SbgbParamComponent.CONTROL_SCALE]: sbgb.imageStructure.scale,
+            [SbgbParamComponent.CONTROL_PRESET]: sbgb.imageStructure.preset,
+            [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: sbgb.imageStructure.useMultiLayer,
             [SbgbParamComponent.BACKGROUND_COLOR]: sbgb.imageColor.back,
             [SbgbParamComponent.MIDDLE_COLOR]: sbgb.imageColor.middle,
             [SbgbParamComponent.FOREGROUND_COLOR]: sbgb.imageColor.fore,
@@ -318,6 +324,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       Number(s1.persistence) !== Number(s2.persistence) ||
       Number(s1.lacunarity) !== Number(s2.lacunarity) ||
       Number(s1.scale) !== Number(s2.scale) ||
+      s1.preset !== s2.preset ||
+      s1.useMultiLayer !== s2.useMultiLayer ||
       c1.back !== c2.back ||
       c1.middle !== c2.middle ||
       c1.fore !== c2.fore ||
@@ -329,7 +337,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private getSbgbFromForm(): Sbgb {
-    const {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue} = this.extractImageFormValues();
+    const {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue, presetValue, useMultiLayerValue} = this.extractImageFormValues();
     const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
@@ -344,7 +352,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         octaves: Number(octavesValue),
         persistence: Number(persistenceValue),
         lacunarity: Number(lacunarityValue),
-        scale: Number(scaleValue)
+        scale: Number(scaleValue),
+        preset: presetValue,
+        useMultiLayer: useMultiLayerValue
       },
       imageColor: {
         back: backgroundColorValue,
@@ -371,7 +381,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let persistenceValue = this._myForm.controls[SbgbParamComponent.CONTROL_PERSISTENCE].value;
     let lacunarityValue = this._myForm.controls[SbgbParamComponent.CONTROL_LACUNARITY].value;
     let scaleValue = this._myForm.controls[SbgbParamComponent.CONTROL_SCALE].value;
-    return {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue};
+    let presetValue = this._myForm.controls[SbgbParamComponent.CONTROL_PRESET].value;
+    let useMultiLayerValue = this._myForm.controls[SbgbParamComponent.CONTROL_USE_MULTI_LAYER].value;
+    return {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue, presetValue, useMultiLayerValue};
   }
 
   private extractColorFormValues() {

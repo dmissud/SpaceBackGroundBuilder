@@ -33,16 +33,32 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
     public byte[] buildNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
 
         DefaultNoiseColorCalculator noiseColorCalculator = createDefaultNoiseColorCalculator(imageRequestCmd.getColorCmd());
-        NoiseImageCalculator noiseImageCalculator = new NoiseImageCalculator.Builder()
-                .withHeight(imageRequestCmd.getSizeCmd().getHeight())
-                .withWidth(imageRequestCmd.getSizeCmd().getWidth())
-                .withOctaves(imageRequestCmd.getSizeCmd().getOctaves())
-                .withPersistence(imageRequestCmd.getSizeCmd().getPersistence())
-                .withLacunarity(imageRequestCmd.getSizeCmd().getLacunarity())
-                .withScale(imageRequestCmd.getSizeCmd().getScale())
-                .withNoiseColorCalculator(noiseColorCalculator)
-                .build();
-        BufferedImage image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
+
+        BufferedImage image;
+        if (imageRequestCmd.getSizeCmd().isUseMultiLayer()) {
+            // Use multi-layer calculator
+            ImagePreset preset = ImagePreset.valueOf(imageRequestCmd.getSizeCmd().getPreset());
+            MultiLayerNoiseImageCalculator multiLayerCalculator = new MultiLayerNoiseImageCalculator.Builder()
+                    .withHeight(imageRequestCmd.getSizeCmd().getHeight())
+                    .withWidth(imageRequestCmd.getSizeCmd().getWidth())
+                    .withPreset(preset)
+                    .withNoiseColorCalculator(noiseColorCalculator)
+                    .build();
+            image = multiLayerCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
+        } else {
+            // Use single-layer calculator
+            NoiseImageCalculator noiseImageCalculator = new NoiseImageCalculator.Builder()
+                    .withHeight(imageRequestCmd.getSizeCmd().getHeight())
+                    .withWidth(imageRequestCmd.getSizeCmd().getWidth())
+                    .withOctaves(imageRequestCmd.getSizeCmd().getOctaves())
+                    .withPersistence(imageRequestCmd.getSizeCmd().getPersistence())
+                    .withLacunarity(imageRequestCmd.getSizeCmd().getLacunarity())
+                    .withScale(imageRequestCmd.getSizeCmd().getScale())
+                    .withNoiseColorCalculator(noiseColorCalculator)
+                    .build();
+            image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
+        }
+
         return convertImageToByteArray(image);
     }
 
@@ -85,7 +101,9 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 imageRequestCmd.getSizeCmd().getOctaves(),
                 imageRequestCmd.getSizeCmd().getPersistence(),
                 imageRequestCmd.getSizeCmd().getLacunarity(),
-                imageRequestCmd.getSizeCmd().getScale());
+                imageRequestCmd.getSizeCmd().getScale(),
+                imageRequestCmd.getSizeCmd().getPreset(),
+                imageRequestCmd.getSizeCmd().isUseMultiLayer());
 
         ImageColor color = new ImageColor(
                 imageRequestCmd.getColorCmd().getBack(),

@@ -6,6 +6,8 @@ export interface Image {
   persistence: number;
   lacunarity: number;
   scale: number;
+  preset: string;
+  useMultiLayer: boolean;
 }
 
 export interface Color {

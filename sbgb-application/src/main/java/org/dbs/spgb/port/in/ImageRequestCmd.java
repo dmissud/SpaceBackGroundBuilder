@@ -51,6 +51,10 @@ public class ImageRequestCmd {
         @DecimalMax("1000.0")
         @Builder.Default
         private double scale = 100.0;
+        @Builder.Default
+        private String preset = "CUSTOM";
+        @Builder.Default
+        private boolean useMultiLayer = false;
     }
 
     @Getter
