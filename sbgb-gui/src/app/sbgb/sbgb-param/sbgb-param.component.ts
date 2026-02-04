@@ -46,6 +46,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly CONTROL_SCALE = 'scale';
   private static readonly CONTROL_PRESET = 'preset';
   private static readonly CONTROL_USE_MULTI_LAYER = 'useMultiLayer';
+  private static readonly CONTROL_ADVANCED_MODE = 'advancedMode';
   private static readonly BACKGROUND_COLOR = 'backgroundColor';
   private static readonly MIDDLE_COLOR = 'middleColor';
   private static readonly FOREGROUND_COLOR = 'foregroundColor';
@@ -77,6 +78,32 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.CONTROL_SCALE]: new FormControl(100.0),
       [SbgbParamComponent.CONTROL_PRESET]: new FormControl('CUSTOM'),
       [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: new FormControl(false),
+      [SbgbParamComponent.CONTROL_ADVANCED_MODE]: new FormControl(false),
+      // Layer controls
+      layer0_enabled: new FormControl(true),
+      layer0_octaves: new FormControl(3),
+      layer0_persistence: new FormControl(0.5),
+      layer0_lacunarity: new FormControl(2.0),
+      layer0_scale: new FormControl(150.0),
+      layer0_opacity: new FormControl(1.0),
+      layer0_blendMode: new FormControl('NORMAL'),
+      layer0_seedOffset: new FormControl(0),
+      layer1_enabled: new FormControl(true),
+      layer1_octaves: new FormControl(5),
+      layer1_persistence: new FormControl(0.6),
+      layer1_lacunarity: new FormControl(2.2),
+      layer1_scale: new FormControl(80.0),
+      layer1_opacity: new FormControl(0.7),
+      layer1_blendMode: new FormControl('OVERLAY'),
+      layer1_seedOffset: new FormControl(1000),
+      layer2_enabled: new FormControl(true),
+      layer2_octaves: new FormControl(1),
+      layer2_persistence: new FormControl(0.3),
+      layer2_lacunarity: new FormControl(2.0),
+      layer2_scale: new FormControl(50.0),
+      layer2_opacity: new FormControl(0.9),
+      layer2_blendMode: new FormControl('SCREEN'),
+      layer2_seedOffset: new FormControl(2000),
       [SbgbParamComponent.BACKGROUND_COLOR]: new FormControl('#000000'),
       [SbgbParamComponent.MIDDLE_COLOR]: new FormControl('#FFA500'),
       [SbgbParamComponent.FOREGROUND_COLOR]: new FormControl('#FFFFFF'),
@@ -341,6 +368,11 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
+
+    const layers = useMultiLayerValue && this._myForm.get(SbgbParamComponent.CONTROL_ADVANCED_MODE)?.value
+      ? this.extractLayersFromForm()
+      : undefined;
+
     return {
       id: this.loadedFromDbSbgb?.id,
       name: nameValue,
@@ -354,7 +386,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         lacunarity: Number(lacunarityValue),
         scale: Number(scaleValue),
         preset: presetValue,
-        useMultiLayer: useMultiLayerValue
+        useMultiLayer: useMultiLayerValue,
+        layers: layers
       },
       imageColor: {
         back: backgroundColorValue,
@@ -365,6 +398,44 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         interpolationType: interpolationTypeValue
       }
     };
+  }
+
+  private extractLayersFromForm() {
+    return [
+      {
+        name: 'background',
+        enabled: this._myForm.get('layer0_enabled')?.value,
+        octaves: Number(this._myForm.get('layer0_octaves')?.value),
+        persistence: Number(this._myForm.get('layer0_persistence')?.value),
+        lacunarity: Number(this._myForm.get('layer0_lacunarity')?.value),
+        scale: Number(this._myForm.get('layer0_scale')?.value),
+        opacity: Number(this._myForm.get('layer0_opacity')?.value),
+        blendMode: this._myForm.get('layer0_blendMode')?.value,
+        seedOffset: Number(this._myForm.get('layer0_seedOffset')?.value)
+      },
+      {
+        name: 'nebula',
+        enabled: this._myForm.get('layer1_enabled')?.value,
+        octaves: Number(this._myForm.get('layer1_octaves')?.value),
+        persistence: Number(this._myForm.get('layer1_persistence')?.value),
+        lacunarity: Number(this._myForm.get('layer1_lacunarity')?.value),
+        scale: Number(this._myForm.get('layer1_scale')?.value),
+        opacity: Number(this._myForm.get('layer1_opacity')?.value),
+        blendMode: this._myForm.get('layer1_blendMode')?.value,
+        seedOffset: Number(this._myForm.get('layer1_seedOffset')?.value)
+      },
+      {
+        name: 'stars',
+        enabled: this._myForm.get('layer2_enabled')?.value,
+        octaves: Number(this._myForm.get('layer2_octaves')?.value),
+        persistence: Number(this._myForm.get('layer2_persistence')?.value),
+        lacunarity: Number(this._myForm.get('layer2_lacunarity')?.value),
+        scale: Number(this._myForm.get('layer2_scale')?.value),
+        opacity: Number(this._myForm.get('layer2_opacity')?.value),
+        blendMode: this._myForm.get('layer2_blendMode')?.value,
+        seedOffset: Number(this._myForm.get('layer2_seedOffset')?.value)
+      }
+    ];
   }
 
   private extractMetaFormValues() {

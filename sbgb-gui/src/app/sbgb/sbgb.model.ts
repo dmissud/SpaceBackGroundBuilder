@@ -1,3 +1,15 @@
+export interface Layer {
+  name: string;
+  enabled: boolean;
+  octaves: number;
+  persistence: number;
+  lacunarity: number;
+  scale: number;
+  opacity: number;
+  blendMode: string;
+  seedOffset: number;
+}
+
 export interface Image {
   width: number;
   height: number;
@@ -8,6 +20,7 @@ export interface Image {
   scale: number;
   preset: string;
   useMultiLayer: boolean;
+  layers?: Layer[];
 }
 
 export interface Color {

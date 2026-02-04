@@ -37,14 +37,33 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
         BufferedImage image;
         if (imageRequestCmd.getSizeCmd().isUseMultiLayer()) {
             // Use multi-layer calculator
-            ImagePreset preset = ImagePreset.valueOf(imageRequestCmd.getSizeCmd().getPreset());
-            MultiLayerNoiseImageCalculator multiLayerCalculator = new MultiLayerNoiseImageCalculator.Builder()
+            MultiLayerNoiseImageCalculator.Builder multiLayerBuilder = new MultiLayerNoiseImageCalculator.Builder()
                     .withHeight(imageRequestCmd.getSizeCmd().getHeight())
                     .withWidth(imageRequestCmd.getSizeCmd().getWidth())
-                    .withPreset(preset)
-                    .withNoiseColorCalculator(noiseColorCalculator)
-                    .build();
-            image = multiLayerCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
+                    .withNoiseColorCalculator(noiseColorCalculator);
+
+            // If custom layers are provided, use them; otherwise use preset
+            if (imageRequestCmd.getSizeCmd().getLayers() != null && !imageRequestCmd.getSizeCmd().getLayers().isEmpty()) {
+                List<LayerConfig> customLayers = imageRequestCmd.getSizeCmd().getLayers().stream()
+                        .map(layerCmd -> LayerConfig.builder()
+                                .name(layerCmd.getName())
+                                .enabled(layerCmd.isEnabled())
+                                .octaves(layerCmd.getOctaves())
+                                .persistence(layerCmd.getPersistence())
+                                .lacunarity(layerCmd.getLacunarity())
+                                .scale(layerCmd.getScale())
+                                .opacity(layerCmd.getOpacity())
+                                .blendMode(BlendMode.valueOf(layerCmd.getBlendMode()))
+                                .seedOffset(layerCmd.getSeedOffset())
+                                .build())
+                        .toList();
+                multiLayerBuilder.withLayers(customLayers);
+            } else {
+                ImagePreset preset = ImagePreset.valueOf(imageRequestCmd.getSizeCmd().getPreset());
+                multiLayerBuilder.withPreset(preset);
+            }
+
+            image = multiLayerBuilder.build().create(imageRequestCmd.getSizeCmd().getSeed());
         } else {
             // Use single-layer calculator
             NoiseImageCalculator noiseImageCalculator = new NoiseImageCalculator.Builder()

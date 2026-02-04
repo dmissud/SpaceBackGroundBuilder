@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -55,6 +57,32 @@ public class ImageRequestCmd {
         private String preset = "CUSTOM";
         @Builder.Default
         private boolean useMultiLayer = false;
+        private List<LayerCmd> layers;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LayerCmd {
+        private String name;
+        private boolean enabled;
+        @Min(1)
+        @Max(10)
+        private int octaves;
+        @DecimalMin("0.0")
+        @DecimalMax("1.0")
+        private double persistence;
+        @DecimalMin("1.0")
+        private double lacunarity;
+        @DecimalMin("1.0")
+        @DecimalMax("1000.0")
+        private double scale;
+        @DecimalMin("0.0")
+        @DecimalMax("1.0")
+        private double opacity;
+        private String blendMode;
+        private long seedOffset;
     }
 
     @Getter

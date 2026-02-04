@@ -73,7 +73,7 @@
       <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
     </mat-form-field>
   </section>
-  <section style="display: flex; gap: 10px; align-items: center;">
+  <section style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
     <div style="display: flex; flex-direction: column;">
       <label style="display: flex; align-items: center; margin-bottom: 8px;">
         <input type="checkbox" formControlName="useMultiLayer" style="margin-right: 8px;">
@@ -81,7 +81,7 @@
         <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active le rendu multi-couches avec blend modes pour un réalisme accru.">help_outline</mat-icon>
       </label>
     </div>
-    <mat-form-field style="width: 200px;" *ngIf="_myForm.get('useMultiLayer')?.value">
+    <mat-form-field style="width: 200px;" *ngIf="_myForm.get('useMultiLayer')?.value && !_myForm.get('advancedMode')?.value">
       <mat-label>Preset</mat-label>
       <select matNativeControl formControlName="preset">
         <option value="CUSTOM">Custom</option>
@@ -92,6 +92,13 @@
       </select>
       <mat-icon matSuffix matTooltip="Preset de configuration multi-couches. DEEP_SPACE: espace profond, NEBULA_DENSE: nébuleuse dense, STARFIELD: champ d'étoiles, COSMIC_DUST: poussière cosmique.">help_outline</mat-icon>
     </mat-form-field>
+    <div style="display: flex; flex-direction: column;" *ngIf="_myForm.get('useMultiLayer')?.value">
+      <label style="display: flex; align-items: center; margin-bottom: 8px;">
+        <input type="checkbox" formControlName="advancedMode" style="margin-right: 8px;">
+        Mode Avancé
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active l'édition détaillée de chaque layer (background, nebula, stars).">help_outline</mat-icon>
+      </label>
+    </div>
     <mat-form-field style="width: 250px;">
       <mat-label>Type d'interpolation</mat-label>
       <select matNativeControl formControlName="interpolationType">
@@ -104,6 +111,138 @@
       </select>
       <mat-icon matSuffix matTooltip="Type d'interpolation pour les transitions de couleurs. LINEAR: transition uniforme, SMOOTHSTEP/SMOOTHERSTEP: transitions douces, COSINE: transition naturelle, POWER: transitions accentuées.">help_outline</mat-icon>
     </mat-form-field>
+  </section>
+
+  <!-- Advanced Layer Configuration -->
+  <section *ngIf="_myForm.get('useMultiLayer')?.value && _myForm.get('advancedMode')?.value" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+    <!-- Layer 0: Background -->
+    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+      <h3 style="margin-top: 0;">Layer 0: Background</h3>
+      <label style="display: flex; align-items: center; margin-bottom: 10px;">
+        <input type="checkbox" formControlName="layer0_enabled" style="margin-right: 8px;">
+        Activé
+      </label>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Octaves</mat-label>
+        <input type="number" matInput formControlName="layer0_octaves" min="1" max="10">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Persistence</mat-label>
+        <input type="number" matInput formControlName="layer0_persistence" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Lacunarity</mat-label>
+        <input type="number" matInput formControlName="layer0_lacunarity" step="0.1" min="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Scale</mat-label>
+        <input type="number" matInput formControlName="layer0_scale" step="1" min="1" max="1000">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Opacity</mat-label>
+        <input type="number" matInput formControlName="layer0_opacity" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Blend Mode</mat-label>
+        <select matNativeControl formControlName="layer0_blendMode">
+          <option value="NORMAL">Normal</option>
+          <option value="MULTIPLY">Multiply</option>
+          <option value="SCREEN">Screen</option>
+          <option value="OVERLAY">Overlay</option>
+          <option value="ADD">Add</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Seed Offset</mat-label>
+        <input type="number" matInput formControlName="layer0_seedOffset">
+      </mat-form-field>
+    </div>
+
+    <!-- Layer 1: Nebula -->
+    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+      <h3 style="margin-top: 0;">Layer 1: Nebula</h3>
+      <label style="display: flex; align-items: center; margin-bottom: 10px;">
+        <input type="checkbox" formControlName="layer1_enabled" style="margin-right: 8px;">
+        Activé
+      </label>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Octaves</mat-label>
+        <input type="number" matInput formControlName="layer1_octaves" min="1" max="10">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Persistence</mat-label>
+        <input type="number" matInput formControlName="layer1_persistence" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Lacunarity</mat-label>
+        <input type="number" matInput formControlName="layer1_lacunarity" step="0.1" min="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Scale</mat-label>
+        <input type="number" matInput formControlName="layer1_scale" step="1" min="1" max="1000">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Opacity</mat-label>
+        <input type="number" matInput formControlName="layer1_opacity" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Blend Mode</mat-label>
+        <select matNativeControl formControlName="layer1_blendMode">
+          <option value="NORMAL">Normal</option>
+          <option value="MULTIPLY">Multiply</option>
+          <option value="SCREEN">Screen</option>
+          <option value="OVERLAY">Overlay</option>
+          <option value="ADD">Add</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Seed Offset</mat-label>
+        <input type="number" matInput formControlName="layer1_seedOffset">
+      </mat-form-field>
+    </div>
+
+    <!-- Layer 2: Stars -->
+    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+      <h3 style="margin-top: 0;">Layer 2: Stars</h3>
+      <label style="display: flex; align-items: center; margin-bottom: 10px;">
+        <input type="checkbox" formControlName="layer2_enabled" style="margin-right: 8px;">
+        Activé
+      </label>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Octaves</mat-label>
+        <input type="number" matInput formControlName="layer2_octaves" min="1" max="10">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Persistence</mat-label>
+        <input type="number" matInput formControlName="layer2_persistence" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Lacunarity</mat-label>
+        <input type="number" matInput formControlName="layer2_lacunarity" step="0.1" min="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Scale</mat-label>
+        <input type="number" matInput formControlName="layer2_scale" step="1" min="1" max="1000">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Opacity</mat-label>
+        <input type="number" matInput formControlName="layer2_opacity" step="0.1" min="0" max="1">
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Blend Mode</mat-label>
+        <select matNativeControl formControlName="layer2_blendMode">
+          <option value="NORMAL">Normal</option>
+          <option value="MULTIPLY">Multiply</option>
+          <option value="SCREEN">Screen</option>
+          <option value="OVERLAY">Overlay</option>
+          <option value="ADD">Add</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Seed Offset</mat-label>
+        <input type="number" matInput formControlName="layer2_seedOffset">
+      </mat-form-field>
+    </div>
   </section>
   <section>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
