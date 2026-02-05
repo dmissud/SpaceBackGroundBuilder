@@ -18,5 +18,6 @@ public class LayerConfig {
     private double scale;
     private double opacity;
     private BlendMode blendMode;
+    private NoiseType noiseType;
     private long seedOffset;
 }

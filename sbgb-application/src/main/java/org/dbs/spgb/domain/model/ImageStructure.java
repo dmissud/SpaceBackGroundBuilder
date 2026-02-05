@@ -22,4 +22,5 @@ public class ImageStructure {
     private double scale;
     private String preset;
     private boolean useMultiLayer;
+    private NoiseType noiseType;
 }
