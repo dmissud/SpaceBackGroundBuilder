@@ -7,6 +7,7 @@ export interface Layer {
   scale: number;
   opacity: number;
   blendMode: string;
+  noiseType?: string;
   seedOffset: number;
 }
 
@@ -20,6 +21,7 @@ export interface Image {
   scale: number;
   preset: string;
   useMultiLayer: boolean;
+  noiseType?: string;
   layers?: Layer[];
 }
 

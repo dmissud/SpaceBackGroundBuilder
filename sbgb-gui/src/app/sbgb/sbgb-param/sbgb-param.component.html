@@ -72,6 +72,17 @@
       <input type="number" matInput formControlName="scale" step="1" min="1" max="1000">
       <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
     </mat-form-field>
+    <mat-form-field>
+      <mat-label>Type de bruit</mat-label>
+      <select matNativeControl formControlName="noiseType">
+        <option value="FBM">FBM (Fractal Brownian Motion)</option>
+        <option value="RIDGED">Ridged Multi-fractal</option>
+      </select>
+      <mat-icon matSuffix
+                matTooltip="Algorithme de génération de bruit. FBM: aspect nébuleux classique. RIDGED: aspect plus tranché, nervuré.">
+        help_outline
+      </mat-icon>
+    </mat-form-field>
   </section>
   <section style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
     <div style="display: flex; flex-direction: column;">
@@ -153,6 +164,13 @@
         </select>
       </mat-form-field>
       <mat-form-field style="width: 100%;">
+        <mat-label>Noise Type</mat-label>
+        <select matNativeControl formControlName="layer0_noiseType">
+          <option value="FBM">FBM</option>
+          <option value="RIDGED">Ridged</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
         <mat-label>Seed Offset</mat-label>
         <input type="number" matInput formControlName="layer0_seedOffset">
       </mat-form-field>
@@ -196,6 +214,13 @@
         </select>
       </mat-form-field>
       <mat-form-field style="width: 100%;">
+        <mat-label>Noise Type</mat-label>
+        <select matNativeControl formControlName="layer1_noiseType">
+          <option value="FBM">FBM</option>
+          <option value="RIDGED">Ridged</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
         <mat-label>Seed Offset</mat-label>
         <input type="number" matInput formControlName="layer1_seedOffset">
       </mat-form-field>
@@ -236,6 +261,13 @@
           <option value="SCREEN">Screen</option>
           <option value="OVERLAY">Overlay</option>
           <option value="ADD">Add</option>
+        </select>
+      </mat-form-field>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Noise Type</mat-label>
+        <select matNativeControl formControlName="layer2_noiseType">
+          <option value="FBM">FBM</option>
+          <option value="RIDGED">Ridged</option>
         </select>
       </mat-form-field>
       <mat-form-field style="width: 100%;">

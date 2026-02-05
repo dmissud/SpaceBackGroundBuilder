@@ -1,9 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatButton} from "@angular/material/button";
-import {MatCard, MatCardContent} from "@angular/material/card";
 import {MatFormField, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 import {NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
@@ -45,6 +43,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly CONTROL_PERSISTENCE = 'persistence';
   private static readonly CONTROL_LACUNARITY = 'lacunarity';
   private static readonly CONTROL_SCALE = 'scale';
+  private static readonly CONTROL_NOISE_TYPE = 'noiseType';
   private static readonly CONTROL_PRESET = 'preset';
   private static readonly CONTROL_USE_MULTI_LAYER = 'useMultiLayer';
   private static readonly CONTROL_ADVANCED_MODE = 'advancedMode';
@@ -77,6 +76,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.CONTROL_PERSISTENCE]: new FormControl(0.5),
       [SbgbParamComponent.CONTROL_LACUNARITY]: new FormControl(2.0),
       [SbgbParamComponent.CONTROL_SCALE]: new FormControl(100.0),
+      [SbgbParamComponent.CONTROL_NOISE_TYPE]: new FormControl('FBM'),
       [SbgbParamComponent.CONTROL_PRESET]: new FormControl('CUSTOM'),
       [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: new FormControl(false),
       [SbgbParamComponent.CONTROL_ADVANCED_MODE]: new FormControl(false),
@@ -88,6 +88,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       layer0_scale: new FormControl(150.0),
       layer0_opacity: new FormControl(1.0),
       layer0_blendMode: new FormControl('NORMAL'),
+      layer0_noiseType: new FormControl('FBM'),
       layer0_seedOffset: new FormControl(0),
       layer1_enabled: new FormControl(true),
       layer1_octaves: new FormControl(5),
@@ -96,6 +97,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       layer1_scale: new FormControl(80.0),
       layer1_opacity: new FormControl(0.7),
       layer1_blendMode: new FormControl('OVERLAY'),
+      layer1_noiseType: new FormControl('FBM'),
       layer1_seedOffset: new FormControl(1000),
       layer2_enabled: new FormControl(true),
       layer2_octaves: new FormControl(1),
@@ -104,6 +106,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       layer2_scale: new FormControl(50.0),
       layer2_opacity: new FormControl(0.9),
       layer2_blendMode: new FormControl('SCREEN'),
+      layer2_noiseType: new FormControl('FBM'),
       layer2_seedOffset: new FormControl(2000),
       [SbgbParamComponent.BACKGROUND_COLOR]: new FormControl('#000000'),
       [SbgbParamComponent.MIDDLE_COLOR]: new FormControl('#FFA500'),
@@ -178,6 +181,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.CONTROL_PERSISTENCE]: sbgb.imageStructure.persistence,
             [SbgbParamComponent.CONTROL_LACUNARITY]: sbgb.imageStructure.lacunarity,
             [SbgbParamComponent.CONTROL_SCALE]: sbgb.imageStructure.scale,
+            [SbgbParamComponent.CONTROL_NOISE_TYPE]: sbgb.imageStructure.noiseType || 'FBM',
             [SbgbParamComponent.CONTROL_PRESET]: sbgb.imageStructure.preset,
             [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: sbgb.imageStructure.useMultiLayer,
             [SbgbParamComponent.BACKGROUND_COLOR]: sbgb.imageColor.back,
@@ -352,6 +356,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       Number(s1.persistence) !== Number(s2.persistence) ||
       Number(s1.lacunarity) !== Number(s2.lacunarity) ||
       Number(s1.scale) !== Number(s2.scale) ||
+      s1.noiseType !== s2.noiseType ||
       s1.preset !== s2.preset ||
       s1.useMultiLayer !== s2.useMultiLayer ||
       c1.back !== c2.back ||
@@ -365,7 +370,18 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private getSbgbFromForm(): Sbgb {
-    const {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue, presetValue, useMultiLayerValue} = this.extractImageFormValues();
+    const {
+      widthValue,
+      heightValue,
+      seedValue,
+      octavesValue,
+      persistenceValue,
+      lacunarityValue,
+      scaleValue,
+      noiseTypeValue,
+      presetValue,
+      useMultiLayerValue
+    } = this.extractImageFormValues();
     const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
@@ -386,6 +402,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         persistence: Number(persistenceValue),
         lacunarity: Number(lacunarityValue),
         scale: Number(scaleValue),
+        noiseType: noiseTypeValue,
         preset: presetValue,
         useMultiLayer: useMultiLayerValue,
         layers: layers
@@ -412,6 +429,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         scale: Number(this._myForm.get('layer0_scale')?.value),
         opacity: Number(this._myForm.get('layer0_opacity')?.value),
         blendMode: this._myForm.get('layer0_blendMode')?.value,
+        noiseType: this._myForm.get('layer0_noiseType')?.value,
         seedOffset: Number(this._myForm.get('layer0_seedOffset')?.value)
       },
       {
@@ -423,6 +441,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         scale: Number(this._myForm.get('layer1_scale')?.value),
         opacity: Number(this._myForm.get('layer1_opacity')?.value),
         blendMode: this._myForm.get('layer1_blendMode')?.value,
+        noiseType: this._myForm.get('layer1_noiseType')?.value,
         seedOffset: Number(this._myForm.get('layer1_seedOffset')?.value)
       },
       {
@@ -434,6 +453,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         scale: Number(this._myForm.get('layer2_scale')?.value),
         opacity: Number(this._myForm.get('layer2_opacity')?.value),
         blendMode: this._myForm.get('layer2_blendMode')?.value,
+        noiseType: this._myForm.get('layer2_noiseType')?.value,
         seedOffset: Number(this._myForm.get('layer2_seedOffset')?.value)
       }
     ];
@@ -453,9 +473,21 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let persistenceValue = this._myForm.controls[SbgbParamComponent.CONTROL_PERSISTENCE].value;
     let lacunarityValue = this._myForm.controls[SbgbParamComponent.CONTROL_LACUNARITY].value;
     let scaleValue = this._myForm.controls[SbgbParamComponent.CONTROL_SCALE].value;
+    let noiseTypeValue = this._myForm.controls[SbgbParamComponent.CONTROL_NOISE_TYPE].value;
     let presetValue = this._myForm.controls[SbgbParamComponent.CONTROL_PRESET].value;
     let useMultiLayerValue = this._myForm.controls[SbgbParamComponent.CONTROL_USE_MULTI_LAYER].value;
-    return {widthValue, heightValue, seedValue, octavesValue, persistenceValue, lacunarityValue, scaleValue, presetValue, useMultiLayerValue};
+    return {
+      widthValue,
+      heightValue,
+      seedValue,
+      octavesValue,
+      persistenceValue,
+      lacunarityValue,
+      scaleValue,
+      noiseTypeValue,
+      presetValue,
+      useMultiLayerValue
+    };
   }
 
   private extractColorFormValues() {
