@@ -54,7 +54,8 @@ public class MultiLayerNoiseImageCalculator {
                         layer.getOctaves(),
                         layer.getPersistence(),
                         layer.getLacunarity(),
-                        layer.getScale()
+                        layer.getScale(),
+                        layer.getNoiseType() != null ? layer.getNoiseType() : NoiseType.FBM
                 );
                 generator.performNormalization();
                 layerGenerators.add(generator);

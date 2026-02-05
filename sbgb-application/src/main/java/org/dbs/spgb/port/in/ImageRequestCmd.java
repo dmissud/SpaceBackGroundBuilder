@@ -57,6 +57,8 @@ public class ImageRequestCmd {
         private String preset = "CUSTOM";
         @Builder.Default
         private boolean useMultiLayer = false;
+        @Builder.Default
+        private String noiseType = "FBM";
         private List<LayerCmd> layers;
     }
 
@@ -82,6 +84,8 @@ public class ImageRequestCmd {
         @DecimalMax("1.0")
         private double opacity;
         private String blendMode;
+        @Builder.Default
+        private String noiseType = "FBM";
         private long seedOffset;
     }
 

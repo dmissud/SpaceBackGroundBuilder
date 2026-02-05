@@ -22,6 +22,7 @@ public class NoiseImageCalculator {
     private final double persistence;
     private final double lacunarity;
     private final double scale;
+    private final NoiseType noiseType;
     private final PerlinGenerator perlinGenerator;
     private final NoiseColorCalculator noiseColorCalculator;
 
@@ -33,6 +34,7 @@ public class NoiseImageCalculator {
                                  double scale,
                                  Interpolation interpolation,
                                  FadeFunction fadeFunction,
+                                 NoiseType noiseType,
                                  NoiseColorCalculator noiseColorCalculator) {
         this.width = width;
         this.height = height;
@@ -40,12 +42,13 @@ public class NoiseImageCalculator {
         this.persistence = persistence;
         this.lacunarity = lacunarity;
         this.scale = scale;
+        this.noiseType = noiseType;
         this.noiseColorCalculator = noiseColorCalculator;
         this.perlinGenerator = new PerlinGenerator(interpolation, fadeFunction);
     }
 
     public BufferedImage create(long seed) {
-        perlinGenerator.createNoisePipeline(seed, this.width, this.height, this.octaves, this.persistence, this.lacunarity, this.scale);
+        perlinGenerator.createNoisePipeline(seed, this.width, this.height, this.octaves, this.persistence, this.lacunarity, this.scale, this.noiseType);
         perlinGenerator.performNormalization();
         return buildImage();
     }
@@ -74,6 +77,7 @@ public class NoiseImageCalculator {
         private double persistence;
         private double lacunarity;
         private double scale;
+        private NoiseType noiseType;
         private Interpolation interpolation;
         private FadeFunction fadeFunction;
         private NoiseColorCalculator noiseColorCalculator;
@@ -84,6 +88,7 @@ public class NoiseImageCalculator {
             this.persistence = 0.5;
             this.lacunarity = 2.0;
             this.scale = 100.0;
+            this.noiseType = NoiseType.FBM;
             this.interpolation = DEFAULT_INTERPOLATION;
             this.fadeFunction = DEFAULT_FADE_FUNCTION;
         }
@@ -113,6 +118,11 @@ public class NoiseImageCalculator {
             return this;
         }
 
+        public Builder withNoiseType(NoiseType noiseType) {
+            this.noiseType = noiseType;
+            return this;
+        }
+
         public Builder withNoiseColorCalculator(NoiseColorCalculator noiseColorCalculator) {
             this.noiseColorCalculator = noiseColorCalculator;
             return this;
@@ -134,7 +144,7 @@ public class NoiseImageCalculator {
         }
 
         public NoiseImageCalculator build() {
-            return new NoiseImageCalculator(width, height, octaves, persistence, lacunarity, scale, interpolation, fadeFunction, noiseColorCalculator);
+            return new NoiseImageCalculator(width, height, octaves, persistence, lacunarity, scale, interpolation, fadeFunction, noiseType, noiseColorCalculator);
         }
     }
 

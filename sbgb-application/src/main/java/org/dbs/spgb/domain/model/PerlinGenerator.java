@@ -20,15 +20,16 @@ public class PerlinGenerator {
         this.fadeFunction = fadeFunction;
     }
 
-    public void createNoisePipeline(long seed, int width, int height, int octaves, double persistence, double lacunarity, double scale) {
+    public void createNoisePipeline(long seed, int width, int height, int octaves, double persistence, double lacunarity, double scale, NoiseType noiseType) {
         var builder = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
                 .scale(scale);
         
         try {
-            java.lang.reflect.Method fbmMethod = builder.getClass().getMethod("fbm", int.class, double.class, double.class);
-            fbmMethod.invoke(builder, octaves, persistence, lacunarity);
+            String methodName = noiseType == NoiseType.RIDGED ? "ridgedMulti" : "fbm";
+            java.lang.reflect.Method method = builder.getClass().getMethod(methodName, int.class, double.class, double.class);
+            method.invoke(builder, octaves, persistence, lacunarity);
         } catch (Exception e) {
-            log.warn("fbm method not found on builder, using single octave Perlin. Check JNoise version. Error: {}", e.getMessage());
+            log.warn("{} method not found on builder, using single octave Perlin. Check JNoise version. Error: {}", noiseType, e.getMessage());
         }
 
         noisePipeline = builder

@@ -54,6 +54,7 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                                 .scale(layerCmd.getScale())
                                 .opacity(layerCmd.getOpacity())
                                 .blendMode(BlendMode.valueOf(layerCmd.getBlendMode()))
+                                .noiseType(NoiseType.valueOf(layerCmd.getNoiseType()))
                                 .seedOffset(layerCmd.getSeedOffset())
                                 .build())
                         .toList();
@@ -73,6 +74,7 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                     .withPersistence(imageRequestCmd.getSizeCmd().getPersistence())
                     .withLacunarity(imageRequestCmd.getSizeCmd().getLacunarity())
                     .withScale(imageRequestCmd.getSizeCmd().getScale())
+                    .withNoiseType(NoiseType.valueOf(imageRequestCmd.getSizeCmd().getNoiseType()))
                     .withNoiseColorCalculator(noiseColorCalculator)
                     .build();
             image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
@@ -122,7 +124,8 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 imageRequestCmd.getSizeCmd().getLacunarity(),
                 imageRequestCmd.getSizeCmd().getScale(),
                 imageRequestCmd.getSizeCmd().getPreset(),
-                imageRequestCmd.getSizeCmd().isUseMultiLayer());
+                imageRequestCmd.getSizeCmd().isUseMultiLayer(),
+                NoiseType.valueOf(imageRequestCmd.getSizeCmd().getNoiseType()));
 
         ImageColor color = new ImageColor(
                 imageRequestCmd.getColorCmd().getBack(),
