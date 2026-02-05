@@ -11,4 +11,5 @@
     <include file="/db/changelog/2026/02/04-01-add-scale-column.xml"/>
     <include file="/db/changelog/2026/02/04-02-add-interpolation-type-column.xml"/>
     <include file="/db/changelog/2026/02/04-03-add-multilayer-columns.xml"/>
+    <include file="/db/changelog/2026/02/05-01-add-noise-type-column.xml"/>
 </databaseChangeLog>
