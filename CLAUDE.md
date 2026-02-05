@@ -26,4 +26,12 @@
 ## Tests
 
 - Écrire des tests Cucumber pour les use cases
-- Utiliser AssertJ pour les assertions   
+- Utiliser AssertJ pour les assertions
+
+## Git
+- Utiliser le gitflow
+- Commence toujours par une nouvelle branche feature
+- Ajoute les fichiers modifiés ou crée au repo git
+- Commit avec un message clair et descriptif
+- Push régulièrement sur la branche de travail
+- Utiliser des commits avec le format angular

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.dbs.spgb.domain.model.NoiseImage;
 import org.dbs.spgb.port.in.BuildNoiseImageUseCase;
 import org.dbs.spgb.port.in.CreateNoiseImageUseCase;
+import org.dbs.spgb.port.in.FindNoiseImagesUseCase;
 import org.dbs.spgb.port.in.ImageRequestCmd;
 import org.dbs.spgb.spgbexposition.common.LogExecutionTime;
 import org.dbs.spgb.spgbexposition.resources.dto.NoiseImageDTO;
@@ -18,12 +19,11 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -33,7 +33,20 @@ import java.io.IOException;
 public class ImageResource {
     private final BuildNoiseImageUseCase buildNoiseImageUseCase;
     private final CreateNoiseImageUseCase createNoiseImageUseCase;
+    private final FindNoiseImagesUseCase findNoiseImagesUseCase;
     private final MapperNoiseImage mapperNoiseImage;
+
+    @GetMapping(value = "/images", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Get all saved images")
+    @LogExecutionTime
+    public ResponseEntity<List<NoiseImageDTO>> getAllImages() {
+        List<NoiseImage> images = findNoiseImagesUseCase.findAll();
+        List<NoiseImageDTO> dtos = images.stream()
+                .map(mapperNoiseImage::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
     @PostMapping(value = "/images/build", produces = MediaType.IMAGE_PNG_VALUE)
     @Operation(
             description = "Create an image",

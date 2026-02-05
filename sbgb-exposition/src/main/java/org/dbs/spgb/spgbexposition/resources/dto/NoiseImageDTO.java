@@ -14,6 +14,7 @@ import java.util.UUID;
 @Setter
 public class NoiseImageDTO {
     private UUID id;
+    private String name;
     private String description;
     private int note;
     private ImageStructure imageStructure;

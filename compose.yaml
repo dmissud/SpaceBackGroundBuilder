@@ -4,9 +4,9 @@ services:
   db_sbgb:
     image: postgres:latest
     environment:
-      POSTGRES_USER: user_sbgb
-      POSTGRES_PASSWORD: pw_sbgb
-      POSTGRES_DB: db-sbgb
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_DB: ${SPRING_DATASOURCE_DB:-db-sbgb}
     ports:
       - 5432:5432
     volumes:

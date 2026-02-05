@@ -20,9 +20,19 @@ public class PerlinGenerator {
         this.fadeFunction = fadeFunction;
     }
 
-    public void createNoisePipeline(long seed, int width, int height) { // Interpolation.COSINE, FadeFunction.CUBIC_POLY
-        noisePipeline = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
-                .scale(100)
+    public void createNoisePipeline(long seed, int width, int height, int octaves, double persistence, double lacunarity, double scale, NoiseType noiseType) {
+        var builder = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
+                .scale(scale);
+        
+        try {
+            String methodName = noiseType == NoiseType.RIDGED ? "ridgedMulti" : "fbm";
+            java.lang.reflect.Method method = builder.getClass().getMethod(methodName, int.class, double.class, double.class);
+            method.invoke(builder, octaves, persistence, lacunarity);
+        } catch (Exception e) {
+            log.warn("{} method not found on builder, using single octave Perlin. Check JNoise version. Error: {}", noiseType, e.getMessage());
+        }
+
+        noisePipeline = builder
                 .clamp(0.0, 3.0)
                 .build();
         this.width = width;
@@ -49,14 +59,16 @@ public class PerlinGenerator {
 
 
     private void normalizeMinimumAndMaximumValues() {
-        this.maxVal = 0;
-        this.minVal = 1.0;
+        double currentMax = Double.NEGATIVE_INFINITY;
+        double currentMin = Double.POSITIVE_INFINITY;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 double noiseVal = scaleNoiseValue(x, y);
-                if (noiseVal > maxVal) maxVal = noiseVal;
-                if (noiseVal < minVal) minVal = noiseVal;
+                if (noiseVal > currentMax) currentMax = noiseVal;
+                if (noiseVal < currentMin) currentMin = noiseVal;
             }
         }
+        this.maxVal = currentMax;
+        this.minVal = currentMin;
     }
 }

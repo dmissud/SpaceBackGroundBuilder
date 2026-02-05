@@ -35,6 +35,30 @@ export class SbgbEffects {
     )
   );
 
+  loadImages$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.loadSbgbs),
+      mergeMap(() =>
+        this.imagesService.getImages().pipe(
+          map((sbgbs) => ImageApiActions.imagesLoadSuccess({sbgbs})),
+          catchError((error) => of(ImageApiActions.imagesLoadFail({message: error.message})))
+        )
+      )
+    )
+  );
+
+  saveImage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.saveSbgb),
+      mergeMap(({sbgb, forceUpdate}) =>
+        this.imagesService.saveImage(sbgb, forceUpdate).pipe(
+          map((savedSbgb) => ImageApiActions.imagesSaveSuccess({sbgb: savedSbgb})),
+          catchError((error) => of(ImageApiActions.imagesSaveFail({message: error.error?.message || error.message})))
+        )
+      )
+    )
+  );
+
   private loadImage(resolve: (value: (PromiseLike<string | ArrayBuffer | null> | string | ArrayBuffer | null)) => void, reject: (reason?: any) => void, response: HttpResponse<Blob>) {
     let reader = new FileReader();
     reader.onloadend = () => resolve(reader.result);

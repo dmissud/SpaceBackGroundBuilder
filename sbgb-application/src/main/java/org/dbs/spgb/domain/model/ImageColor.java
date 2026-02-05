@@ -17,5 +17,6 @@ public class ImageColor {
     private String fore;
     private double backThreshold;
     private double middleThreshold;
+    private String interpolationType;
 
 }

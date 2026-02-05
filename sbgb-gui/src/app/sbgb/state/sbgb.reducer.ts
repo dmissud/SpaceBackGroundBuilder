@@ -11,6 +11,7 @@ import {Sbgb} from "../sbgb.model";
 // }
 export interface SbgbState {
   sbgb: Sbgb | null;
+  sbgbs: Sbgb[];
   image: string | ArrayBuffer | null;
   building: boolean;
   infoMessage: string,
@@ -27,6 +28,7 @@ export interface SbgbState {
 
 export const initialState: SbgbState = {
   sbgb: null,
+  sbgbs: [],
   image: null,
   building: false,
   infoMessage: '',
@@ -56,6 +58,23 @@ export const sbgbsFeature = createFeature({
         ...state,
         sbgb: sbgb,
         building: build
+      })),
+    on(ImageApiActions.imagesLoadSuccess,
+      (state, {sbgbs}) => ({
+        ...state,
+        sbgbs: sbgbs
+      })),
+    on(ImageApiActions.imagesSaveSuccess,
+      (state, {sbgb}) => ({
+        ...state,
+        sbgb: sbgb,
+        sbgbs: [...state.sbgbs, sbgb],
+        infoMessage: 'Image saved successfully'
+      })),
+    on(SbgbPageActions.selectSbgb,
+      (state, {sbgb}) => ({
+        ...state,
+        sbgb: sbgb
       }))
   )
 });

@@ -1,6 +1,5 @@
 package org.dbs.spgb.domain.model;
 
-
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,15 +11,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Embeddable
-public class ImageStructure {
-    private int height;
-    private int width;
-    private int seed;
+public class ImageLayer {
+    private String name;
+    private boolean enabled;
     private int octaves;
     private double persistence;
     private double lacunarity;
     private double scale;
-    private String preset;
-    private boolean useMultiLayer;
-    private NoiseType noiseType;
+    private double opacity;
+    private String blendMode;
+    private long seedOffset;
 }

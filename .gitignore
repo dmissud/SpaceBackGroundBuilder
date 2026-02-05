@@ -1,5 +1,9 @@
 HELP.md
 
+# Local configuration files
+.env
+.env.local
+
 ### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
