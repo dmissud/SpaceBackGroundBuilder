@@ -154,4 +154,53 @@ class ImagesServiceTest {
             fail("Failed to decode image");
         }
     }
+
+    @Test
+    void buildRidgedNoiseImageTest() throws IOException {
+        NoiseImageRepository repository = new NoiseImageRepository() {
+            @Override
+            public NoiseImage save(NoiseImage noiseImage) {
+                return noiseImage;
+            }
+
+            @Override
+            public List<NoiseImage> findAll() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public java.util.Optional<NoiseImage> findByName(String name) {
+                return java.util.Optional.empty();
+            }
+        };
+        ImagesService imagesService = new ImagesService(repository);
+        ImageRequestCmd.SizeCmd sizeCmd = ImageRequestCmd.SizeCmd.builder()
+                .height(200)
+                .width(200)
+                .seed(1234)
+                .octaves(4)
+                .persistence(0.5)
+                .lacunarity(2.0)
+                .noiseType("RIDGED")
+                .build();
+        ImageRequestCmd.ColorCmd colorCmd = ImageRequestCmd.ColorCmd.builder()
+                .back("#000000")
+                .middle("#777777")
+                .fore("#FFFFFF")
+                .backThreshold(0.3)
+                .middleThreshold(0.7)
+                .build();
+        ImageRequestCmd imageRequestCmd = ImageRequestCmd.builder()
+                .sizeCmd(sizeCmd)
+                .colorCmd(colorCmd)
+                .build();
+
+        byte[] result = imagesService.buildNoiseImage(imageRequestCmd);
+
+        assertNotNull(result);
+        InputStream in = new ByteArrayInputStream(result);
+        BufferedImage outImage = ImageIO.read(in);
+        assertEquals(200, outImage.getHeight());
+        assertEquals(200, outImage.getWidth());
+    }
 }
