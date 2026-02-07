@@ -2,6 +2,8 @@ package org.dbs.spgb.domain.model;
 
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +24,6 @@ public class ImageStructure {
     private double scale;
     private String preset;
     private boolean useMultiLayer;
+    @Enumerated(EnumType.STRING)
     private NoiseType noiseType;
 }

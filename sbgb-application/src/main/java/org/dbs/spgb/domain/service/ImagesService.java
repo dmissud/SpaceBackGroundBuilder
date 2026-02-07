@@ -133,7 +133,7 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 imageRequestCmd.getColorCmd().getFore(),
                 imageRequestCmd.getColorCmd().getBackThreshold(),
                 imageRequestCmd.getColorCmd().getMiddleThreshold(),
-                imageRequestCmd.getColorCmd().getInterpolationType());
+                InterpolationType.valueOf(imageRequestCmd.getColorCmd().getInterpolationType()));
 
         UUID id = existingImage.map(NoiseImage::getId).orElse(UUID.randomUUID());
 

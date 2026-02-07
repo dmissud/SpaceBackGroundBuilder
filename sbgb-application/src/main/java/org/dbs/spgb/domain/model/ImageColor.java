@@ -1,6 +1,8 @@
 package org.dbs.spgb.domain.model;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +19,7 @@ public class ImageColor {
     private String fore;
     private double backThreshold;
     private double middleThreshold;
-    private String interpolationType;
+    @Enumerated(EnumType.STRING)
+    private InterpolationType interpolationType;
 
 }
