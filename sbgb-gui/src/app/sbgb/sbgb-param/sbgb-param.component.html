@@ -287,6 +287,16 @@
   </section>
   <section>
     <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+      <label style="display: flex; align-items: center; margin-bottom: 8px;">
+        <input type="checkbox" formControlName="transparentBackground" style="margin-right: 8px;">
+        Fond transparent
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;"
+                  matTooltip="Rend le fond de l'image transparent (canal alpha). Utile pour superposer sur un autre fond.">
+          help_outline
+        </mat-icon>
+      </label>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
       <div style="display: flex; align-items: center;">
         <label for="backgroundColor">Background</label>
         <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de faible intensité de bruit.">help_outline</mat-icon>

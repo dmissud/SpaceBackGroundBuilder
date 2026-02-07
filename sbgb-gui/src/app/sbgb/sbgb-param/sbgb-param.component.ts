@@ -53,6 +53,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly BACK_THRESHOLD = 'backThreshold';
   private static readonly MIDDLE_THRESHOLD = 'middleThreshold';
   private static readonly INTERPOLATION_TYPE = 'interpolationType';
+  private static readonly TRANSPARENT_BACKGROUND = 'transparentBackground';
   private static readonly NAME = 'name';
   private static readonly DESCRIPTION = 'description';
 
@@ -114,6 +115,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.BACK_THRESHOLD]: new FormControl('0.7'),
       [SbgbParamComponent.MIDDLE_THRESHOLD]: new FormControl('0.75'),
       [SbgbParamComponent.INTERPOLATION_TYPE]: new FormControl('LINEAR'),
+      [SbgbParamComponent.TRANSPARENT_BACKGROUND]: new FormControl(false),
       [SbgbParamComponent.NAME]: new FormControl(''),
       [SbgbParamComponent.DESCRIPTION]: new FormControl(''),
     });
@@ -190,6 +192,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.BACK_THRESHOLD]: sbgb.imageColor.backThreshold,
             [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
             [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
+            [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
             [SbgbParamComponent.NAME]: sbgb.name || '',
             [SbgbParamComponent.DESCRIPTION]: sbgb.description || '',
           }, {emitEvent: false});
@@ -407,7 +410,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       presetValue,
       useMultiLayerValue
     } = this.extractImageFormValues();
-    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
+    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
 
@@ -438,7 +441,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         fore: foregroundColorValue,
         backThreshold: Number(backThresholdValue),
         middleThreshold: Number(middleThresholdValue),
-        interpolationType: interpolationTypeValue
+        interpolationType: interpolationTypeValue,
+        transparentBackground: transparentBackgroundValue
       }
     };
   }
@@ -522,7 +526,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let backThresholdValue = this._myForm.controls[SbgbParamComponent.BACK_THRESHOLD].value;
     let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
     let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
-    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue};
+    let transparentBackgroundValue = this._myForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
+    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue};
   }
 
 }

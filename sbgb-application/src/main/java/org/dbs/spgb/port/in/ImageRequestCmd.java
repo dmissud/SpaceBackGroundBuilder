@@ -113,5 +113,7 @@ public class ImageRequestCmd {
         @NotNull
         @Builder.Default
         private String interpolationType = "LINEAR";
+        @Builder.Default
+        private boolean transparentBackground = false;
     }
 }
