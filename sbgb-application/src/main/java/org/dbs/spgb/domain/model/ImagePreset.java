@@ -8,6 +8,7 @@ public enum ImagePreset {
     NEBULA_DENSE,
     STARFIELD,
     COSMIC_DUST,
+    GALAXY,
     CUSTOM;
 
     public List<LayerConfig> getDefaultLayers() {
@@ -150,6 +151,81 @@ public enum ImagePreset {
                             .opacity(0.85)
                             .blendMode(BlendMode.ADD)
                             .seedOffset(2000)
+                            .build()
+            );
+            case GALAXY -> Arrays.asList(
+                    // Deep space background - very uniform
+                    LayerConfig.builder()
+                            .name("deep_space")
+                            .enabled(true)
+                            .octaves(1)
+                            .persistence(0.1)
+                            .lacunarity(2.0)
+                            .scale(800.0)
+                            .opacity(1.0)
+                            .blendMode(BlendMode.NORMAL)
+                            .seedOffset(0)
+                            .build(),
+                    // Galaxy core - bright and dense
+                    LayerConfig.builder()
+                            .name("galaxy_core")
+                            .enabled(true)
+                            .octaves(3)
+                            .persistence(0.9)
+                            .lacunarity(1.8)
+                            .scale(300.0)
+                            .opacity(0.8)
+                            .blendMode(BlendMode.ADD)
+                            .seedOffset(1000)
+                            .build(),
+                    // Galaxy arms - spiral structure
+                    LayerConfig.builder()
+                            .name("galaxy_arms")
+                            .enabled(true)
+                            .octaves(5)
+                            .persistence(0.7)
+                            .lacunarity(2.3)
+                            .scale(200.0)
+                            .opacity(0.6)
+                            .blendMode(BlendMode.OVERLAY)
+                            .seedOffset(2000)
+                            .build(),
+                    // Star field - dense stars
+                    LayerConfig.builder()
+                            .name("stars_dense")
+                            .enabled(true)
+                            .octaves(1)
+                            .persistence(0.2)
+                            .lacunarity(2.0)
+                            .scale(25.0)
+                            .opacity(0.7)
+                            .blendMode(BlendMode.SCREEN)
+                            .seedOffset(3000)
+                            .build(),
+                    // Bright stars - individual bright stars
+                    LayerConfig.builder()
+                            .name("stars_bright")
+                            .enabled(true)
+                            .octaves(1)
+                            .persistence(0.15)
+                            .lacunarity(2.0)
+                            .scale(15.0)
+                            .opacity(0.5)
+                            .blendMode(BlendMode.ADD)
+                            .seedOffset(4000)
+                            .build(),
+                    // Dust lanes - dark patterns
+                    LayerConfig.builder()
+                            .name("dust_lanes")
+                            .enabled(true)
+                            .octaves(4)
+                            .persistence(0.5)
+                            .lacunarity(2.2)
+                            .scale(100.0)
+                            .opacity(0.3)
+                            .blendMode(BlendMode.MULTIPLY)
+                            .noiseType(NoiseType.RIDGED)
+                            .seedOffset(5000)
                             .build()
             );
             case CUSTOM -> Arrays.asList(
