@@ -31,4 +31,10 @@ public class GalaxyStructure {
     private double noisePersistence;
     private double noiseLacunarity;
     private double noiseScale;
+
+    // Color parameters
+    private String spaceBackgroundColor;
+    private String coreColor;
+    private String armColor;
+    private String outerColor;
 }

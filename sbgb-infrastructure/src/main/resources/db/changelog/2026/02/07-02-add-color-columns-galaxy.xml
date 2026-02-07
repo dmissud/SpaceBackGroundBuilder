@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1707315600000-1" author="daniel">
+        <addColumn tableName="galaxy_image">
+            <column name="space_background_color" type="VARCHAR(7)" defaultValue="#050510">
+                <constraints nullable="true"/>
+            </column>
+            <column name="core_color" type="VARCHAR(7)" defaultValue="#FFFADC">
+                <constraints nullable="true"/>
+            </column>
+            <column name="arm_color" type="VARCHAR(7)" defaultValue="#B4C8FF">
+                <constraints nullable="true"/>
+            </column>
+            <column name="outer_color" type="VARCHAR(7)" defaultValue="#3C5078">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

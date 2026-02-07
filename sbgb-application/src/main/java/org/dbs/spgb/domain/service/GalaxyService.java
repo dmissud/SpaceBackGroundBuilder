@@ -51,6 +51,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .noisePersistence(galaxyRequestCmd.getNoisePersistence())
                 .noiseLacunarity(galaxyRequestCmd.getNoiseLacunarity())
                 .noiseScale(galaxyRequestCmd.getNoiseScale())
+                .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
+                .coreColor(galaxyRequestCmd.getCoreColor())
+                .armColor(galaxyRequestCmd.getArmColor())
+                .outerColor(galaxyRequestCmd.getOuterColor())
                 .build();
 
         GalaxyImage galaxyImage = new GalaxyImage();
@@ -77,7 +81,15 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .noiseScale(cmd.getNoiseScale())
                 .build();
 
-        GalaxyColorCalculator colorCalculator = new DefaultGalaxyColorCalculator();
+        // Parse colors from hex strings
+        java.awt.Color spaceBackground = parseColor(cmd.getSpaceBackgroundColor());
+        java.awt.Color core = parseColor(cmd.getCoreColor());
+        java.awt.Color arms = parseColor(cmd.getArmColor());
+        java.awt.Color outer = parseColor(cmd.getOuterColor());
+
+        GalaxyColorCalculator colorCalculator = new DefaultGalaxyColorCalculator(
+                spaceBackground, core, arms, outer
+        );
 
         GalaxyImageCalculator calculator = new GalaxyImageCalculator.Builder()
                 .withWidth(cmd.getWidth())
@@ -87,6 +99,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .build();
 
         return calculator.create(cmd.getSeed());
+    }
+
+    private java.awt.Color parseColor(String hex) {
+        return java.awt.Color.decode(hex);
     }
 
     private byte[] convertToByteArray(BufferedImage image) throws IOException {

@@ -36,4 +36,8 @@ export interface GalaxyRequestCmd {
   noisePersistence: number;
   noiseLacunarity: number;
   noiseScale: number;
+  spaceBackgroundColor?: string;
+  coreColor?: string;
+  armColor?: string;
+  outerColor?: string;
 }

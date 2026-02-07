@@ -56,4 +56,21 @@ public class GalaxyRequestCmd {
 
     @DecimalMin("10.0")
     private double noiseScale;
+
+    // Color parameters (optional - defaults will be used if not provided)
+    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+    @Builder.Default
+    private String spaceBackgroundColor = "#050510"; // Very dark blue-black
+
+    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+    @Builder.Default
+    private String coreColor = "#FFFADC"; // Bright warm white
+
+    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+    @Builder.Default
+    private String armColor = "#B4C8FF"; // Light blue
+
+    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
+    @Builder.Default
+    private String outerColor = "#3C5078"; // Dim blue
 }
