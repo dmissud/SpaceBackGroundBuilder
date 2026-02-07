@@ -1,27 +1,59 @@
 package org.dbs.spgb.port.in;
 
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Value
+@Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GalaxyRequestCmd {
-    String name;
-    String description;
-    int width;
-    int height;
-    long seed;
+    private String name;
+    private String description;
+
+    @Min(100)
+    @Max(4000)
+    private int width;
+
+    @Min(100)
+    @Max(4000)
+    private int height;
+
+    private long seed;
 
     // Spiral structure parameters
-    int numberOfArms;
-    double armWidth;
-    double armRotation;
-    double coreSize;
-    double galaxyRadius;
+    @Min(1)
+    @Max(10)
+    private int numberOfArms;
+
+    @DecimalMin("10.0")
+    private double armWidth;
+
+    @DecimalMin("1.0")
+    private double armRotation;
+
+    @DecimalMin("0.01")
+    @DecimalMax("0.5")
+    private double coreSize;
+
+    @DecimalMin("100.0")
+    private double galaxyRadius;
 
     // Noise texture parameters
-    int noiseOctaves;
-    double noisePersistence;
-    double noiseLacunarity;
-    double noiseScale;
+    @Min(1)
+    @Max(10)
+    private int noiseOctaves;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    private double noisePersistence;
+
+    @DecimalMin("1.0")
+    private double noiseLacunarity;
+
+    @DecimalMin("10.0")
+    private double noiseScale;
 }
