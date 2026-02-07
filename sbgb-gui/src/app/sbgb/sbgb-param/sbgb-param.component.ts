@@ -5,7 +5,7 @@ import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 import {NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {selectCurrentSbgb, selectErrorMessage, selectInfoMessage} from "../state/sbgb.selectors";
+import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage} from "../state/sbgb.selectors";
 import {Subscription} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
@@ -339,6 +339,31 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       return 'Sauvegarder les modifications de cette image';
     }
     return 'L\'image n\'a pas été modifiée par rapport à celle en bibliothèque.';
+  }
+
+  protected canDownload(): boolean {
+    return this.isBuilt && !this.isModifiedSinceBuild;
+  }
+
+  protected getDownloadTooltip(): string {
+    if (!this.isBuilt) {
+      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la télécharger.';
+    }
+    if (this.isModifiedSinceBuild) {
+      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de télécharger.';
+    }
+    return 'Télécharger l\'image générée sur votre PC';
+  }
+
+  downloadImage() {
+    const image = this.store.selectSignal(selectImageBuild)();
+    if (!image) return;
+
+    const link = document.createElement('a');
+    link.href = image as string;
+    const name = this._myForm.controls['name'].value || 'space-image';
+    link.download = `${name}.png`;
+    link.click();
   }
 
   private isModified(currentSbgb: Sbgb, referenceSbgb: Sbgb): boolean {

@@ -15,8 +15,16 @@
             (click)="saveImage()"
             [disabled]="!canSave()"
             [matTooltip]="getSaveTooltip()"
-            matTooltipPosition="below">
+            matTooltipPosition="below"
+            style="margin-right: 8px;">
       Sauvegarder
+    </button>
+    <button mat-raised-button
+            (click)="downloadImage()"
+            [disabled]="!canDownload()"
+            [matTooltip]="getDownloadTooltip()"
+            matTooltipPosition="below">
+      Telecharger
     </button>
   </div>
 </div>

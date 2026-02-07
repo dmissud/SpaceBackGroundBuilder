@@ -3,6 +3,8 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {provideMockStore, MockStore} from '@ngrx/store/testing';
+import {provideMockActions} from '@ngrx/effects/testing';
+import {Observable, of} from 'rxjs';
 import {SbgbParamComponent} from './sbgb-param.component';
 import {SbgbPageActions} from '../state/sbgb.actions';
 import {Sbgb} from '../sbgb.model';
@@ -12,6 +14,7 @@ describe('SbgbParamComponent', () => {
   let fixture: ComponentFixture<SbgbParamComponent>;
   let store: MockStore;
   let snackBar: jasmine.SpyObj<MatSnackBar>;
+  let actions$: Observable<any>;
 
   const mockSbgb: Sbgb = {
     id: '1',
@@ -23,18 +26,23 @@ describe('SbgbParamComponent', () => {
       seed: 2569,
       octaves: 1,
       persistence: 0.5,
-      lacunarity: 2.0
+      lacunarity: 2.0,
+      scale: 100,
+      preset: 'CUSTOM',
+      useMultiLayer: false
     },
     imageColor: {
       back: '#000000',
       middle: '#FFA500',
       fore: '#FFFFFF',
       backThreshold: 0.7,
-      middleThreshold: 0.75
+      middleThreshold: 0.75,
+      interpolationType: 'LINEAR'
     }
   };
 
   beforeEach(async () => {
+    actions$ = of();
     snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     await TestBed.configureTestingModule({
@@ -45,6 +53,7 @@ describe('SbgbParamComponent', () => {
       ],
       providers: [
         {provide: MatSnackBar, useValue: snackBar},
+        provideMockActions(() => actions$),
         provideMockStore({
           initialState: {
             sbgbs: {
@@ -70,7 +79,7 @@ describe('SbgbParamComponent', () => {
   describe('isModified', () => {
     beforeEach(() => {
       // @ts-ignore - Accès à la propriété privée pour le test
-      component.loadedSbgb = mockSbgb;
+      component.loadedFromDbSbgb = mockSbgb;
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
@@ -80,42 +89,42 @@ describe('SbgbParamComponent', () => {
     it('should return false if nothing is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       // @ts-ignore
-      expect(component.isModified(current)).toBeFalse();
+      expect(component.isModified(current, mockSbgb)).toBeFalse();
     });
 
     it('should return true if name is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.name = 'New Name';
       // @ts-ignore
-      expect(component.isModified(current)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTrue();
     });
 
     it('should return true if description is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.description = 'New Description';
       // @ts-ignore
-      expect(component.isModified(current)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTrue();
     });
 
     it('should return true if width is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageStructure.width = 1000;
       // @ts-ignore
-      expect(component.isModified(current)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTrue();
     });
 
     it('should return true if color is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageColor.back = '#123456';
       // @ts-ignore
-      expect(component.isModified(current)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTrue();
     });
 
     it('should return true if threshold is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageColor.backThreshold = 0.1;
       // @ts-ignore
-      expect(component.isModified(current)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTrue();
     });
   });
 
@@ -130,7 +139,7 @@ describe('SbgbParamComponent', () => {
 
     it('should dispatch saveSbgb with forceUpdate=false when no image is loaded', () => {
       // @ts-ignore
-      component.loadedSbgb = null;
+      component.loadedFromDbSbgb = null;
       component['_myForm'].patchValue({name: 'New Image'});
 
       component.saveImage();
@@ -142,7 +151,9 @@ describe('SbgbParamComponent', () => {
 
     it('should show snackbar and not dispatch when nothing is modified', () => {
       // @ts-ignore
-      component.loadedSbgb = mockSbgb;
+      component.loadedFromDbSbgb = mockSbgb;
+      // @ts-ignore - builtSbgb identique à loadedFromDbSbgb = pas de modification
+      component.builtSbgb = JSON.parse(JSON.stringify(mockSbgb));
       // @ts-ignore
       component._myForm.patchValue({
         name: mockSbgb.name,
@@ -167,8 +178,12 @@ describe('SbgbParamComponent', () => {
     });
 
     it('should ask for confirmation and dispatch with forceUpdate=true when name is same but content modified', () => {
+      const modifiedSbgb = JSON.parse(JSON.stringify(mockSbgb));
+      modifiedSbgb.description = 'Modified Description';
       // @ts-ignore
-      component.loadedSbgb = mockSbgb;
+      component.loadedFromDbSbgb = mockSbgb;
+      // @ts-ignore - builtSbgb avec description modifiée
+      component.builtSbgb = modifiedSbgb;
       // @ts-ignore
       component._myForm.patchValue({
         name: mockSbgb.name,
@@ -185,8 +200,12 @@ describe('SbgbParamComponent', () => {
     });
 
     it('should ask for confirmation and dispatch with forceUpdate=false when name is modified', () => {
+      const modifiedSbgb = JSON.parse(JSON.stringify(mockSbgb));
+      modifiedSbgb.name = 'New Name';
       // @ts-ignore
-      component.loadedSbgb = mockSbgb;
+      component.loadedFromDbSbgb = mockSbgb;
+      // @ts-ignore - builtSbgb avec nom modifié
+      component.builtSbgb = modifiedSbgb;
       // @ts-ignore
       component._myForm.patchValue({
         name: 'New Name',
@@ -227,9 +246,88 @@ describe('SbgbParamComponent', () => {
       component.isBuilt = true;
       // @ts-ignore
       component.isModifiedSinceBuild = false;
+      // @ts-ignore - builtSbgb doit être défini pour que canSave() retourne true
+      component.builtSbgb = mockSbgb;
       fixture.detectChanges();
       const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
       expect(saveButton.disabled).toBeFalse();
+    });
+
+    it('should have download button disabled if not built', () => {
+      // @ts-ignore
+      component.isBuilt = false;
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
+      expect(downloadButton).toBeTruthy();
+      expect(downloadButton.disabled).toBeTrue();
+    });
+
+    it('should have download button disabled if modified since build', () => {
+      // @ts-ignore
+      component.isBuilt = true;
+      // @ts-ignore
+      component.isModifiedSinceBuild = true;
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
+      expect(downloadButton.disabled).toBeTrue();
+    });
+
+    it('should have download button enabled if built and not modified since build', () => {
+      // @ts-ignore
+      component.isBuilt = true;
+      // @ts-ignore
+      component.isModifiedSinceBuild = false;
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
+      expect(downloadButton.disabled).toBeFalse();
+    });
+  });
+
+  describe('downloadImage', () => {
+    it('should create an anchor element and trigger download with form name', () => {
+      const fakeDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
+      spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
+
+      const clickSpy = jasmine.createSpy('click');
+      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      spyOn(document, 'createElement').and.returnValue(fakeLink);
+
+      component['_myForm'].patchValue({name: 'my-stars'}, {emitEvent: false});
+
+      component.downloadImage();
+
+      expect(document.createElement).toHaveBeenCalledWith('a');
+      expect(fakeLink.href).toBe(fakeDataUrl);
+      expect(fakeLink.download).toBe('my-stars.png');
+      expect(clickSpy).toHaveBeenCalled();
+    });
+
+    it('should use default name when form name is empty', () => {
+      const fakeDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
+      spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
+
+      const clickSpy = jasmine.createSpy('click');
+      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      spyOn(document, 'createElement').and.returnValue(fakeLink);
+
+      component['_myForm'].patchValue({name: ''}, {emitEvent: false});
+
+      component.downloadImage();
+
+      expect(fakeLink.download).toBe('space-image.png');
+      expect(clickSpy).toHaveBeenCalled();
+    });
+
+    it('should not trigger download when no image is available', () => {
+      spyOn(store, 'selectSignal').and.returnValue((() => null) as any);
+      const createElementSpy = spyOn(document, 'createElement');
+
+      component.downloadImage();
+
+      expect(createElementSpy).not.toHaveBeenCalled();
     });
   });
 });
