@@ -5,6 +5,7 @@ import {provideState} from "@ngrx/store";
 import {provideEffects} from "@ngrx/effects";
 import {sbgbsFeature} from "./sbgb/state/sbgb.reducer";
 import {SbgbEffects} from "./sbgb/state/sbgb.effects";
+import {GalaxyService} from "./galaxy/galaxy.service";
 
 export const routes: Routes = [
   {
@@ -18,6 +19,13 @@ export const routes: Routes = [
       ImagesService,
       provideState(sbgbsFeature),
       provideEffects(SbgbEffects)
+    ]
+  },
+  {
+    path: 'galaxy',
+    loadChildren: () => import('./galaxy/galaxy.routes').then(module => module.GALAXY_ROUTES),
+    providers: [
+      GalaxyService
     ]
   },
   {
