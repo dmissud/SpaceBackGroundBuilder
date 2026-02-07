@@ -11,8 +11,16 @@
     <button mat-raised-button
             color="accent"
             (click)="saveGalaxy()"
-            [disabled]="isGenerating || galaxyForm.invalid">
+            [disabled]="isGenerating || galaxyForm.invalid"
+            style="margin-right: 8px;">
       Save Galaxy
+    </button>
+    <button mat-raised-button
+            (click)="downloadImage()"
+            [disabled]="!canDownload()"
+            [matTooltip]="getDownloadTooltip()"
+            matTooltipPosition="below">
+      Telecharger
     </button>
   </div>
 </div>

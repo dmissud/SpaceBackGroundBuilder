@@ -115,6 +115,30 @@ export class GalaxyParamComponent implements OnInit {
     });
   }
 
+  canDownload(): boolean {
+    return !!this.generatedImageUrl && !this.isGenerating;
+  }
+
+  getDownloadTooltip(): string {
+    if (this.isGenerating) {
+      return 'Generation en cours, veuillez patienter.';
+    }
+    if (!this.generatedImageUrl) {
+      return 'Vous devez d\'abord generer une image (Generate Preview) avant de pouvoir la telecharger.';
+    }
+    return 'Telecharger l\'image generee sur votre PC';
+  }
+
+  downloadImage(): void {
+    if (!this.generatedImageUrl) return;
+
+    const link = document.createElement('a');
+    link.href = this.generatedImageUrl;
+    const name = this.galaxyForm.controls['name'].value || 'galaxy-image';
+    link.download = `${name}.png`;
+    link.click();
+  }
+
   loadPreset(preset: string): void {
     switch (preset) {
       case 'CLASSIC':
