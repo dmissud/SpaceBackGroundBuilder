@@ -1,8 +1,23 @@
 <ng-container *ngIf="!imageIsBuilding()">
-  <img [src]="computedImage()" *ngIf="computedImage(); else noImage" alt="description" style="max-width:100%;">
-  <ng-template #noImage>
-    <p>No image available</p>
-  </ng-template>
+  <div class="image-container">
+    <div class="image-controls">
+      <mat-slide-toggle
+        [checked]="fitToWindowMode"
+        (change)="toggleFitMode()"
+        color="primary">
+        Fit to Window
+      </mat-slide-toggle>
+      <span class="fit-mode-hint">
+        {{ fitToWindowMode ? 'Image scaled to fit window' : 'Scroll to see full image' }}
+      </span>
+    </div>
+    <img [src]="computedImage()" *ngIf="computedImage(); else noImage"
+         alt="Generated space image"
+         [style]="getImageStyle()">
+    <ng-template #noImage>
+      <p>No image available</p>
+    </ng-template>
+  </div>
 </ng-container>
 <ng-container *ngIf="imageIsBuilding()">
   <div class="spinner-container">
