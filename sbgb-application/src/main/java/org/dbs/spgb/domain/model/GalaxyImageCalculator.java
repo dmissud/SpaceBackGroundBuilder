@@ -60,7 +60,20 @@ public class GalaxyImageCalculator {
 
         GalaxyIntensityCalculator intensityCalculator = createIntensityCalculator(noiseGenerator, seed);
 
-        return buildImage(intensityCalculator);
+        // Initialize domain warping if enabled
+        DomainWarpCalculator warpCalculator = null;
+        if (parameters.getWarpStrength() > 0.0) {
+            warpCalculator = new DomainWarpCalculator(
+                width,
+                height,
+                parameters.getWarpStrength(),
+                seed,
+                interpolation,
+                fadeFunction
+            );
+        }
+
+        return buildImage(intensityCalculator, warpCalculator);
     }
 
     private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
@@ -121,7 +134,7 @@ public class GalaxyImageCalculator {
         };
     }
 
-    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator) {
+    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator, DomainWarpCalculator warpCalculator) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
         g2d.setBackground(colorCalculator.getSpaceBackgroundColor());
@@ -130,7 +143,23 @@ public class GalaxyImageCalculator {
 
         IntStream.range(0, width).parallel().forEach(x -> {
             for (int y = 0; y < height; y++) {
-                double galaxyIntensity = intensityCalculator.calculateGalaxyIntensity(x, y);
+                double galaxyIntensity;
+
+                // Apply domain warping if enabled
+                if (warpCalculator != null && warpCalculator.isEnabled()) {
+                    double[] warpedCoords = warpCalculator.warpCoordinates(x, y);
+                    int warpedX = (int) Math.round(warpedCoords[0]);
+                    int warpedY = (int) Math.round(warpedCoords[1]);
+
+                    // Clamp to image bounds
+                    warpedX = Math.max(0, Math.min(width - 1, warpedX));
+                    warpedY = Math.max(0, Math.min(height - 1, warpedY));
+
+                    galaxyIntensity = intensityCalculator.calculateGalaxyIntensity(warpedX, warpedY);
+                } else {
+                    galaxyIntensity = intensityCalculator.calculateGalaxyIntensity(x, y);
+                }
+
                 Color pixelColor = colorCalculator.calculateGalaxyColor(galaxyIntensity);
                 img.setRGB(x, y, pixelColor.getRGB());
             }
