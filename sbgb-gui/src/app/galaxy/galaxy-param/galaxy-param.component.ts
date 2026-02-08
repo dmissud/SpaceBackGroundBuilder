@@ -38,6 +38,7 @@ export class GalaxyParamComponent implements OnInit {
   galaxyForm!: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
+  loadedGalaxyName: string | null = null;
 
   constructor(
     private galaxyService: GalaxyService,
@@ -118,18 +119,42 @@ export class GalaxyParamComponent implements OnInit {
       return;
     }
 
-    this.isGenerating = true;
     const request: GalaxyRequestCmd = this.galaxyForm.value;
+    request.forceUpdate = false;
 
+    // First attempt without forceUpdate
+    this.isGenerating = true;
     this.galaxyService.createGalaxy(request).subscribe({
       next: (galaxy) => {
         this.isGenerating = false;
+        this.loadedGalaxyName = galaxy.name;
         this.snackBar.open(`Galaxy "${galaxy.name}" saved successfully!`, 'Close', {duration: 3000});
       },
       error: (error) => {
-        console.error('Error saving galaxy:', error);
-        this.snackBar.open('Error saving galaxy', 'Close', {duration: 3000});
         this.isGenerating = false;
+        if (error.status === 409) {
+          // Name already exists - ask for confirmation
+          const confirmUpdate = confirm(`La galaxie "${request.name}" existe deja. Voulez-vous la remplacer ?`);
+          if (confirmUpdate) {
+            request.forceUpdate = true;
+            this.isGenerating = true;
+            this.galaxyService.createGalaxy(request).subscribe({
+              next: (galaxy) => {
+                this.isGenerating = false;
+                this.loadedGalaxyName = galaxy.name;
+                this.snackBar.open(`Galaxy "${galaxy.name}" updated successfully!`, 'Close', {duration: 3000});
+              },
+              error: (err) => {
+                console.error('Error updating galaxy:', err);
+                this.snackBar.open('Error updating galaxy', 'Close', {duration: 3000});
+                this.isGenerating = false;
+              }
+            });
+          }
+        } else {
+          console.error('Error saving galaxy:', error);
+          this.snackBar.open('Error saving galaxy', 'Close', {duration: 3000});
+        }
       }
     });
   }
@@ -193,6 +218,7 @@ export class GalaxyParamComponent implements OnInit {
       outerColor: s.outerColor || '#3C5078'
     });
 
+    this.loadedGalaxyName = galaxy.name;
     this.onGalaxyTypeChange();
     this.generateGalaxy();
   }

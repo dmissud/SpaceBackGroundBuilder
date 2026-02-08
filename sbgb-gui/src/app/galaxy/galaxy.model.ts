@@ -35,6 +35,7 @@ export interface GalaxyRequestCmd {
   width: number;
   height: number;
   seed: number;
+  forceUpdate?: boolean;
   galaxyType?: string;
   numberOfArms: number;
   armWidth: number;

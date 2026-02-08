@@ -2,6 +2,7 @@ package org.dbs.spgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.spgb.common.UseCase;
+import org.dbs.spgb.domain.exception.ImageNameAlreadyExistsException;
 import org.dbs.spgb.domain.model.*;
 import org.dbs.spgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.spgb.port.in.CreateGalaxyImageUseCase;
@@ -14,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @UseCase
@@ -35,6 +37,16 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
 
     @Override
     public GalaxyImage createGalaxyImage(GalaxyRequestCmd galaxyRequestCmd) throws IOException {
+        if (galaxyRequestCmd.getName() == null || galaxyRequestCmd.getName().isBlank()) {
+            throw new IllegalArgumentException("Le nom de la galaxie est obligatoire");
+        }
+
+        Optional<GalaxyImage> existingImage = galaxyImageRepository.findByName(galaxyRequestCmd.getName());
+
+        if (existingImage.isPresent() && !galaxyRequestCmd.isForceUpdate()) {
+            throw new ImageNameAlreadyExistsException(galaxyRequestCmd.getName());
+        }
+
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
         byte[] imageBytes = convertToByteArray(image);
 
@@ -61,11 +73,13 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .outerColor(galaxyRequestCmd.getOuterColor())
                 .build();
 
+        UUID id = existingImage.map(GalaxyImage::getId).orElse(UUID.randomUUID());
+
         GalaxyImage galaxyImage = new GalaxyImage();
-        galaxyImage.setId(UUID.randomUUID());
+        galaxyImage.setId(id);
         galaxyImage.setName(galaxyRequestCmd.getName());
         galaxyImage.setDescription(galaxyRequestCmd.getDescription());
-        galaxyImage.setNote(0);
+        galaxyImage.setNote(existingImage.map(GalaxyImage::getNote).orElse(0));
         galaxyImage.setGalaxyStructure(structure);
         galaxyImage.setImage(imageBytes);
 

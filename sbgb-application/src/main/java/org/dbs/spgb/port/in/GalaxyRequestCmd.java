@@ -24,6 +24,8 @@ public class GalaxyRequestCmd {
 
     private long seed;
 
+    private boolean forceUpdate;
+
     @Builder.Default
     private String galaxyType = "SPIRAL";
 
