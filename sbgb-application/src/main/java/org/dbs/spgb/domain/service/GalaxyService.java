@@ -83,6 +83,13 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .maxStarSize(galaxyRequestCmd.getMaxStarSize())
                 .diffractionSpikes(galaxyRequestCmd.isDiffractionSpikes())
                 .spikeCount(galaxyRequestCmd.getSpikeCount())
+                .multiLayerNoiseEnabled(galaxyRequestCmd.isMultiLayerNoiseEnabled())
+                .macroLayerScale(galaxyRequestCmd.getMacroLayerScale())
+                .macroLayerWeight(galaxyRequestCmd.getMacroLayerWeight())
+                .mesoLayerScale(galaxyRequestCmd.getMesoLayerScale())
+                .mesoLayerWeight(galaxyRequestCmd.getMesoLayerWeight())
+                .microLayerScale(galaxyRequestCmd.getMicroLayerScale())
+                .microLayerWeight(galaxyRequestCmd.getMicroLayerWeight())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -134,6 +141,13 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .maxStarSize(cmd.getMaxStarSize())
                 .diffractionSpikes(cmd.isDiffractionSpikes())
                 .spikeCount(cmd.getSpikeCount())
+                .multiLayerNoiseEnabled(cmd.isMultiLayerNoiseEnabled())
+                .macroLayerScale(cmd.getMacroLayerScale())
+                .macroLayerWeight(cmd.getMacroLayerWeight())
+                .mesoLayerScale(cmd.getMesoLayerScale())
+                .mesoLayerWeight(cmd.getMesoLayerWeight())
+                .microLayerScale(cmd.getMicroLayerScale())
+                .microLayerWeight(cmd.getMicroLayerWeight())
                 .build();
 
         // Create color calculator based on colorPalette parameter
