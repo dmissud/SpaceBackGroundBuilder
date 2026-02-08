@@ -1,5 +1,6 @@
 package org.dbs.spgb.port.in;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,17 +30,6 @@ public class GalaxyRequestCmd {
     @Builder.Default
     private String galaxyType = "SPIRAL";
 
-    // Spiral structure parameters (nullable - only required when galaxyType == SPIRAL)
-    @Min(1)
-    @Max(10)
-    private Integer numberOfArms;
-
-    @DecimalMin("10.0")
-    private Double armWidth;
-
-    @DecimalMin("1.0")
-    private Double armRotation;
-
     @DecimalMin("0.01")
     @DecimalMax("0.5")
     private Double coreSize;
@@ -47,151 +37,39 @@ public class GalaxyRequestCmd {
     @DecimalMin("100.0")
     private Double galaxyRadius;
 
-    // Noise texture parameters
-    @Min(1)
-    @Max(10)
-    private int noiseOctaves;
-
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    private double noisePersistence;
-
-    @DecimalMin("1.0")
-    private double noiseLacunarity;
-
-    @DecimalMin("10.0")
-    private double noiseScale;
-
-    // Voronoi cluster parameters (optional - only used when galaxyType == VORONOI_CLUSTER)
-    @Min(5)
-    @Max(500)
-    private Integer clusterCount;
-
-    @DecimalMin("10.0")
-    private Double clusterSize;
-
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    private Double clusterConcentration;
-
-    // Elliptical parameters (optional - only used when galaxyType == ELLIPTICAL)
-    @DecimalMin("0.5")
-    @DecimalMax("10.0")
-    private Double sersicIndex;
-
-    @DecimalMin("0.1")
-    @DecimalMax("1.0")
-    private Double axisRatio;
-
-    @DecimalMin("0.0")
-    @DecimalMax("360.0")
-    private Double orientationAngle;
-
-    // Ring parameters (optional - only used when galaxyType == RING)
-    @DecimalMin("50.0")
-    private Double ringRadius;
-
-    @DecimalMin("10.0")
-    private Double ringWidth;
-
-    @DecimalMin("0.1")
-    @DecimalMax("2.0")
-    private Double ringIntensity;
-
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    private Double coreToRingRatio;
-
-    // Irregular parameters (optional - only used when galaxyType == IRREGULAR)
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    private Double irregularity;
-
-    @Min(5)
-    @Max(50)
-    private Integer irregularClumpCount;
-
-    @DecimalMin("20.0")
-    private Double irregularClumpSize;
-
-    // Domain warping parameter (optional - applicable to ALL galaxy types)
+    @Builder.Default
     @DecimalMin("0.0")
     @DecimalMax("300.0")
-    @Builder.Default
     private double warpStrength = 0.0;
 
-    // Color palette parameter (optional - defaults to CLASSIC if not provided)
-    @Pattern(regexp = "NEBULA|CLASSIC|WARM|COLD|INFRARED|EMERALD")
+    @Valid
     @Builder.Default
-    private String colorPalette = "CLASSIC";
+    private NoiseParameters noiseParameters = NoiseParameters.defaultNoise();
 
-    // Star field parameters (optional - applicable to ALL galaxy types)
-    @DecimalMin("0.0")
-    @DecimalMax("0.01")
-    @Builder.Default
-    private double starDensity = 0.0;
+    @Valid
+    private SpiralParameters spiralParameters;
 
-    @Min(1)
-    @Max(10)
-    @Builder.Default
-    private int maxStarSize = 4;
+    @Valid
+    private VoronoiParameters voronoiParameters;
 
-    @Builder.Default
-    private boolean diffractionSpikes = false;
+    @Valid
+    private EllipticalParameters ellipticalParameters;
 
-    @Min(4)
-    @Max(8)
-    @Builder.Default
-    private int spikeCount = 4;
+    @Valid
+    private RingParameters ringParameters;
 
-    // Multi-layer noise parameters (optional - applicable to ALL galaxy types)
-    @Builder.Default
-    private boolean multiLayerNoiseEnabled = false;
+    @Valid
+    private IrregularParameters irregularParameters;
 
-    @DecimalMin("0.1")
-    @DecimalMax("5.0")
+    @Valid
     @Builder.Default
-    private double macroLayerScale = 0.3;
+    private StarFieldParameters starFieldParameters = StarFieldParameters.noStars();
 
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
+    @Valid
     @Builder.Default
-    private double macroLayerWeight = 0.5;
+    private MultiLayerNoiseParameters multiLayerNoiseParameters = MultiLayerNoiseParameters.disabled();
 
-    @DecimalMin("0.1")
-    @DecimalMax("5.0")
+    @Valid
     @Builder.Default
-    private double mesoLayerScale = 1.0;
-
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    @Builder.Default
-    private double mesoLayerWeight = 0.35;
-
-    @DecimalMin("0.1")
-    @DecimalMax("10.0")
-    @Builder.Default
-    private double microLayerScale = 3.0;
-
-    @DecimalMin("0.0")
-    @DecimalMax("1.0")
-    @Builder.Default
-    private double microLayerWeight = 0.15;
-
-    // Color parameters (optional - defaults will be used if not provided)
-    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
-    @Builder.Default
-    private String spaceBackgroundColor = "#050510"; // Very dark blue-black
-
-    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
-    @Builder.Default
-    private String coreColor = "#FFFADC"; // Bright warm white
-
-    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
-    @Builder.Default
-    private String armColor = "#B4C8FF"; // Light blue
-
-    @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
-    @Builder.Default
-    private String outerColor = "#3C5078"; // Dim blue
+    private ColorParameters colorParameters = ColorParameters.classicPalette();
 }
