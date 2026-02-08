@@ -44,28 +44,30 @@ visuel.
 
 **Usage** : `ColorPalette.NEBULA.createCalculator()` ou `new GradientGalaxyColorCalculator(customStops)`
 
-### 1.3 Couche d'etoiles (priorite 3 - impact visuel immediat)
+### 1.3 Couche d'etoiles (priorite 3 - impact visuel immediat) ✅ TERMINE
 
-**Probleme** : Aucune etoile individuelle, l'image parait vide entre les structures gazeuses.
-**Solution** : Nouveau `StarFieldGenerator` independant, compose sur l'image finale.
+**Statut** : Implemente dans commits `3783b6a`, `5358758`, `09614a9`, `a4d3026`
 
-Caracteristiques :
+**Implementation** :
+- Creation `StarFieldGenerator` avec distribution Poisson disk approximative
+- Tailles variables (70% petites 1-2px, 25% moyennes 3-4px, 5% grandes 5-maxStarSize)
+- Halo Gaussien pour etoiles > 2px
+- Pointes de diffraction optionnelles (4-8 branches) pour etoiles brillantes (brightness > 0.6)
+- Couleurs variables : 70% blanc, 15% bleu-blanc (hot), 15% jaune-blanc (cooler)
+- Integration dans `GalaxyImageCalculator` comme post-traitement final
+- Ajout parametres `starDensity`, `maxStarSize`, `diffractionSpikes`, `spikeCount` dans `GalaxyParameters`
+- Propagation complete : port in -> service -> JPA -> DTO -> frontend
+- Migration Liquibase 08-05 pour colonnes DB
+- UI Angular avec section "Star Field Layer" et 4 controles
 
-- Distribution aleatoire (Poisson disk pour espacement naturel)
-- Tailles variables (majorite petites 1-2px, quelques grosses 3-6px)
-- Halo Gaussien autour des etoiles brillantes
-- Pointes de diffraction optionnelles (croix a 4 ou 6 branches)
-- Couleur des etoiles legerement variable (blanc, bleu pale, jaune pale)
+**Resultat** : Couche d'etoiles independante applicable a tous types de galaxies. Ajoute profondeur et realisme, remplissant l'espace vide entre structures gazeuses.
 
 | Parametre           | Type    | Default | Min | Max  | Description                        |
 |---------------------|---------|---------|-----|------|------------------------------------|
-| `starDensity`       | Double  | 0.001   | 0.0 | 0.01 | Densite d'etoiles (ratio pixels)   |
+| `starDensity`       | Double  | 0.0     | 0.0 | 0.01 | Densite d'etoiles (ratio pixels)   |
 | `maxStarSize`       | Integer | 4       | 1   | 10   | Taille max en pixels               |
 | `diffractionSpikes` | Boolean | false   | -   | -    | Activer les pointes de diffraction |
 | `spikeCount`        | Integer | 4       | 4   | 8    | Nombre de pointes                  |
-
-- Couche independante, compositable sur n'importe quel type de galaxie
-- Appliquee en post-traitement apres le calcul de couleur
 
 ### 1.4 Multi-couches de noise (priorite 4 - profondeur)
 
