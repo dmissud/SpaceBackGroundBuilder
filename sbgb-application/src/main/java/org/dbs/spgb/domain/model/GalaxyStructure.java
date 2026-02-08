@@ -60,6 +60,12 @@ public class GalaxyStructure {
     // Color palette parameter
     private String colorPalette;
 
+    // Star field parameters (applicable to all galaxy types)
+    private double starDensity;
+    private int maxStarSize;
+    private boolean diffractionSpikes;
+    private int spikeCount;
+
     // Color parameters (legacy - used when colorPalette is null)
     private String spaceBackgroundColor;
     private String coreColor;

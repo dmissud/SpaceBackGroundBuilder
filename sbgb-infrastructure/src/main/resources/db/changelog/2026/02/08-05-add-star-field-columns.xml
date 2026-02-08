@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="08-05-add-star-field-columns" author="daniel">
+        <comment>Add star field parameters for TODO 1.3 (star layer)</comment>
+
+        <addColumn tableName="galaxy_image">
+            <column name="star_density" type="DOUBLE" defaultValueNumeric="0.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="max_star_size" type="INT" defaultValueNumeric="4">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="diffraction_spikes" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="spike_count" type="INT" defaultValueNumeric="4">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
