@@ -58,9 +58,15 @@ export class GalaxyListComponent implements OnInit {
   getStructureInfo(galaxy: GalaxyImageDTO): string {
     const type = galaxy.galaxyStructure.galaxyType || 'SPIRAL';
     if (type === 'VORONOI_CLUSTER') {
-      return `Voronoi (${galaxy.galaxyStructure.clusterCount || 80} clusters)`;
+      return `Voronoi (${galaxy.galaxyStructure.voronoiParameters?.clusterCount || 80} clusters)`;
+    } else if (type === 'ELLIPTICAL') {
+      return `Elliptical (index ${galaxy.galaxyStructure.ellipticalParameters?.sersicIndex || 4.0})`;
+    } else if (type === 'RING') {
+      return `Ring (radius ${galaxy.galaxyStructure.ringParameters?.ringRadius || 900})`;
+    } else if (type === 'IRREGULAR') {
+      return `Irregular (${galaxy.galaxyStructure.irregularParameters?.irregularClumpCount || 15} clumps)`;
     }
-    return `Spiral (${galaxy.galaxyStructure.numberOfArms} arms)`;
+    return `Spiral (${galaxy.galaxyStructure.spiralParameters?.numberOfArms || 2} arms)`;
   }
 
   viewGalaxy(galaxy: GalaxyImageDTO): void {
