@@ -144,6 +144,40 @@ public class GalaxyRequestCmd {
     @Builder.Default
     private int spikeCount = 4;
 
+    // Multi-layer noise parameters (optional - applicable to ALL galaxy types)
+    @Builder.Default
+    private boolean multiLayerNoiseEnabled = false;
+
+    @DecimalMin("0.1")
+    @DecimalMax("5.0")
+    @Builder.Default
+    private double macroLayerScale = 0.3;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    @Builder.Default
+    private double macroLayerWeight = 0.5;
+
+    @DecimalMin("0.1")
+    @DecimalMax("5.0")
+    @Builder.Default
+    private double mesoLayerScale = 1.0;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    @Builder.Default
+    private double mesoLayerWeight = 0.35;
+
+    @DecimalMin("0.1")
+    @DecimalMax("10.0")
+    @Builder.Default
+    private double microLayerScale = 3.0;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    @Builder.Default
+    private double microLayerWeight = 0.15;
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

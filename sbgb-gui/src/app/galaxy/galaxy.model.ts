@@ -39,6 +39,13 @@ export interface GalaxyStructureDTO {
   maxStarSize?: number;
   diffractionSpikes?: boolean;
   spikeCount?: number;
+  multiLayerNoiseEnabled?: boolean;
+  macroLayerScale?: number;
+  macroLayerWeight?: number;
+  mesoLayerScale?: number;
+  mesoLayerWeight?: number;
+  microLayerScale?: number;
+  microLayerWeight?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
@@ -81,6 +88,13 @@ export interface GalaxyRequestCmd {
   maxStarSize?: number;
   diffractionSpikes?: boolean;
   spikeCount?: number;
+  multiLayerNoiseEnabled?: boolean;
+  macroLayerScale?: number;
+  macroLayerWeight?: number;
+  mesoLayerScale?: number;
+  mesoLayerWeight?: number;
+  microLayerScale?: number;
+  microLayerWeight?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;

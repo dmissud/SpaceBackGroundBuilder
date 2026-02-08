@@ -62,6 +62,22 @@ public class GalaxyParameters {
     @Builder.Default
     int spikeCount = 4;
 
+    // Multi-layer noise parameters (applicable to ALL galaxy types)
+    @Builder.Default
+    boolean multiLayerNoiseEnabled = false;
+    @Builder.Default
+    double macroLayerScale = 0.3;
+    @Builder.Default
+    double macroLayerWeight = 0.5;
+    @Builder.Default
+    double mesoLayerScale = 1.0;
+    @Builder.Default
+    double mesoLayerWeight = 0.35;
+    @Builder.Default
+    double microLayerScale = 3.0;
+    @Builder.Default
+    double microLayerWeight = 0.15;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */
