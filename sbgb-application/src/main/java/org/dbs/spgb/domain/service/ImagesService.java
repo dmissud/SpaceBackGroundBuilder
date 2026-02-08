@@ -91,7 +91,8 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 Color.decode(colorCmd.getFore()),
                 colorCmd.getBackThreshold(),
                 colorCmd.getMiddleThreshold(),
-                interpolationType);
+                interpolationType,
+                colorCmd.isTransparentBackground());
     }
 
     private byte[] convertImageToByteArray(BufferedImage image) throws IOException {

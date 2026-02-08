@@ -32,6 +32,7 @@ export interface Color {
   backThreshold: number;
   middleThreshold: number;
   interpolationType: string;
+  transparentBackground?: boolean;
 }
 
 export interface Sbgb {

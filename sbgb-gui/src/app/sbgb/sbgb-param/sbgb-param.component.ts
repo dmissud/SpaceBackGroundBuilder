@@ -5,7 +5,7 @@ import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 import {NgIf} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {selectCurrentSbgb, selectErrorMessage, selectInfoMessage} from "../state/sbgb.selectors";
+import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage} from "../state/sbgb.selectors";
 import {Subscription} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
@@ -53,6 +53,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   private static readonly BACK_THRESHOLD = 'backThreshold';
   private static readonly MIDDLE_THRESHOLD = 'middleThreshold';
   private static readonly INTERPOLATION_TYPE = 'interpolationType';
+  private static readonly TRANSPARENT_BACKGROUND = 'transparentBackground';
   private static readonly NAME = 'name';
   private static readonly DESCRIPTION = 'description';
 
@@ -114,6 +115,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.BACK_THRESHOLD]: new FormControl('0.7'),
       [SbgbParamComponent.MIDDLE_THRESHOLD]: new FormControl('0.75'),
       [SbgbParamComponent.INTERPOLATION_TYPE]: new FormControl('LINEAR'),
+      [SbgbParamComponent.TRANSPARENT_BACKGROUND]: new FormControl(false),
       [SbgbParamComponent.NAME]: new FormControl(''),
       [SbgbParamComponent.DESCRIPTION]: new FormControl(''),
     });
@@ -190,6 +192,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.BACK_THRESHOLD]: sbgb.imageColor.backThreshold,
             [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
             [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
+            [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
             [SbgbParamComponent.NAME]: sbgb.name || '',
             [SbgbParamComponent.DESCRIPTION]: sbgb.description || '',
           }, {emitEvent: false});
@@ -341,6 +344,31 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     return 'L\'image n\'a pas été modifiée par rapport à celle en bibliothèque.';
   }
 
+  protected canDownload(): boolean {
+    return this.isBuilt && !this.isModifiedSinceBuild;
+  }
+
+  protected getDownloadTooltip(): string {
+    if (!this.isBuilt) {
+      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la télécharger.';
+    }
+    if (this.isModifiedSinceBuild) {
+      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de télécharger.';
+    }
+    return 'Télécharger l\'image générée sur votre PC';
+  }
+
+  downloadImage() {
+    const image = this.store.selectSignal(selectImageBuild)();
+    if (!image) return;
+
+    const link = document.createElement('a');
+    link.href = image as string;
+    const name = this._myForm.controls['name'].value || 'space-image';
+    link.download = `${name}.png`;
+    link.click();
+  }
+
   private isModified(currentSbgb: Sbgb, referenceSbgb: Sbgb): boolean {
     if (!referenceSbgb) return true;
 
@@ -382,7 +410,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       presetValue,
       useMultiLayerValue
     } = this.extractImageFormValues();
-    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue}
+    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue}
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
 
@@ -413,7 +441,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         fore: foregroundColorValue,
         backThreshold: Number(backThresholdValue),
         middleThreshold: Number(middleThresholdValue),
-        interpolationType: interpolationTypeValue
+        interpolationType: interpolationTypeValue,
+        transparentBackground: transparentBackgroundValue
       }
     };
   }
@@ -497,7 +526,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let backThresholdValue = this._myForm.controls[SbgbParamComponent.BACK_THRESHOLD].value;
     let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
     let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
-    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue};
+    let transparentBackgroundValue = this._myForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
+    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue};
   }
 
 }

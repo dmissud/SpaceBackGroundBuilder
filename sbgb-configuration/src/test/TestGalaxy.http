@@ -1,0 +1,107 @@
+### Test Galaxy Generator - Classic Spiral
+POST http://localhost:8080/galaxies/build
+Content-Type: application/json
+
+{
+  "name": "Classic Spiral Galaxy",
+  "description": "2-arm spiral galaxy with standard parameters",
+  "width": 2000,
+  "height": 2000,
+  "seed": 12345,
+  "numberOfArms": 2,
+  "armWidth": 80.0,
+  "armRotation": 4.0,
+  "coreSize": 0.05,
+  "galaxyRadius": 800.0,
+  "noiseOctaves": 4,
+  "noisePersistence": 0.5,
+  "noiseLacunarity": 2.0,
+  "noiseScale": 200.0
+}
+
+### Test Galaxy Generator - Barred Spiral
+POST http://localhost:8080/galaxies/build
+Content-Type: application/json
+
+{
+  "name": "Barred Spiral Galaxy",
+  "description": "Barred spiral galaxy like the Milky Way",
+  "width": 2000,
+  "height": 2000,
+  "seed": 54321,
+  "numberOfArms": 2,
+  "armWidth": 100.0,
+  "armRotation": 3.0,
+  "coreSize": 0.08,
+  "galaxyRadius": 800.0,
+  "noiseOctaves": 5,
+  "noisePersistence": 0.6,
+  "noiseLacunarity": 2.2,
+  "noiseScale": 150.0
+}
+
+### Test Galaxy Generator - Multi-Arm
+POST http://localhost:8080/galaxies/build
+Content-Type: application/json
+
+{
+  "name": "Multi-Arm Galaxy",
+  "description": "3-arm spiral galaxy like M51",
+  "width": 2000,
+  "height": 2000,
+  "seed": 99999,
+  "numberOfArms": 3,
+  "armWidth": 70.0,
+  "armRotation": 5.0,
+  "coreSize": 0.04,
+  "galaxyRadius": 800.0,
+  "noiseOctaves": 6,
+  "noisePersistence": 0.55,
+  "noiseLacunarity": 2.1,
+  "noiseScale": 180.0
+}
+
+### Create and Save Galaxy
+POST http://localhost:8080/galaxies/create
+Content-Type: application/json
+
+{
+  "name": "Saved Spiral Galaxy",
+  "description": "Persistent galaxy in database",
+  "width": 2000,
+  "height": 2000,
+  "seed": 77777,
+  "numberOfArms": 2,
+  "armWidth": 80.0,
+  "armRotation": 4.0,
+  "coreSize": 0.05,
+  "galaxyRadius": 800.0,
+  "noiseOctaves": 4,
+  "noisePersistence": 0.5,
+  "noiseLacunarity": 2.0,
+  "noiseScale": 200.0
+}
+
+### Get All Saved Galaxies
+GET http://localhost:8080/galaxies
+
+### Test Large Galaxy (4000x4000)
+POST http://localhost:8080/galaxies/build
+Content-Type: application/json
+
+{
+  "name": "Large Spiral Galaxy",
+  "description": "High resolution galaxy image",
+  "width": 4000,
+  "height": 4000,
+  "seed": 42000,
+  "numberOfArms": 2,
+  "armWidth": 80.0,
+  "armRotation": 4.0,
+  "coreSize": 0.05,
+  "galaxyRadius": 1500.0,
+  "noiseOctaves": 4,
+  "noisePersistence": 0.5,
+  "noiseLacunarity": 2.0,
+  "noiseScale": 200.0
+}

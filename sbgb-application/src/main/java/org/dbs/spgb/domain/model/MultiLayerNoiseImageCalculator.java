@@ -127,7 +127,8 @@ public class MultiLayerNoiseImageCalculator {
                     layer.getOpacity()
             );
 
-            baseColor = new Color(r, g, b);
+            int a = Math.max(baseColor.getAlpha(), layerColor.getAlpha());
+            baseColor = new Color(r, g, b, a);
             enabledLayerIndex++;
         }
 
