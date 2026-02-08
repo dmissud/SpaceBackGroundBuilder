@@ -309,9 +309,31 @@
     </mat-form-field>
   </section>
 
+  <!-- Visual Enhancements -->
+  <section style="margin-bottom: 20px;">
+    <h3>Visual Enhancements</h3>
+    <mat-form-field style="margin-right: 10px; min-width: 200px;">
+      <mat-label>Domain Warping</mat-label>
+      <input type="number" matInput formControlName="warpStrength" step="10" min="0" max="300">
+      <mat-icon matSuffix matTooltip="Spatial deformation creating organic filaments (0=none, 50-200=filamentary)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="min-width: 200px;">
+      <mat-label>Color Palette</mat-label>
+      <mat-select formControlName="colorPalette">
+        <mat-option value="CLASSIC">Classic (Blue/White)</mat-option>
+        <mat-option value="NEBULA">Nebula (Purple/Cyan)</mat-option>
+        <mat-option value="WARM">Warm (Red/Orange/Yellow)</mat-option>
+        <mat-option value="COLD">Cold (Blue/Cyan)</mat-option>
+        <mat-option value="INFRARED">Infrared (Red/Yellow)</mat-option>
+        <mat-option value="EMERALD">Emerald (Green/Cyan)</mat-option>
+      </mat-select>
+      <mat-icon matSuffix matTooltip="Color palette for galaxy rendering">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
   <!-- Colors -->
   <section style="margin-bottom: 20px;">
-    <h3>Galaxy Colors</h3>
+    <h3>Galaxy Colors (Legacy - overridden by palette)</h3>
     <mat-form-field style="margin-right: 10px;">
       <mat-label>Space Background</mat-label>
       <input type="color" matInput formControlName="spaceBackgroundColor">

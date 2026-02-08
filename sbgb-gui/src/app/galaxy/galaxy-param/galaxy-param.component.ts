@@ -78,7 +78,11 @@ export class GalaxyParamComponent implements OnInit {
       noisePersistence: new FormControl(0.5, [Validators.required]),
       noiseLacunarity: new FormControl(2.0, [Validators.required]),
       noiseScale: new FormControl(200, [Validators.required]),
-      // Color parameters
+      // Domain warping parameter
+      warpStrength: new FormControl(0, [Validators.min(0), Validators.max(300)]),
+      // Color palette parameter
+      colorPalette: new FormControl('CLASSIC'),
+      // Color parameters (legacy)
       spaceBackgroundColor: new FormControl('#050510'),
       coreColor: new FormControl('#FFFADC'),
       armColor: new FormControl('#B4C8FF'),

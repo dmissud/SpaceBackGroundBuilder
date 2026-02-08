@@ -54,7 +54,13 @@ public class GalaxyStructure {
     private Integer irregularClumpCount;
     private Double irregularClumpSize;
 
-    // Color parameters
+    // Domain warping parameter (applicable to all galaxy types)
+    private double warpStrength;
+
+    // Color palette parameter
+    private String colorPalette;
+
+    // Color parameters (legacy - used when colorPalette is null)
     private String spaceBackgroundColor;
     private String coreColor;
     private String armColor;

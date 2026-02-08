@@ -48,6 +48,10 @@ public class GalaxyParameters {
     Integer irregularClumpCount;
     Double irregularClumpSize;
 
+    // Domain warping parameter (applicable to ALL galaxy types)
+    @Builder.Default
+    double warpStrength = 0.0;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */
