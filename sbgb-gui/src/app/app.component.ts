@@ -4,7 +4,7 @@ import {MatToolbar} from "@angular/material/toolbar";
 import {MatAnchor, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 
-import * as packageInfo from '../../package.json'
+import packageInfo from '../../package.json';
 import {MatSnackBar} from "@angular/material/snack-bar";
 @Component({
     selector: 'app-root',
@@ -24,7 +24,7 @@ export class AppComponent {
     return this._version;
   }
 
-  private _name: string = packageInfo.name;
-  private _version: string = packageInfo.version;
+  private _name: string = packageInfo['name'];
+  private _version: string = packageInfo['version'];
 
 }
