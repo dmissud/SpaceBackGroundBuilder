@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.common;
+package org.dbs.sbgb.exposition.common;
 
 
 import lombok.extern.slf4j.Slf4j;

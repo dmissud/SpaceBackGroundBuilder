@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.common;
+package org.dbs.sbgb.exposition.common;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

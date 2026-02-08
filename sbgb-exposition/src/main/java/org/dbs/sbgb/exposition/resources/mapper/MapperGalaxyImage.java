@@ -1,8 +1,8 @@
-package org.dbs.sbgb.spgbexposition.resources.mapper;
+package org.dbs.sbgb.exposition.resources.mapper;
 
 import org.dbs.sbgb.domain.model.GalaxyImage;
 import org.dbs.sbgb.domain.model.GalaxyStructure;
-import org.dbs.sbgb.spgbexposition.resources.dto.*;
+import org.dbs.sbgb.exposition.resources.dto.*;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

@@ -1,7 +1,7 @@
-package org.dbs.sbgb.spgbexposition.resources.mapper;
+package org.dbs.sbgb.exposition.resources.mapper;
 
 import org.dbs.sbgb.domain.model.NoiseImage;
-import org.dbs.sbgb.spgbexposition.resources.dto.NoiseImageDTO;
+import org.dbs.sbgb.exposition.resources.dto.NoiseImageDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

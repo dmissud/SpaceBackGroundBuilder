@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.resources.error;
+package org.dbs.sbgb.exposition.resources.error;
 
 import org.dbs.sbgb.domain.exception.ImageNameAlreadyExistsException;
 import org.springframework.http.HttpStatus;

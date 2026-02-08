@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.resources;
+package org.dbs.sbgb.exposition.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,9 +11,9 @@ import org.dbs.sbgb.port.in.BuildNoiseImageUseCase;
 import org.dbs.sbgb.port.in.CreateNoiseImageUseCase;
 import org.dbs.sbgb.port.in.FindNoiseImagesUseCase;
 import org.dbs.sbgb.port.in.ImageRequestCmd;
-import org.dbs.sbgb.spgbexposition.common.LogExecutionTime;
-import org.dbs.sbgb.spgbexposition.resources.dto.NoiseImageDTO;
-import org.dbs.sbgb.spgbexposition.resources.mapper.MapperNoiseImage;
+import org.dbs.sbgb.exposition.common.LogExecutionTime;
+import org.dbs.sbgb.exposition.resources.dto.NoiseImageDTO;
+import org.dbs.sbgb.exposition.resources.mapper.MapperNoiseImage;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;

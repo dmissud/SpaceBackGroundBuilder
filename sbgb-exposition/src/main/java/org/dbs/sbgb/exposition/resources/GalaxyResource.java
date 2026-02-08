@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.resources;
+package org.dbs.sbgb.exposition.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,9 +11,9 @@ import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
-import org.dbs.sbgb.spgbexposition.common.LogExecutionTime;
-import org.dbs.sbgb.spgbexposition.resources.dto.GalaxyImageDTO;
-import org.dbs.sbgb.spgbexposition.resources.mapper.MapperGalaxyImage;
+import org.dbs.sbgb.exposition.common.LogExecutionTime;
+import org.dbs.sbgb.exposition.resources.dto.GalaxyImageDTO;
+import org.dbs.sbgb.exposition.resources.mapper.MapperGalaxyImage;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

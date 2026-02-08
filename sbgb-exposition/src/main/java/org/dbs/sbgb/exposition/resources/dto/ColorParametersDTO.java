@@ -1,4 +1,4 @@
-package org.dbs.sbgb.spgbexposition.resources.dto;
+package org.dbs.sbgb.exposition.resources.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
