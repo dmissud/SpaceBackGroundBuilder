@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
  * with Perlin noise for organic appearance
  */
 @Slf4j
-public class GalaxyGenerator {
+public class GalaxyGenerator implements GalaxyIntensityCalculator {
 
     private final int width;
     private final int height;
@@ -42,10 +42,7 @@ public class GalaxyGenerator {
         this.galaxyRadius = galaxyRadius;
     }
 
-    /**
-     * Calculate galaxy intensity at given pixel coordinates
-     * Returns value between 0.0 (empty space) and 1.0 (brightest part)
-     */
+    @Override
     public double calculateGalaxyIntensity(int x, int y) {
         // Calculate distance from center
         double dx = x - centerX;
