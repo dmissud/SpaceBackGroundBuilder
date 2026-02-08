@@ -2417,3 +2417,4 @@ Thumbs.db
 /sbgb-gui/node/npm.cmd
 /sbgb-gui/node/npx
 /sbgb-gui/node/npx.cmd
+**/node_modules/

@@ -1,8 +1,8 @@
 package cucumber.steps;
 
 import lombok.Getter;
-import org.dbs.spgb.domain.model.NoiseImage;
-import org.dbs.spgb.port.out.NoiseImageRepository;
+import org.dbs.sbgb.domain.model.NoiseImage;
+import org.dbs.sbgb.port.out.NoiseImageRepository;
 
 import java.util.Collections;
 import java.util.List;
