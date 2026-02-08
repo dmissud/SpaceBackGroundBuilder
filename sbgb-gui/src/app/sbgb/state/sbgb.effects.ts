@@ -4,7 +4,7 @@ import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {ImageApiActions, SbgbPageActions} from "./sbgb.actions";
 import {Router} from "@angular/router";
 import {ImagesService} from "../images.service";
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 
 @Injectable()
 export class SbgbEffects {

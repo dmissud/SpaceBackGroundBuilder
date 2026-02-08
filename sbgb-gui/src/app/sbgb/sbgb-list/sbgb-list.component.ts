@@ -4,25 +4,23 @@ import {selectSbgbs} from "../state/sbgb.selectors";
 import {SbgbPageActions} from "../state/sbgb.actions";
 import {Observable} from "rxjs";
 import {Sbgb} from "../sbgb.model";
-import {AsyncPipe, NgIf} from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {MatTableModule} from "@angular/material/table";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
 @Component({
-  selector: 'app-sbgb-list',
-  standalone: true,
-  imports: [
+    selector: 'app-sbgb-list',
+    imports: [
     AsyncPipe,
-    NgIf,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule
-  ],
-  templateUrl: './sbgb-list.component.html',
-  styleUrl: './sbgb-list.component.scss'
+],
+    templateUrl: './sbgb-list.component.html',
+    styleUrl: './sbgb-list.component.scss'
 })
 export class SbgbListComponent implements OnInit {
 

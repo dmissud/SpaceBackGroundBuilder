@@ -10,12 +10,11 @@ import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
-import {NgIf} from "@angular/common";
+
 
 @Component({
-  selector: 'app-galaxy-param',
-  standalone: true,
-  imports: [
+    selector: 'app-galaxy-param',
+    imports: [
     MatButton,
     MatFormField,
     MatInput,
@@ -27,11 +26,10 @@ import {NgIf} from "@angular/common";
     MatIcon,
     MatSuffix,
     MatSelect,
-    MatOption,
-    NgIf
-  ],
-  templateUrl: './galaxy-param.component.html',
-  styleUrl: './galaxy-param.component.scss'
+    MatOption
+],
+    templateUrl: './galaxy-param.component.html',
+    styleUrl: './galaxy-param.component.scss'
 })
 export class GalaxyParamComponent implements OnInit {
 

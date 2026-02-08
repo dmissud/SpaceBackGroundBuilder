@@ -8,18 +8,17 @@ import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
-  selector: 'app-sbgb-shell',
-  standalone: true,
-  imports: [
-    MatCard,
-    MatCardContent,
-    SbgbParamComponent,
-    SbgbImageComponent,
-    SbgbListComponent,
-    MatTabsModule
-  ],
-  templateUrl: './sbgb-shell.component.html',
-  styleUrl: './sbgb-shell.component.scss'
+    selector: 'app-sbgb-shell',
+    imports: [
+        MatCard,
+        MatCardContent,
+        SbgbParamComponent,
+        SbgbImageComponent,
+        SbgbListComponent,
+        MatTabsModule
+    ],
+    templateUrl: './sbgb-shell.component.html',
+    styleUrl: './sbgb-shell.component.scss'
 })
 export class SbgbShellComponent {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;

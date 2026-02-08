@@ -2,31 +2,31 @@
   <h2>Galaxy Generator</h2>
   <div>
     <button mat-raised-button
-            color="primary"
-            (click)="generateGalaxy()"
-            [disabled]="isGenerating || galaxyForm.invalid"
-            style="margin-right: 8px;">
+      color="primary"
+      (click)="generateGalaxy()"
+      [disabled]="isGenerating || galaxyForm.invalid"
+      style="margin-right: 8px;">
       Generate Preview
     </button>
     <button mat-raised-button
-            color="accent"
-            (click)="saveGalaxy()"
-            [disabled]="isGenerating || galaxyForm.invalid"
-            style="margin-right: 8px;">
+      color="accent"
+      (click)="saveGalaxy()"
+      [disabled]="isGenerating || galaxyForm.invalid"
+      style="margin-right: 8px;">
       Save Galaxy
     </button>
     <button mat-raised-button
-            (click)="downloadImage()"
-            [disabled]="!canDownload()"
-            [matTooltip]="getDownloadTooltip()"
-            matTooltipPosition="below">
+      (click)="downloadImage()"
+      [disabled]="!canDownload()"
+      [matTooltip]="getDownloadTooltip()"
+      matTooltipPosition="below">
       Telecharger
     </button>
   </div>
 </div>
 
 <form [formGroup]="galaxyForm"
-      style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
+  style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
 
   <!-- Name and Description -->
   <section style="width: 100%; display: flex; gap: 10px; margin-bottom: 20px;">
@@ -58,21 +58,27 @@
   <!-- Presets -->
   <section style="margin-bottom: 20px;">
     <h3>Presets</h3>
-    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'SPIRAL'">
-      <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic Spiral</button>
-      <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred Spiral</button>
-      <button mat-raised-button (click)="loadPreset('MULTI_ARM')">Multi-Arm</button>
-    </div>
-    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER'">
-      <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default Cluster</button>
-      <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense Cluster</button>
-      <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')">Sparse Cluster</button>
-    </div>
-    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL'">
-      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_DEFAULT')" style="margin-right: 8px;">E3 Classic</button>
-      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_ROUND')" style="margin-right: 8px;">E0 Round</button>
-      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')">E6 Flat</button>
-    </div>
+    @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic Spiral</button>
+        <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred Spiral</button>
+        <button mat-raised-button (click)="loadPreset('MULTI_ARM')">Multi-Arm</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default Cluster</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense Cluster</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')">Sparse Cluster</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_DEFAULT')" style="margin-right: 8px;">E3 Classic</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_ROUND')" style="margin-right: 8px;">E0 Round</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')">E6 Flat</button>
+      </div>
+    }
   </section>
 
   <!-- Image Dimensions -->
@@ -98,94 +104,100 @@
   </section>
 
   <!-- Spiral Structure (only for SPIRAL type) -->
-  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'SPIRAL'" style="margin-bottom: 20px;">
-    <h3>Spiral Structure</h3>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Number of Arms</mat-label>
-      <input type="number" matInput formControlName="numberOfArms" min="1" max="6">
-      <mat-icon matSuffix matTooltip="Number of spiral arms (1-6)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Arm Width</mat-label>
-      <input type="number" matInput formControlName="armWidth" step="10" min="10">
-      <mat-icon matSuffix matTooltip="Width of spiral arms (larger = wider arms)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Arm Rotation</mat-label>
-      <input type="number" matInput formControlName="armRotation" step="0.5" min="1">
-      <mat-icon matSuffix matTooltip="Tightness of spiral (higher = tighter spiral)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Core Size</mat-label>
-      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
-      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Galaxy Radius</mat-label>
-      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
-      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
+  @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+    <section style="margin-bottom: 20px;">
+      <h3>Spiral Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Number of Arms</mat-label>
+        <input type="number" matInput formControlName="numberOfArms" min="1" max="6">
+        <mat-icon matSuffix matTooltip="Number of spiral arms (1-6)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Arm Width</mat-label>
+        <input type="number" matInput formControlName="armWidth" step="10" min="10">
+        <mat-icon matSuffix matTooltip="Width of spiral arms (larger = wider arms)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Arm Rotation</mat-label>
+        <input type="number" matInput formControlName="armRotation" step="0.5" min="1">
+        <mat-icon matSuffix matTooltip="Tightness of spiral (higher = tighter spiral)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Core Size</mat-label>
+        <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+        <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Galaxy Radius</mat-label>
+        <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+        <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
 
   <!-- Cluster Structure (only for VORONOI_CLUSTER type) -->
-  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER'" style="margin-bottom: 20px;">
-    <h3>Cluster Structure</h3>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Cluster Count</mat-label>
-      <input type="number" matInput formControlName="clusterCount" min="5" max="500">
-      <mat-icon matSuffix matTooltip="Number of star clusters (5-500)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Cluster Size</mat-label>
-      <input type="number" matInput formControlName="clusterSize" step="5" min="10">
-      <mat-icon matSuffix matTooltip="Size of each cluster (Gaussian sigma)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Cluster Concentration</mat-label>
-      <input type="number" matInput formControlName="clusterConcentration" step="0.05" min="0" max="1">
-      <mat-icon matSuffix matTooltip="Concentration towards center (0=uniform, 1=very concentrated)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Core Size</mat-label>
-      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
-      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Galaxy Radius</mat-label>
-      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
-      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
+  @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+    <section style="margin-bottom: 20px;">
+      <h3>Cluster Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Count</mat-label>
+        <input type="number" matInput formControlName="clusterCount" min="5" max="500">
+        <mat-icon matSuffix matTooltip="Number of star clusters (5-500)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Size</mat-label>
+        <input type="number" matInput formControlName="clusterSize" step="5" min="10">
+        <mat-icon matSuffix matTooltip="Size of each cluster (Gaussian sigma)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Concentration</mat-label>
+        <input type="number" matInput formControlName="clusterConcentration" step="0.05" min="0" max="1">
+        <mat-icon matSuffix matTooltip="Concentration towards center (0=uniform, 1=very concentrated)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Core Size</mat-label>
+        <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+        <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Galaxy Radius</mat-label>
+        <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+        <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
 
   <!-- Elliptical Structure (only for ELLIPTICAL type) -->
-  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL'" style="margin-bottom: 20px;">
-    <h3>Elliptical Structure</h3>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Sersic Index</mat-label>
-      <input type="number" matInput formControlName="sersicIndex" step="0.5" min="0.5" max="10">
-      <mat-icon matSuffix matTooltip="Sersic profile index (1=exponential, 4=de Vaucouleurs)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Axis Ratio</mat-label>
-      <input type="number" matInput formControlName="axisRatio" step="0.05" min="0.1" max="1">
-      <mat-icon matSuffix matTooltip="Ellipticity b/a ratio (1=circle, 0.1=very flat)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Orientation Angle</mat-label>
-      <input type="number" matInput formControlName="orientationAngle" step="5" min="0" max="360">
-      <mat-icon matSuffix matTooltip="Rotation angle in degrees (0-360)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="margin-right: 10px;">
-      <mat-label>Core Size</mat-label>
-      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
-      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Galaxy Radius</mat-label>
-      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
-      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
+  @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+    <section style="margin-bottom: 20px;">
+      <h3>Elliptical Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Sersic Index</mat-label>
+        <input type="number" matInput formControlName="sersicIndex" step="0.5" min="0.5" max="10">
+        <mat-icon matSuffix matTooltip="Sersic profile index (1=exponential, 4=de Vaucouleurs)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Axis Ratio</mat-label>
+        <input type="number" matInput formControlName="axisRatio" step="0.05" min="0.1" max="1">
+        <mat-icon matSuffix matTooltip="Ellipticity b/a ratio (1=circle, 0.1=very flat)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Orientation Angle</mat-label>
+        <input type="number" matInput formControlName="orientationAngle" step="5" min="0" max="360">
+        <mat-icon matSuffix matTooltip="Rotation angle in degrees (0-360)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Core Size</mat-label>
+        <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+        <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Galaxy Radius</mat-label>
+        <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+        <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
 
   <!-- Noise Texture -->
   <section style="margin-bottom: 20px;">
@@ -240,11 +252,15 @@
 </form>
 
 <!-- Generated Image Preview -->
-<div *ngIf="generatedImageUrl" style="margin-top: 30px;">
-  <h3>Generated Galaxy Preview</h3>
-  <img [src]="generatedImageUrl" alt="Generated Galaxy" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
-</div>
+@if (generatedImageUrl) {
+  <div style="margin-top: 30px;">
+    <h3>Generated Galaxy Preview</h3>
+    <img [src]="generatedImageUrl" alt="Generated Galaxy" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
+  </div>
+}
 
-<div *ngIf="isGenerating" style="margin-top: 30px; text-align: center;">
-  <p>Generating galaxy... This may take a moment for large images.</p>
-</div>
+@if (isGenerating) {
+  <div style="margin-top: 30px; text-align: center;">
+    <p>Generating galaxy... This may take a moment for large images.</p>
+  </div>
+}
