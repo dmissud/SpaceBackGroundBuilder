@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.dbs.spgb.common.UseCase;
 import org.dbs.spgb.domain.exception.ImageNameAlreadyExistsException;
 import org.dbs.spgb.domain.model.*;
-import org.dbs.spgb.port.in.BuildGalaxyImageUseCase;
-import org.dbs.spgb.port.in.CreateGalaxyImageUseCase;
-import org.dbs.spgb.port.in.FindGalaxyImagesUseCase;
-import org.dbs.spgb.port.in.GalaxyRequestCmd;
+import org.dbs.spgb.port.in.*;
 import org.dbs.spgb.port.out.GalaxyImageRepository;
 
 import javax.imageio.ImageIO;
@@ -50,50 +47,60 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
         byte[] imageBytes = convertToByteArray(image);
 
+        NoiseParameters noise = galaxyRequestCmd.getNoiseParameters();
+        SpiralParameters spiral = galaxyRequestCmd.getSpiralParameters();
+        VoronoiParameters voronoi = galaxyRequestCmd.getVoronoiParameters();
+        EllipticalParameters elliptical = galaxyRequestCmd.getEllipticalParameters();
+        RingParameters ring = galaxyRequestCmd.getRingParameters();
+        IrregularParameters irregular = galaxyRequestCmd.getIrregularParameters();
+        StarFieldParameters starField = galaxyRequestCmd.getStarFieldParameters();
+        MultiLayerNoiseParameters multiLayer = galaxyRequestCmd.getMultiLayerNoiseParameters();
+        ColorParameters color = galaxyRequestCmd.getColorParameters();
+
         GalaxyStructure structure = GalaxyStructure.builder()
                 .width(galaxyRequestCmd.getWidth())
                 .height(galaxyRequestCmd.getHeight())
                 .seed(galaxyRequestCmd.getSeed())
                 .galaxyType(galaxyRequestCmd.getGalaxyType())
-                .numberOfArms(defaultIfNull(galaxyRequestCmd.getNumberOfArms(), 2))
-                .armWidth(defaultIfNull(galaxyRequestCmd.getArmWidth(), 80.0))
-                .armRotation(defaultIfNull(galaxyRequestCmd.getArmRotation(), 4.0))
+                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), 2) : 2)
+                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), 80.0) : 80.0)
+                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), 4.0) : 4.0)
                 .coreSize(defaultIfNull(galaxyRequestCmd.getCoreSize(), 0.05))
                 .galaxyRadius(defaultIfNull(galaxyRequestCmd.getGalaxyRadius(), 1500.0))
-                .noiseOctaves(galaxyRequestCmd.getNoiseOctaves())
-                .noisePersistence(galaxyRequestCmd.getNoisePersistence())
-                .noiseLacunarity(galaxyRequestCmd.getNoiseLacunarity())
-                .noiseScale(galaxyRequestCmd.getNoiseScale())
-                .clusterCount(galaxyRequestCmd.getClusterCount())
-                .clusterSize(galaxyRequestCmd.getClusterSize())
-                .clusterConcentration(galaxyRequestCmd.getClusterConcentration())
-                .sersicIndex(galaxyRequestCmd.getSersicIndex())
-                .axisRatio(galaxyRequestCmd.getAxisRatio())
-                .orientationAngle(galaxyRequestCmd.getOrientationAngle())
-                .ringRadius(galaxyRequestCmd.getRingRadius())
-                .ringWidth(galaxyRequestCmd.getRingWidth())
-                .ringIntensity(galaxyRequestCmd.getRingIntensity())
-                .coreToRingRatio(galaxyRequestCmd.getCoreToRingRatio())
-                .irregularity(galaxyRequestCmd.getIrregularity())
-                .irregularClumpCount(galaxyRequestCmd.getIrregularClumpCount())
-                .irregularClumpSize(galaxyRequestCmd.getIrregularClumpSize())
+                .noiseOctaves(noise.octaves())
+                .noisePersistence(noise.persistence())
+                .noiseLacunarity(noise.lacunarity())
+                .noiseScale(noise.scale())
+                .clusterCount(voronoi != null ? voronoi.clusterCount() : null)
+                .clusterSize(voronoi != null ? voronoi.clusterSize() : null)
+                .clusterConcentration(voronoi != null ? voronoi.clusterConcentration() : null)
+                .sersicIndex(elliptical != null ? elliptical.sersicIndex() : null)
+                .axisRatio(elliptical != null ? elliptical.axisRatio() : null)
+                .orientationAngle(elliptical != null ? elliptical.orientationAngle() : null)
+                .ringRadius(ring != null ? ring.ringRadius() : null)
+                .ringWidth(ring != null ? ring.ringWidth() : null)
+                .ringIntensity(ring != null ? ring.ringIntensity() : null)
+                .coreToRingRatio(ring != null ? ring.coreToRingRatio() : null)
+                .irregularity(irregular != null ? irregular.irregularity() : null)
+                .irregularClumpCount(irregular != null ? irregular.irregularClumpCount() : null)
+                .irregularClumpSize(irregular != null ? irregular.irregularClumpSize() : null)
                 .warpStrength(galaxyRequestCmd.getWarpStrength())
-                .colorPalette(galaxyRequestCmd.getColorPalette())
-                .starDensity(galaxyRequestCmd.getStarDensity())
-                .maxStarSize(galaxyRequestCmd.getMaxStarSize())
-                .diffractionSpikes(galaxyRequestCmd.isDiffractionSpikes())
-                .spikeCount(galaxyRequestCmd.getSpikeCount())
-                .multiLayerNoiseEnabled(galaxyRequestCmd.isMultiLayerNoiseEnabled())
-                .macroLayerScale(galaxyRequestCmd.getMacroLayerScale())
-                .macroLayerWeight(galaxyRequestCmd.getMacroLayerWeight())
-                .mesoLayerScale(galaxyRequestCmd.getMesoLayerScale())
-                .mesoLayerWeight(galaxyRequestCmd.getMesoLayerWeight())
-                .microLayerScale(galaxyRequestCmd.getMicroLayerScale())
-                .microLayerWeight(galaxyRequestCmd.getMicroLayerWeight())
-                .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
-                .coreColor(galaxyRequestCmd.getCoreColor())
-                .armColor(galaxyRequestCmd.getArmColor())
-                .outerColor(galaxyRequestCmd.getOuterColor())
+                .colorPalette(color.colorPalette())
+                .starDensity(starField.density())
+                .maxStarSize(starField.maxStarSize())
+                .diffractionSpikes(starField.diffractionSpikes())
+                .spikeCount(starField.spikeCount())
+                .multiLayerNoiseEnabled(multiLayer.enabled())
+                .macroLayerScale(multiLayer.macroLayerScale())
+                .macroLayerWeight(multiLayer.macroLayerWeight())
+                .mesoLayerScale(multiLayer.mesoLayerScale())
+                .mesoLayerWeight(multiLayer.mesoLayerWeight())
+                .microLayerScale(multiLayer.microLayerScale())
+                .microLayerWeight(multiLayer.microLayerWeight())
+                .spaceBackgroundColor(color.spaceBackgroundColor())
+                .coreColor(color.coreColor())
+                .armColor(color.armColor())
+                .outerColor(color.outerColor())
                 .build();
 
         UUID id = existingImage.map(GalaxyImage::getId).orElse(UUID.randomUUID());
@@ -112,46 +119,55 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private BufferedImage generateGalaxyBufferedImage(GalaxyRequestCmd cmd) {
         GalaxyType galaxyType = parseGalaxyType(cmd.getGalaxyType());
 
+        NoiseParameters noise = cmd.getNoiseParameters();
+        SpiralParameters spiral = cmd.getSpiralParameters();
+        VoronoiParameters voronoi = cmd.getVoronoiParameters();
+        EllipticalParameters elliptical = cmd.getEllipticalParameters();
+        RingParameters ring = cmd.getRingParameters();
+        IrregularParameters irregular = cmd.getIrregularParameters();
+        StarFieldParameters starField = cmd.getStarFieldParameters();
+        MultiLayerNoiseParameters multiLayer = cmd.getMultiLayerNoiseParameters();
+
         GalaxyParameters parameters = GalaxyParameters.builder()
                 .galaxyType(galaxyType)
-                .numberOfArms(defaultIfNull(cmd.getNumberOfArms(), 2))
-                .armWidth(defaultIfNull(cmd.getArmWidth(), 80.0))
-                .armRotation(defaultIfNull(cmd.getArmRotation(), 4.0))
+                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), 2) : 2)
+                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), 80.0) : 80.0)
+                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), 4.0) : 4.0)
                 .coreSize(defaultIfNull(cmd.getCoreSize(), 0.05))
                 .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), 1500.0))
-                .noiseOctaves(cmd.getNoiseOctaves())
-                .noisePersistence(cmd.getNoisePersistence())
-                .noiseLacunarity(cmd.getNoiseLacunarity())
-                .noiseScale(cmd.getNoiseScale())
-                .clusterCount(cmd.getClusterCount())
-                .clusterSize(cmd.getClusterSize())
-                .clusterConcentration(cmd.getClusterConcentration())
-                .sersicIndex(cmd.getSersicIndex())
-                .axisRatio(cmd.getAxisRatio())
-                .orientationAngle(cmd.getOrientationAngle())
-                .ringRadius(cmd.getRingRadius())
-                .ringWidth(cmd.getRingWidth())
-                .ringIntensity(cmd.getRingIntensity())
-                .coreToRingRatio(cmd.getCoreToRingRatio())
-                .irregularity(cmd.getIrregularity())
-                .irregularClumpCount(cmd.getIrregularClumpCount())
-                .irregularClumpSize(cmd.getIrregularClumpSize())
+                .noiseOctaves(noise.octaves())
+                .noisePersistence(noise.persistence())
+                .noiseLacunarity(noise.lacunarity())
+                .noiseScale(noise.scale())
+                .clusterCount(voronoi != null ? voronoi.clusterCount() : null)
+                .clusterSize(voronoi != null ? voronoi.clusterSize() : null)
+                .clusterConcentration(voronoi != null ? voronoi.clusterConcentration() : null)
+                .sersicIndex(elliptical != null ? elliptical.sersicIndex() : null)
+                .axisRatio(elliptical != null ? elliptical.axisRatio() : null)
+                .orientationAngle(elliptical != null ? elliptical.orientationAngle() : null)
+                .ringRadius(ring != null ? ring.ringRadius() : null)
+                .ringWidth(ring != null ? ring.ringWidth() : null)
+                .ringIntensity(ring != null ? ring.ringIntensity() : null)
+                .coreToRingRatio(ring != null ? ring.coreToRingRatio() : null)
+                .irregularity(irregular != null ? irregular.irregularity() : null)
+                .irregularClumpCount(irregular != null ? irregular.irregularClumpCount() : null)
+                .irregularClumpSize(irregular != null ? irregular.irregularClumpSize() : null)
                 .warpStrength(cmd.getWarpStrength())
-                .starDensity(cmd.getStarDensity())
-                .maxStarSize(cmd.getMaxStarSize())
-                .diffractionSpikes(cmd.isDiffractionSpikes())
-                .spikeCount(cmd.getSpikeCount())
-                .multiLayerNoiseEnabled(cmd.isMultiLayerNoiseEnabled())
-                .macroLayerScale(cmd.getMacroLayerScale())
-                .macroLayerWeight(cmd.getMacroLayerWeight())
-                .mesoLayerScale(cmd.getMesoLayerScale())
-                .mesoLayerWeight(cmd.getMesoLayerWeight())
-                .microLayerScale(cmd.getMicroLayerScale())
-                .microLayerWeight(cmd.getMicroLayerWeight())
+                .starDensity(starField.density())
+                .maxStarSize(starField.maxStarSize())
+                .diffractionSpikes(starField.diffractionSpikes())
+                .spikeCount(starField.spikeCount())
+                .multiLayerNoiseEnabled(multiLayer.enabled())
+                .macroLayerScale(multiLayer.macroLayerScale())
+                .macroLayerWeight(multiLayer.macroLayerWeight())
+                .mesoLayerScale(multiLayer.mesoLayerScale())
+                .mesoLayerWeight(multiLayer.mesoLayerWeight())
+                .microLayerScale(multiLayer.microLayerScale())
+                .microLayerWeight(multiLayer.microLayerWeight())
                 .build();
 
         // Create color calculator based on colorPalette parameter
-        GalaxyColorCalculator colorCalculator = createColorCalculator(cmd);
+        GalaxyColorCalculator colorCalculator = createColorCalculator(cmd.getColorParameters());
 
         GalaxyImageCalculator calculator = new GalaxyImageCalculator.Builder()
                 .withWidth(cmd.getWidth())
@@ -174,9 +190,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         return GalaxyType.valueOf(galaxyTypeStr);
     }
 
-    private GalaxyColorCalculator createColorCalculator(GalaxyRequestCmd cmd) {
+    private GalaxyColorCalculator createColorCalculator(ColorParameters colorParams) {
         // Use gradient palette if specified, otherwise use custom colors
-        String palette = cmd.getColorPalette();
+        String palette = colorParams.colorPalette();
         if (palette != null && !palette.isBlank()) {
             try {
                 ColorPalette colorPalette = ColorPalette.valueOf(palette);
@@ -187,10 +203,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         }
 
         // Fall back to custom colors from hex strings
-        java.awt.Color spaceBackground = parseColor(cmd.getSpaceBackgroundColor());
-        java.awt.Color core = parseColor(cmd.getCoreColor());
-        java.awt.Color arms = parseColor(cmd.getArmColor());
-        java.awt.Color outer = parseColor(cmd.getOuterColor());
+        java.awt.Color spaceBackground = parseColor(colorParams.spaceBackgroundColor());
+        java.awt.Color core = parseColor(colorParams.coreColor());
+        java.awt.Color arms = parseColor(colorParams.armColor());
+        java.awt.Color outer = parseColor(colorParams.outerColor());
 
         return new DefaultGalaxyColorCalculator(spaceBackground, core, arms, outer);
     }
