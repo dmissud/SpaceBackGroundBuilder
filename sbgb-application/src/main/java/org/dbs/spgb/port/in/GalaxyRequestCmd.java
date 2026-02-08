@@ -24,6 +24,9 @@ public class GalaxyRequestCmd {
 
     private long seed;
 
+    @Builder.Default
+    private String galaxyType = "SPIRAL";
+
     // Spiral structure parameters
     @Min(1)
     @Max(10)
@@ -56,6 +59,18 @@ public class GalaxyRequestCmd {
 
     @DecimalMin("10.0")
     private double noiseScale;
+
+    // Voronoi cluster parameters (optional - only used when galaxyType == VORONOI_CLUSTER)
+    @Min(5)
+    @Max(500)
+    private Integer clusterCount;
+
+    @DecimalMin("10.0")
+    private Double clusterSize;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    private Double clusterConcentration;
 
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")

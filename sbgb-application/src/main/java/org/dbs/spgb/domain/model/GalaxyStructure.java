@@ -18,6 +18,7 @@ public class GalaxyStructure {
     private int width;
     private int height;
     private long seed;
+    private String galaxyType;
 
     // Spiral structure parameters
     private int numberOfArms;
@@ -31,6 +32,11 @@ public class GalaxyStructure {
     private double noisePersistence;
     private double noiseLacunarity;
     private double noiseScale;
+
+    // Voronoi cluster parameters
+    private Integer clusterCount;
+    private Double clusterSize;
+    private Double clusterConcentration;
 
     // Color parameters
     private String spaceBackgroundColor;

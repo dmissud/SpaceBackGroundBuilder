@@ -42,6 +42,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .width(galaxyRequestCmd.getWidth())
                 .height(galaxyRequestCmd.getHeight())
                 .seed(galaxyRequestCmd.getSeed())
+                .galaxyType(galaxyRequestCmd.getGalaxyType())
                 .numberOfArms(galaxyRequestCmd.getNumberOfArms())
                 .armWidth(galaxyRequestCmd.getArmWidth())
                 .armRotation(galaxyRequestCmd.getArmRotation())
@@ -51,6 +52,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .noisePersistence(galaxyRequestCmd.getNoisePersistence())
                 .noiseLacunarity(galaxyRequestCmd.getNoiseLacunarity())
                 .noiseScale(galaxyRequestCmd.getNoiseScale())
+                .clusterCount(galaxyRequestCmd.getClusterCount())
+                .clusterSize(galaxyRequestCmd.getClusterSize())
+                .clusterConcentration(galaxyRequestCmd.getClusterConcentration())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -69,7 +73,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     }
 
     private BufferedImage generateGalaxyBufferedImage(GalaxyRequestCmd cmd) {
+        GalaxyType galaxyType = parseGalaxyType(cmd.getGalaxyType());
+
         GalaxyParameters parameters = GalaxyParameters.builder()
+                .galaxyType(galaxyType)
                 .numberOfArms(cmd.getNumberOfArms())
                 .armWidth(cmd.getArmWidth())
                 .armRotation(cmd.getArmRotation())
@@ -79,6 +86,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .noisePersistence(cmd.getNoisePersistence())
                 .noiseLacunarity(cmd.getNoiseLacunarity())
                 .noiseScale(cmd.getNoiseScale())
+                .clusterCount(cmd.getClusterCount())
+                .clusterSize(cmd.getClusterSize())
+                .clusterConcentration(cmd.getClusterConcentration())
                 .build();
 
         // Parse colors from hex strings
@@ -99,6 +109,13 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .build();
 
         return calculator.create(cmd.getSeed());
+    }
+
+    private GalaxyType parseGalaxyType(String galaxyTypeStr) {
+        if (galaxyTypeStr == null || galaxyTypeStr.isBlank()) {
+            return GalaxyType.SPIRAL;
+        }
+        return GalaxyType.valueOf(galaxyTypeStr);
     }
 
     private java.awt.Color parseColor(String hex) {
