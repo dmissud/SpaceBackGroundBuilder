@@ -5,50 +5,44 @@
 Analyse basee sur une image de reference nebuleuse realiste. Les ameliorations sont classees par priorite d'impact
 visuel.
 
-### 1.1 Domain Warping (priorite 1 - impact majeur)
+### 1.1 Domain Warping (priorite 1 - impact majeur) ✅ TERMINE
 
-**Probleme** : Les coordonnees sont "droites", les structures trop geometriques et lisses.
-**Solution** : Deformer l'espace avec une seconde couche de bruit avant d'echantillonner l'intensite.
+**Statut** : Implemente dans commit `aa7cf4f`
 
-```
-warped_x = x + noise1(x, y) * warpStrength
-warped_y = y + noise2(x, y) * warpStrength
-intensity = calculateGalaxyIntensity(warped_x, warped_y)
-```
+**Implementation** :
+- Ajout parametre `warpStrength` (double, default 0.0) dans `GalaxyParameters`
+- Creation `DomainWarpCalculator` avec deux `PerlinGenerator` independants (X et Y, seeds offsettees)
+- Integration dans `GalaxyImageCalculator.buildImage()` : warping des coordonnees avant calcul d'intensite
+- Tests complets : zero strength, warping actif, reproductibilite, scaling avec strength
 
-- Cree des filaments courbes et organiques
-- Un seul parametre : `warpStrength` (0.0 = actuel, 50-200 = filamentaire)
-- Applicable a TOUS les types de galaxie (SPIRAL, VORONOI, ELLIPTICAL, futurs)
-- Implementation : dans `GalaxyImageCalculator`, wrapper autour de `calculateGalaxyIntensity()`
-- Necessite un second `PerlinGenerator` dedie au warping (seed differente)
+**Resultat** : Structures filamentaires et organiques au lieu de geometriques. Applicable a tous les types de galaxie.
 
 | Parametre      | Type   | Default | Min | Max   | Description                          |
 |----------------|--------|---------|-----|-------|--------------------------------------|
 | `warpStrength` | Double | 0.0     | 0.0 | 300.0 | Intensite de la deformation spatiale |
 
-### 1.2 Gradient de couleur multi-points (priorite 2 - impact majeur)
+### 1.2 Gradient de couleur multi-points (priorite 2 - impact majeur) ✅ TERMINE
 
-**Probleme** : `DefaultGalaxyColorCalculator` n'a que 4 couleurs fixes avec 3 seuils codes en dur (0.01, 0.3, 0.7). Le
-rendu est monotone (bleu -> blanc).
-**Solution** : Remplacer par un `GradientGalaxyColorCalculator` avec rampe parametrable a N points.
+**Statut** : Implemente dans commit `c07af98`
 
-Exemple de rampe nebuleuse :
+**Implementation** :
+- Creation `ColorStop` (value object : position 0.0-1.0 + Color)
+- Creation `GradientGalaxyColorCalculator` implementant `GalaxyColorCalculator`
+  - Interpolation lisse entre N color stops avec smoothstep
+  - Tri automatique des stops par position
+  - Clamping des intensites hors [0,1]
+- Creation enum `ColorPalette` avec 6 palettes pre-definies :
+  - **NEBULA** : violet/magenta/cyan/turquoise (8 stops) - emission nebulae style
+  - **CLASSIC** : bleu/blanc (5 stops) - galaxie traditionnelle
+  - **WARM** : rouge/orange/jaune (7 stops) - vieilles galaxies rouges
+  - **COLD** : bleu/cyan (7 stops) - jeunes galaxies bleues
+  - **INFRARED** : rouge/jaune (7 stops) - imagerie infrarouge
+  - **EMERALD** : vert/cyan (7 stops) - apparence exotique/alien
+- Tests complets : interpolation, clamping, palettes, sorting
 
-| Position | Couleur        | RGB             |
-|----------|----------------|-----------------|
-| 0.00     | Noir profond   | (5, 5, 15)      |
-| 0.05     | Violet sombre  | (40, 10, 60)    |
-| 0.15     | Magenta        | (120, 30, 100)  |
-| 0.30     | Cyan sombre    | (30, 80, 130)   |
-| 0.50     | Turquoise      | (60, 180, 200)  |
-| 0.70     | Cyan clair     | (130, 220, 255) |
-| 0.85     | Blanc chaud    | (240, 230, 200) |
-| 1.00     | Blanc eclatant | (255, 255, 255) |
+**Resultat** : Transitions de couleur riches et realistes au lieu du scheme monotone 4 couleurs. Chaque palette cree une ambiance visuelle differente.
 
-- Chaque type de galaxie peut avoir sa propre palette
-- L'interface `GalaxyColorCalculator` existe deja, pas de refactoring necessaire
-- Prevoir des palettes pre-definies : "Nebula", "Classic", "Warm", "Cold", "Infrared"
-- UI : color picker ou selection de palette
+**Usage** : `ColorPalette.NEBULA.createCalculator()` ou `new GradientGalaxyColorCalculator(customStops)`
 
 ### 1.3 Couche d'etoiles (priorite 3 - impact visuel immediat)
 
