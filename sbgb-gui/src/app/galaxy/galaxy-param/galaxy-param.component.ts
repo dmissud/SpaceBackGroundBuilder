@@ -63,6 +63,10 @@ export class GalaxyParamComponent implements OnInit {
       clusterCount: new FormControl(80, [Validators.min(5), Validators.max(500)]),
       clusterSize: new FormControl(60, [Validators.min(10)]),
       clusterConcentration: new FormControl(0.7, [Validators.min(0), Validators.max(1)]),
+      // Elliptical parameters
+      sersicIndex: new FormControl(4.0, [Validators.min(0.5), Validators.max(10)]),
+      axisRatio: new FormControl(0.7, [Validators.min(0.1), Validators.max(1)]),
+      orientationAngle: new FormControl(0, [Validators.min(0), Validators.max(360)]),
       // Noise texture parameters
       noiseOctaves: new FormControl(4, [Validators.required]),
       noisePersistence: new FormControl(0.5, [Validators.required]),
@@ -80,13 +84,18 @@ export class GalaxyParamComponent implements OnInit {
     const galaxyType = this.galaxyForm.controls['galaxyType'].value;
     const spiralControls = ['numberOfArms', 'armWidth', 'armRotation'];
     const voronoiControls = ['clusterCount', 'clusterSize', 'clusterConcentration'];
+    const ellipticalControls = ['sersicIndex', 'axisRatio', 'orientationAngle'];
 
-    if (galaxyType === 'VORONOI_CLUSTER') {
-      spiralControls.forEach(c => this.galaxyForm.controls[c].disable());
-      voronoiControls.forEach(c => this.galaxyForm.controls[c].enable());
-    } else {
+    spiralControls.forEach(c => this.galaxyForm.controls[c].disable());
+    voronoiControls.forEach(c => this.galaxyForm.controls[c].disable());
+    ellipticalControls.forEach(c => this.galaxyForm.controls[c].disable());
+
+    if (galaxyType === 'SPIRAL') {
       spiralControls.forEach(c => this.galaxyForm.controls[c].enable());
-      voronoiControls.forEach(c => this.galaxyForm.controls[c].disable());
+    } else if (galaxyType === 'VORONOI_CLUSTER') {
+      voronoiControls.forEach(c => this.galaxyForm.controls[c].enable());
+    } else if (galaxyType === 'ELLIPTICAL') {
+      ellipticalControls.forEach(c => this.galaxyForm.controls[c].enable());
     }
   }
 
@@ -208,6 +217,9 @@ export class GalaxyParamComponent implements OnInit {
       clusterCount: s.clusterCount || 80,
       clusterSize: s.clusterSize || 60,
       clusterConcentration: s.clusterConcentration || 0.7,
+      sersicIndex: s.sersicIndex || 4.0,
+      axisRatio: s.axisRatio || 0.7,
+      orientationAngle: s.orientationAngle || 0,
       noiseOctaves: s.noiseOctaves,
       noisePersistence: s.noisePersistence,
       noiseLacunarity: s.noiseLacunarity,
@@ -301,6 +313,45 @@ export class GalaxyParamComponent implements OnInit {
           noisePersistence: 0.4,
           noiseLacunarity: 1.8,
           noiseScale: 250
+        });
+        break;
+      case 'ELLIPTICAL_DEFAULT':
+        this.galaxyForm.patchValue({
+          sersicIndex: 4.0,
+          axisRatio: 0.7,
+          orientationAngle: 45,
+          coreSize: 0.05,
+          galaxyRadius: 1500,
+          noiseOctaves: 4,
+          noisePersistence: 0.5,
+          noiseLacunarity: 2.0,
+          noiseScale: 200
+        });
+        break;
+      case 'ELLIPTICAL_ROUND':
+        this.galaxyForm.patchValue({
+          sersicIndex: 2.0,
+          axisRatio: 0.95,
+          orientationAngle: 0,
+          coreSize: 0.08,
+          galaxyRadius: 1500,
+          noiseOctaves: 4,
+          noisePersistence: 0.5,
+          noiseLacunarity: 2.0,
+          noiseScale: 200
+        });
+        break;
+      case 'ELLIPTICAL_FLAT':
+        this.galaxyForm.patchValue({
+          sersicIndex: 6.0,
+          axisRatio: 0.4,
+          orientationAngle: 30,
+          coreSize: 0.04,
+          galaxyRadius: 1500,
+          noiseOctaves: 4,
+          noisePersistence: 0.5,
+          noiseLacunarity: 2.0,
+          noiseScale: 200
         });
         break;
     }

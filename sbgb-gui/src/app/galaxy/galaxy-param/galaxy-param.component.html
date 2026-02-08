@@ -50,6 +50,7 @@
       <mat-select formControlName="galaxyType" (selectionChange)="onGalaxyTypeChange()">
         <mat-option value="SPIRAL">Spiral</mat-option>
         <mat-option value="VORONOI_CLUSTER">Voronoi Cluster</mat-option>
+        <mat-option value="ELLIPTICAL">Elliptical</mat-option>
       </mat-select>
     </mat-form-field>
   </section>
@@ -66,6 +67,11 @@
       <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default Cluster</button>
       <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense Cluster</button>
       <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')">Sparse Cluster</button>
+    </div>
+    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL'">
+      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_DEFAULT')" style="margin-right: 8px;">E3 Classic</button>
+      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_ROUND')" style="margin-right: 8px;">E0 Round</button>
+      <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')">E6 Flat</button>
     </div>
   </section>
 
@@ -138,6 +144,36 @@
       <mat-label>Cluster Concentration</mat-label>
       <input type="number" matInput formControlName="clusterConcentration" step="0.05" min="0" max="1">
       <mat-icon matSuffix matTooltip="Concentration towards center (0=uniform, 1=very concentrated)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Core Size</mat-label>
+      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Galaxy Radius</mat-label>
+      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Elliptical Structure (only for ELLIPTICAL type) -->
+  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL'" style="margin-bottom: 20px;">
+    <h3>Elliptical Structure</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Sersic Index</mat-label>
+      <input type="number" matInput formControlName="sersicIndex" step="0.5" min="0.5" max="10">
+      <mat-icon matSuffix matTooltip="Sersic profile index (1=exponential, 4=de Vaucouleurs)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Axis Ratio</mat-label>
+      <input type="number" matInput formControlName="axisRatio" step="0.05" min="0.1" max="1">
+      <mat-icon matSuffix matTooltip="Ellipticity b/a ratio (1=circle, 0.1=very flat)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Orientation Angle</mat-label>
+      <input type="number" matInput formControlName="orientationAngle" step="5" min="0" max="360">
+      <mat-icon matSuffix matTooltip="Rotation angle in degrees (0-360)">help_outline</mat-icon>
     </mat-form-field>
     <mat-form-field style="margin-right: 10px;">
       <mat-label>Core Size</mat-label>
