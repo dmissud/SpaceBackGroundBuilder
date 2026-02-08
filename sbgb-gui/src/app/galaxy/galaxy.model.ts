@@ -23,6 +23,10 @@ export interface GalaxyStructureDTO {
   clusterCount?: number;
   clusterSize?: number;
   clusterConcentration?: number;
+  spaceBackgroundColor?: string;
+  coreColor?: string;
+  armColor?: string;
+  outerColor?: string;
 }
 
 export interface GalaxyRequestCmd {

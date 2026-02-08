@@ -32,4 +32,10 @@ public class GalaxyStructureDTO {
     private Integer clusterCount;
     private Double clusterSize;
     private Double clusterConcentration;
+
+    // Color parameters
+    private String spaceBackgroundColor;
+    private String coreColor;
+    private String armColor;
+    private String outerColor;
 }

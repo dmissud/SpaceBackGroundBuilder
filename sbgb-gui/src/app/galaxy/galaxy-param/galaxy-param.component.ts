@@ -186,7 +186,11 @@ export class GalaxyParamComponent implements OnInit {
       noiseOctaves: s.noiseOctaves,
       noisePersistence: s.noisePersistence,
       noiseLacunarity: s.noiseLacunarity,
-      noiseScale: s.noiseScale
+      noiseScale: s.noiseScale,
+      spaceBackgroundColor: s.spaceBackgroundColor || '#050510',
+      coreColor: s.coreColor || '#FFFADC',
+      armColor: s.armColor || '#B4C8FF',
+      outerColor: s.outerColor || '#3C5078'
     });
 
     this.onGalaxyTypeChange();
