@@ -49,7 +49,13 @@ public class GalaxyStructureDTO {
     private Integer irregularClumpCount;
     private Double irregularClumpSize;
 
-    // Color parameters
+    // Domain warping parameter
+    private double warpStrength;
+
+    // Color palette parameter
+    private String colorPalette;
+
+    // Color parameters (legacy)
     private String spaceBackgroundColor;
     private String coreColor;
     private String armColor;

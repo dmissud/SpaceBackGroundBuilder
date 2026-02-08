@@ -77,6 +77,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .irregularity(galaxyRequestCmd.getIrregularity())
                 .irregularClumpCount(galaxyRequestCmd.getIrregularClumpCount())
                 .irregularClumpSize(galaxyRequestCmd.getIrregularClumpSize())
+                .warpStrength(galaxyRequestCmd.getWarpStrength())
+                .colorPalette(galaxyRequestCmd.getColorPalette())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -123,17 +125,11 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .irregularity(cmd.getIrregularity())
                 .irregularClumpCount(cmd.getIrregularClumpCount())
                 .irregularClumpSize(cmd.getIrregularClumpSize())
+                .warpStrength(cmd.getWarpStrength())
                 .build();
 
-        // Parse colors from hex strings
-        java.awt.Color spaceBackground = parseColor(cmd.getSpaceBackgroundColor());
-        java.awt.Color core = parseColor(cmd.getCoreColor());
-        java.awt.Color arms = parseColor(cmd.getArmColor());
-        java.awt.Color outer = parseColor(cmd.getOuterColor());
-
-        GalaxyColorCalculator colorCalculator = new DefaultGalaxyColorCalculator(
-                spaceBackground, core, arms, outer
-        );
+        // Create color calculator based on colorPalette parameter
+        GalaxyColorCalculator colorCalculator = createColorCalculator(cmd);
 
         GalaxyImageCalculator calculator = new GalaxyImageCalculator.Builder()
                 .withWidth(cmd.getWidth())
@@ -154,6 +150,27 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
             return GalaxyType.SPIRAL;
         }
         return GalaxyType.valueOf(galaxyTypeStr);
+    }
+
+    private GalaxyColorCalculator createColorCalculator(GalaxyRequestCmd cmd) {
+        // Use gradient palette if specified, otherwise use custom colors
+        String palette = cmd.getColorPalette();
+        if (palette != null && !palette.isBlank()) {
+            try {
+                ColorPalette colorPalette = ColorPalette.valueOf(palette);
+                return colorPalette.createCalculator();
+            } catch (IllegalArgumentException e) {
+                // Fall back to custom colors if palette name is invalid
+            }
+        }
+
+        // Fall back to custom colors from hex strings
+        java.awt.Color spaceBackground = parseColor(cmd.getSpaceBackgroundColor());
+        java.awt.Color core = parseColor(cmd.getCoreColor());
+        java.awt.Color arms = parseColor(cmd.getArmColor());
+        java.awt.Color outer = parseColor(cmd.getOuterColor());
+
+        return new DefaultGalaxyColorCalculator(spaceBackground, core, arms, outer);
     }
 
     private java.awt.Color parseColor(String hex) {

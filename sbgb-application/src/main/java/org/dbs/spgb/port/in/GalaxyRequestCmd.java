@@ -114,6 +114,17 @@ public class GalaxyRequestCmd {
     @DecimalMin("20.0")
     private Double irregularClumpSize;
 
+    // Domain warping parameter (optional - applicable to ALL galaxy types)
+    @DecimalMin("0.0")
+    @DecimalMax("300.0")
+    @Builder.Default
+    private double warpStrength = 0.0;
+
+    // Color palette parameter (optional - defaults to CLASSIC if not provided)
+    @Pattern(regexp = "NEBULA|CLASSIC|WARM|COLD|INFRARED|EMERALD")
+    @Builder.Default
+    private String colorPalette = "CLASSIC";
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

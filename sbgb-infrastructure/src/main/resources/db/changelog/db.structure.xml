@@ -18,4 +18,5 @@
     <include file="/db/changelog/2026/02/08-01-add-elliptical-columns.xml"/>
     <include file="/db/changelog/2026/02/08-02-add-ring-columns.xml"/>
     <include file="/db/changelog/2026/02/08-03-add-irregular-columns.xml"/>
+    <include file="/db/changelog/2026/02/08-04-add-warping-and-palette-columns.xml"/>
 </databaseChangeLog>

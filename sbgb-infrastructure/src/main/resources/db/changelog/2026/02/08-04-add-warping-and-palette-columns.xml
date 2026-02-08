@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="08-04-add-warping-and-palette-columns" author="daniel">
+        <comment>Add warpStrength and colorPalette columns for visual enhancements</comment>
+
+        <addColumn tableName="galaxy_image">
+            <column name="warp_strength" type="DOUBLE" defaultValueNumeric="0.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="color_palette" type="VARCHAR(20)" defaultValue="CLASSIC">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
