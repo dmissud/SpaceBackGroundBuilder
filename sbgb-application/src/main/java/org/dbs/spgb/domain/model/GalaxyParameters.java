@@ -37,6 +37,12 @@ public class GalaxyParameters {
     Double axisRatio;
     Double orientationAngle;
 
+    // Ring parameters (nullable, only used when galaxyType == RING)
+    Double ringRadius;
+    Double ringWidth;
+    Double ringIntensity;
+    Double coreToRingRatio;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */
@@ -187,6 +193,63 @@ public class GalaxyParameters {
             .sersicIndex(6.0)
             .axisRatio(0.4)
             .orientationAngle(30.0)
+            .build();
+    }
+
+    /**
+     * Create default parameters for a ring galaxy (Hoag's Object style)
+     */
+    public static GalaxyParameters createDefaultRing() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.RING)
+            .coreSize(0.05)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(4)
+            .noisePersistence(0.5)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .ringRadius(900.0)
+            .ringWidth(150.0)
+            .ringIntensity(1.0)
+            .coreToRingRatio(0.3)
+            .build();
+    }
+
+    /**
+     * Create parameters for a wide ring galaxy
+     */
+    public static GalaxyParameters createWideRing() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.RING)
+            .coreSize(0.03)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(4)
+            .noisePersistence(0.5)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .ringRadius(1000.0)
+            .ringWidth(250.0)
+            .ringIntensity(0.8)
+            .coreToRingRatio(0.2)
+            .build();
+    }
+
+    /**
+     * Create parameters for a bright ring galaxy with prominent core
+     */
+    public static GalaxyParameters createBrightRing() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.RING)
+            .coreSize(0.08)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(5)
+            .noisePersistence(0.6)
+            .noiseLacunarity(2.2)
+            .noiseScale(180.0)
+            .ringRadius(800.0)
+            .ringWidth(120.0)
+            .ringIntensity(1.2)
+            .coreToRingRatio(0.5)
             .build();
     }
 }
