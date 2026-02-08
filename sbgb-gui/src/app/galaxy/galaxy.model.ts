@@ -26,6 +26,10 @@ export interface GalaxyStructureDTO {
   sersicIndex?: number;
   axisRatio?: number;
   orientationAngle?: number;
+  ringRadius?: number;
+  ringWidth?: number;
+  ringIntensity?: number;
+  coreToRingRatio?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
@@ -55,6 +59,10 @@ export interface GalaxyRequestCmd {
   sersicIndex?: number;
   axisRatio?: number;
   orientationAngle?: number;
+  ringRadius?: number;
+  ringWidth?: number;
+  ringIntensity?: number;
+  coreToRingRatio?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
