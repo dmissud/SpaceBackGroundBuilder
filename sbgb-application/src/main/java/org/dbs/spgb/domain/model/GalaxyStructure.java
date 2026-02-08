@@ -66,6 +66,15 @@ public class GalaxyStructure {
     private boolean diffractionSpikes;
     private int spikeCount;
 
+    // Multi-layer noise parameters (applicable to all galaxy types)
+    private boolean multiLayerNoiseEnabled;
+    private double macroLayerScale;
+    private double macroLayerWeight;
+    private double mesoLayerScale;
+    private double mesoLayerWeight;
+    private double microLayerScale;
+    private double microLayerWeight;
+
     // Color parameters (legacy - used when colorPalette is null)
     private String spaceBackgroundColor;
     private String coreColor;

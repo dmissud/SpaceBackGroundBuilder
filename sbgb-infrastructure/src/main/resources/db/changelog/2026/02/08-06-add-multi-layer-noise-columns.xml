@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="08-06-add-multi-layer-noise-columns" author="daniel">
+        <comment>Add multi-layer noise parameters columns to galaxy_image table</comment>
+
+        <addColumn tableName="galaxy_image">
+            <column name="multi_layer_noise_enabled" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="macro_layer_scale" type="double" defaultValueNumeric="0.3">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="macro_layer_weight" type="double" defaultValueNumeric="0.5">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="meso_layer_scale" type="double" defaultValueNumeric="1.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="meso_layer_weight" type="double" defaultValueNumeric="0.35">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="micro_layer_scale" type="double" defaultValueNumeric="3.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="galaxy_image">
+            <column name="micro_layer_weight" type="double" defaultValueNumeric="0.15">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>
