@@ -42,7 +42,7 @@ public class GalaxyImageCalculator {
     }
 
     public BufferedImage create(long seed) {
-        log.info("Creating galaxy image {}x{} with seed {}", width, height, seed);
+        log.info("Creating galaxy image {}x{} with seed {} type {}", width, height, seed, parameters.getGalaxyType());
 
         // Initialize noise generator for organic texture
         PerlinGenerator noiseGenerator = new PerlinGenerator(interpolation, fadeFunction);
@@ -58,22 +58,38 @@ public class GalaxyImageCalculator {
         );
         noiseGenerator.performNormalization();
 
-        // Initialize galaxy generator with geometric spiral structure
-        GalaxyGenerator galaxyGenerator = GalaxyGenerator.builder()
-            .width(width)
-            .height(height)
-            .noiseGenerator(noiseGenerator)
-            .numberOfArms(parameters.getNumberOfArms())
-            .armWidth(parameters.getArmWidth())
-            .armRotation(parameters.getArmRotation())
-            .coreSize(parameters.getCoreSize())
-            .galaxyRadius(parameters.getGalaxyRadius())
-            .build();
+        GalaxyIntensityCalculator intensityCalculator = createIntensityCalculator(noiseGenerator, seed);
 
-        return buildImage(galaxyGenerator);
+        return buildImage(intensityCalculator);
     }
 
-    private BufferedImage buildImage(GalaxyGenerator galaxyGenerator) {
+    private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
+        return switch (parameters.getGalaxyType()) {
+            case VORONOI_CLUSTER -> VoronoiClusterGalaxyGenerator.builder()
+                    .width(width)
+                    .height(height)
+                    .noiseGenerator(noiseGenerator)
+                    .seed(seed)
+                    .coreSize(parameters.getCoreSize())
+                    .galaxyRadius(parameters.getGalaxyRadius())
+                    .clusterCount(parameters.getClusterCount() != null ? parameters.getClusterCount() : 80)
+                    .clusterSize(parameters.getClusterSize() != null ? parameters.getClusterSize() : 60.0)
+                    .clusterConcentration(parameters.getClusterConcentration() != null ? parameters.getClusterConcentration() : 0.7)
+                    .build();
+            case SPIRAL -> GalaxyGenerator.builder()
+                    .width(width)
+                    .height(height)
+                    .noiseGenerator(noiseGenerator)
+                    .numberOfArms(parameters.getNumberOfArms())
+                    .armWidth(parameters.getArmWidth())
+                    .armRotation(parameters.getArmRotation())
+                    .coreSize(parameters.getCoreSize())
+                    .galaxyRadius(parameters.getGalaxyRadius())
+                    .build();
+        };
+    }
+
+    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
         g2d.setBackground(colorCalculator.getSpaceBackgroundColor());
@@ -82,7 +98,7 @@ public class GalaxyImageCalculator {
 
         IntStream.range(0, width).parallel().forEach(x -> {
             for (int y = 0; y < height; y++) {
-                double galaxyIntensity = galaxyGenerator.calculateGalaxyIntensity(x, y);
+                double galaxyIntensity = intensityCalculator.calculateGalaxyIntensity(x, y);
                 Color pixelColor = colorCalculator.calculateGalaxyColor(galaxyIntensity);
                 img.setRGB(x, y, pixelColor.getRGB());
             }
