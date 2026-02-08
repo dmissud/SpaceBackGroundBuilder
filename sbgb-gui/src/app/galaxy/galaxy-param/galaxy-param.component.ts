@@ -9,7 +9,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 import {NgIf} from "@angular/common";
 
 @Component({
@@ -162,6 +162,35 @@ export class GalaxyParamComponent implements OnInit {
     const name = this.galaxyForm.controls['name'].value || 'galaxy-image';
     link.download = `${name}.png`;
     link.click();
+  }
+
+  loadGalaxy(galaxy: GalaxyImageDTO): void {
+    const s = galaxy.galaxyStructure;
+    const galaxyType = s.galaxyType || 'SPIRAL';
+
+    this.galaxyForm.patchValue({
+      name: galaxy.name,
+      description: galaxy.description,
+      width: s.width,
+      height: s.height,
+      seed: s.seed,
+      galaxyType: galaxyType,
+      numberOfArms: s.numberOfArms,
+      armWidth: s.armWidth,
+      armRotation: s.armRotation,
+      coreSize: s.coreSize,
+      galaxyRadius: s.galaxyRadius,
+      clusterCount: s.clusterCount || 80,
+      clusterSize: s.clusterSize || 60,
+      clusterConcentration: s.clusterConcentration || 0.7,
+      noiseOctaves: s.noiseOctaves,
+      noisePersistence: s.noisePersistence,
+      noiseLacunarity: s.noiseLacunarity,
+      noiseScale: s.noiseScale
+    });
+
+    this.onGalaxyTypeChange();
+    this.generateGalaxy();
   }
 
   loadPreset(preset: string): void {

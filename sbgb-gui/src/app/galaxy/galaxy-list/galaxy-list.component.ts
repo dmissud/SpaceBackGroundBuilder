@@ -1,6 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {MatTableModule} from "@angular/material/table";
-import {MatButton} from "@angular/material/button";
+import {MatButtonModule} from "@angular/material/button";
+import {MatIconModule} from "@angular/material/icon";
+import {MatTooltipModule} from "@angular/material/tooltip";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO} from "../galaxy.model";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -11,7 +13,9 @@ import {CommonModule} from "@angular/common";
   standalone: true,
   imports: [
     MatTableModule,
-    MatButton,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
     CommonModule
   ],
   templateUrl: './galaxy-list.component.html',
@@ -19,9 +23,11 @@ import {CommonModule} from "@angular/common";
 })
 export class GalaxyListComponent implements OnInit {
 
-  displayedColumns: string[] = ['name', 'description', 'dimensions', 'arms', 'seed', 'actions'];
+  displayedColumns: string[] = ['name', 'description', 'dimensions', 'structure', 'seed', 'actions'];
   galaxies: GalaxyImageDTO[] = [];
   isLoading = false;
+
+  @Output() viewRequested = new EventEmitter<GalaxyImageDTO>();
 
   constructor(
     private galaxyService: GalaxyService,
@@ -51,7 +57,15 @@ export class GalaxyListComponent implements OnInit {
     return `${galaxy.galaxyStructure.width}x${galaxy.galaxyStructure.height}`;
   }
 
-  getArmInfo(galaxy: GalaxyImageDTO): string {
-    return `${galaxy.galaxyStructure.numberOfArms} arms`;
+  getStructureInfo(galaxy: GalaxyImageDTO): string {
+    const type = galaxy.galaxyStructure.galaxyType || 'SPIRAL';
+    if (type === 'VORONOI_CLUSTER') {
+      return `Voronoi (${galaxy.galaxyStructure.clusterCount || 80} clusters)`;
+    }
+    return `Spiral (${galaxy.galaxyStructure.numberOfArms} arms)`;
+  }
+
+  viewGalaxy(galaxy: GalaxyImageDTO): void {
+    this.viewRequested.emit(galaxy);
   }
 }
