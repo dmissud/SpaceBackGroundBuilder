@@ -42,21 +42,49 @@ public class GalaxyImageCalculator {
     }
 
     public BufferedImage create(long seed) {
-        log.info("Creating galaxy image {}x{} with seed {} type {}", width, height, seed, parameters.getGalaxyType());
+        log.info("Creating galaxy image {}x{} with seed {} type {} multiLayer={}",
+                width, height, seed, parameters.getGalaxyType(), parameters.isMultiLayerNoiseEnabled());
 
         // Initialize noise generator for organic texture
-        PerlinGenerator noiseGenerator = new PerlinGenerator(interpolation, fadeFunction);
-        noiseGenerator.createNoisePipeline(
-            seed,
-            width,
-            height,
-            parameters.getNoiseOctaves(),
-            parameters.getNoisePersistence(),
-            parameters.getNoiseLacunarity(),
-            parameters.getNoiseScale(),
-            NoiseType.FBM
-        );
-        noiseGenerator.performNormalization();
+        // Use multi-layer noise if enabled, otherwise use standard Perlin
+        PerlinGenerator noiseGenerator;
+        MultiLayerNoiseGenerator multiLayerNoise = null;
+
+        if (parameters.isMultiLayerNoiseEnabled()) {
+            // Multi-layer noise mode
+            multiLayerNoise = MultiLayerNoiseGenerator.builder()
+                .seed(seed)
+                .width(width)
+                .height(height)
+                .interpolation(interpolation)
+                .fadeFunction(fadeFunction)
+                .noiseType(NoiseType.FBM)
+                .macroScale(parameters.getMacroLayerScale())
+                .macroWeight(parameters.getMacroLayerWeight())
+                .mesoScale(parameters.getMesoLayerScale())
+                .mesoWeight(parameters.getMesoLayerWeight())
+                .microScale(parameters.getMicroLayerScale())
+                .microWeight(parameters.getMicroLayerWeight())
+                .build();
+            multiLayerNoise.initialize();
+
+            // Create a wrapper PerlinGenerator that delegates to MultiLayerNoiseGenerator
+            noiseGenerator = new MultiLayerNoiseAdapter(multiLayerNoise);
+        } else {
+            // Standard single-layer Perlin noise
+            noiseGenerator = new PerlinGenerator(interpolation, fadeFunction);
+            noiseGenerator.createNoisePipeline(
+                seed,
+                width,
+                height,
+                parameters.getNoiseOctaves(),
+                parameters.getNoisePersistence(),
+                parameters.getNoiseLacunarity(),
+                parameters.getNoiseScale(),
+                NoiseType.FBM
+            );
+            noiseGenerator.performNormalization();
+        }
 
         GalaxyIntensityCalculator intensityCalculator = createIntensityCalculator(noiseGenerator, seed);
 
