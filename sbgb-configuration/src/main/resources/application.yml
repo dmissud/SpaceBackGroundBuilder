@@ -25,3 +25,11 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     doc-expansion: none
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
