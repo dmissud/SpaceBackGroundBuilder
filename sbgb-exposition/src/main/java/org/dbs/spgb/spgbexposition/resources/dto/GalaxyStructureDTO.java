@@ -13,6 +13,7 @@ public class GalaxyStructureDTO {
     private int width;
     private int height;
     private long seed;
+    private String galaxyType;
 
     // Spiral structure parameters
     private int numberOfArms;
@@ -26,4 +27,9 @@ public class GalaxyStructureDTO {
     private double noisePersistence;
     private double noiseLacunarity;
     private double noiseScale;
+
+    // Voronoi cluster parameters
+    private Integer clusterCount;
+    private Double clusterSize;
+    private Double clusterConcentration;
 }
