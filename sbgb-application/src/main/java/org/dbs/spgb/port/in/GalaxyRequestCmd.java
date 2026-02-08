@@ -125,6 +125,25 @@ public class GalaxyRequestCmd {
     @Builder.Default
     private String colorPalette = "CLASSIC";
 
+    // Star field parameters (optional - applicable to ALL galaxy types)
+    @DecimalMin("0.0")
+    @DecimalMax("0.01")
+    @Builder.Default
+    private double starDensity = 0.0;
+
+    @Min(1)
+    @Max(10)
+    @Builder.Default
+    private int maxStarSize = 4;
+
+    @Builder.Default
+    private boolean diffractionSpikes = false;
+
+    @Min(4)
+    @Max(8)
+    @Builder.Default
+    private int spikeCount = 4;
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

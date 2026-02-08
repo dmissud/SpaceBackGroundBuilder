@@ -55,6 +55,12 @@ public class GalaxyStructureDTO {
     // Color palette parameter
     private String colorPalette;
 
+    // Star field parameters
+    private double starDensity;
+    private int maxStarSize;
+    private boolean diffractionSpikes;
+    private int spikeCount;
+
     // Color parameters (legacy)
     private String spaceBackgroundColor;
     private String coreColor;

@@ -79,6 +79,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .irregularClumpSize(galaxyRequestCmd.getIrregularClumpSize())
                 .warpStrength(galaxyRequestCmd.getWarpStrength())
                 .colorPalette(galaxyRequestCmd.getColorPalette())
+                .starDensity(galaxyRequestCmd.getStarDensity())
+                .maxStarSize(galaxyRequestCmd.getMaxStarSize())
+                .diffractionSpikes(galaxyRequestCmd.isDiffractionSpikes())
+                .spikeCount(galaxyRequestCmd.getSpikeCount())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -126,6 +130,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .irregularClumpCount(cmd.getIrregularClumpCount())
                 .irregularClumpSize(cmd.getIrregularClumpSize())
                 .warpStrength(cmd.getWarpStrength())
+                .starDensity(cmd.getStarDensity())
+                .maxStarSize(cmd.getMaxStarSize())
+                .diffractionSpikes(cmd.isDiffractionSpikes())
+                .spikeCount(cmd.getSpikeCount())
                 .build();
 
         // Create color calculator based on colorPalette parameter
