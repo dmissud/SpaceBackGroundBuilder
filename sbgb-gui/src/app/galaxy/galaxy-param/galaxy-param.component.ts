@@ -82,6 +82,11 @@ export class GalaxyParamComponent implements OnInit {
       warpStrength: new FormControl(0, [Validators.min(0), Validators.max(300)]),
       // Color palette parameter
       colorPalette: new FormControl('CLASSIC'),
+      // Star field parameters
+      starDensity: new FormControl(0, [Validators.min(0), Validators.max(0.01)]),
+      maxStarSize: new FormControl(4, [Validators.min(1), Validators.max(10)]),
+      diffractionSpikes: new FormControl(false),
+      spikeCount: new FormControl(4, [Validators.min(4), Validators.max(8)]),
       // Color parameters (legacy)
       spaceBackgroundColor: new FormControl('#050510'),
       coreColor: new FormControl('#FFFADC'),

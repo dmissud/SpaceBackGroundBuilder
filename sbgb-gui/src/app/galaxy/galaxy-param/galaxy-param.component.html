@@ -331,6 +331,36 @@
     </mat-form-field>
   </section>
 
+  <!-- Star Field -->
+  <section style="margin-bottom: 20px;">
+    <h3>Star Field Layer</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Star Density</mat-label>
+        <input type="number" matInput formControlName="starDensity" step="0.0001" min="0" max="0.01">
+        <mat-icon matSuffix matTooltip="Density of stars (0=none, 0.001=typical, 0.01=max)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 150px;">
+        <mat-label>Max Star Size</mat-label>
+        <input type="number" matInput formControlName="maxStarSize" min="1" max="10">
+        <mat-icon matSuffix matTooltip="Maximum star size in pixels (1-10)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Diffraction Spikes</mat-label>
+        <mat-select formControlName="diffractionSpikes">
+          <mat-option [value]="false">Disabled</mat-option>
+          <mat-option [value]="true">Enabled</mat-option>
+        </mat-select>
+        <mat-icon matSuffix matTooltip="Add diffraction spikes to bright stars">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 150px;">
+        <mat-label>Spike Count</mat-label>
+        <input type="number" matInput formControlName="spikeCount" min="4" max="8" step="2">
+        <mat-icon matSuffix matTooltip="Number of diffraction spike branches (4, 6, 8)">help_outline</mat-icon>
+      </mat-form-field>
+    </div>
+  </section>
+
   <!-- Colors -->
   <section style="margin-bottom: 20px;">
     <h3>Galaxy Colors (Legacy - overridden by palette)</h3>

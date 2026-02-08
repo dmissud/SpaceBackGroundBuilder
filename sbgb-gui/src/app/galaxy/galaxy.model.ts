@@ -35,6 +35,10 @@ export interface GalaxyStructureDTO {
   irregularClumpSize?: number;
   warpStrength?: number;
   colorPalette?: string;
+  starDensity?: number;
+  maxStarSize?: number;
+  diffractionSpikes?: boolean;
+  spikeCount?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
@@ -73,6 +77,10 @@ export interface GalaxyRequestCmd {
   irregularClumpSize?: number;
   warpStrength?: number;
   colorPalette?: string;
+  starDensity?: number;
+  maxStarSize?: number;
+  diffractionSpikes?: boolean;
+  spikeCount?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
