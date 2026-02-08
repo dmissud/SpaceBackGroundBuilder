@@ -8,7 +8,7 @@
         <version>3.2.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>org.dbs.spgb</groupId>
+    <groupId>org.dbs.sbgb</groupId>
     <artifactId>sbgb-cmd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>sbgb-cmd</name>
