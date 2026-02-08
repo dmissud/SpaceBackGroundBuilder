@@ -52,6 +52,7 @@
         <mat-option value="VORONOI_CLUSTER">Voronoi Cluster</mat-option>
         <mat-option value="ELLIPTICAL">Elliptical</mat-option>
         <mat-option value="RING">Ring</mat-option>
+        <mat-option value="IRREGULAR">Irregular</mat-option>
       </mat-select>
     </mat-form-field>
   </section>
@@ -85,6 +86,13 @@
         <button mat-raised-button (click)="loadPreset('RING_DEFAULT')" style="margin-right: 8px;">Classic Ring</button>
         <button mat-raised-button (click)="loadPreset('RING_WIDE')" style="margin-right: 8px;">Wide Ring</button>
         <button mat-raised-button (click)="loadPreset('RING_BRIGHT')">Bright Ring</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_DEFAULT')" style="margin-right: 8px;">SMC Default</button>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_CHAOTIC')" style="margin-right: 8px;">Chaotic</button>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_DWARF')">Dwarf Irregular</button>
       </div>
     }
   </section>
@@ -230,6 +238,38 @@
         <mat-label>Core to Ring Ratio</mat-label>
         <input type="number" matInput formControlName="coreToRingRatio" step="0.05" min="0" max="1">
         <mat-icon matSuffix matTooltip="Core brightness relative to ring (0-1)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Core Size</mat-label>
+        <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+        <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Galaxy Radius</mat-label>
+        <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+        <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Irregular Structure (only for IRREGULAR type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+    <section style="margin-bottom: 20px;">
+      <h3>Irregular Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Irregularity</mat-label>
+        <input type="number" matInput formControlName="irregularity" step="0.05" min="0" max="1">
+        <mat-icon matSuffix matTooltip="Degree of chaos (0=smooth, 1=very chaotic)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Clump Count</mat-label>
+        <input type="number" matInput formControlName="irregularClumpCount" step="1" min="5" max="50">
+        <mat-icon matSuffix matTooltip="Number of star-forming clumps (5-50)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Clump Size</mat-label>
+        <input type="number" matInput formControlName="irregularClumpSize" step="10" min="20">
+        <mat-icon matSuffix matTooltip="Size of each clump in pixels (min 20)">help_outline</mat-icon>
       </mat-form-field>
       <mat-form-field style="margin-right: 10px;">
         <mat-label>Core Size</mat-label>

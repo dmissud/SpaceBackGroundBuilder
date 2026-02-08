@@ -70,6 +70,10 @@ export class GalaxyParamComponent implements OnInit {
       ringWidth: new FormControl(150, [Validators.min(10)]),
       ringIntensity: new FormControl(1.0, [Validators.min(0.1), Validators.max(2)]),
       coreToRingRatio: new FormControl(0.3, [Validators.min(0), Validators.max(1)]),
+      // Irregular parameters
+      irregularity: new FormControl(0.8, [Validators.min(0), Validators.max(1)]),
+      irregularClumpCount: new FormControl(15, [Validators.min(5), Validators.max(50)]),
+      irregularClumpSize: new FormControl(80, [Validators.min(20)]),
       // Noise texture parameters
       noiseOctaves: new FormControl(4, [Validators.required]),
       noisePersistence: new FormControl(0.5, [Validators.required]),
@@ -89,11 +93,13 @@ export class GalaxyParamComponent implements OnInit {
     const voronoiControls = ['clusterCount', 'clusterSize', 'clusterConcentration'];
     const ellipticalControls = ['sersicIndex', 'axisRatio', 'orientationAngle'];
     const ringControls = ['ringRadius', 'ringWidth', 'ringIntensity', 'coreToRingRatio'];
+    const irregularControls = ['irregularity', 'irregularClumpCount', 'irregularClumpSize'];
 
     spiralControls.forEach(c => this.galaxyForm.controls[c].disable());
     voronoiControls.forEach(c => this.galaxyForm.controls[c].disable());
     ellipticalControls.forEach(c => this.galaxyForm.controls[c].disable());
     ringControls.forEach(c => this.galaxyForm.controls[c].disable());
+    irregularControls.forEach(c => this.galaxyForm.controls[c].disable());
 
     if (galaxyType === 'SPIRAL') {
       spiralControls.forEach(c => this.galaxyForm.controls[c].enable());
@@ -103,6 +109,8 @@ export class GalaxyParamComponent implements OnInit {
       ellipticalControls.forEach(c => this.galaxyForm.controls[c].enable());
     } else if (galaxyType === 'RING') {
       ringControls.forEach(c => this.galaxyForm.controls[c].enable());
+    } else if (galaxyType === 'IRREGULAR') {
+      irregularControls.forEach(c => this.galaxyForm.controls[c].enable());
     }
   }
 
@@ -231,6 +239,9 @@ export class GalaxyParamComponent implements OnInit {
       ringWidth: s.ringWidth || 150,
       ringIntensity: s.ringIntensity || 1.0,
       coreToRingRatio: s.coreToRingRatio || 0.3,
+      irregularity: s.irregularity || 0.8,
+      irregularClumpCount: s.irregularClumpCount || 15,
+      irregularClumpSize: s.irregularClumpSize || 80,
       noiseOctaves: s.noiseOctaves,
       noisePersistence: s.noisePersistence,
       noiseLacunarity: s.noiseLacunarity,
@@ -405,6 +416,45 @@ export class GalaxyParamComponent implements OnInit {
           noisePersistence: 0.6,
           noiseLacunarity: 2.2,
           noiseScale: 180
+        });
+        break;
+      case 'IRREGULAR_DEFAULT':
+        this.galaxyForm.patchValue({
+          irregularity: 0.8,
+          irregularClumpCount: 15,
+          irregularClumpSize: 80,
+          coreSize: 0.03,
+          galaxyRadius: 1500,
+          noiseOctaves: 6,
+          noisePersistence: 0.7,
+          noiseLacunarity: 2.5,
+          noiseScale: 150
+        });
+        break;
+      case 'IRREGULAR_CHAOTIC':
+        this.galaxyForm.patchValue({
+          irregularity: 0.95,
+          irregularClumpCount: 25,
+          irregularClumpSize: 60,
+          coreSize: 0.02,
+          galaxyRadius: 1500,
+          noiseOctaves: 8,
+          noisePersistence: 0.8,
+          noiseLacunarity: 3.0,
+          noiseScale: 120
+        });
+        break;
+      case 'IRREGULAR_DWARF':
+        this.galaxyForm.patchValue({
+          irregularity: 0.7,
+          irregularClumpCount: 8,
+          irregularClumpSize: 100,
+          coreSize: 0.05,
+          galaxyRadius: 1500,
+          noiseOctaves: 5,
+          noisePersistence: 0.6,
+          noiseLacunarity: 2.0,
+          noiseScale: 200
         });
         break;
     }
