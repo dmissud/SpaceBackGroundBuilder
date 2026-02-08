@@ -52,6 +52,16 @@ public class GalaxyParameters {
     @Builder.Default
     double warpStrength = 0.0;
 
+    // Star field parameters (applicable to ALL galaxy types)
+    @Builder.Default
+    double starDensity = 0.0;
+    @Builder.Default
+    int maxStarSize = 4;
+    @Builder.Default
+    boolean diffractionSpikes = false;
+    @Builder.Default
+    int spikeCount = 4;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */

@@ -73,7 +73,24 @@ public class GalaxyImageCalculator {
             );
         }
 
-        return buildImage(intensityCalculator, warpCalculator);
+        BufferedImage galaxyImage = buildImage(intensityCalculator, warpCalculator);
+
+        // Apply star field if enabled
+        if (parameters.getStarDensity() > 0.0) {
+            StarFieldGenerator starFieldGenerator = StarFieldGenerator.builder()
+                .width(width)
+                .height(height)
+                .starDensity(parameters.getStarDensity())
+                .maxStarSize(parameters.getMaxStarSize())
+                .diffractionSpikes(parameters.isDiffractionSpikes())
+                .spikeCount(parameters.getSpikeCount())
+                .seed(seed + 999999)  // Different seed for stars
+                .build();
+
+            galaxyImage = starFieldGenerator.applyStarField(galaxyImage);
+        }
+
+        return galaxyImage;
     }
 
     private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
