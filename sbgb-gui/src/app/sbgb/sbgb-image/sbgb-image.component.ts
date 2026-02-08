@@ -1,13 +1,7 @@
 import {Component} from "@angular/core";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
-import {MatFormField, MatLabel} from "@angular/material/form-field";
-import {MatInput} from "@angular/material/input";
-import {MatButton} from "@angular/material/button";
 import {selectImageBuild, selectImageIsBuilding} from "../state/sbgb.selectors";
-import { AsyncPipe, NgOptimizedImage } from "@angular/common";
-import {MatSlider, MatSliderThumb} from "@angular/material/slider";
-import {MatCard, MatCardContent} from "@angular/material/card";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatSlideToggle} from "@angular/material/slide-toggle";
 
@@ -15,17 +9,6 @@ import {MatSlideToggle} from "@angular/material/slide-toggle";
     selector: 'app-sbgb-image',
     templateUrl: './sbgb-image.component.html',
     imports: [
-    ReactiveFormsModule,
-    MatFormField,
-    MatInput,
-    MatButton,
-    NgOptimizedImage,
-    AsyncPipe,
-    MatSlider,
-    MatLabel,
-    MatCard,
-    MatCardContent,
-    MatSliderThumb,
     FormsModule,
     MatProgressSpinner,
     MatSlideToggle
