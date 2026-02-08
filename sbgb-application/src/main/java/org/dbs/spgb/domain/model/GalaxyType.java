@@ -4,5 +4,6 @@ public enum GalaxyType {
     SPIRAL,
     VORONOI_CLUSTER,
     ELLIPTICAL,
-    RING
+    RING,
+    IRREGULAR
 }
