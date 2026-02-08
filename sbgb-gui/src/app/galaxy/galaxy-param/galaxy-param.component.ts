@@ -3,6 +3,7 @@ import {MatButton} from "@angular/material/button";
 import {MatFormField, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
+import {MatOption, MatSelect} from "@angular/material/select";
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatTooltip} from "@angular/material/tooltip";
@@ -25,6 +26,8 @@ import {NgIf} from "@angular/common";
     MatTooltip,
     MatIcon,
     MatSuffix,
+    MatSelect,
+    MatOption,
     NgIf
   ],
   templateUrl: './galaxy-param.component.html',
@@ -48,20 +51,42 @@ export class GalaxyParamComponent implements OnInit {
       width: new FormControl(4000, [Validators.required, Validators.min(100)]),
       height: new FormControl(4000, [Validators.required, Validators.min(100)]),
       seed: new FormControl(Math.floor(Math.random() * 1000000)),
+      galaxyType: new FormControl('SPIRAL'),
+      // Spiral structure parameters
       numberOfArms: new FormControl(2, [Validators.required, Validators.min(1)]),
       armWidth: new FormControl(80, [Validators.required, Validators.min(10)]),
       armRotation: new FormControl(4, [Validators.required]),
       coreSize: new FormControl(0.05, [Validators.required]),
       galaxyRadius: new FormControl(1500, [Validators.required]),
+      // Voronoi cluster parameters
+      clusterCount: new FormControl(80, [Validators.min(5), Validators.max(500)]),
+      clusterSize: new FormControl(60, [Validators.min(10)]),
+      clusterConcentration: new FormControl(0.7, [Validators.min(0), Validators.max(1)]),
+      // Noise texture parameters
       noiseOctaves: new FormControl(4, [Validators.required]),
       noisePersistence: new FormControl(0.5, [Validators.required]),
       noiseLacunarity: new FormControl(2.0, [Validators.required]),
       noiseScale: new FormControl(200, [Validators.required]),
+      // Color parameters
       spaceBackgroundColor: new FormControl('#050510'),
       coreColor: new FormControl('#FFFADC'),
       armColor: new FormControl('#B4C8FF'),
       outerColor: new FormControl('#3C5078')
     });
+  }
+
+  onGalaxyTypeChange(): void {
+    const galaxyType = this.galaxyForm.controls['galaxyType'].value;
+    const spiralControls = ['numberOfArms', 'armWidth', 'armRotation'];
+    const voronoiControls = ['clusterCount', 'clusterSize', 'clusterConcentration'];
+
+    if (galaxyType === 'VORONOI_CLUSTER') {
+      spiralControls.forEach(c => this.galaxyForm.controls[c].disable());
+      voronoiControls.forEach(c => this.galaxyForm.controls[c].enable());
+    } else {
+      spiralControls.forEach(c => this.galaxyForm.controls[c].enable());
+      voronoiControls.forEach(c => this.galaxyForm.controls[c].disable());
+    }
   }
 
   generateGalaxy(): void {
@@ -178,6 +203,45 @@ export class GalaxyParamComponent implements OnInit {
           noisePersistence: 0.55,
           noiseLacunarity: 2.1,
           noiseScale: 180
+        });
+        break;
+      case 'VORONOI_DEFAULT':
+        this.galaxyForm.patchValue({
+          clusterCount: 80,
+          clusterSize: 60,
+          clusterConcentration: 0.7,
+          coreSize: 0.05,
+          galaxyRadius: 1500,
+          noiseOctaves: 4,
+          noisePersistence: 0.5,
+          noiseLacunarity: 2.0,
+          noiseScale: 200
+        });
+        break;
+      case 'VORONOI_DENSE':
+        this.galaxyForm.patchValue({
+          clusterCount: 200,
+          clusterSize: 40,
+          clusterConcentration: 0.85,
+          coreSize: 0.08,
+          galaxyRadius: 1500,
+          noiseOctaves: 5,
+          noisePersistence: 0.6,
+          noiseLacunarity: 2.2,
+          noiseScale: 150
+        });
+        break;
+      case 'VORONOI_SPARSE':
+        this.galaxyForm.patchValue({
+          clusterCount: 30,
+          clusterSize: 90,
+          clusterConcentration: 0.4,
+          coreSize: 0.03,
+          galaxyRadius: 1500,
+          noiseOctaves: 3,
+          noisePersistence: 0.4,
+          noiseLacunarity: 1.8,
+          noiseScale: 250
         });
         break;
     }

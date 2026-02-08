@@ -10,6 +10,7 @@ export interface GalaxyStructureDTO {
   width: number;
   height: number;
   seed: number;
+  galaxyType?: string;
   numberOfArms: number;
   armWidth: number;
   armRotation: number;
@@ -19,6 +20,9 @@ export interface GalaxyStructureDTO {
   noisePersistence: number;
   noiseLacunarity: number;
   noiseScale: number;
+  clusterCount?: number;
+  clusterSize?: number;
+  clusterConcentration?: number;
 }
 
 export interface GalaxyRequestCmd {
@@ -27,6 +31,7 @@ export interface GalaxyRequestCmd {
   width: number;
   height: number;
   seed: number;
+  galaxyType?: string;
   numberOfArms: number;
   armWidth: number;
   armRotation: number;
@@ -36,6 +41,9 @@ export interface GalaxyRequestCmd {
   noisePersistence: number;
   noiseLacunarity: number;
   noiseScale: number;
+  clusterCount?: number;
+  clusterSize?: number;
+  clusterConcentration?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;

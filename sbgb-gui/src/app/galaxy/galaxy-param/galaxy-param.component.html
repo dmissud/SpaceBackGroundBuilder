@@ -42,12 +42,31 @@
     </mat-form-field>
   </section>
 
+  <!-- Galaxy Type -->
+  <section style="margin-bottom: 20px;">
+    <h3>Galaxy Type</h3>
+    <mat-form-field style="min-width: 200px;">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="galaxyType" (selectionChange)="onGalaxyTypeChange()">
+        <mat-option value="SPIRAL">Spiral</mat-option>
+        <mat-option value="VORONOI_CLUSTER">Voronoi Cluster</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
   <!-- Presets -->
   <section style="margin-bottom: 20px;">
     <h3>Presets</h3>
-    <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic Spiral</button>
-    <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred Spiral</button>
-    <button mat-raised-button (click)="loadPreset('MULTI_ARM')">Multi-Arm</button>
+    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'SPIRAL'">
+      <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic Spiral</button>
+      <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred Spiral</button>
+      <button mat-raised-button (click)="loadPreset('MULTI_ARM')">Multi-Arm</button>
+    </div>
+    <div *ngIf="galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER'">
+      <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default Cluster</button>
+      <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense Cluster</button>
+      <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')">Sparse Cluster</button>
+    </div>
   </section>
 
   <!-- Image Dimensions -->
@@ -72,8 +91,8 @@
     </mat-form-field>
   </section>
 
-  <!-- Spiral Structure -->
-  <section style="margin-bottom: 20px;">
+  <!-- Spiral Structure (only for SPIRAL type) -->
+  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'SPIRAL'" style="margin-bottom: 20px;">
     <h3>Spiral Structure</h3>
     <mat-form-field style="margin-right: 10px;">
       <mat-label>Number of Arms</mat-label>
@@ -89,6 +108,36 @@
       <mat-label>Arm Rotation</mat-label>
       <input type="number" matInput formControlName="armRotation" step="0.5" min="1">
       <mat-icon matSuffix matTooltip="Tightness of spiral (higher = tighter spiral)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Core Size</mat-label>
+      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Galaxy Radius</mat-label>
+      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Cluster Structure (only for VORONOI_CLUSTER type) -->
+  <section *ngIf="galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER'" style="margin-bottom: 20px;">
+    <h3>Cluster Structure</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Cluster Count</mat-label>
+      <input type="number" matInput formControlName="clusterCount" min="5" max="500">
+      <mat-icon matSuffix matTooltip="Number of star clusters (5-500)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Cluster Size</mat-label>
+      <input type="number" matInput formControlName="clusterSize" step="5" min="10">
+      <mat-icon matSuffix matTooltip="Size of each cluster (Gaussian sigma)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Cluster Concentration</mat-label>
+      <input type="number" matInput formControlName="clusterConcentration" step="0.05" min="0" max="1">
+      <mat-icon matSuffix matTooltip="Concentration towards center (0=uniform, 1=very concentrated)">help_outline</mat-icon>
     </mat-form-field>
     <mat-form-field style="margin-right: 10px;">
       <mat-label>Core Size</mat-label>
