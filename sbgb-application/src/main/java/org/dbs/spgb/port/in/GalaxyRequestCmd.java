@@ -27,23 +27,23 @@ public class GalaxyRequestCmd {
     @Builder.Default
     private String galaxyType = "SPIRAL";
 
-    // Spiral structure parameters
+    // Spiral structure parameters (nullable - only required when galaxyType == SPIRAL)
     @Min(1)
     @Max(10)
-    private int numberOfArms;
+    private Integer numberOfArms;
 
     @DecimalMin("10.0")
-    private double armWidth;
+    private Double armWidth;
 
     @DecimalMin("1.0")
-    private double armRotation;
+    private Double armRotation;
 
     @DecimalMin("0.01")
     @DecimalMax("0.5")
-    private double coreSize;
+    private Double coreSize;
 
     @DecimalMin("100.0")
-    private double galaxyRadius;
+    private Double galaxyRadius;
 
     // Noise texture parameters
     @Min(1)

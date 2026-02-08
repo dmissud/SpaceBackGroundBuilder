@@ -43,11 +43,11 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .height(galaxyRequestCmd.getHeight())
                 .seed(galaxyRequestCmd.getSeed())
                 .galaxyType(galaxyRequestCmd.getGalaxyType())
-                .numberOfArms(galaxyRequestCmd.getNumberOfArms())
-                .armWidth(galaxyRequestCmd.getArmWidth())
-                .armRotation(galaxyRequestCmd.getArmRotation())
-                .coreSize(galaxyRequestCmd.getCoreSize())
-                .galaxyRadius(galaxyRequestCmd.getGalaxyRadius())
+                .numberOfArms(defaultIfNull(galaxyRequestCmd.getNumberOfArms(), 2))
+                .armWidth(defaultIfNull(galaxyRequestCmd.getArmWidth(), 80.0))
+                .armRotation(defaultIfNull(galaxyRequestCmd.getArmRotation(), 4.0))
+                .coreSize(defaultIfNull(galaxyRequestCmd.getCoreSize(), 0.05))
+                .galaxyRadius(defaultIfNull(galaxyRequestCmd.getGalaxyRadius(), 1500.0))
                 .noiseOctaves(galaxyRequestCmd.getNoiseOctaves())
                 .noisePersistence(galaxyRequestCmd.getNoisePersistence())
                 .noiseLacunarity(galaxyRequestCmd.getNoiseLacunarity())
@@ -77,11 +77,11 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
 
         GalaxyParameters parameters = GalaxyParameters.builder()
                 .galaxyType(galaxyType)
-                .numberOfArms(cmd.getNumberOfArms())
-                .armWidth(cmd.getArmWidth())
-                .armRotation(cmd.getArmRotation())
-                .coreSize(cmd.getCoreSize())
-                .galaxyRadius(cmd.getGalaxyRadius())
+                .numberOfArms(defaultIfNull(cmd.getNumberOfArms(), 2))
+                .armWidth(defaultIfNull(cmd.getArmWidth(), 80.0))
+                .armRotation(defaultIfNull(cmd.getArmRotation(), 4.0))
+                .coreSize(defaultIfNull(cmd.getCoreSize(), 0.05))
+                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), 1500.0))
                 .noiseOctaves(cmd.getNoiseOctaves())
                 .noisePersistence(cmd.getNoisePersistence())
                 .noiseLacunarity(cmd.getNoiseLacunarity())
@@ -109,6 +109,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .build();
 
         return calculator.create(cmd.getSeed());
+    }
+
+    private static <T> T defaultIfNull(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
     }
 
     private GalaxyType parseGalaxyType(String galaxyTypeStr) {
