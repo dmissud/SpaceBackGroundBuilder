@@ -86,6 +86,16 @@ public class GalaxyImageCalculator {
                     .coreSize(parameters.getCoreSize())
                     .galaxyRadius(parameters.getGalaxyRadius())
                     .build();
+            case ELLIPTICAL -> EllipticalGalaxyGenerator.builder()
+                    .width(width)
+                    .height(height)
+                    .noiseGenerator(noiseGenerator)
+                    .coreSize(parameters.getCoreSize())
+                    .galaxyRadius(parameters.getGalaxyRadius())
+                    .sersicIndex(parameters.getSersicIndex() != null ? parameters.getSersicIndex() : 4.0)
+                    .axisRatio(parameters.getAxisRatio() != null ? parameters.getAxisRatio() : 0.7)
+                    .orientationAngle(parameters.getOrientationAngle() != null ? parameters.getOrientationAngle() : 0.0)
+                    .build();
         };
     }
 

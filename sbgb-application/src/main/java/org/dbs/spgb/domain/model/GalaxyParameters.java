@@ -32,6 +32,11 @@ public class GalaxyParameters {
     Double clusterSize;
     Double clusterConcentration;
 
+    // Elliptical parameters (nullable, only used when galaxyType == ELLIPTICAL)
+    Double sersicIndex;
+    Double axisRatio;
+    Double orientationAngle;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */
@@ -137,6 +142,51 @@ public class GalaxyParameters {
             .clusterCount(30)
             .clusterSize(90.0)
             .clusterConcentration(0.4)
+            .build();
+    }
+
+    public static GalaxyParameters createDefaultElliptical() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.ELLIPTICAL)
+            .coreSize(0.05)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(4)
+            .noisePersistence(0.5)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .sersicIndex(4.0)
+            .axisRatio(0.7)
+            .orientationAngle(45.0)
+            .build();
+    }
+
+    public static GalaxyParameters createRoundElliptical() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.ELLIPTICAL)
+            .coreSize(0.08)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(4)
+            .noisePersistence(0.5)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .sersicIndex(2.0)
+            .axisRatio(0.95)
+            .orientationAngle(0.0)
+            .build();
+    }
+
+    public static GalaxyParameters createFlatElliptical() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.ELLIPTICAL)
+            .coreSize(0.04)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(4)
+            .noisePersistence(0.5)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .sersicIndex(6.0)
+            .axisRatio(0.4)
+            .orientationAngle(30.0)
             .build();
     }
 }
