@@ -30,6 +30,9 @@ export interface GalaxyStructureDTO {
   ringWidth?: number;
   ringIntensity?: number;
   coreToRingRatio?: number;
+  irregularity?: number;
+  irregularClumpCount?: number;
+  irregularClumpSize?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
@@ -63,6 +66,9 @@ export interface GalaxyRequestCmd {
   ringWidth?: number;
   ringIntensity?: number;
   coreToRingRatio?: number;
+  irregularity?: number;
+  irregularClumpCount?: number;
+  irregularClumpSize?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;

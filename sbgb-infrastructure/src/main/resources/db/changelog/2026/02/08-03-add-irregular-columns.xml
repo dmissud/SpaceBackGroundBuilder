@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1707400000002-1" author="daniel">
+        <addColumn tableName="galaxy_image">
+            <column name="irregularity" type="DOUBLE">
+                <constraints nullable="true"/>
+            </column>
+            <column name="irregular_clump_count" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="irregular_clump_size" type="DOUBLE">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

@@ -44,6 +44,11 @@ public class GalaxyStructureDTO {
     private Double ringIntensity;
     private Double coreToRingRatio;
 
+    // Irregular parameters
+    private Double irregularity;
+    private Integer irregularClumpCount;
+    private Double irregularClumpSize;
+
     // Color parameters
     private String spaceBackgroundColor;
     private String coreColor;

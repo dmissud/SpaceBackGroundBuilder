@@ -43,6 +43,11 @@ public class GalaxyParameters {
     Double ringIntensity;
     Double coreToRingRatio;
 
+    // Irregular parameters (nullable, only used when galaxyType == IRREGULAR)
+    Double irregularity;
+    Integer irregularClumpCount;
+    Double irregularClumpSize;
+
     /**
      * Create default parameters for a classic spiral galaxy
      */
@@ -250,6 +255,60 @@ public class GalaxyParameters {
             .ringWidth(120.0)
             .ringIntensity(1.2)
             .coreToRingRatio(0.5)
+            .build();
+    }
+
+    /**
+     * Create default parameters for an irregular galaxy (Small Magellanic Cloud style)
+     */
+    public static GalaxyParameters createDefaultIrregular() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.IRREGULAR)
+            .coreSize(0.03)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(6)
+            .noisePersistence(0.7)
+            .noiseLacunarity(2.5)
+            .noiseScale(150.0)
+            .irregularity(0.8)
+            .irregularClumpCount(15)
+            .irregularClumpSize(80.0)
+            .build();
+    }
+
+    /**
+     * Create parameters for a chaotic irregular galaxy
+     */
+    public static GalaxyParameters createChaoticIrregular() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.IRREGULAR)
+            .coreSize(0.02)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(8)
+            .noisePersistence(0.8)
+            .noiseLacunarity(3.0)
+            .noiseScale(120.0)
+            .irregularity(0.95)
+            .irregularClumpCount(25)
+            .irregularClumpSize(60.0)
+            .build();
+    }
+
+    /**
+     * Create parameters for a dwarf irregular galaxy
+     */
+    public static GalaxyParameters createDwarfIrregular() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.IRREGULAR)
+            .coreSize(0.05)
+            .galaxyRadius(1500.0)
+            .noiseOctaves(5)
+            .noisePersistence(0.6)
+            .noiseLacunarity(2.0)
+            .noiseScale(200.0)
+            .irregularity(0.7)
+            .irregularClumpCount(8)
+            .irregularClumpSize(100.0)
             .build();
     }
 }

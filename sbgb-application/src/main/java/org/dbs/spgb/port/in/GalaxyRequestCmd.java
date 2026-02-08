@@ -102,6 +102,18 @@ public class GalaxyRequestCmd {
     @DecimalMax("1.0")
     private Double coreToRingRatio;
 
+    // Irregular parameters (optional - only used when galaxyType == IRREGULAR)
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    private Double irregularity;
+
+    @Min(5)
+    @Max(50)
+    private Integer irregularClumpCount;
+
+    @DecimalMin("20.0")
+    private Double irregularClumpSize;
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

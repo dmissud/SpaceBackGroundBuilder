@@ -74,6 +74,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .ringWidth(galaxyRequestCmd.getRingWidth())
                 .ringIntensity(galaxyRequestCmd.getRingIntensity())
                 .coreToRingRatio(galaxyRequestCmd.getCoreToRingRatio())
+                .irregularity(galaxyRequestCmd.getIrregularity())
+                .irregularClumpCount(galaxyRequestCmd.getIrregularClumpCount())
+                .irregularClumpSize(galaxyRequestCmd.getIrregularClumpSize())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -117,6 +120,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .ringWidth(cmd.getRingWidth())
                 .ringIntensity(cmd.getRingIntensity())
                 .coreToRingRatio(cmd.getCoreToRingRatio())
+                .irregularity(cmd.getIrregularity())
+                .irregularClumpCount(cmd.getIrregularClumpCount())
+                .irregularClumpSize(cmd.getIrregularClumpSize())
                 .build();
 
         // Parse colors from hex strings
