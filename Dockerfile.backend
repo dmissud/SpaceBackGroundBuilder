@@ -27,8 +27,10 @@ COPY sbgb-cmd/src sbgb-cmd/src
 # Remove sbgb-gui module reference again (in case pom.xml was re-copied)
 RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml
 
-# Build the application
-RUN mvn clean package -DskipTests -pl sbgb-configuration -am
+# Build all modules and install to local Maven repo
+RUN mvn clean install -DskipTests && \
+    echo "=== Listing JAR files ===" && \
+    ls -lh /app/sbgb-configuration/target/*.jar
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
@@ -39,8 +41,8 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Copy the built artifact
-COPY --from=build /app/sbgb-configuration/target/*.jar app.jar
+# Copy the Spring Boot executable JAR (not the plain JAR)
+COPY --from=build /app/sbgb-configuration/target/sbgb-configuration-*.jar app.jar
 
 # Expose port
 EXPOSE 8080
