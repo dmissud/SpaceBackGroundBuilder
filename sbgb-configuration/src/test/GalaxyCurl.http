@@ -1,0 +1,384 @@
+### Galaxy Image Creation Examples - Optimized for Distant Galaxy Patterns
+### These examples create galaxy-like patterns that work well as background elements
+### when viewed from a distance, using the current noise-based system
+
+### 1. Basic Distant Spiral Galaxy
+### Creates a simple galaxy pattern with core and spiral-like arms
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Basic Distant Galaxy",
+  "description": "Simple galaxy pattern for background use",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 3000,
+    "width": 3000,
+    "seed": 12345,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 600.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.9,
+        "lacunarity": 1.7,
+        "scale": 250.0,
+        "opacity": 0.5,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.7,
+        "lacunarity": 2.2,
+        "scale": 120.0,
+        "opacity": 0.4,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#00000a",
+    "fore": "#0a0a2a",
+    "backThreshold": 0.05,
+    "middleThreshold": 0.95,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 2. Advanced Distant Galaxy with Details
+### More complex galaxy with additional detail layers for realism
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Advanced Distant Galaxy",
+  "description": "Complex galaxy pattern with multiple detail layers",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 42,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 800.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_glow",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.9,
+        "lacunarity": 1.7,
+        "scale": 300.0,
+        "opacity": 0.6,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_structure",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.7,
+        "lacunarity": 2.2,
+        "scale": 150.0,
+        "opacity": 0.5,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      },
+      {
+        "name": "galaxy_details",
+        "enabled": true,
+        "octaves": 6,
+        "persistence": 0.5,
+        "lacunarity": 2.4,
+        "scale": 80.0,
+        "opacity": 0.3,
+        "blendMode": "SOFT_LIGHT",
+        "noiseType": "FBM",
+        "seedOffset": 3000
+      },
+      {
+        "name": "dust_lanes",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.4,
+        "lacunarity": 2.1,
+        "scale": 60.0,
+        "opacity": 0.2,
+        "blendMode": "MULTIPLY",
+        "noiseType": "RIDGED",
+        "seedOffset": 4000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000011",
+    "fore": "#111133",
+    "backThreshold": 0.1,
+    "middleThreshold": 0.9,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 3. Elliptical Galaxy Pattern
+### Creates a more uniform, elliptical-shaped galaxy pattern
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Elliptical Galaxy",
+  "description": "Uniform galaxy pattern resembling elliptical galaxies",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 3500,
+    "width": 3500,
+    "seed": 789,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 700.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.8,
+        "lacunarity": 1.8,
+        "scale": 200.0,
+        "opacity": 0.7,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_halo",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.6,
+        "lacunarity": 2.0,
+        "scale": 120.0,
+        "opacity": 0.4,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#0a0a0a",
+    "fore": "#2a2a1a",
+    "backThreshold": 0.15,
+    "middleThreshold": 0.85,
+    "interpolationType": "COSINE"
+  }
+}
+
+### 4. Galaxy Cluster (Multiple Galaxies)
+### Creates a pattern that resembles a cluster of distant galaxies
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Galaxy Cluster",
+  "description": "Pattern resembling multiple distant galaxies",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 111,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 1000.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_clusters",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.7,
+        "lacunarity": 2.5,
+        "scale": 200.0,
+        "opacity": 0.4,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_details",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.5,
+        "lacunarity": 2.3,
+        "scale": 80.0,
+        "opacity": 0.3,
+        "blendMode": "SOFT_LIGHT",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000005",
+    "fore": "#05051a",
+    "backThreshold": 0.08,
+    "middleThreshold": 0.92,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 5. Generate Galaxy Without Saving (returns PNG)
+### Use this to quickly generate a galaxy image without database storage
+POST http://localhost:8080/images/build
+Content-Type: application/json
+
+{
+  "name": "Temporary Galaxy",
+  "description": "Quick galaxy generation without saving",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 2500,
+    "width": 2500,
+    "seed": 999,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 500.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.8,
+        "lacunarity": 1.8,
+        "scale": 200.0,
+        "opacity": 0.6,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.6,
+        "lacunarity": 2.2,
+        "scale": 100.0,
+        "opacity": 0.4,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000008",
+    "fore": "#080820",
+    "backThreshold": 0.1,
+    "middleThreshold": 0.9,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### Galaxy Creation Tips:
+# 1. Use very large scale (500-1000) for background to create uniform deep space
+# 2. Use progressively smaller scales for galaxy structure (200-50 for details)
+# 3. Keep opacities low (0.3-0.6) for distant galaxy appearance
+# 4. Use dark color palettes (#000000 to #111133) for realism
+# 5. Set narrow color thresholds (0.05-0.1 and 0.9-0.95) for high contrast
+# 6. Use SCREEN blend mode for bright cores, OVERLAY for structure
+# 7. Experiment with different seeds to find interesting galaxy patterns
+# 8. For galaxy clusters, use medium scales (200-300) with moderate persistence
+# 9. Add RIDGED noise layers for dust lane effects (low opacity, MULTIPLY blend)
+# 10. These patterns work best as background elements when viewed from a distance

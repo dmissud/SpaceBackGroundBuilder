@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1711961715407-1" author="daniel (generated)">
+        <createTable tableName="noise_image">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_noiseimage"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="note" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image" type="BLOB"/>
+            <column name="height" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="width" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seed" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="back" type="VARCHAR(255)"/>
+            <column name="middle" type="VARCHAR(255)"/>
+            <column name="fore" type="VARCHAR(255)"/>
+            <column name="back_threshold" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middle_threshold" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

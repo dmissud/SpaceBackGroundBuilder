@@ -1,0 +1,432 @@
+### Centered Galaxy Examples - Optimized for 4000x4000 Images
+### These examples create galaxy patterns centered in the image
+### Using multi-layer techniques with progressive scale reduction
+
+### 1. Classic Spiral Galaxy (Centered)
+### Creates a spiral galaxy with bright core and fading arms
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Classic Spiral Galaxy",
+  "description": "Centered spiral galaxy with bright core and arms",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 42,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space_background",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 800.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core_bright",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.9,
+        "lacunarity": 1.8,
+        "scale": 300.0,
+        "opacity": 0.8,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms_structure",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.7,
+        "lacunarity": 2.2,
+        "scale": 200.0,
+        "opacity": 0.6,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      },
+      {
+        "name": "galaxy_arms_details",
+        "enabled": true,
+        "octaves": 6,
+        "persistence": 0.5,
+        "lacunarity": 2.4,
+        "scale": 100.0,
+        "opacity": 0.4,
+        "blendMode": "SOFT_LIGHT",
+        "noiseType": "FBM",
+        "seedOffset": 3000
+      },
+      {
+        "name": "dust_lanes",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.4,
+        "lacunarity": 2.1,
+        "scale": 80.0,
+        "opacity": 0.3,
+        "blendMode": "MULTIPLY",
+        "noiseType": "RIDGED",
+        "seedOffset": 4000
+      },
+      {
+        "name": "starfield_foreground",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.2,
+        "lacunarity": 2.0,
+        "scale": 30.0,
+        "opacity": 0.5,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 5000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000011",
+    "fore": "#ffffff",
+    "backThreshold": 0.1,
+    "middleThreshold": 0.9,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 2. Bright Core Galaxy
+### Emphasizes the bright galactic center with fading arms
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Bright Core Galaxy",
+  "description": "Galaxy with very bright center and subtle arms",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 123,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 1000.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core_very_bright",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.95,
+        "lacunarity": 1.7,
+        "scale": 400.0,
+        "opacity": 0.9,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms_subtle",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.6,
+        "lacunarity": 2.3,
+        "scale": 250.0,
+        "opacity": 0.5,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      },
+      {
+        "name": "galaxy_glow",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.8,
+        "lacunarity": 2.0,
+        "scale": 150.0,
+        "opacity": 0.4,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 3000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#0a0a2a",
+    "fore": "#ffffff",
+    "backThreshold": 0.05,
+    "middleThreshold": 0.95,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 3. Elliptical Galaxy (Centered)
+### Creates a uniform elliptical galaxy pattern
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Elliptical Galaxy",
+  "description": "Centered elliptical galaxy with smooth gradient",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 456,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 1200.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core_large",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.8,
+        "lacunarity": 1.9,
+        "scale": 500.0,
+        "opacity": 0.7,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_halo_smooth",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.6,
+        "lacunarity": 2.0,
+        "scale": 200.0,
+        "opacity": 0.5,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#1a1a0a",
+    "fore": "#ffd700",
+    "backThreshold": 0.15,
+    "middleThreshold": 0.85,
+    "interpolationType": "COSINE"
+  }
+}
+
+### 4. Galaxy with Prominent Dust Lanes
+### Spiral galaxy with dark dust lanes for realism
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Dust Lane Galaxy",
+  "description": "Spiral galaxy with prominent dust lanes",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 789,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 900.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.8,
+        "lacunarity": 2.0,
+        "scale": 350.0,
+        "opacity": 0.7,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.65,
+        "lacunarity": 2.3,
+        "scale": 220.0,
+        "opacity": 0.6,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      },
+      {
+        "name": "dust_lanes_prominent",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.5,
+        "lacunarity": 2.2,
+        "scale": 120.0,
+        "opacity": 0.4,
+        "blendMode": "MULTIPLY",
+        "noiseType": "RIDGED",
+        "seedOffset": 3000
+      },
+      {
+        "name": "dust_lanes_details",
+        "enabled": true,
+        "octaves": 6,
+        "persistence": 0.4,
+        "lacunarity": 2.4,
+        "scale": 80.0,
+        "opacity": 0.3,
+        "blendMode": "MULTIPLY",
+        "noiseType": "RIDGED",
+        "seedOffset": 4000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#0a0a2a",
+    "fore": "#8a2be2",
+    "backThreshold": 0.1,
+    "middleThreshold": 0.9,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 5. Generate Galaxy Without Saving (4000x4000)
+### Quick generation for testing
+POST http://localhost:8080/images/build
+Content-Type: application/json
+
+{
+  "name": "Temporary Centered Galaxy",
+  "description": "Quick centered galaxy generation",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 999,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.1,
+        "lacunarity": 2.0,
+        "scale": 800.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.8,
+        "lacunarity": 1.9,
+        "scale": 300.0,
+        "opacity": 0.7,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "galaxy_arms",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.6,
+        "lacunarity": 2.2,
+        "scale": 180.0,
+        "opacity": 0.5,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000011",
+    "fore": "#111133",
+    "backThreshold": 0.08,
+    "middleThreshold": 0.92,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### Centered Galaxy Creation Techniques:
+# 1. Use very large scale (800-1200) for background to create uniform deep space
+# 2. Use progressively smaller scales: core (300-500) → arms (180-250) → details (80-150)
+# 3. High persistence (0.8-0.95) on core layer for bright center (SCREEN/ADD blend)
+# 4. Medium persistence (0.6-0.7) on arms layer for structure (OVERLAY blend)
+# 5. Low persistence (0.4-0.5) on detail layers for subtle features (SOFT_LIGHT)
+# 6. Use RIDGED noise with MULTIPLY blend for dust lanes (opacity 0.3-0.4)
+# 7. Dark color palette (#000000 to #ffffff) with narrow thresholds (0.05-0.1 and 0.9-0.95)
+# 8. Experiment with different seeds to find interesting spiral patterns
+# 9. All examples use 4000x4000 resolution for high detail
+# 10. Layer seed offsets help create distinct patterns for each component

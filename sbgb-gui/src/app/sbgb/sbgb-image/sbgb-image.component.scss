@@ -1,0 +1,36 @@
+.spinner-container {
+  display: flex; /* Makes the container a Flexbox container */
+  height: 100vh; /* Makes the container take the full height of the viewport */
+  justify-content: center; /* Centers the content horizontally */
+  align-items: center; /* Centers the content vertically */
+}
+
+.image-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.image-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.fit-mode-hint {
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 0.875rem;
+}
+
+/* Fit to window mode */
+img {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Ensure the image container takes available space */
+.image-container {
+  min-height: calc(100vh - 200px); /* Adjust based on your layout */
+}

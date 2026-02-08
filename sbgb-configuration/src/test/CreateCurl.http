@@ -1,0 +1,267 @@
+### Galaxy Image Creation Examples for SpaceBackGroundBuilder API
+
+### 1. Basic Spiral Galaxy
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Basic Spiral Galaxy",
+  "description": "Simple spiral galaxy with core and arms",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 2000,
+    "width": 2000,
+    "seed": 12345,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "background",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.3,
+        "lacunarity": 2.0,
+        "scale": 250.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.6,
+        "lacunarity": 2.1,
+        "scale": 120.0,
+        "opacity": 0.8,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      },
+      {
+        "name": "spiral_arms",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.55,
+        "lacunarity": 2.3,
+        "scale": 90.0,
+        "opacity": 0.7,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 2000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#1a004a",
+    "fore": "#8a2be2",
+    "backThreshold": 0.25,
+    "middleThreshold": 0.75,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 2. Advanced Galaxy with Dust Lanes and Stars
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Advanced Spiral Galaxy",
+  "description": "Complex galaxy with dust lanes and starfield",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 4000,
+    "width": 4000,
+    "seed": 42,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "deep_space_background",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.3,
+        "lacunarity": 2.0,
+        "scale": 300.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 4,
+        "persistence": 0.7,
+        "lacunarity": 2.1,
+        "scale": 150.0,
+        "opacity": 0.9,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 500
+      },
+      {
+        "name": "spiral_arms",
+        "enabled": true,
+        "octaves": 6,
+        "persistence": 0.6,
+        "lacunarity": 2.4,
+        "scale": 120.0,
+        "opacity": 0.75,
+        "blendMode": "OVERLAY",
+        "noiseType": "FBM",
+        "seedOffset": 1500
+      },
+      {
+        "name": "dust_lanes",
+        "enabled": true,
+        "octaves": 5,
+        "persistence": 0.5,
+        "lacunarity": 2.2,
+        "scale": 90.0,
+        "opacity": 0.6,
+        "blendMode": "MULTIPLY",
+        "noiseType": "RIDGED",
+        "seedOffset": 2500
+      },
+      {
+        "name": "starfield",
+        "enabled": true,
+        "octaves": 1,
+        "persistence": 0.2,
+        "lacunarity": 2.0,
+        "scale": 25.0,
+        "opacity": 0.8,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 3500
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#0a0a2a",
+    "fore": "#ffffff",
+    "backThreshold": 0.2,
+    "middleThreshold": 0.8,
+    "interpolationType": "SMOOTHSTEP"
+  }
+}
+
+### 3. Elliptical Galaxy
+POST http://localhost:8080/images/create
+Content-Type: application/json
+
+{
+  "name": "Elliptical Galaxy",
+  "description": "Smooth elliptical galaxy without spiral arms",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 3000,
+    "width": 3000,
+    "seed": 789,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "CUSTOM",
+    "useMultiLayer": true,
+    "noiseType": "FBM",
+    "layers": [
+      {
+        "name": "background",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.3,
+        "lacunarity": 2.0,
+        "scale": 200.0,
+        "opacity": 1.0,
+        "blendMode": "NORMAL",
+        "noiseType": "FBM",
+        "seedOffset": 0
+      },
+      {
+        "name": "galaxy_core",
+        "enabled": true,
+        "octaves": 3,
+        "persistence": 0.5,
+        "lacunarity": 2.0,
+        "scale": 100.0,
+        "opacity": 0.85,
+        "blendMode": "ADD",
+        "noiseType": "FBM",
+        "seedOffset": 500
+      },
+      {
+        "name": "outer_glow",
+        "enabled": true,
+        "octaves": 2,
+        "persistence": 0.4,
+        "lacunarity": 2.0,
+        "scale": 80.0,
+        "opacity": 0.6,
+        "blendMode": "SCREEN",
+        "noiseType": "FBM",
+        "seedOffset": 1000
+      }
+    ]
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#2a1a0a",
+    "fore": "#ffd700",
+    "backThreshold": 0.3,
+    "middleThreshold": 0.7,
+    "interpolationType": "COSINE"
+  }
+}
+
+### 4. Generate Image Without Saving (returns PNG)
+POST http://localhost:8080/images/build
+Content-Type: application/json
+
+{
+  "name": "Temporary Galaxy",
+  "description": "Galaxy image generated without saving",
+  "forceUpdate": false,
+  "sizeCmd": {
+    "height": 2000,
+    "width": 2000,
+    "seed": 999,
+    "octaves": 1,
+    "persistence": 0.5,
+    "lacunarity": 2.0,
+    "scale": 100.0,
+    "preset": "DEEP_SPACE",
+    "useMultiLayer": true,
+    "noiseType": "FBM"
+  },
+  "colorCmd": {
+    "back": "#000000",
+    "middle": "#000033",
+    "fore": "#ffffff",
+    "backThreshold": 0.2,
+    "middleThreshold": 0.8,
+    "interpolationType": "LINEAR"
+  }
+}
+
+### Usage Instructions:
+# 1. Use POST /images/create to generate and save galaxy images to database
+# 2. Use POST /images/build to generate images without saving (returns PNG bytes)
+# 3. Adjust seed values to get different galaxy patterns
+# 4. Modify layer parameters (scale, octaves, opacity) to change galaxy appearance
+# 5. Change color thresholds and interpolation for different color gradients
+# 6. All examples use multi-layer mode for realistic galaxy effects

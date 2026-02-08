@@ -1,0 +1,27 @@
+@if (!imageIsBuilding()) {
+  <div class="image-container">
+    <div class="image-controls">
+      <mat-slide-toggle
+        [checked]="fitToWindowMode"
+        (change)="toggleFitMode()"
+        color="primary">
+        Fit to Window
+      </mat-slide-toggle>
+      <span class="fit-mode-hint">
+        {{ fitToWindowMode ? 'Image scaled to fit window' : 'Scroll to see full image' }}
+      </span>
+    </div>
+    @if (computedImage()) {
+      <img [src]="computedImage()"
+        alt="Generated space image"
+        [style]="getImageStyle()">
+    } @else {
+      <p>No image available</p>
+    }
+  </div>
+}
+@if (imageIsBuilding()) {
+  <div class="spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+}

@@ -1,55 +1,82 @@
 package org.dbs.spgb.spgbexposition.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import lombok.Getter;
-import lombok.Setter;
-import org.dbs.spgb.domain.SpaceBackGroundFactory;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.dbs.spgb.domain.model.NoiseImage;
+import org.dbs.spgb.port.in.BuildNoiseImageUseCase;
+import org.dbs.spgb.port.in.CreateNoiseImageUseCase;
+import org.dbs.spgb.port.in.FindNoiseImagesUseCase;
+import org.dbs.spgb.port.in.ImageRequestCmd;
+import org.dbs.spgb.spgbexposition.common.LogExecutionTime;
+import org.dbs.spgb.spgbexposition.resources.dto.NoiseImageDTO;
+import org.dbs.spgb.spgbexposition.resources.mapper.MapperNoiseImage;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
+@AllArgsConstructor
+@Validated
+@RequestMapping("/")
 public class ImageResource {
+    private final BuildNoiseImageUseCase buildNoiseImageUseCase;
+    private final CreateNoiseImageUseCase createNoiseImageUseCase;
+    private final FindNoiseImagesUseCase findNoiseImagesUseCase;
+    private final MapperNoiseImage mapperNoiseImage;
 
-    @PostMapping("images")
-    @Operation(description = "Create a image", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody())
-    public Mono<Resource> postTestDto(@Valid @RequestBody final ImageRequestBody imageRequestBody, final ServerWebExchange exchange) {
-
-        SpaceBackGroundFactory spaceBackGroundFactory = new SpaceBackGroundFactory.Builder()
-                .withHeight(imageRequestBody.getHeight())
-                .withWidth(imageRequestBody.getWidth())
-                .build();
-
-        BufferedImage image = spaceBackGroundFactory.create(imageRequestBody.getSeed());
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(image, "png", outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Mono.error(e);
-        }
-        byte[] bytes = outputStream.toByteArray();
-        ByteArrayResource resource = new ByteArrayResource(bytes);
-
-        return Mono.just(resource);
+    @GetMapping(value = "/images", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Get all saved images")
+    @LogExecutionTime
+    public ResponseEntity<List<NoiseImageDTO>> getAllImages() {
+        List<NoiseImage> images = findNoiseImagesUseCase.findAll();
+        List<NoiseImageDTO> dtos = images.stream()
+                .map(mapperNoiseImage::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
-    @Getter
-    @Setter
-    public static class ImageRequestBody {
-        private int height;
-        private int width;
-        private int seed;
+    @PostMapping(value = "/images/build", produces = MediaType.IMAGE_PNG_VALUE)
+    @Operation(
+            description = "Create an image",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = ImageRequestCmd.class)),
+                    description = "The parameters for new image generation. It includes the size of the image (height, width, seed) and colors for the back, middle and front parts of the image with respective threshold values"))
+    @LogExecutionTime
+    public ResponseEntity<byte[]> buildImage(@Valid @RequestBody final ImageRequestCmd imageRequestCmd) throws IOException {
+        byte[] bytes = buildNoiseImageUseCase.buildNoiseImage(imageRequestCmd);
+        return ResponseEntity.ok(bytes);
+    }
+
+    @PostMapping(value = "/images/create", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            description = "Create an image",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = ImageRequestCmd.class)),
+                    description = "The parameters for new image generation. It includes the size of the image (height, width, seed) and colors for the back, middle and front parts of the image with respective threshold values"))
+    @LogExecutionTime
+    public ResponseEntity<NoiseImageDTO> createImage(@Valid @RequestBody final ImageRequestCmd imageRequestCmd) throws IOException {
+        NoiseImage noiseImage = createNoiseImageUseCase.createNoiseImage(imageRequestCmd);
+
+        NoiseImageDTO noiseImageDTO = mapperNoiseImage.toDTO(noiseImage);
+
+        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass())
+                .createImage(imageRequestCmd)).withSelfRel();
+
+        noiseImageDTO.get_links().put("self", selfLink);
+
+        return ResponseEntity.created(selfLink.toUri())
+                .body(noiseImageDTO);
     }
 }

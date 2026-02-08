@@ -1,0 +1,43 @@
+<div class="list-container">
+  <h2>Images Mémorisées</h2>
+
+  <table mat-table [dataSource]="(sbgbs$ | async) || []" class="mat-elevation-z8">
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Nom </th>
+      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    </ng-container>
+
+    <!-- Description Column -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef> Description </th>
+      <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+    </ng-container>
+
+    <!-- Seed Column -->
+    <ng-container matColumnDef="seed">
+      <th mat-header-cell *matHeaderCellDef> Graine </th>
+      <td mat-cell *matCellDef="let element"> {{element.imageStructure?.seed}} </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button color="primary" (click)="viewImage(element)" matTooltip="Visualiser" [disabled]="!element.imageStructure">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  @if ((sbgbs$ | async)?.length === 0) {
+    <div class="no-data">
+      Aucune image mémorisée.
+    </div>
+  }
+</div>
