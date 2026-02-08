@@ -67,6 +67,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .clusterCount(galaxyRequestCmd.getClusterCount())
                 .clusterSize(galaxyRequestCmd.getClusterSize())
                 .clusterConcentration(galaxyRequestCmd.getClusterConcentration())
+                .sersicIndex(galaxyRequestCmd.getSersicIndex())
+                .axisRatio(galaxyRequestCmd.getAxisRatio())
+                .orientationAngle(galaxyRequestCmd.getOrientationAngle())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -103,6 +106,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .clusterCount(cmd.getClusterCount())
                 .clusterSize(cmd.getClusterSize())
                 .clusterConcentration(cmd.getClusterConcentration())
+                .sersicIndex(cmd.getSersicIndex())
+                .axisRatio(cmd.getAxisRatio())
+                .orientationAngle(cmd.getOrientationAngle())
                 .build();
 
         // Parse colors from hex strings
