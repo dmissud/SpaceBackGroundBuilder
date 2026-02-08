@@ -10,25 +10,24 @@ import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
-import {NgIf} from "@angular/common";
+
 
 @Component({
     selector: 'app-galaxy-param',
     imports: [
-        MatButton,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        MatSlider,
-        MatSliderThumb,
-        ReactiveFormsModule,
-        MatTooltip,
-        MatIcon,
-        MatSuffix,
-        MatSelect,
-        MatOption,
-        NgIf
-    ],
+    MatButton,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    MatSlider,
+    MatSliderThumb,
+    ReactiveFormsModule,
+    MatTooltip,
+    MatIcon,
+    MatSuffix,
+    MatSelect,
+    MatOption
+],
     templateUrl: './galaxy-param.component.html',
     styleUrl: './galaxy-param.component.scss'
 })

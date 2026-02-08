@@ -3,7 +3,7 @@ import {MatButton} from "@angular/material/button";
 import {MatFormField, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
-import {NgIf} from "@angular/common";
+
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage} from "../state/sbgb.selectors";
 import {Subscription} from "rxjs";
@@ -18,18 +18,17 @@ import {Sbgb} from "../sbgb.model";
 @Component({
     selector: 'app-sbgb-param',
     imports: [
-        MatButton,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        MatSlider,
-        MatSliderThumb,
-        ReactiveFormsModule,
-        MatTooltip,
-        MatIcon,
-        MatSuffix,
-        NgIf
-    ],
+    MatButton,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    MatSlider,
+    MatSliderThumb,
+    ReactiveFormsModule,
+    MatTooltip,
+    MatIcon,
+    MatSuffix
+],
     templateUrl: './sbgb-param.component.html',
     styleUrl: './sbgb-param.component.scss'
 })

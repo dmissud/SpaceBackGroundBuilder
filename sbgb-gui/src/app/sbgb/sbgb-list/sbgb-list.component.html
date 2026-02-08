@@ -35,7 +35,9 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 
-  <div *ngIf="(sbgbs$ | async)?.length === 0" class="no-data">
-    Aucune image mémorisée.
-  </div>
+  @if ((sbgbs$ | async)?.length === 0) {
+    <div class="no-data">
+      Aucune image mémorisée.
+    </div>
+  }
 </div>
