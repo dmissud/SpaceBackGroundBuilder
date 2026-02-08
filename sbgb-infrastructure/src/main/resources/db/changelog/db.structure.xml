@@ -20,4 +20,5 @@
     <include file="/db/changelog/2026/02/08-03-add-irregular-columns.xml"/>
     <include file="/db/changelog/2026/02/08-04-add-warping-and-palette-columns.xml"/>
     <include file="/db/changelog/2026/02/08-05-add-star-field-columns.xml"/>
+    <include file="/db/changelog/2026/02/08-06-add-multi-layer-noise-columns.xml"/>
 </databaseChangeLog>

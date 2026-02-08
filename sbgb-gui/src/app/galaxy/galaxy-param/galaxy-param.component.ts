@@ -87,6 +87,14 @@ export class GalaxyParamComponent implements OnInit {
       maxStarSize: new FormControl(4, [Validators.min(1), Validators.max(10)]),
       diffractionSpikes: new FormControl(false),
       spikeCount: new FormControl(4, [Validators.min(4), Validators.max(8)]),
+      // Multi-layer noise parameters
+      multiLayerNoiseEnabled: new FormControl(false),
+      macroLayerScale: new FormControl(0.3, [Validators.min(0.1), Validators.max(5)]),
+      macroLayerWeight: new FormControl(0.5, [Validators.min(0), Validators.max(1)]),
+      mesoLayerScale: new FormControl(1.0, [Validators.min(0.1), Validators.max(5)]),
+      mesoLayerWeight: new FormControl(0.35, [Validators.min(0), Validators.max(1)]),
+      microLayerScale: new FormControl(3.0, [Validators.min(0.1), Validators.max(10)]),
+      microLayerWeight: new FormControl(0.15, [Validators.min(0), Validators.max(1)]),
       // Color parameters (legacy)
       spaceBackgroundColor: new FormControl('#050510'),
       coreColor: new FormControl('#FFFADC'),

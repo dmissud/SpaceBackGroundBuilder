@@ -361,6 +361,55 @@
     </div>
   </section>
 
+  <!-- Multi-Layer Noise -->
+  <section style="margin-bottom: 20px;">
+    <h3>Multi-Layer Noise</h3>
+    <div style="margin-bottom: 10px;">
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Multi-Layer Noise</mat-label>
+        <mat-select formControlName="multiLayerNoiseEnabled">
+          <mat-option [value]="false">Disabled</mat-option>
+          <mat-option [value]="true">Enabled</mat-option>
+        </mat-select>
+        <mat-icon matSuffix matTooltip="Enable multi-scale noise for richer textures (Macro+Meso+Micro layers)">help_outline</mat-icon>
+      </mat-form-field>
+    </div>
+    @if (galaxyForm.controls['multiLayerNoiseEnabled'].value) {
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Macro Scale</mat-label>
+          <input type="number" matInput formControlName="macroLayerScale" step="0.1" min="0.1" max="5">
+          <mat-icon matSuffix matTooltip="Large-scale structures (lower frequency, default 0.3)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Macro Weight</mat-label>
+          <input type="number" matInput formControlName="macroLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of macro layer (default 0.5 = 50%)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Meso Scale</mat-label>
+          <input type="number" matInput formControlName="mesoLayerScale" step="0.1" min="0.1" max="5">
+          <mat-icon matSuffix matTooltip="Medium-scale details (medium frequency, default 1.0)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Meso Weight</mat-label>
+          <input type="number" matInput formControlName="mesoLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of meso layer (default 0.35 = 35%)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Micro Scale</mat-label>
+          <input type="number" matInput formControlName="microLayerScale" step="0.1" min="0.1" max="10">
+          <mat-icon matSuffix matTooltip="Fine-scale grain (higher frequency, default 3.0)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Micro Weight</mat-label>
+          <input type="number" matInput formControlName="microLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of micro layer (default 0.15 = 15%)">help_outline</mat-icon>
+        </mat-form-field>
+      </div>
+    }
+  </section>
+
   <!-- Colors -->
   <section style="margin-bottom: 20px;">
     <h3>Galaxy Colors (Legacy - overridden by palette)</h3>

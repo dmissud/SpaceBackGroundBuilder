@@ -61,6 +61,15 @@ public class GalaxyStructureDTO {
     private boolean diffractionSpikes;
     private int spikeCount;
 
+    // Multi-layer noise parameters
+    private boolean multiLayerNoiseEnabled;
+    private double macroLayerScale;
+    private double macroLayerWeight;
+    private double mesoLayerScale;
+    private double mesoLayerWeight;
+    private double microLayerScale;
+    private double microLayerWeight;
+
     // Color parameters (legacy)
     private String spaceBackgroundColor;
     private String coreColor;
