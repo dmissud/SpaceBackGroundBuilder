@@ -16,4 +16,5 @@
     <include file="/db/changelog/2026/02/07-02-add-color-columns-galaxy.xml"/>
     <include file="/db/changelog/2026/02/07-03-add-galaxy-type-and-voronoi-columns.xml"/>
     <include file="/db/changelog/2026/02/08-01-add-elliptical-columns.xml"/>
+    <include file="/db/changelog/2026/02/08-02-add-ring-columns.xml"/>
 </databaseChangeLog>

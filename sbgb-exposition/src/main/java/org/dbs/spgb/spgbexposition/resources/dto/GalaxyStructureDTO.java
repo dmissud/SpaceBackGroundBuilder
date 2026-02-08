@@ -38,6 +38,12 @@ public class GalaxyStructureDTO {
     private Double axisRatio;
     private Double orientationAngle;
 
+    // Ring parameters
+    private Double ringRadius;
+    private Double ringWidth;
+    private Double ringIntensity;
+    private Double coreToRingRatio;
+
     // Color parameters
     private String spaceBackgroundColor;
     private String coreColor;
