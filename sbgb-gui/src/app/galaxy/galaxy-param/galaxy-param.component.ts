@@ -8,6 +8,7 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 
@@ -26,7 +27,8 @@ import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
     MatIcon,
     MatSuffix,
     MatSelect,
-    MatOption
+    MatOption,
+    MatProgressSpinner
 ],
     templateUrl: './galaxy-param.component.html',
     styleUrl: './galaxy-param.component.scss'
@@ -121,6 +123,7 @@ export class GalaxyParamComponent implements OnInit {
     }
 
     this.isGenerating = true;
+    this.generatedImageUrl = null; // Clear previous image
     const request: GalaxyRequestCmd = this.galaxyForm.value;
 
     this.galaxyService.buildGalaxy(request).subscribe({

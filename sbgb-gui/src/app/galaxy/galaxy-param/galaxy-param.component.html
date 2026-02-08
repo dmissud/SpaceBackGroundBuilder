@@ -337,15 +337,15 @@
 </form>
 
 <!-- Generated Image Preview -->
-@if (generatedImageUrl) {
-  <div style="margin-top: 30px;">
-    <h3>Generated Galaxy Preview</h3>
+<div style="margin-top: 30px;">
+  <h3>Generated Galaxy Preview</h3>
+  @if (isGenerating) {
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 300px; border: 1px solid #ccc; border-radius: 8px;">
+      <mat-spinner diameter="80"></mat-spinner>
+    </div>
+  } @else if (generatedImageUrl) {
     <img [src]="generatedImageUrl" alt="Generated Galaxy" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
-  </div>
-}
-
-@if (isGenerating) {
-  <div style="margin-top: 30px; text-align: center;">
-    <p>Generating galaxy... This may take a moment for large images.</p>
-  </div>
-}
+  } @else {
+    <p style="text-align: center; color: #666;">No image generated yet. Click "Generate Preview" to create a galaxy image.</p>
+  }
+</div>
