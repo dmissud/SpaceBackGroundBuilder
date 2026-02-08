@@ -9,17 +9,16 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  selector: 'app-galaxy-list',
-  standalone: true,
-  imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    CommonModule
-  ],
-  templateUrl: './galaxy-list.component.html',
-  styleUrl: './galaxy-list.component.scss'
+    selector: 'app-galaxy-list',
+    imports: [
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        CommonModule
+    ],
+    templateUrl: './galaxy-list.component.html',
+    styleUrl: './galaxy-list.component.scss'
 })
 export class GalaxyListComponent implements OnInit {
 

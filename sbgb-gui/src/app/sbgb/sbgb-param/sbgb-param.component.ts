@@ -16,23 +16,22 @@ import {MatIcon} from "@angular/material/icon";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
-  selector: 'app-sbgb-param',
-  standalone: true,
-  imports: [
-    MatButton,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    MatSlider,
-    MatSliderThumb,
-    ReactiveFormsModule,
-    MatTooltip,
-    MatIcon,
-    MatSuffix,
-    NgIf
-  ],
-  templateUrl: './sbgb-param.component.html',
-  styleUrl: './sbgb-param.component.scss'
+    selector: 'app-sbgb-param',
+    imports: [
+        MatButton,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        MatSlider,
+        MatSliderThumb,
+        ReactiveFormsModule,
+        MatTooltip,
+        MatIcon,
+        MatSuffix,
+        NgIf
+    ],
+    templateUrl: './sbgb-param.component.html',
+    styleUrl: './sbgb-param.component.scss'
 })
 export class SbgbParamComponent implements OnInit, OnDestroy {
 

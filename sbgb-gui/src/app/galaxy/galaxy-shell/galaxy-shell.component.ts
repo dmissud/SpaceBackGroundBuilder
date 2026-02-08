@@ -5,16 +5,15 @@ import {GalaxyListComponent} from "../galaxy-list/galaxy-list.component";
 import {GalaxyImageDTO} from "../galaxy.model";
 
 @Component({
-  selector: 'app-galaxy-shell',
-  standalone: true,
-  imports: [
-    MatTabGroup,
-    MatTab,
-    GalaxyParamComponent,
-    GalaxyListComponent
-  ],
-  templateUrl: './galaxy-shell.component.html',
-  styleUrl: './galaxy-shell.component.scss'
+    selector: 'app-galaxy-shell',
+    imports: [
+        MatTabGroup,
+        MatTab,
+        GalaxyParamComponent,
+        GalaxyListComponent
+    ],
+    templateUrl: './galaxy-shell.component.html',
+    styleUrl: './galaxy-shell.component.scss'
 })
 export class GalaxyShellComponent {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;

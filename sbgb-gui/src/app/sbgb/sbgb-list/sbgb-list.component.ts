@@ -11,18 +11,17 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
 @Component({
-  selector: 'app-sbgb-list',
-  standalone: true,
-  imports: [
-    AsyncPipe,
-    NgIf,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-  ],
-  templateUrl: './sbgb-list.component.html',
-  styleUrl: './sbgb-list.component.scss'
+    selector: 'app-sbgb-list',
+    imports: [
+        AsyncPipe,
+        NgIf,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule
+    ],
+    templateUrl: './sbgb-list.component.html',
+    styleUrl: './sbgb-list.component.scss'
 })
 export class SbgbListComponent implements OnInit {
 

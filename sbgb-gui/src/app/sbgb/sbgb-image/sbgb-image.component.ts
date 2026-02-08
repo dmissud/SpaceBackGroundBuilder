@@ -12,27 +12,26 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {MatSlideToggle} from "@angular/material/slide-toggle";
 
 @Component({
-  selector: 'app-sbgb-image',
-  templateUrl: './sbgb-image.component.html',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormField,
-    MatInput,
-    MatButton,
-    NgOptimizedImage,
-    AsyncPipe,
-    MatSlider,
-    MatLabel,
-    MatCard,
-    MatCardContent,
-    MatSliderThumb,
-    FormsModule,
-    MatProgressSpinner,
-    NgIf,
-    MatSlideToggle
-  ],
-  styleUrls: ['./sbgb-image.component.scss']
+    selector: 'app-sbgb-image',
+    templateUrl: './sbgb-image.component.html',
+    imports: [
+        ReactiveFormsModule,
+        MatFormField,
+        MatInput,
+        MatButton,
+        NgOptimizedImage,
+        AsyncPipe,
+        MatSlider,
+        MatLabel,
+        MatCard,
+        MatCardContent,
+        MatSliderThumb,
+        FormsModule,
+        MatProgressSpinner,
+        NgIf,
+        MatSlideToggle
+    ],
+    styleUrls: ['./sbgb-image.component.scss']
 })
 export class SbgbImageComponent {
 
