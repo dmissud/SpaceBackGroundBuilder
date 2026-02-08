@@ -70,6 +70,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .sersicIndex(galaxyRequestCmd.getSersicIndex())
                 .axisRatio(galaxyRequestCmd.getAxisRatio())
                 .orientationAngle(galaxyRequestCmd.getOrientationAngle())
+                .ringRadius(galaxyRequestCmd.getRingRadius())
+                .ringWidth(galaxyRequestCmd.getRingWidth())
+                .ringIntensity(galaxyRequestCmd.getRingIntensity())
+                .coreToRingRatio(galaxyRequestCmd.getCoreToRingRatio())
                 .spaceBackgroundColor(galaxyRequestCmd.getSpaceBackgroundColor())
                 .coreColor(galaxyRequestCmd.getCoreColor())
                 .armColor(galaxyRequestCmd.getArmColor())
@@ -109,6 +113,10 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .sersicIndex(cmd.getSersicIndex())
                 .axisRatio(cmd.getAxisRatio())
                 .orientationAngle(cmd.getOrientationAngle())
+                .ringRadius(cmd.getRingRadius())
+                .ringWidth(cmd.getRingWidth())
+                .ringIntensity(cmd.getRingIntensity())
+                .coreToRingRatio(cmd.getCoreToRingRatio())
                 .build();
 
         // Parse colors from hex strings

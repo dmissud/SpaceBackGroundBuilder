@@ -87,6 +87,21 @@ public class GalaxyRequestCmd {
     @DecimalMax("360.0")
     private Double orientationAngle;
 
+    // Ring parameters (optional - only used when galaxyType == RING)
+    @DecimalMin("50.0")
+    private Double ringRadius;
+
+    @DecimalMin("10.0")
+    private Double ringWidth;
+
+    @DecimalMin("0.1")
+    @DecimalMax("2.0")
+    private Double ringIntensity;
+
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
+    private Double coreToRingRatio;
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

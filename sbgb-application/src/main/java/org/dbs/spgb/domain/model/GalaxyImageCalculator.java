@@ -96,6 +96,17 @@ public class GalaxyImageCalculator {
                     .axisRatio(parameters.getAxisRatio() != null ? parameters.getAxisRatio() : 0.7)
                     .orientationAngle(parameters.getOrientationAngle() != null ? parameters.getOrientationAngle() : 0.0)
                     .build();
+            case RING -> RingGalaxyGenerator.builder()
+                    .width(width)
+                    .height(height)
+                    .noiseGenerator(noiseGenerator)
+                    .coreSize(parameters.getCoreSize())
+                    .galaxyRadius(parameters.getGalaxyRadius())
+                    .ringRadius(parameters.getRingRadius() != null ? parameters.getRingRadius() : 900.0)
+                    .ringWidth(parameters.getRingWidth() != null ? parameters.getRingWidth() : 150.0)
+                    .ringIntensity(parameters.getRingIntensity() != null ? parameters.getRingIntensity() : 1.0)
+                    .coreToRingRatio(parameters.getCoreToRingRatio() != null ? parameters.getCoreToRingRatio() : 0.3)
+                    .build();
         };
     }
 
