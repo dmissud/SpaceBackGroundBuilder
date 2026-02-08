@@ -74,6 +74,19 @@ public class GalaxyRequestCmd {
     @DecimalMax("1.0")
     private Double clusterConcentration;
 
+    // Elliptical parameters (optional - only used when galaxyType == ELLIPTICAL)
+    @DecimalMin("0.5")
+    @DecimalMax("10.0")
+    private Double sersicIndex;
+
+    @DecimalMin("0.1")
+    @DecimalMax("1.0")
+    private Double axisRatio;
+
+    @DecimalMin("0.0")
+    @DecimalMax("360.0")
+    private Double orientationAngle;
+
     // Color parameters (optional - defaults will be used if not provided)
     @Pattern(regexp = "^#([a-fA-F0-9]{6})$")
     @Builder.Default

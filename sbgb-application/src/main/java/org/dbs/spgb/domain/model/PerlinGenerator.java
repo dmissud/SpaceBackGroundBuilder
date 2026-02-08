@@ -2,6 +2,7 @@ package org.dbs.spgb.domain.model;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.modules.octavation.fractal_functions.FractalFunction;
 import de.articdive.jnoise.pipeline.JNoise;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,18 +22,14 @@ public class PerlinGenerator {
     }
 
     public void createNoisePipeline(long seed, int width, int height, int octaves, double persistence, double lacunarity, double scale, NoiseType noiseType) {
-        var builder = JNoise.newBuilder().perlin(seed, this.interpolation, this.fadeFunction)
-                .scale(scale);
-        
-        try {
-            String methodName = noiseType == NoiseType.RIDGED ? "ridgedMulti" : "fbm";
-            java.lang.reflect.Method method = builder.getClass().getMethod(methodName, int.class, double.class, double.class);
-            method.invoke(builder, octaves, persistence, lacunarity);
-        } catch (Exception e) {
-            log.warn("{} method not found on builder, using single octave Perlin. Check JNoise version. Error: {}", noiseType, e.getMessage());
-        }
+        FractalFunction fractalFunction = noiseType == NoiseType.RIDGED
+                ? FractalFunction.RIDGED_MULTI
+                : FractalFunction.FBM;
 
-        noisePipeline = builder
+        noisePipeline = JNoise.newBuilder()
+                .perlin(seed, this.interpolation, this.fadeFunction)
+                .scale(scale)
+                .octavate(octaves, persistence, lacunarity, fractalFunction, true)
                 .clamp(0.0, 3.0)
                 .build();
         this.width = width;

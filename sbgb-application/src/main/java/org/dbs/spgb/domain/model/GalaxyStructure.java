@@ -38,6 +38,11 @@ public class GalaxyStructure {
     private Double clusterSize;
     private Double clusterConcentration;
 
+    // Elliptical parameters
+    private Double sersicIndex;
+    private Double axisRatio;
+    private Double orientationAngle;
+
     // Color parameters
     private String spaceBackgroundColor;
     private String coreColor;

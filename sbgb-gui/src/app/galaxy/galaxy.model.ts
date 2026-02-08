@@ -23,6 +23,9 @@ export interface GalaxyStructureDTO {
   clusterCount?: number;
   clusterSize?: number;
   clusterConcentration?: number;
+  sersicIndex?: number;
+  axisRatio?: number;
+  orientationAngle?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
@@ -49,6 +52,9 @@ export interface GalaxyRequestCmd {
   clusterCount?: number;
   clusterSize?: number;
   clusterConcentration?: number;
+  sersicIndex?: number;
+  axisRatio?: number;
+  orientationAngle?: number;
   spaceBackgroundColor?: string;
   coreColor?: string;
   armColor?: string;
