@@ -25,7 +25,7 @@ public class StarFieldApplicator {
      */
     public BufferedImage applyIfEnabled(BufferedImage image, GalaxyParameters parameters, long seed) {
         if (!isStarFieldEnabled(parameters)) {
-            log.debug("Star field disabled (density={})", parameters.getStarDensity());
+            log.debug("Star field disabled (density={})", parameters.getStarFieldParameters().getStarDensity());
             return image;
         }
 
@@ -33,22 +33,22 @@ public class StarFieldApplicator {
     }
 
     private boolean isStarFieldEnabled(GalaxyParameters parameters) {
-        return parameters.getStarDensity() > 0.0;
+        return parameters.getStarFieldParameters().getStarDensity() > 0.0;
     }
 
     private BufferedImage applyStarField(BufferedImage image, GalaxyParameters parameters, long seed) {
         log.info("Applying star field: density={}, maxSize={}, spikes={}",
-                parameters.getStarDensity(),
-                parameters.getMaxStarSize(),
-                parameters.isDiffractionSpikes());
+                parameters.getStarFieldParameters().getStarDensity(),
+                parameters.getStarFieldParameters().getMaxStarSize(),
+                parameters.getStarFieldParameters().isDiffractionSpikes());
 
         StarFieldGenerator generator = StarFieldGenerator.builder()
                 .width(image.getWidth())
                 .height(image.getHeight())
-                .starDensity(parameters.getStarDensity())
-                .maxStarSize(parameters.getMaxStarSize())
-                .diffractionSpikes(parameters.isDiffractionSpikes())
-                .spikeCount(parameters.getSpikeCount())
+                .starDensity(parameters.getStarFieldParameters().getStarDensity())
+                .maxStarSize(parameters.getStarFieldParameters().getMaxStarSize())
+                .diffractionSpikes(parameters.getStarFieldParameters().isDiffractionSpikes())
+                .spikeCount(parameters.getStarFieldParameters().getSpikeCount())
                 .seed(seed + 999999) // Different seed offset for stars
                 .build();
 

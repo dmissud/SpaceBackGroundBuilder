@@ -4,6 +4,7 @@ import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import org.dbs.sbgb.domain.model.GalaxyParameters;
 import org.dbs.sbgb.domain.model.PerlinGenerator;
+import org.dbs.sbgb.domain.model.parameters.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,19 +49,7 @@ class NoiseGeneratorFactoryTest {
     @DisplayName("should create multi-layer noise when multi-layer is enabled")
     void shouldCreateMultiLayerNoise() {
         // Given
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .multiLayerNoiseEnabled(true)
-                .build();
+        GalaxyParameters parameters = createTestParameters(true, 200.0);
 
         long seed = 12345L;
         int width = 1000;
@@ -85,18 +74,7 @@ class NoiseGeneratorFactoryTest {
     @DisplayName("should produce different noise values for different seeds")
     void shouldProduceDifferentNoiseValuesForDifferentSeeds() {
         // Given
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(0.5)  // Use scale that generates non-zero values
-                .build();
+        GalaxyParameters parameters = createTestParameters(false, 0.5);
 
         int width = 1000;
         int height = 1000;
@@ -131,18 +109,7 @@ class NoiseGeneratorFactoryTest {
     @DisplayName("should produce reproducible noise for same seed")
     void shouldProduceReproducibleNoise() {
         // Given
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(0.5)
-                .build();
+        GalaxyParameters parameters = createTestParameters(false, 0.5);
 
         int width = 100;
         int height = 100;
@@ -165,18 +132,7 @@ class NoiseGeneratorFactoryTest {
     @DisplayName("should return normalized values between 0 and 1")
     void shouldReturnNormalizedValues() {
         // Given
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(0.5)
-                .build();
+        GalaxyParameters parameters = createTestParameters(false, 0.5);
 
         int width = 100;
         int height = 100;
@@ -193,5 +149,45 @@ class NoiseGeneratorFactoryTest {
                         .isBetween(0.0, 1.0);
             }
         }
+    }
+
+    // Helper method
+    private GalaxyParameters createTestParameters(boolean multiLayerEnabled, double scale) {
+        return GalaxyParameters.builder()
+                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(0.05)
+                        .galaxyRadius(1500.0)
+                        .build())
+                .noiseTextureParameters(NoiseTextureParameters.builder()
+                        .octaves(4)
+                        .persistence(0.5)
+                        .lacunarity(2.0)
+                        .scale(scale)
+                        .build())
+                .domainWarpParameters(DomainWarpParameters.builder()
+                        .warpStrength(0.0)
+                        .build())
+                .starFieldParameters(StarFieldParameters.builder()
+                        .starDensity(0.0)
+                        .maxStarSize(4)
+                        .diffractionSpikes(false)
+                        .spikeCount(4)
+                        .build())
+                .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                        .enabled(multiLayerEnabled)
+                        .macroLayerScale(0.3)
+                        .macroLayerWeight(0.5)
+                        .mesoLayerScale(1.0)
+                        .mesoLayerWeight(0.35)
+                        .microLayerScale(3.0)
+                        .microLayerWeight(0.15)
+                        .build())
+                .spiralParameters(SpiralStructureParameters.builder()
+                        .numberOfArms(2)
+                        .armWidth(80.0)
+                        .armRotation(4.0)
+                        .build())
+                .build();
     }
 }

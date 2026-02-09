@@ -33,7 +33,7 @@ public class NoiseGeneratorFactory {
             Interpolation interpolation,
             FadeFunction fadeFunction) {
 
-        if (parameters.isMultiLayerNoiseEnabled()) {
+        if (parameters.getMultiLayerNoiseParameters() != null && parameters.getMultiLayerNoiseParameters().isEnabled()) {
             return createMultiLayerNoise(parameters, seed, width, height, interpolation, fadeFunction);
         } else {
             return createSingleLayerNoise(parameters, seed, width, height, interpolation, fadeFunction);
@@ -57,12 +57,12 @@ public class NoiseGeneratorFactory {
                 .interpolation(interpolation)
                 .fadeFunction(fadeFunction)
                 .noiseType(NoiseType.FBM)
-                .macroScale(parameters.getMacroLayerScale())
-                .macroWeight(parameters.getMacroLayerWeight())
-                .mesoScale(parameters.getMesoLayerScale())
-                .mesoWeight(parameters.getMesoLayerWeight())
-                .microScale(parameters.getMicroLayerScale())
-                .microWeight(parameters.getMicroLayerWeight())
+                .macroScale(parameters.getMultiLayerNoiseParameters().getMacroLayerScale())
+                .macroWeight(parameters.getMultiLayerNoiseParameters().getMacroLayerWeight())
+                .mesoScale(parameters.getMultiLayerNoiseParameters().getMesoLayerScale())
+                .mesoWeight(parameters.getMultiLayerNoiseParameters().getMesoLayerWeight())
+                .microScale(parameters.getMultiLayerNoiseParameters().getMicroLayerScale())
+                .microWeight(parameters.getMultiLayerNoiseParameters().getMicroLayerWeight())
                 .build();
 
         multiLayerNoise.initialize();
@@ -85,10 +85,10 @@ public class NoiseGeneratorFactory {
                 seed,
                 width,
                 height,
-                parameters.getNoiseOctaves(),
-                parameters.getNoisePersistence(),
-                parameters.getNoiseLacunarity(),
-                parameters.getNoiseScale(),
+                parameters.getNoiseTextureParameters().getOctaves(),
+                parameters.getNoiseTextureParameters().getPersistence(),
+                parameters.getNoiseTextureParameters().getLacunarity(),
+                parameters.getNoiseTextureParameters().getScale(),
                 NoiseType.FBM);
         noiseGenerator.performNormalization();
 

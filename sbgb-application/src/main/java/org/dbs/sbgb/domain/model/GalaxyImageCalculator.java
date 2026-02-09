@@ -56,7 +56,7 @@ public class GalaxyImageCalculator {
 
     public BufferedImage create(long seed) {
         log.info("Creating galaxy image {}x{} with seed {} type {} multiLayer={}",
-                width, height, seed, parameters.getGalaxyType(), parameters.isMultiLayerNoiseEnabled());
+                width, height, seed, parameters.getGalaxyType(), parameters.getMultiLayerNoiseParameters().isEnabled());
 
         PerlinGenerator noiseGenerator = noiseGeneratorFactory.createNoiseGenerator(
                 parameters, seed, width, height, interpolation, fadeFunction);
@@ -71,14 +71,14 @@ public class GalaxyImageCalculator {
     }
 
     private DomainWarpCalculator createWarpCalculatorIfEnabled(long seed) {
-        if (parameters.getWarpStrength() <= 0.0) {
+        if (parameters.getDomainWarpParameters().getWarpStrength() <= 0.0) {
             return null;
         }
 
         return new DomainWarpCalculator(
                 width,
                 height,
-                parameters.getWarpStrength(),
+                parameters.getDomainWarpParameters().getWarpStrength(),
                 seed,
                 interpolation,
                 fadeFunction);

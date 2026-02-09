@@ -5,12 +5,16 @@ import lombok.Value;
 import org.dbs.sbgb.domain.model.parameters.*;
 
 /**
- * Parameters for galaxy generation
- * Contains both geometric parameters (spiral structure) and noise parameters (texture)
+ * Parameters for galaxy generation using Value Objects pattern.
  *
- * MIGRATION IN PROGRESS: This class is being refactored to use Value Objects.
- * New code should use the Value Object accessors (getCoreParameters(), etc.)
- * Legacy fields are kept for backward compatibility during migration.
+ * This class encapsulates all parameters needed to generate a galaxy image,
+ * organized into cohesive Value Objects:
+ * - CoreParameters: common core/radius parameters
+ * - NoiseTextureParameters: noise generation settings
+ * - DomainWarpParameters: spatial warping settings
+ * - StarFieldParameters: star overlay settings
+ * - MultiLayerNoiseParameters: multi-scale noise settings
+ * - Type-specific parameters: SpiralStructureParameters, VoronoiClusterParameters, etc.
  */
 @Value
 @Builder
@@ -32,70 +36,6 @@ public class GalaxyParameters {
     EllipticalShapeParameters ellipticalParameters;
     RingStructureParameters ringParameters;
     IrregularStructureParameters irregularParameters;
-
-    // Spiral structure parameters
-    int numberOfArms;
-    double armWidth;
-    double armRotation;
-    double coreSize;
-    double galaxyRadius;
-
-    // Noise texture parameters
-    int noiseOctaves;
-    double noisePersistence;
-    double noiseLacunarity;
-    double noiseScale;
-
-    // Voronoi cluster parameters (nullable, only used when galaxyType == VORONOI_CLUSTER)
-    Integer clusterCount;
-    Double clusterSize;
-    Double clusterConcentration;
-
-    // Elliptical parameters (nullable, only used when galaxyType == ELLIPTICAL)
-    Double sersicIndex;
-    Double axisRatio;
-    Double orientationAngle;
-
-    // Ring parameters (nullable, only used when galaxyType == RING)
-    Double ringRadius;
-    Double ringWidth;
-    Double ringIntensity;
-    Double coreToRingRatio;
-
-    // Irregular parameters (nullable, only used when galaxyType == IRREGULAR)
-    Double irregularity;
-    Integer irregularClumpCount;
-    Double irregularClumpSize;
-
-    // Domain warping parameter (applicable to ALL galaxy types)
-    @Builder.Default
-    double warpStrength = 0.0;
-
-    // Star field parameters (applicable to ALL galaxy types)
-    @Builder.Default
-    double starDensity = 0.0;
-    @Builder.Default
-    int maxStarSize = 4;
-    @Builder.Default
-    boolean diffractionSpikes = false;
-    @Builder.Default
-    int spikeCount = 4;
-
-    // Multi-layer noise parameters (applicable to ALL galaxy types)
-    @Builder.Default
-    boolean multiLayerNoiseEnabled = false;
-    @Builder.Default
-    double macroLayerScale = 0.3;
-    @Builder.Default
-    double macroLayerWeight = 0.5;
-    @Builder.Default
-    double mesoLayerScale = 1.0;
-    @Builder.Default
-    double mesoLayerWeight = 0.35;
-    @Builder.Default
-    double microLayerScale = 3.0;
-    @Builder.Default
-    double microLayerWeight = 0.15;
 
     /**
      * Create default parameters for a classic spiral galaxy
@@ -449,154 +389,5 @@ public class GalaxyParameters {
                 .clumpSize(100.0)
                 .build())
             .build();
-    }
-
-    // === COMPATIBILITY METHODS (migration helpers) ===
-
-    /**
-     * Get core size with fallback to legacy field
-     */
-    public double getCoreSize() {
-        return coreParameters != null ? coreParameters.getCoreSize() : coreSize;
-    }
-
-    /**
-     * Get galaxy radius with fallback to legacy field
-     */
-    public double getGalaxyRadius() {
-        return coreParameters != null ? coreParameters.getGalaxyRadius() : galaxyRadius;
-    }
-
-    /**
-     * Get noise octaves with fallback to legacy field
-     */
-    public int getNoiseOctaves() {
-        return noiseTextureParameters != null ? noiseTextureParameters.getOctaves() : noiseOctaves;
-    }
-
-    /**
-     * Get noise persistence with fallback to legacy field
-     */
-    public double getNoisePersistence() {
-        return noiseTextureParameters != null ? noiseTextureParameters.getPersistence() : noisePersistence;
-    }
-
-    /**
-     * Get noise lacunarity with fallback to legacy field
-     */
-    public double getNoiseLacunarity() {
-        return noiseTextureParameters != null ? noiseTextureParameters.getLacunarity() : noiseLacunarity;
-    }
-
-    /**
-     * Get noise scale with fallback to legacy field
-     */
-    public double getNoiseScale() {
-        return noiseTextureParameters != null ? noiseTextureParameters.getScale() : noiseScale;
-    }
-
-    /**
-     * Get warp strength with fallback to legacy field
-     */
-    public double getWarpStrength() {
-        return domainWarpParameters != null ? domainWarpParameters.getWarpStrength() : warpStrength;
-    }
-
-    /**
-     * Get star density with fallback to legacy field
-     */
-    public double getStarDensity() {
-        return starFieldParameters != null ? starFieldParameters.getStarDensity() : starDensity;
-    }
-
-    /**
-     * Get max star size with fallback to legacy field
-     */
-    public int getMaxStarSize() {
-        return starFieldParameters != null ? starFieldParameters.getMaxStarSize() : maxStarSize;
-    }
-
-    /**
-     * Check if diffraction spikes enabled with fallback to legacy field
-     */
-    public boolean isDiffractionSpikes() {
-        return starFieldParameters != null ? starFieldParameters.isDiffractionSpikes() : diffractionSpikes;
-    }
-
-    /**
-     * Get spike count with fallback to legacy field
-     */
-    public int getSpikeCount() {
-        return starFieldParameters != null ? starFieldParameters.getSpikeCount() : spikeCount;
-    }
-
-    /**
-     * Check if multi-layer noise enabled with fallback to legacy field
-     */
-    public boolean isMultiLayerNoiseEnabled() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.isEnabled() : multiLayerNoiseEnabled;
-    }
-
-    /**
-     * Get macro layer scale with fallback to legacy field
-     */
-    public double getMacroLayerScale() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMacroLayerScale() : macroLayerScale;
-    }
-
-    /**
-     * Get macro layer weight with fallback to legacy field
-     */
-    public double getMacroLayerWeight() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMacroLayerWeight() : macroLayerWeight;
-    }
-
-    /**
-     * Get meso layer scale with fallback to legacy field
-     */
-    public double getMesoLayerScale() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMesoLayerScale() : mesoLayerScale;
-    }
-
-    /**
-     * Get meso layer weight with fallback to legacy field
-     */
-    public double getMesoLayerWeight() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMesoLayerWeight() : mesoLayerWeight;
-    }
-
-    /**
-     * Get micro layer scale with fallback to legacy field
-     */
-    public double getMicroLayerScale() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMicroLayerScale() : microLayerScale;
-    }
-
-    /**
-     * Get micro layer weight with fallback to legacy field
-     */
-    public double getMicroLayerWeight() {
-        return multiLayerNoiseParameters != null ? multiLayerNoiseParameters.getMicroLayerWeight() : microLayerWeight;
-    }
-
-    /**
-     * Get number of arms (spiral-specific) with fallback to legacy field
-     */
-    public int getNumberOfArms() {
-        return spiralParameters != null ? spiralParameters.getNumberOfArms() : numberOfArms;
-    }
-
-    /**
-     * Get arm width (spiral-specific) with fallback to legacy field
-     */
-    public double getArmWidth() {
-        return spiralParameters != null ? spiralParameters.getArmWidth() : armWidth;
-    }
-
-    /**
-     * Get arm rotation (spiral-specific) with fallback to legacy field
-     */
-    public double getArmRotation() {
-        return spiralParameters != null ? spiralParameters.getArmRotation() : armRotation;
     }
 }

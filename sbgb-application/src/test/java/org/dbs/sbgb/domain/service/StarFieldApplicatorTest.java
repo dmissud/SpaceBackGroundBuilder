@@ -1,6 +1,7 @@
 package org.dbs.sbgb.domain.service;
 
 import org.dbs.sbgb.domain.model.GalaxyParameters;
+import org.dbs.sbgb.domain.model.parameters.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,19 +26,7 @@ class StarFieldApplicatorTest {
     void shouldReturnOriginalImageWhenStarDensityIsZero() {
         // Given
         BufferedImage originalImage = createTestImage(500, 500, Color.BLACK);
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .starDensity(0.0)
-                .build();
+        GalaxyParameters parameters = createTestParameters(0.0, 4, false, 4);
 
         // When
         BufferedImage result = applicator.applyIfEnabled(originalImage, parameters, 12345L);
@@ -51,22 +40,7 @@ class StarFieldApplicatorTest {
     void shouldApplyStarFieldWhenDensityIsPositive() {
         // Given
         BufferedImage originalImage = createTestImage(500, 500, Color.BLACK);
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .starDensity(0.001)
-                .maxStarSize(4)
-                .diffractionSpikes(false)
-                .spikeCount(4)
-                .build();
+        GalaxyParameters parameters = createTestParameters(0.001, 4, false, 4);
 
         // When
         BufferedImage result = applicator.applyIfEnabled(originalImage, parameters, 12345L);
@@ -84,20 +58,7 @@ class StarFieldApplicatorTest {
         // Given
         BufferedImage image1 = createTestImage(500, 500, Color.BLACK);
         BufferedImage image2 = createTestImage(500, 500, Color.BLACK);
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .starDensity(0.001)
-                .maxStarSize(4)
-                .build();
+        GalaxyParameters parameters = createTestParameters(0.001, 4, false, 4);
 
         // When
         BufferedImage result1 = applicator.applyIfEnabled(image1, parameters, 111L);
@@ -117,20 +78,7 @@ class StarFieldApplicatorTest {
         // Given
         BufferedImage image1 = createTestImage(500, 500, Color.BLACK);
         BufferedImage image2 = createTestImage(500, 500, Color.BLACK);
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .starDensity(0.001)
-                .maxStarSize(4)
-                .build();
+        GalaxyParameters parameters = createTestParameters(0.001, 4, false, 4);
 
         long seed = 12345L;
 
@@ -147,22 +95,7 @@ class StarFieldApplicatorTest {
     void shouldApplyDiffractionSpikesWhenEnabled() {
         // Given
         BufferedImage originalImage = createTestImage(500, 500, Color.BLACK);
-        GalaxyParameters parameters = GalaxyParameters.builder()
-                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(200.0)
-                .starDensity(0.002)
-                .maxStarSize(8)
-                .diffractionSpikes(true)
-                .spikeCount(6)
-                .build();
+        GalaxyParameters parameters = createTestParameters(0.002, 8, true, 6);
 
         // When
         BufferedImage result = applicator.applyIfEnabled(originalImage, parameters, 12345L);
@@ -173,6 +106,46 @@ class StarFieldApplicatorTest {
     }
 
     // Helper methods
+
+    private GalaxyParameters createTestParameters(double starDensity, int maxStarSize,
+                                                   boolean diffractionSpikes, int spikeCount) {
+        return GalaxyParameters.builder()
+                .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(0.05)
+                        .galaxyRadius(1500.0)
+                        .build())
+                .noiseTextureParameters(NoiseTextureParameters.builder()
+                        .octaves(4)
+                        .persistence(0.5)
+                        .lacunarity(2.0)
+                        .scale(200.0)
+                        .build())
+                .domainWarpParameters(DomainWarpParameters.builder()
+                        .warpStrength(0.0)
+                        .build())
+                .starFieldParameters(StarFieldParameters.builder()
+                        .starDensity(starDensity)
+                        .maxStarSize(maxStarSize)
+                        .diffractionSpikes(diffractionSpikes)
+                        .spikeCount(spikeCount)
+                        .build())
+                .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                        .enabled(false)
+                        .macroLayerScale(0.3)
+                        .macroLayerWeight(0.5)
+                        .mesoLayerScale(1.0)
+                        .mesoLayerWeight(0.35)
+                        .microLayerScale(3.0)
+                        .microLayerWeight(0.15)
+                        .build())
+                .spiralParameters(SpiralStructureParameters.builder()
+                        .numberOfArms(2)
+                        .armWidth(80.0)
+                        .armRotation(4.0)
+                        .build())
+                .build();
+    }
 
     private BufferedImage createTestImage(int width, int height, Color backgroundColor) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

@@ -2,6 +2,7 @@ package org.dbs.sbgb.domain.mapper;
 
 import org.dbs.sbgb.domain.constant.GalaxyDefaults;
 import org.dbs.sbgb.domain.model.*;
+import org.dbs.sbgb.domain.model.parameters.*;
 import org.dbs.sbgb.port.in.*;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,8 @@ public class GalaxyStructureMapper {
         EllipticalParameters elliptical = cmd.getEllipticalParameters();
         RingParameters ring = cmd.getRingParameters();
         IrregularParameters irregular = cmd.getIrregularParameters();
-        StarFieldParameters starField = cmd.getStarFieldParameters();
-        MultiLayerNoiseParameters multiLayer = cmd.getMultiLayerNoiseParameters();
+        org.dbs.sbgb.port.in.StarFieldParameters starField = cmd.getStarFieldParameters();
+        org.dbs.sbgb.port.in.MultiLayerNoiseParameters multiLayer = cmd.getMultiLayerNoiseParameters();
         ColorParameters color = cmd.getColorParameters();
 
         return GalaxyStructure.builder()
@@ -80,48 +81,65 @@ public class GalaxyStructureMapper {
         EllipticalParameters elliptical = cmd.getEllipticalParameters();
         RingParameters ring = cmd.getRingParameters();
         IrregularParameters irregular = cmd.getIrregularParameters();
-        StarFieldParameters starField = cmd.getStarFieldParameters();
-        MultiLayerNoiseParameters multiLayer = cmd.getMultiLayerNoiseParameters();
+        org.dbs.sbgb.port.in.StarFieldParameters starField = cmd.getStarFieldParameters();
+        org.dbs.sbgb.port.in.MultiLayerNoiseParameters multiLayer = cmd.getMultiLayerNoiseParameters();
 
         return GalaxyParameters.builder()
                 .galaxyType(galaxyType)
-                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
-                        : GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
-                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), GalaxyDefaults.DEFAULT_ARM_WIDTH)
-                        : GalaxyDefaults.DEFAULT_ARM_WIDTH)
-                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), GalaxyDefaults.DEFAULT_ARM_ROTATION)
-                        : GalaxyDefaults.DEFAULT_ARM_ROTATION)
-                .coreSize(defaultIfNull(cmd.getCoreSize(), GalaxyDefaults.DEFAULT_CORE_SIZE))
-                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), GalaxyDefaults.DEFAULT_GALAXY_RADIUS))
-                .noiseOctaves(noise.octaves())
-                .noisePersistence(noise.persistence())
-                .noiseLacunarity(noise.lacunarity())
-                .noiseScale(noise.scale())
-                .clusterCount(voronoi != null ? voronoi.clusterCount() : null)
-                .clusterSize(voronoi != null ? voronoi.clusterSize() : null)
-                .clusterConcentration(voronoi != null ? voronoi.clusterConcentration() : null)
-                .sersicIndex(elliptical != null ? elliptical.sersicIndex() : null)
-                .axisRatio(elliptical != null ? elliptical.axisRatio() : null)
-                .orientationAngle(elliptical != null ? elliptical.orientationAngle() : null)
-                .ringRadius(ring != null ? ring.ringRadius() : null)
-                .ringWidth(ring != null ? ring.ringWidth() : null)
-                .ringIntensity(ring != null ? ring.ringIntensity() : null)
-                .coreToRingRatio(ring != null ? ring.coreToRingRatio() : null)
-                .irregularity(irregular != null ? irregular.irregularity() : null)
-                .irregularClumpCount(irregular != null ? irregular.irregularClumpCount() : null)
-                .irregularClumpSize(irregular != null ? irregular.irregularClumpSize() : null)
-                .warpStrength(cmd.getWarpStrength())
-                .starDensity(starField.density())
-                .maxStarSize(starField.maxStarSize())
-                .diffractionSpikes(starField.diffractionSpikes())
-                .spikeCount(starField.spikeCount())
-                .multiLayerNoiseEnabled(multiLayer.enabled())
-                .macroLayerScale(multiLayer.macroLayerScale())
-                .macroLayerWeight(multiLayer.macroLayerWeight())
-                .mesoLayerScale(multiLayer.mesoLayerScale())
-                .mesoLayerWeight(multiLayer.mesoLayerWeight())
-                .microLayerScale(multiLayer.microLayerScale())
-                .microLayerWeight(multiLayer.microLayerWeight())
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(defaultIfNull(cmd.getCoreSize(), GalaxyDefaults.DEFAULT_CORE_SIZE))
+                        .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), GalaxyDefaults.DEFAULT_GALAXY_RADIUS))
+                        .build())
+                .noiseTextureParameters(NoiseTextureParameters.builder()
+                        .octaves(noise.octaves())
+                        .persistence(noise.persistence())
+                        .lacunarity(noise.lacunarity())
+                        .scale(noise.scale())
+                        .build())
+                .domainWarpParameters(DomainWarpParameters.builder()
+                        .warpStrength(cmd.getWarpStrength())
+                        .build())
+                .starFieldParameters(org.dbs.sbgb.domain.model.parameters.StarFieldParameters.builder()
+                        .starDensity(starField.density())
+                        .maxStarSize(starField.maxStarSize())
+                        .diffractionSpikes(starField.diffractionSpikes())
+                        .spikeCount(starField.spikeCount())
+                        .build())
+                .multiLayerNoiseParameters(org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters.builder()
+                        .enabled(multiLayer.enabled())
+                        .macroLayerScale(multiLayer.macroLayerScale())
+                        .macroLayerWeight(multiLayer.macroLayerWeight())
+                        .mesoLayerScale(multiLayer.mesoLayerScale())
+                        .mesoLayerWeight(multiLayer.mesoLayerWeight())
+                        .microLayerScale(multiLayer.microLayerScale())
+                        .microLayerWeight(multiLayer.microLayerWeight())
+                        .build())
+                .spiralParameters(spiral != null ? SpiralStructureParameters.builder()
+                        .numberOfArms(defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS))
+                        .armWidth(defaultIfNull(spiral.armWidth(), GalaxyDefaults.DEFAULT_ARM_WIDTH))
+                        .armRotation(defaultIfNull(spiral.armRotation(), GalaxyDefaults.DEFAULT_ARM_ROTATION))
+                        .build() : null)
+                .voronoiParameters(voronoi != null ? VoronoiClusterParameters.builder()
+                        .clusterCount(voronoi.clusterCount())
+                        .clusterSize(voronoi.clusterSize())
+                        .clusterConcentration(voronoi.clusterConcentration())
+                        .build() : null)
+                .ellipticalParameters(elliptical != null ? EllipticalShapeParameters.builder()
+                        .sersicIndex(elliptical.sersicIndex())
+                        .axisRatio(elliptical.axisRatio())
+                        .orientationAngle(elliptical.orientationAngle())
+                        .build() : null)
+                .ringParameters(ring != null ? RingStructureParameters.builder()
+                        .ringRadius(ring.ringRadius())
+                        .ringWidth(ring.ringWidth())
+                        .ringIntensity(ring.ringIntensity())
+                        .coreToRingRatio(ring.coreToRingRatio())
+                        .build() : null)
+                .irregularParameters(irregular != null ? IrregularStructureParameters.builder()
+                        .irregularity(irregular.irregularity())
+                        .clumpCount(irregular.irregularClumpCount())
+                        .clumpSize(irregular.irregularClumpSize())
+                        .build() : null)
                 .build();
     }
 
