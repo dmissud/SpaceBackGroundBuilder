@@ -2,7 +2,6 @@ package org.dbs.sbgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
-import org.dbs.sbgb.domain.exception.ImageNameAlreadyExistsException;
 import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
 import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
 import org.dbs.sbgb.domain.model.*;
@@ -16,7 +15,6 @@ import org.dbs.sbgb.port.out.GalaxyImageRepository;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @UseCase
@@ -29,6 +27,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private final NoiseGeneratorFactory noiseGeneratorFactory;
     private final StarFieldApplicator starFieldApplicator;
     private final ImageSerializer imageSerializer;
+    private final GalaxyImageDuplicationHandler duplicationHandler;
 
     @Override
     public List<GalaxyImage> findAllGalaxyImages() {
@@ -43,30 +42,21 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
 
     @Override
     public GalaxyImage createGalaxyImage(GalaxyRequestCmd galaxyRequestCmd) throws IOException {
-        if (galaxyRequestCmd.getName() == null || galaxyRequestCmd.getName().isBlank()) {
-            throw new IllegalArgumentException("Le nom de la galaxie est obligatoire");
-        }
-
-        Optional<GalaxyImage> existingImage = galaxyImageRepository.findByName(galaxyRequestCmd.getName());
-
-        if (existingImage.isPresent() && !galaxyRequestCmd.isForceUpdate()) {
-            throw new ImageNameAlreadyExistsException(galaxyRequestCmd.getName());
-        }
+        UUID id = duplicationHandler.resolveId(galaxyRequestCmd.getName(), galaxyRequestCmd.isForceUpdate());
+        int note = duplicationHandler.resolveNote(galaxyRequestCmd.getName());
 
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
         byte[] imageBytes = imageSerializer.toByteArray(image);
-
         GalaxyStructure structure = galaxyStructureMapper.toGalaxyStructure(galaxyRequestCmd);
 
-        UUID id = existingImage.map(GalaxyImage::getId).orElse(UUID.randomUUID());
-
-        GalaxyImage galaxyImage = new GalaxyImage();
-        galaxyImage.setId(id);
-        galaxyImage.setName(galaxyRequestCmd.getName());
-        galaxyImage.setDescription(galaxyRequestCmd.getDescription());
-        galaxyImage.setNote(existingImage.map(GalaxyImage::getNote).orElse(0));
-        galaxyImage.setGalaxyStructure(structure);
-        galaxyImage.setImage(imageBytes);
+        GalaxyImage galaxyImage = GalaxyImage.builder()
+                .id(id)
+                .name(galaxyRequestCmd.getName())
+                .description(galaxyRequestCmd.getDescription())
+                .note(note)
+                .galaxyStructure(structure)
+                .image(imageBytes)
+                .build();
 
         return galaxyImageRepository.save(galaxyImage);
     }
@@ -77,7 +67,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         // Create color calculator based on colorPalette parameter
         GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
 
-        GalaxyImageCalculator calculator = new GalaxyImageCalculator.Builder()
+        GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
                 .withWidth(cmd.getWidth())
                 .withHeight(cmd.getHeight())
                 .withParameters(parameters)
@@ -87,6 +77,6 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .withStarFieldApplicator(starFieldApplicator)
                 .build();
 
-        return calculator.create(cmd.getSeed());
+        return renderer.create(cmd.getSeed());
     }
 }

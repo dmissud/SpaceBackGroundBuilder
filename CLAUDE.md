@@ -286,58 +286,26 @@ Benefices obtenus :
 - **Maintenabilite** : Code plus clair, pas de duplication de logique fallback
 - 82 tests passent, refactoring 100% termine
 
----
+### ✅ 6. Simplification GalaxyService + Renaming + Validation (PR #22 pending)
+**Statut : TERMINE** (branch feature/simplify-galaxy-service, commits 2d36dd9, a22baf2)
 
-## Violations restantes
+**Simplification GalaxyService.createGalaxyImage()** :
+- Creation de `@Component GalaxyImageDuplicationHandler` avec `resolveId()` et `resolveNote()`
+- Ajout de `GalaxyImageBuilder` inner class dans `GalaxyImage` (compatible JPA)
+- `createGalaxyImage()` reduit de 27 → 18 lignes (-33%)
 
-### 1. Feature Envy
+**Renommage pour clarte** :
+- `GalaxyImageCalculator` → `GalaxyImageRenderer` (terme plus precis)
+- `createIntensityCalculator()` → `selectGeneratorForType()` (plus expressif)
+- `buildImage()` → `renderPixels()` (indique l'operation reelle)
 
-**GalaxyService:72-87** connait trop de details sur la construction de `GalaxyImageCalculator` et delegue au mapper
+**Validation** :
+- Creation de `@Component GalaxyParametersValidator`
+- Validation des parametres communs (core, noise texture)
+- Validation type-specific pour les 5 types de galaxies
+- Throws `IllegalArgumentException` avec messages detailles
 
----
-
-## Ameliorations par priorite
-
-### Priorite 1 : Simplifier GalaxyService.createGalaxyImage()
-
-#### 1.1 Extraire la logique de duplication de nom
-Creer `@Component GalaxyImageDuplicationHandler` avec methode `UUID handleDuplication(String name, boolean forceUpdate, repo)`
-
-#### 1.2 Utiliser un Builder pour GalaxyImage
-```java
-GalaxyImage galaxyImage = GalaxyImage.builder()
-    .id(duplicationHandler.resolveId(cmd.getName(), cmd.isForceUpdate()))
-    .name(cmd.getName())
-    .description(cmd.getDescription())
-    .structure(structure)
-    .image(imageBytes)
-    .build();
-```
-
-### Priorite 2 : Renommer pour clarte
-
-| Actuel | Propose | Raison |
-|--------|---------|--------|
-| `GalaxyImageCalculator` | `GalaxyImageRenderer` | "Calculator" est vague |
-| `createIntensityCalculator` | `selectGeneratorForType` | Plus expressif |
-| `buildImage` | `renderPixels` | Plus precis |
-
-### Priorite 3 : Ameliorer la validation
-
-Creer `@Component GalaxyParametersValidator` pour valider la coherence des parametres selon le type de galaxie
-
----
-
-## Ordre d'implementation recommande
-
-1. ~~**NoiseGeneratorFactory + StarFieldApplicator** - TERMINE~~
-2. ~~**Strategy Pattern** - TERMINE~~
-3. ~~**Magic Numbers** - TERMINE~~
-4. ~~**ImageSerializer** - TERMINE~~
-5. ~~**Value Objects pour Parameters** - TERMINE~~
-6. **Priorite 1** (DuplicationHandler)
-7. **Priorite 2** (Renommages)
-8. **Priorite 3** (Validators)
+Tous les 82 tests passent.
 
 ---
 
@@ -351,3 +319,16 @@ Creer `@Component GalaxyParametersValidator` pour valider la coherence des param
 | **Testabilite** | Dependances cachees dans `new` | ✅ Injection via constructeur |
 | **Lisibilite** | Methodes de 50+ lignes, strategy 40 lignes | ✅ Methodes < 15 lignes, strategy 15 lignes |
 | **Maintenabilite** | Ajout d'un type = 10 fichiers | ✅ Ajout = 1 strategy + config |
+| **Nommage** | Termes vagues (Calculator, build) | ✅ Noms expressifs (Renderer, renderPixels) |
+| **Validation** | Pas de validation metier | ✅ Validator component avec regles metier |
+
+---
+
+## Plan d'amelioration Clean Code : TERMINE ✅
+
+Tous les refactorings Clean Code planifies ont ete realises avec succes :
+- ✅ 6 refactorings majeurs completes
+- ✅ 82 tests passent en continu
+- ✅ Architecture hexagonale respectee
+- ✅ Principes SOLID appliques
+- ✅ Code maintenable et extensible
