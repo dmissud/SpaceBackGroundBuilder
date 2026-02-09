@@ -1,6 +1,8 @@
 package org.dbs.sbgb.domain.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
+import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +86,9 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Core contribution (small for irregular galaxies)
         double coreRadius = galaxyRadius * coreSize;
-        double coreIntensity = Math.exp(-(distance * distance) / (2.0 * coreRadius * coreRadius));
-        coreIntensity *= 0.3; // Weak core
+        double coreIntensity = Math.exp(-(distance * distance)
+                / (RadialFalloffConstants.GAUSSIAN_DENOMINATOR * coreRadius * coreRadius));
+        coreIntensity *= CoreIntensityConstants.IRREGULAR_CORE_MULTIPLIER;
 
         // Clump contributions (Gaussian profiles)
         double clumpIntensity = 0.0;
@@ -93,7 +96,8 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
             double clumpDx = x - clump.x;
             double clumpDy = y - clump.y;
             double clumpDist = Math.sqrt(clumpDx * clumpDx + clumpDy * clumpDy);
-            double clumpProfile = Math.exp(-(clumpDist * clumpDist) / (2.0 * clump.size * clump.size));
+            double clumpProfile = Math.exp(-(clumpDist * clumpDist)
+                    / (RadialFalloffConstants.GAUSSIAN_DENOMINATOR * clump.size * clump.size));
             clumpIntensity += clumpProfile * clump.intensity;
         }
         clumpIntensity = Math.min(clumpIntensity, 1.0);
@@ -103,7 +107,7 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
         double noiseFactor = (1.0 - irregularity) + (noiseValue * irregularity);
 
         // Combine all sources
-        double baseIntensity = coreIntensity + clumpIntensity * 0.7;
+        double baseIntensity = coreIntensity + clumpIntensity * CoreIntensityConstants.IRREGULAR_CLUMP_WEIGHT;
 
         // Soft radial falloff
         double radialFalloff = Math.pow(1.0 - normalizedDistance, 1.5);

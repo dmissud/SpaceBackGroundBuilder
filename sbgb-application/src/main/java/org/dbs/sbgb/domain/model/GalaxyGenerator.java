@@ -1,6 +1,9 @@
 package org.dbs.sbgb.domain.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
+import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
+import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
 
 /**
  * Generator for realistic galaxy structures with spiral arms
@@ -68,10 +71,11 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Add noise for organic look
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = 0.3 + (noiseValue * 0.7); // Noise modulates intensity
+        double noiseFactor = NoiseModulationConstants.NOISE_BASE_CONTRIBUTION
+                + (noiseValue * NoiseModulationConstants.NOISE_MODULATION_RANGE);
 
         // Combine core and arms with radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, 2.0);
+        double radialFalloff = Math.pow(1.0 - normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
         double combinedIntensity = (coreIntensity + armIntensity) * radialFalloff * noiseFactor;
 
         return Math.clamp(combinedIntensity, 0.0, 1.0);
@@ -84,7 +88,8 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
         if (normalizedDistance < coreSize) {
             // Very bright core with exponential falloff
             double coreDistance = normalizedDistance / coreSize;
-            return Math.exp(-coreDistance * 3.0) * 2.0;
+            return Math.exp(-coreDistance * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
+                    * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER;
         }
         return 0.0;
     }

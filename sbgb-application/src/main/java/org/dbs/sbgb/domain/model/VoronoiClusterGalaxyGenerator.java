@@ -1,6 +1,9 @@
 package org.dbs.sbgb.domain.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
+import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
+import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +78,8 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
 
         // Core intensity (same pattern as spiral)
         double coreIntensity = (normalizedDistance < coreSize)
-                ? Math.exp(-(normalizedDistance / coreSize) * 3.0) * 2.0
+                ? Math.exp(-(normalizedDistance / coreSize) * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
+                        * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER
                 : 0.0;
 
         // Cluster intensity: sum of Gaussian contributions
@@ -89,10 +93,11 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
 
         // Perlin noise modulation
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = 0.3 + (noiseValue * 0.7);
+        double noiseFactor = NoiseModulationConstants.NOISE_BASE_CONTRIBUTION
+                + (noiseValue * NoiseModulationConstants.NOISE_MODULATION_RANGE);
 
         // Radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, 2.0);
+        double radialFalloff = Math.pow(1.0 - normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
 
         double combined = (coreIntensity + clusterIntensity) * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);

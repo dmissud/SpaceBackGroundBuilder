@@ -1,6 +1,8 @@
 package org.dbs.sbgb.domain.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
+import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
 
 @Slf4j
 public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
@@ -64,10 +66,11 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Perlin noise for texture
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = 0.8 + (noiseValue * 0.2);
+        double noiseFactor = NoiseModulationConstants.RING_NOISE_BASE
+                + (noiseValue * NoiseModulationConstants.RING_NOISE_RANGE);
 
         // Smooth radial falloff to fade at edges
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, 2.0);
+        double radialFalloff = Math.pow(1.0 - normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
 
         double combined = baseIntensity * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);
