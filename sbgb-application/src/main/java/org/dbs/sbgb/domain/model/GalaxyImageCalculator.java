@@ -3,7 +3,6 @@ package org.dbs.sbgb.domain.model;
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import lombok.extern.slf4j.Slf4j;
-import org.dbs.sbgb.domain.constant.GalaxyDefaults;
 import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
 import org.dbs.sbgb.domain.service.StarFieldApplicator;
 import org.dbs.sbgb.domain.strategy.GalaxyGenerationContext;
@@ -86,75 +85,15 @@ public class GalaxyImageCalculator {
     }
 
     private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
-        return switch (parameters.getGalaxyType()) {
-            case VORONOI_CLUSTER -> VoronoiClusterGalaxyGenerator.builder()
-                    .width(width)
-                    .height(height)
-                    .noiseGenerator(noiseGenerator)
-                    .seed(seed)
-                    .coreSize(parameters.getCoreSize())
-                    .galaxyRadius(parameters.getGalaxyRadius())
-                    .clusterCount(parameters.getClusterCount() != null ? parameters.getClusterCount()
-                            : GalaxyDefaults.DEFAULT_CLUSTER_COUNT)
-                    .clusterSize(parameters.getClusterSize() != null ? parameters.getClusterSize()
-                            : GalaxyDefaults.DEFAULT_CLUSTER_SIZE)
-                    .clusterConcentration(
-                            parameters.getClusterConcentration() != null ? parameters.getClusterConcentration()
-                                    : GalaxyDefaults.DEFAULT_CLUSTER_CONCENTRATION)
-                    .build();
-            case SPIRAL -> GalaxyGenerator.builder()
-                    .width(width)
-                    .height(height)
-                    .noiseGenerator(noiseGenerator)
-                    .numberOfArms(parameters.getNumberOfArms())
-                    .armWidth(parameters.getArmWidth())
-                    .armRotation(parameters.getArmRotation())
-                    .coreSize(parameters.getCoreSize())
-                    .galaxyRadius(parameters.getGalaxyRadius())
-                    .build();
-            case ELLIPTICAL -> EllipticalGalaxyGenerator.builder()
-                    .width(width)
-                    .height(height)
-                    .noiseGenerator(noiseGenerator)
-                    .coreSize(parameters.getCoreSize())
-                    .galaxyRadius(parameters.getGalaxyRadius())
-                    .sersicIndex(parameters.getSersicIndex() != null ? parameters.getSersicIndex()
-                            : GalaxyDefaults.DEFAULT_SERSIC_INDEX)
-                    .axisRatio(parameters.getAxisRatio() != null ? parameters.getAxisRatio()
-                            : GalaxyDefaults.DEFAULT_AXIS_RATIO)
-                    .orientationAngle(parameters.getOrientationAngle() != null ? parameters.getOrientationAngle()
-                            : GalaxyDefaults.DEFAULT_ORIENTATION_ANGLE)
-                    .build();
-            case RING -> RingGalaxyGenerator.builder()
-                    .width(width)
-                    .height(height)
-                    .noiseGenerator(noiseGenerator)
-                    .coreSize(parameters.getCoreSize())
-                    .galaxyRadius(parameters.getGalaxyRadius())
-                    .ringRadius(parameters.getRingRadius() != null ? parameters.getRingRadius()
-                            : GalaxyDefaults.DEFAULT_RING_RADIUS)
-                    .ringWidth(parameters.getRingWidth() != null ? parameters.getRingWidth()
-                            : GalaxyDefaults.DEFAULT_RING_WIDTH)
-                    .ringIntensity(parameters.getRingIntensity() != null ? parameters.getRingIntensity()
-                            : GalaxyDefaults.DEFAULT_RING_INTENSITY)
-                    .coreToRingRatio(parameters.getCoreToRingRatio() != null ? parameters.getCoreToRingRatio()
-                            : GalaxyDefaults.DEFAULT_CORE_TO_RING_RATIO)
-                    .build();
-            case IRREGULAR -> IrregularGalaxyGenerator.builder()
-                    .width(width)
-                    .height(height)
-                    .noiseGenerator(noiseGenerator)
-                    .seed(seed)
-                    .coreSize(parameters.getCoreSize())
-                    .galaxyRadius(parameters.getGalaxyRadius())
-                    .irregularity(parameters.getIrregularity() != null ? parameters.getIrregularity()
-                            : GalaxyDefaults.DEFAULT_IRREGULARITY)
-                    .clumpCount(parameters.getIrregularClumpCount() != null ? parameters.getIrregularClumpCount()
-                            : GalaxyDefaults.DEFAULT_CLUMP_COUNT)
-                    .clumpSize(parameters.getIrregularClumpSize() != null ? parameters.getIrregularClumpSize()
-                            : GalaxyDefaults.DEFAULT_CLUMP_SIZE)
-                    .build();
-        };
+        GalaxyGenerationContext context = GalaxyGenerationContext.builder()
+                .width(width)
+                .height(height)
+                .noiseGenerator(noiseGenerator)
+                .seed(seed)
+                .parameters(parameters)
+                .build();
+
+        return generatorFactory.create(parameters.getGalaxyType(), context);
     }
 
     private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator,
