@@ -2,6 +2,8 @@ package org.dbs.sbgb.domain.model;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.RingStructureParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +33,16 @@ class RingGalaxyGeneratorTest {
                 .width(WIDTH)
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .ringRadius(RING_RADIUS)
-                .ringWidth(RING_WIDTH)
-                .ringIntensity(RING_INTENSITY)
-                .coreToRingRatio(CORE_TO_RING_RATIO)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .ringParameters(RingStructureParameters.builder()
+                        .ringRadius(RING_RADIUS)
+                        .ringWidth(RING_WIDTH)
+                        .ringIntensity(RING_INTENSITY)
+                        .coreToRingRatio(CORE_TO_RING_RATIO)
+                        .build())
                 .build();
     }
 
@@ -93,12 +99,16 @@ class RingGalaxyGeneratorTest {
                 .width(WIDTH)
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator2)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .ringRadius(RING_RADIUS)
-                .ringWidth(RING_WIDTH)
-                .ringIntensity(RING_INTENSITY)
-                .coreToRingRatio(CORE_TO_RING_RATIO)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .ringParameters(RingStructureParameters.builder()
+                        .ringRadius(RING_RADIUS)
+                        .ringWidth(RING_WIDTH)
+                        .ringIntensity(RING_INTENSITY)
+                        .coreToRingRatio(CORE_TO_RING_RATIO)
+                        .build())
                 .build();
 
         int centerX = WIDTH / 2;

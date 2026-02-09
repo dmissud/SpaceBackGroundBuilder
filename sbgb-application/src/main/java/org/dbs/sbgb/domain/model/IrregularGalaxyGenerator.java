@@ -3,6 +3,8 @@ package org.dbs.sbgb.domain.model;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
 import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.IrregularStructureParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +18,8 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
     private final double centerX;
     private final double centerY;
     private final PerlinGenerator noiseGenerator;
-    private final double coreSize;
-    private final double galaxyRadius;
-    private final double irregularity;
+    private final CoreParameters coreParameters;
+    private final IrregularStructureParameters irregularParameters;
     private final List<Clump> clumps;
 
     private static class Clump {
@@ -35,22 +36,18 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
     private IrregularGalaxyGenerator(int width, int height,
                                      PerlinGenerator noiseGenerator,
                                      long seed,
-                                     double coreSize,
-                                     double galaxyRadius,
-                                     double irregularity,
-                                     int clumpCount,
-                                     double clumpSize) {
+                                     CoreParameters coreParameters,
+                                     IrregularStructureParameters irregularParameters) {
         this.width = width;
         this.height = height;
         this.centerX = width / 2.0;
         this.centerY = height / 2.0;
         this.noiseGenerator = noiseGenerator;
-        this.coreSize = coreSize;
-        this.galaxyRadius = galaxyRadius;
-        this.irregularity = irregularity;
+        this.coreParameters = coreParameters;
+        this.irregularParameters = irregularParameters;
 
         // Generate random clumps of star formation
-        this.clumps = generateClumps(seed, clumpCount, clumpSize);
+        this.clumps = generateClumps(seed, irregularParameters.getClumpCount(), irregularParameters.getClumpSize());
     }
 
     private List<Clump> generateClumps(long seed, int clumpCount, double clumpSize) {
@@ -60,7 +57,7 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
         for (int i = 0; i < clumpCount; i++) {
             // Distribute clumps randomly within galaxy radius
             double angle = random.nextDouble() * 2.0 * Math.PI;
-            double distance = Math.sqrt(random.nextDouble()) * galaxyRadius * 0.8; // 80% of radius
+            double distance = Math.sqrt(random.nextDouble()) * coreParameters.getGalaxyRadius() * 0.8; // 80% of radius
 
             double clumpX = centerX + distance * Math.cos(angle);
             double clumpY = centerY + distance * Math.sin(angle);
@@ -78,14 +75,14 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
         double dx = x - centerX;
         double dy = y - centerY;
         double distance = Math.sqrt(dx * dx + dy * dy);
-        double normalizedDistance = distance / galaxyRadius;
+        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
 
         if (normalizedDistance > 1.0) {
             return 0.0;
         }
 
         // Core contribution (small for irregular galaxies)
-        double coreRadius = galaxyRadius * coreSize;
+        double coreRadius = coreParameters.getGalaxyRadius() * coreParameters.getCoreSize();
         double coreIntensity = Math.exp(-(distance * distance)
                 / (RadialFalloffConstants.GAUSSIAN_DENOMINATOR * coreRadius * coreRadius));
         coreIntensity *= CoreIntensityConstants.IRREGULAR_CORE_MULTIPLIER;
@@ -104,7 +101,7 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Strong Perlin noise for irregularity
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = (1.0 - irregularity) + (noiseValue * irregularity);
+        double noiseFactor = (1.0 - irregularParameters.getIrregularity()) + (noiseValue * irregularParameters.getIrregularity());
 
         // Combine all sources
         double baseIntensity = coreIntensity + clumpIntensity * CoreIntensityConstants.IRREGULAR_CLUMP_WEIGHT;
@@ -125,11 +122,15 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
         private int height = 4000;
         private PerlinGenerator noiseGenerator;
         private long seed = 42L;
-        private double coreSize = 0.05;
-        private double galaxyRadius = 1500.0;
-        private double irregularity = 0.8;
-        private int clumpCount = 15;
-        private double clumpSize = 80.0;
+        private CoreParameters coreParameters = CoreParameters.builder()
+                .coreSize(0.05)
+                .galaxyRadius(1500.0)
+                .build();
+        private IrregularStructureParameters irregularParameters = IrregularStructureParameters.builder()
+                .irregularity(0.8)
+                .clumpCount(15)
+                .clumpSize(80.0)
+                .build();
 
         public Builder width(int width) {
             this.width = width;
@@ -151,28 +152,13 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
             return this;
         }
 
-        public Builder coreSize(double coreSize) {
-            this.coreSize = coreSize;
+        public Builder coreParameters(CoreParameters coreParameters) {
+            this.coreParameters = coreParameters;
             return this;
         }
 
-        public Builder galaxyRadius(double galaxyRadius) {
-            this.galaxyRadius = galaxyRadius;
-            return this;
-        }
-
-        public Builder irregularity(double irregularity) {
-            this.irregularity = irregularity;
-            return this;
-        }
-
-        public Builder clumpCount(int clumpCount) {
-            this.clumpCount = clumpCount;
-            return this;
-        }
-
-        public Builder clumpSize(double clumpSize) {
-            this.clumpSize = clumpSize;
+        public Builder irregularParameters(IrregularStructureParameters irregularParameters) {
+            this.irregularParameters = irregularParameters;
             return this;
         }
 
@@ -180,8 +166,7 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
             if (noiseGenerator == null) {
                 throw new IllegalStateException("noiseGenerator must be set");
             }
-            return new IrregularGalaxyGenerator(width, height, noiseGenerator, seed,
-                    coreSize, galaxyRadius, irregularity, clumpCount, clumpSize);
+            return new IrregularGalaxyGenerator(width, height, noiseGenerator, seed, coreParameters, irregularParameters);
         }
     }
 }

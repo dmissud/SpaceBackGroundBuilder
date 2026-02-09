@@ -259,15 +259,38 @@ Creation de 3 classes de constantes metier :
 - `CoreIntensityConstants` : luminosite du noyau et poids pour irregular
 - 5 generators mis a jour (Spiral, Voronoi, Elliptical, Ring, Irregular)
 
+### ✅ 4. ImageSerializer extraction (PR #20 pending)
+**Statut : TERMINE** (branch feature/extract-image-serializer)
+
+Extraction de la serialisation d'images en composant dedie :
+- `@Component ImageSerializer` avec `toByteArray(BufferedImage, String format)`
+- `GalaxyService` injecte et utilise `ImageSerializer`
+- Tests : `ImageSerializerTest` avec 6 scenarios
+- Suppression de `convertToByteArray()` de GalaxyService
+
+### ✅ 5. Decomposition GalaxyParameters en Value Objects (PR #21 pending)
+**Statut : TERMINE** (branch feature/decompose-galaxy-parameters, commits 1e8f2c7, 6cbf706, 8f8c608)
+
+Refactoring complet de GalaxyParameters en 5 phases :
+- **Phase 1** : Creation de 10 Value Objects (CoreParameters, NoiseTextureParameters, SpiralStructureParameters, VoronoiClusterParameters, EllipticalShapeParameters, RingStructureParameters, IrregularStructureParameters, DomainWarpParameters, StarFieldParameters, MultiLayerNoiseParameters)
+- **Phase 2** : Migration de 14 factory methods pour utiliser les builders Value Objects
+- **Phase 3** : Migration de 5 generators + 5 strategies + 4 fichiers de tests
+- **Phase 4** : Suppression de 63 champs legacy de GalaxyParameters (602 → 393 lignes, -35%)
+- **Phase 5** : Suppression de 20+ methodes de compatibilite, mise a jour de tous les usages
+
+Benefices obtenus :
+- **SRP** : Chaque Value Object a une responsabilite unique
+- **Encapsulation** : Parametres lies groupes ensemble
+- **Simplification** : Strategy classes de 40 → 15 lignes (-62%)
+- **Type Safety** : Acces via Value Objects au lieu de champs individuels
+- **Maintenabilite** : Code plus clair, pas de duplication de logique fallback
+- 82 tests passent, refactoring 100% termine
+
 ---
 
 ## Violations restantes
 
-### 1. God Object
-
-**GalaxyParameters** : 80+ champs avec 15 methodes factory statiques (lignes 84-343)
-
-### 2. Feature Envy
+### 1. Feature Envy
 
 **GalaxyService:72-87** connait trop de details sur la construction de `GalaxyImageCalculator` et delegue au mapper
 
@@ -275,53 +298,12 @@ Creation de 3 classes de constantes metier :
 
 ## Ameliorations par priorite
 
-### Priorite 1 : Decomposer GalaxyParameters
+### Priorite 1 : Simplifier GalaxyService.createGalaxyImage()
 
-#### 1.1 Creer des Value Objects specialises
-```java
-@Value class CoreParameters { double coreSize; double galaxyRadius; }
-@Value class NoiseTextureParameters { int octaves; double persistence; ... }
-@Value class SpiralStructureParameters { int numberOfArms; double armWidth; ... }
-```
-
-#### 1.2 Refactorer GalaxyParameters
-```java
-@Value
-@Builder
-class GalaxyParameters {
-    GalaxyType galaxyType;
-    CoreParameters coreParameters;
-    NoiseTextureParameters noiseParameters;
-
-    // Type-specific (nullable)
-    SpiralStructureParameters spiralParameters;
-    VoronoiClusterParameters voronoiParameters;
-    ...
-}
-```
-
-### Priorite 2 : Ameliorer la testabilite
-
-#### 2.1 Injecter les factories dans GalaxyService
-```java
-@UseCase
-@RequiredArgsConstructor
-class GalaxyService {
-    private final GalaxyImageRepository repository;
-    private final GalaxyImageCalculatorFactory calculatorFactory; // NEW
-    private final ImageSerializer imageSerializer; // NEW (remplace convertToByteArray)
-}
-```
-
-#### 2.2 Extraire convertToByteArray
-Creer `@Component ImageSerializer` avec methode `byte[] toByteArray(BufferedImage, String format)`
-
-### Priorite 3 : Simplifier GalaxyService.createGalaxyImage()
-
-#### 3.1 Extraire la logique de duplication de nom
+#### 1.1 Extraire la logique de duplication de nom
 Creer `@Component GalaxyImageDuplicationHandler` avec methode `UUID handleDuplication(String name, boolean forceUpdate, repo)`
 
-#### 3.2 Utiliser un Builder pour GalaxyImage
+#### 1.2 Utiliser un Builder pour GalaxyImage
 ```java
 GalaxyImage galaxyImage = GalaxyImage.builder()
     .id(duplicationHandler.resolveId(cmd.getName(), cmd.isForceUpdate()))
@@ -332,16 +314,15 @@ GalaxyImage galaxyImage = GalaxyImage.builder()
     .build();
 ```
 
-### Priorite 4 : Renommer pour clarte
+### Priorite 2 : Renommer pour clarte
 
 | Actuel | Propose | Raison |
 |--------|---------|--------|
 | `GalaxyImageCalculator` | `GalaxyImageRenderer` | "Calculator" est vague |
 | `createIntensityCalculator` | `selectGeneratorForType` | Plus expressif |
 | `buildImage` | `renderPixels` | Plus precis |
-| `convertToByteArray` | `serializeToPng` | Indique le format |
 
-### Priorite 5 : Ameliorer la validation
+### Priorite 3 : Ameliorer la validation
 
 Creer `@Component GalaxyParametersValidator` pour valider la coherence des parametres selon le type de galaxie
 
@@ -352,19 +333,21 @@ Creer `@Component GalaxyParametersValidator` pour valider la coherence des param
 1. ~~**NoiseGeneratorFactory + StarFieldApplicator** - TERMINE~~
 2. ~~**Strategy Pattern** - TERMINE~~
 3. ~~**Magic Numbers** - TERMINE~~
-4. **Priorite 2.2** (ImageSerializer) - extraction simple
-5. **Priorite 1** (Value Objects pour Parameters) - impact important
-6. **Priorite 3** (DuplicationHandler)
-7. **Priorite 5** (Validators)
+4. ~~**ImageSerializer** - TERMINE~~
+5. ~~**Value Objects pour Parameters** - TERMINE~~
+6. **Priorite 1** (DuplicationHandler)
+7. **Priorite 2** (Renommages)
+8. **Priorite 3** (Validators)
 
 ---
 
-## Benefices attendus
+## Benefices obtenus
 
 | Principe | Avant | Apres |
 |----------|-------|-------|
-| **SRP** | GalaxyImageCalculator = 7 responsabilites | 1 responsabilite par classe |
-| **DRY** | Switch de 70 lignes avec duplication | Factory pattern 10 lignes |
-| **Testabilite** | Dependances cachees dans `new` | Injection via constructeur |
-| **Lisibilite** | Methodes de 50+ lignes | Methodes < 15 lignes |
-| **Maintenabilite** | Ajout d'un type = 10 fichiers | Ajout = 1 strategy + config |
+| **SRP** | GalaxyImageCalculator = 7 responsabilites | ✅ 1 responsabilite par classe |
+| **DRY** | Switch de 70 lignes avec duplication | ✅ Factory pattern 10 lignes |
+| **Encapsulation** | 80+ champs plats dans GalaxyParameters | ✅ 10 Value Objects cohesifs |
+| **Testabilite** | Dependances cachees dans `new` | ✅ Injection via constructeur |
+| **Lisibilite** | Methodes de 50+ lignes, strategy 40 lignes | ✅ Methodes < 15 lignes, strategy 15 lignes |
+| **Maintenabilite** | Ajout d'un type = 10 fichiers | ✅ Ajout = 1 strategy + config |

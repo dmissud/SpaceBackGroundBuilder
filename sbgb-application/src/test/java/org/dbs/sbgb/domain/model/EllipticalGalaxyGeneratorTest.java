@@ -2,6 +2,8 @@ package org.dbs.sbgb.domain.model;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.EllipticalShapeParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,11 +32,15 @@ class EllipticalGalaxyGeneratorTest {
                 .width(WIDTH)
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .sersicIndex(SERSIC_INDEX)
-                .axisRatio(AXIS_RATIO)
-                .orientationAngle(ORIENTATION_ANGLE)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .ellipticalParameters(EllipticalShapeParameters.builder()
+                        .sersicIndex(SERSIC_INDEX)
+                        .axisRatio(AXIS_RATIO)
+                        .orientationAngle(ORIENTATION_ANGLE)
+                        .build())
                 .build();
     }
 
@@ -93,11 +99,15 @@ class EllipticalGalaxyGeneratorTest {
                 .width(WIDTH)
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator2)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .sersicIndex(SERSIC_INDEX)
-                .axisRatio(AXIS_RATIO)
-                .orientationAngle(ORIENTATION_ANGLE)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .ellipticalParameters(EllipticalShapeParameters.builder()
+                        .sersicIndex(SERSIC_INDEX)
+                        .axisRatio(AXIS_RATIO)
+                        .orientationAngle(ORIENTATION_ANGLE)
+                        .build())
                 .build();
 
         int centerX = WIDTH / 2;

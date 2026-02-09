@@ -2,6 +2,8 @@ package org.dbs.sbgb.domain.model;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.IrregularStructureParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +33,15 @@ class IrregularGalaxyGeneratorTest {
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator)
                 .seed(SEED)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .irregularity(IRREGULARITY)
-                .clumpCount(CLUMP_COUNT)
-                .clumpSize(CLUMP_SIZE)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .irregularParameters(IrregularStructureParameters.builder()
+                        .irregularity(IRREGULARITY)
+                        .clumpCount(CLUMP_COUNT)
+                        .clumpSize(CLUMP_SIZE)
+                        .build())
                 .build();
     }
 
@@ -93,11 +99,15 @@ class IrregularGalaxyGeneratorTest {
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator2)
                 .seed(SEED)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .irregularity(IRREGULARITY)
-                .clumpCount(CLUMP_COUNT)
-                .clumpSize(CLUMP_SIZE)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .irregularParameters(IrregularStructureParameters.builder()
+                        .irregularity(IRREGULARITY)
+                        .clumpCount(CLUMP_COUNT)
+                        .clumpSize(CLUMP_SIZE)
+                        .build())
                 .build();
 
         int centerX = WIDTH / 2;

@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.SpiralStructureParameters;
 
 /**
  * Generator for realistic galaxy structures with spiral arms
@@ -19,30 +21,21 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
     private final double centerY;
     private final PerlinGenerator noiseGenerator;
 
-    // Galaxy parameters
-    private final int numberOfArms;
-    private final double armWidth;
-    private final double armRotation;
-    private final double coreSize;
-    private final double galaxyRadius;
+    // Galaxy parameters (Value Objects)
+    private final CoreParameters coreParameters;
+    private final SpiralStructureParameters spiralParameters;
 
     public GalaxyGenerator(int width, int height,
                           PerlinGenerator noiseGenerator,
-                          int numberOfArms,
-                          double armWidth,
-                          double armRotation,
-                          double coreSize,
-                          double galaxyRadius) {
+                          CoreParameters coreParameters,
+                          SpiralStructureParameters spiralParameters) {
         this.width = width;
         this.height = height;
         this.centerX = width / 2.0;
         this.centerY = height / 2.0;
         this.noiseGenerator = noiseGenerator;
-        this.numberOfArms = numberOfArms;
-        this.armWidth = armWidth;
-        this.armRotation = armRotation;
-        this.coreSize = coreSize;
-        this.galaxyRadius = galaxyRadius;
+        this.coreParameters = coreParameters;
+        this.spiralParameters = spiralParameters;
     }
 
     @Override
@@ -56,7 +49,7 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
         double angle = Math.atan2(dy, dx);
 
         // Normalize distance (0 to 1 across galaxy radius)
-        double normalizedDistance = distance / galaxyRadius;
+        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
 
         // Outside galaxy radius, return zero
         if (normalizedDistance > 1.0) {
@@ -85,9 +78,9 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
      * Calculate core intensity - exponential bright center
      */
     private double calculateCoreIntensity(double normalizedDistance) {
-        if (normalizedDistance < coreSize) {
+        if (normalizedDistance < coreParameters.getCoreSize()) {
             // Very bright core with exponential falloff
-            double coreDistance = normalizedDistance / coreSize;
+            double coreDistance = normalizedDistance / coreParameters.getCoreSize();
             return Math.exp(-coreDistance * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
                     * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER;
         }
@@ -101,17 +94,17 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
         double maxArmIntensity = 0.0;
 
         // Check each spiral arm
-        for (int arm = 0; arm < numberOfArms; arm++) {
-            double armBaseAngle = (2.0 * Math.PI * arm) / numberOfArms;
+        for (int arm = 0; arm < spiralParameters.getNumberOfArms(); arm++) {
+            double armBaseAngle = (2.0 * Math.PI * arm) / spiralParameters.getNumberOfArms();
 
             // Logarithmic spiral: angle = armRotation * ln(distance)
-            double spiralAngle = armBaseAngle + armRotation * Math.log(normalizedDistance + 0.1);
+            double spiralAngle = armBaseAngle + spiralParameters.getArmRotation() * Math.log(normalizedDistance + 0.1);
 
             // Normalize angles to [-PI, PI]
             double angleDiff = normalizeAngle(angle - spiralAngle);
 
             // Calculate distance to spiral arm center
-            double armDistance = Math.abs(angleDiff) * normalizedDistance * galaxyRadius / armWidth;
+            double armDistance = Math.abs(angleDiff) * normalizedDistance * coreParameters.getGalaxyRadius() / spiralParameters.getArmWidth();
 
             // Gaussian falloff from arm center
             double armIntensity = Math.exp(-armDistance * armDistance * 0.5);
@@ -142,11 +135,15 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
         private int width = 4000;
         private int height = 4000;
         private PerlinGenerator noiseGenerator;
-        private int numberOfArms = 2;
-        private double armWidth = 80.0;
-        private double armRotation = 4.0;
-        private double coreSize = 0.05;
-        private double galaxyRadius = 1000.0;
+        private CoreParameters coreParameters = CoreParameters.builder()
+                .coreSize(0.05)
+                .galaxyRadius(1000.0)
+                .build();
+        private SpiralStructureParameters spiralParameters = SpiralStructureParameters.builder()
+                .numberOfArms(2)
+                .armWidth(80.0)
+                .armRotation(4.0)
+                .build();
 
         public Builder width(int width) {
             this.width = width;
@@ -163,28 +160,13 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
             return this;
         }
 
-        public Builder numberOfArms(int numberOfArms) {
-            this.numberOfArms = numberOfArms;
+        public Builder coreParameters(CoreParameters coreParameters) {
+            this.coreParameters = coreParameters;
             return this;
         }
 
-        public Builder armWidth(double armWidth) {
-            this.armWidth = armWidth;
-            return this;
-        }
-
-        public Builder armRotation(double armRotation) {
-            this.armRotation = armRotation;
-            return this;
-        }
-
-        public Builder coreSize(double coreSize) {
-            this.coreSize = coreSize;
-            return this;
-        }
-
-        public Builder galaxyRadius(double galaxyRadius) {
-            this.galaxyRadius = galaxyRadius;
+        public Builder spiralParameters(SpiralStructureParameters spiralParameters) {
+            this.spiralParameters = spiralParameters;
             return this;
         }
 
@@ -192,8 +174,7 @@ public class GalaxyGenerator implements GalaxyIntensityCalculator {
             if (noiseGenerator == null) {
                 throw new IllegalStateException("noiseGenerator must be set");
             }
-            return new GalaxyGenerator(width, height, noiseGenerator,
-                numberOfArms, armWidth, armRotation, coreSize, galaxyRadius);
+            return new GalaxyGenerator(width, height, noiseGenerator, coreParameters, spiralParameters);
         }
     }
 }

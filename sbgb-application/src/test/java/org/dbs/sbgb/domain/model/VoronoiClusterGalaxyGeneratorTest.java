@@ -2,6 +2,8 @@ package org.dbs.sbgb.domain.model;
 
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.VoronoiClusterParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +33,15 @@ class VoronoiClusterGalaxyGeneratorTest {
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator)
                 .seed(SEED)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .clusterCount(CLUSTER_COUNT)
-                .clusterSize(CLUSTER_SIZE)
-                .clusterConcentration(CLUSTER_CONCENTRATION)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .voronoiParameters(VoronoiClusterParameters.builder()
+                        .clusterCount(CLUSTER_COUNT)
+                        .clusterSize(CLUSTER_SIZE)
+                        .clusterConcentration(CLUSTER_CONCENTRATION)
+                        .build())
                 .build();
     }
 
@@ -96,11 +102,15 @@ class VoronoiClusterGalaxyGeneratorTest {
                 .height(HEIGHT)
                 .noiseGenerator(noiseGenerator2)
                 .seed(SEED)
-                .coreSize(CORE_SIZE)
-                .galaxyRadius(GALAXY_RADIUS)
-                .clusterCount(CLUSTER_COUNT)
-                .clusterSize(CLUSTER_SIZE)
-                .clusterConcentration(CLUSTER_CONCENTRATION)
+                .coreParameters(CoreParameters.builder()
+                        .coreSize(CORE_SIZE)
+                        .galaxyRadius(GALAXY_RADIUS)
+                        .build())
+                .voronoiParameters(VoronoiClusterParameters.builder()
+                        .clusterCount(CLUSTER_COUNT)
+                        .clusterSize(CLUSTER_SIZE)
+                        .clusterConcentration(CLUSTER_CONCENTRATION)
+                        .build())
                 .build();
 
         // Check multiple points

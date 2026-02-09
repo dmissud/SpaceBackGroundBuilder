@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.VoronoiClusterParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,28 +19,23 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
     private final double centerX;
     private final double centerY;
     private final PerlinGenerator noiseGenerator;
-    private final double coreSize;
-    private final double galaxyRadius;
-    private final double clusterSize;
+    private final CoreParameters coreParameters;
+    private final VoronoiClusterParameters voronoiParameters;
     private final List<ClusterCenter> clusters;
 
     private VoronoiClusterGalaxyGenerator(int width, int height,
                                           PerlinGenerator noiseGenerator,
                                           long seed,
-                                          double coreSize,
-                                          double galaxyRadius,
-                                          int clusterCount,
-                                          double clusterSize,
-                                          double clusterConcentration) {
+                                          CoreParameters coreParameters,
+                                          VoronoiClusterParameters voronoiParameters) {
         this.width = width;
         this.height = height;
         this.centerX = width / 2.0;
         this.centerY = height / 2.0;
         this.noiseGenerator = noiseGenerator;
-        this.coreSize = coreSize;
-        this.galaxyRadius = galaxyRadius;
-        this.clusterSize = clusterSize;
-        this.clusters = generateClusters(seed, clusterCount, clusterConcentration);
+        this.coreParameters = coreParameters;
+        this.voronoiParameters = voronoiParameters;
+        this.clusters = generateClusters(seed, voronoiParameters.getClusterCount(), voronoiParameters.getClusterConcentration());
     }
 
     private List<ClusterCenter> generateClusters(long seed, int clusterCount, double concentration) {
@@ -47,8 +44,8 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
 
         for (int i = 0; i < clusterCount; i++) {
             // Distance from center using exponential concentration
-            double distance = galaxyRadius * Math.pow(random.nextDouble(), 1.0 / (1.0 - concentration + 0.01));
-            distance = Math.min(distance, galaxyRadius * 0.95);
+            double distance = coreParameters.getGalaxyRadius() * Math.pow(random.nextDouble(), 1.0 / (1.0 - concentration + 0.01));
+            distance = Math.min(distance, coreParameters.getGalaxyRadius() * 0.95);
 
             // Random angle
             double angle = random.nextDouble() * 2.0 * Math.PI;
@@ -70,15 +67,15 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
         double dx = x - centerX;
         double dy = y - centerY;
         double distance = Math.sqrt(dx * dx + dy * dy);
-        double normalizedDistance = distance / galaxyRadius;
+        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
 
         if (normalizedDistance > 1.0) {
             return 0.0;
         }
 
         // Core intensity (same pattern as spiral)
-        double coreIntensity = (normalizedDistance < coreSize)
-                ? Math.exp(-(normalizedDistance / coreSize) * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
+        double coreIntensity = (normalizedDistance < coreParameters.getCoreSize())
+                ? Math.exp(-(normalizedDistance / coreParameters.getCoreSize()) * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
                         * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER
                 : 0.0;
 
@@ -88,7 +85,7 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
             double cdx = x - cluster.x;
             double cdy = y - cluster.y;
             double cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-            clusterIntensity += cluster.brightness * Math.exp(-(cdist * cdist) / (2 * clusterSize * clusterSize));
+            clusterIntensity += cluster.brightness * Math.exp(-(cdist * cdist) / (2 * voronoiParameters.getClusterSize() * voronoiParameters.getClusterSize()));
         }
 
         // Perlin noise modulation
@@ -112,11 +109,15 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
         private int height = 4000;
         private PerlinGenerator noiseGenerator;
         private long seed = 0L;
-        private double coreSize = 0.05;
-        private double galaxyRadius = 1500.0;
-        private int clusterCount = 80;
-        private double clusterSize = 60.0;
-        private double clusterConcentration = 0.7;
+        private CoreParameters coreParameters = CoreParameters.builder()
+                .coreSize(0.05)
+                .galaxyRadius(1500.0)
+                .build();
+        private VoronoiClusterParameters voronoiParameters = VoronoiClusterParameters.builder()
+                .clusterCount(80)
+                .clusterSize(60.0)
+                .clusterConcentration(0.7)
+                .build();
 
         public Builder width(int width) {
             this.width = width;
@@ -138,28 +139,13 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
             return this;
         }
 
-        public Builder coreSize(double coreSize) {
-            this.coreSize = coreSize;
+        public Builder coreParameters(CoreParameters coreParameters) {
+            this.coreParameters = coreParameters;
             return this;
         }
 
-        public Builder galaxyRadius(double galaxyRadius) {
-            this.galaxyRadius = galaxyRadius;
-            return this;
-        }
-
-        public Builder clusterCount(int clusterCount) {
-            this.clusterCount = clusterCount;
-            return this;
-        }
-
-        public Builder clusterSize(double clusterSize) {
-            this.clusterSize = clusterSize;
-            return this;
-        }
-
-        public Builder clusterConcentration(double clusterConcentration) {
-            this.clusterConcentration = clusterConcentration;
+        public Builder voronoiParameters(VoronoiClusterParameters voronoiParameters) {
+            this.voronoiParameters = voronoiParameters;
             return this;
         }
 
@@ -167,8 +153,7 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
             if (noiseGenerator == null) {
                 throw new IllegalStateException("noiseGenerator must be set");
             }
-            return new VoronoiClusterGalaxyGenerator(width, height, noiseGenerator,
-                    seed, coreSize, galaxyRadius, clusterCount, clusterSize, clusterConcentration);
+            return new VoronoiClusterGalaxyGenerator(width, height, noiseGenerator, seed, coreParameters, voronoiParameters);
         }
     }
 
