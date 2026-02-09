@@ -3,6 +3,8 @@ package org.dbs.sbgb.domain.model;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
+import org.dbs.sbgb.domain.model.parameters.CoreParameters;
+import org.dbs.sbgb.domain.model.parameters.RingStructureParameters;
 
 @Slf4j
 public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
@@ -12,32 +14,20 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
     private final double centerX;
     private final double centerY;
     private final PerlinGenerator noiseGenerator;
-    private final double coreSize;
-    private final double galaxyRadius;
-    private final double ringRadius;
-    private final double ringWidth;
-    private final double ringIntensity;
-    private final double coreToRingRatio;
+    private final CoreParameters coreParameters;
+    private final RingStructureParameters ringParameters;
 
     private RingGalaxyGenerator(int width, int height,
                                 PerlinGenerator noiseGenerator,
-                                double coreSize,
-                                double galaxyRadius,
-                                double ringRadius,
-                                double ringWidth,
-                                double ringIntensity,
-                                double coreToRingRatio) {
+                                CoreParameters coreParameters,
+                                RingStructureParameters ringParameters) {
         this.width = width;
         this.height = height;
         this.centerX = width / 2.0;
         this.centerY = height / 2.0;
         this.noiseGenerator = noiseGenerator;
-        this.coreSize = coreSize;
-        this.galaxyRadius = galaxyRadius;
-        this.ringRadius = ringRadius;
-        this.ringWidth = ringWidth;
-        this.ringIntensity = ringIntensity;
-        this.coreToRingRatio = coreToRingRatio;
+        this.coreParameters = coreParameters;
+        this.ringParameters = ringParameters;
     }
 
     @Override
@@ -45,21 +35,21 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
         double dx = x - centerX;
         double dy = y - centerY;
         double distance = Math.sqrt(dx * dx + dy * dy);
-        double normalizedDistance = distance / galaxyRadius;
+        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
 
         if (normalizedDistance > 1.0) {
             return 0.0;
         }
 
         // Core contribution (Gaussian)
-        double coreRadius = galaxyRadius * coreSize;
+        double coreRadius = coreParameters.getGalaxyRadius() * coreParameters.getCoreSize();
         double coreIntensity = Math.exp(-(distance * distance) / (2.0 * coreRadius * coreRadius));
-        coreIntensity *= coreToRingRatio;
+        coreIntensity *= ringParameters.getCoreToRingRatio();
 
         // Ring contribution (Gaussian profile centered on ringRadius)
-        double ringDistance = Math.abs(distance - ringRadius);
-        double ringProfile = Math.exp(-(ringDistance * ringDistance) / (2.0 * ringWidth * ringWidth));
-        double ringContribution = ringProfile * ringIntensity;
+        double ringDistance = Math.abs(distance - ringParameters.getRingRadius());
+        double ringProfile = Math.exp(-(ringDistance * ringDistance) / (2.0 * ringParameters.getRingWidth() * ringParameters.getRingWidth()));
+        double ringContribution = ringProfile * ringParameters.getRingIntensity();
 
         // Combined intensity
         double baseIntensity = coreIntensity + ringContribution;
@@ -84,12 +74,16 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
         private int width = 4000;
         private int height = 4000;
         private PerlinGenerator noiseGenerator;
-        private double coreSize = 0.05;
-        private double galaxyRadius = 1500.0;
-        private double ringRadius = 900.0;
-        private double ringWidth = 150.0;
-        private double ringIntensity = 1.0;
-        private double coreToRingRatio = 0.3;
+        private CoreParameters coreParameters = CoreParameters.builder()
+                .coreSize(0.05)
+                .galaxyRadius(1500.0)
+                .build();
+        private RingStructureParameters ringParameters = RingStructureParameters.builder()
+                .ringRadius(900.0)
+                .ringWidth(150.0)
+                .ringIntensity(1.0)
+                .coreToRingRatio(0.3)
+                .build();
 
         public Builder width(int width) {
             this.width = width;
@@ -106,33 +100,13 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
             return this;
         }
 
-        public Builder coreSize(double coreSize) {
-            this.coreSize = coreSize;
+        public Builder coreParameters(CoreParameters coreParameters) {
+            this.coreParameters = coreParameters;
             return this;
         }
 
-        public Builder galaxyRadius(double galaxyRadius) {
-            this.galaxyRadius = galaxyRadius;
-            return this;
-        }
-
-        public Builder ringRadius(double ringRadius) {
-            this.ringRadius = ringRadius;
-            return this;
-        }
-
-        public Builder ringWidth(double ringWidth) {
-            this.ringWidth = ringWidth;
-            return this;
-        }
-
-        public Builder ringIntensity(double ringIntensity) {
-            this.ringIntensity = ringIntensity;
-            return this;
-        }
-
-        public Builder coreToRingRatio(double coreToRingRatio) {
-            this.coreToRingRatio = coreToRingRatio;
+        public Builder ringParameters(RingStructureParameters ringParameters) {
+            this.ringParameters = ringParameters;
             return this;
         }
 
@@ -140,8 +114,7 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
             if (noiseGenerator == null) {
                 throw new IllegalStateException("noiseGenerator must be set");
             }
-            return new RingGalaxyGenerator(width, height, noiseGenerator,
-                    coreSize, galaxyRadius, ringRadius, ringWidth, ringIntensity, coreToRingRatio);
+            return new RingGalaxyGenerator(width, height, noiseGenerator, coreParameters, ringParameters);
         }
     }
 }
