@@ -232,89 +232,59 @@ Couche de bruit soustractive pour zones d'ombre realistes.
 
 # Plan d'amelioration Clean Code
 
-## Violations identifiees
+## Refactorings termines
 
-### 1. Violation SRP (Single Responsibility Principle)
+### ✅ 1. NoiseGeneratorFactory + StarFieldApplicator (commits c47c777, 717b511)
+**Statut : TERMINE**
 
-**GalaxyImageCalculator:50-126** fait trop de choses :
-- Initialisation du bruit Perlin/multi-layer
-- Creation du calculateur d'intensite (switch massif ligne 129-197)
-- Gestion du domain warping
-- Application du star field
-- Generation de l'image
+Extraction de la logique de creation de noise generator et d'application du star field.
+- `NoiseGeneratorFactory` : gestion Perlin vs MultiLayer
+- `StarFieldApplicator` : application independante du champ d'etoiles
+- `GalaxyImageCalculator.create()` : 76 lignes → 15 lignes
 
-### 2. Duplication excessive
+### ✅ 2. Strategy Pattern pour eliminer duplication (PR #18 pending)
+**Statut : TERMINE** (branch feature/refactor-strategy-pattern-factory)
 
-**GalaxyImageCalculator.createIntensityCalculator():128-198** : repetition du pattern "parametre nullable ? valeur : default" pour chaque type de galaxie
+Remplacement du switch de 70 lignes par delegation a `GalaxyGeneratorFactory`.
+- `GalaxyImageCalculator.createIntensityCalculator()` : 70 lignes → 10 lignes
+- Suppression du pattern repetitif `param != null ? param : default`
+- Tests : `GalaxyGeneratorFactoryTest` avec 6 scenarios
 
-### 3. God Object
+### ✅ 3. Extraction des Magic Numbers (PR #19 pending)
+**Statut : TERMINE** (branch feature/extract-magic-numbers)
+
+Creation de 3 classes de constantes metier :
+- `NoiseModulationConstants` : base/range pour chaque type de galaxie
+- `RadialFalloffConstants` : exposants de falloff et denominateurs Gaussiens
+- `CoreIntensityConstants` : luminosite du noyau et poids pour irregular
+- 5 generators mis a jour (Spiral, Voronoi, Elliptical, Ring, Irregular)
+
+---
+
+## Violations restantes
+
+### 1. God Object
 
 **GalaxyParameters** : 80+ champs avec 15 methodes factory statiques (lignes 84-343)
 
-### 4. Feature Envy
+### 2. Feature Envy
 
 **GalaxyService:72-87** connait trop de details sur la construction de `GalaxyImageCalculator` et delegue au mapper
-
-### 5. Long Method
-
-**GalaxyImageCalculator.create():50-126** depasse les 20 lignes avec 4 niveaux de responsabilite
-
-### 6. Magic Numbers
-
-**GalaxyGenerator:71** : `0.3`, `0.7` sans constantes nommees
 
 ---
 
 ## Ameliorations par priorite
 
-### Priorite 1 : Refactoring SRP et extraction de responsabilites
+### Priorite 1 : Decomposer GalaxyParameters
 
-#### 1.1 Extraire la logique de creation de noise generator
-Creer `NoiseGeneratorFactory` qui encapsule la logique de creation Perlin vs MultiLayer
-
-#### 1.2 Simplifier GalaxyImageCalculator.create()
-```java
-public BufferedImage create(long seed) {
-    PerlinGenerator noise = noiseFactory.createNoise(parameters, seed, width, height);
-    GalaxyIntensityCalculator intensity = intensityFactory.create(parameters, noise, seed);
-    DomainWarpCalculator warp = warpFactory.createIfEnabled(parameters, seed, width, height);
-
-    BufferedImage galaxy = imageBuilder.build(intensity, warp, colorCalculator);
-
-    return starFieldApplicator.applyIfEnabled(galaxy, parameters, seed);
-}
-```
-
-#### 1.3 Extraire StarFieldApplicator autonome
-Creer `@Component StarFieldApplicator` pour isoler la logique d'application du champ d'etoiles
-
-### Priorite 2 : Eliminer la duplication dans createIntensityCalculator
-
-Appliquer le Strategy Pattern deja existant avec `GalaxyGeneratorFactory` :
-```java
-private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
-    GalaxyGenerationContext context = GalaxyGenerationContext.builder()
-        .width(width)
-        .height(height)
-        .parameters(parameters)
-        .noiseGenerator(noiseGenerator)
-        .seed(seed)
-        .build();
-
-    return generatorFactory.createGenerator(context);
-}
-```
-
-### Priorite 3 : Decomposer GalaxyParameters
-
-#### 3.1 Creer des Value Objects specialises
+#### 1.1 Creer des Value Objects specialises
 ```java
 @Value class CoreParameters { double coreSize; double galaxyRadius; }
 @Value class NoiseTextureParameters { int octaves; double persistence; ... }
 @Value class SpiralStructureParameters { int numberOfArms; double armWidth; ... }
 ```
 
-#### 3.2 Refactorer GalaxyParameters
+#### 1.2 Refactorer GalaxyParameters
 ```java
 @Value
 @Builder
@@ -330,23 +300,9 @@ class GalaxyParameters {
 }
 ```
 
-### Priorite 4 : Extraire les constantes magiques
+### Priorite 2 : Ameliorer la testabilite
 
-Creer des classes de constantes metier :
-```java
-class NoiseWeights {
-    static final double BASE_CONTRIBUTION = 0.3;
-    static final double NOISE_MODULATION = 0.7;
-}
-
-class RadialFalloffConstants {
-    static final double FALLOFF_EXPONENT = 2.0;
-}
-```
-
-### Priorite 5 : Ameliorer la testabilite
-
-#### 5.1 Injecter les factories dans GalaxyService
+#### 2.1 Injecter les factories dans GalaxyService
 ```java
 @UseCase
 @RequiredArgsConstructor
@@ -357,15 +313,15 @@ class GalaxyService {
 }
 ```
 
-#### 5.2 Extraire convertToByteArray
+#### 2.2 Extraire convertToByteArray
 Creer `@Component ImageSerializer` avec methode `byte[] toByteArray(BufferedImage, String format)`
 
-### Priorite 6 : Simplifier GalaxyService.createGalaxyImage()
+### Priorite 3 : Simplifier GalaxyService.createGalaxyImage()
 
-#### 6.1 Extraire la logique de duplication de nom
+#### 3.1 Extraire la logique de duplication de nom
 Creer `@Component GalaxyImageDuplicationHandler` avec methode `UUID handleDuplication(String name, boolean forceUpdate, repo)`
 
-#### 6.2 Utiliser un Builder pour GalaxyImage
+#### 3.2 Utiliser un Builder pour GalaxyImage
 ```java
 GalaxyImage galaxyImage = GalaxyImage.builder()
     .id(duplicationHandler.resolveId(cmd.getName(), cmd.isForceUpdate()))
@@ -376,7 +332,7 @@ GalaxyImage galaxyImage = GalaxyImage.builder()
     .build();
 ```
 
-### Priorite 7 : Renommer pour clarte
+### Priorite 4 : Renommer pour clarte
 
 | Actuel | Propose | Raison |
 |--------|---------|--------|
@@ -385,7 +341,7 @@ GalaxyImage galaxyImage = GalaxyImage.builder()
 | `buildImage` | `renderPixels` | Plus precis |
 | `convertToByteArray` | `serializeToPng` | Indique le format |
 
-### Priorite 8 : Ameliorer la validation
+### Priorite 5 : Ameliorer la validation
 
 Creer `@Component GalaxyParametersValidator` pour valider la coherence des parametres selon le type de galaxie
 
@@ -393,14 +349,13 @@ Creer `@Component GalaxyParametersValidator` pour valider la coherence des param
 
 ## Ordre d'implementation recommande
 
-1. **Priorite 2** (Strategy Pattern) - quick win, infrastructure deja en place
-2. **Priorite 1.3** (StarFieldApplicator) - isolation facile
-3. **Priorite 4** (Constantes) - pas de refactoring structurel
-4. **Priorite 5.2** (ImageSerializer) - extraction simple
-5. **Priorite 1** (NoiseGeneratorFactory + refactor create)
-6. **Priorite 3** (Value Objects pour Parameters)
-7. **Priorite 6** (DuplicationHandler)
-8. **Priorite 8** (Validators)
+1. ~~**NoiseGeneratorFactory + StarFieldApplicator** - TERMINE~~
+2. ~~**Strategy Pattern** - TERMINE~~
+3. ~~**Magic Numbers** - TERMINE~~
+4. **Priorite 2.2** (ImageSerializer) - extraction simple
+5. **Priorite 1** (Value Objects pour Parameters) - impact important
+6. **Priorite 3** (DuplicationHandler)
+7. **Priorite 5** (Validators)
 
 ---
 
