@@ -13,9 +13,7 @@ import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
 import org.dbs.sbgb.port.out.GalaxyImageRepository;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +28,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private final GalaxyGeneratorFactory galaxyGeneratorFactory;
     private final NoiseGeneratorFactory noiseGeneratorFactory;
     private final StarFieldApplicator starFieldApplicator;
+    private final ImageSerializer imageSerializer;
 
     @Override
     public List<GalaxyImage> findAllGalaxyImages() {
@@ -39,7 +38,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     @Override
     public byte[] buildGalaxyImage(GalaxyRequestCmd galaxyRequestCmd) throws IOException {
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
-        return convertToByteArray(image);
+        return imageSerializer.toByteArray(image);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         }
 
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
-        byte[] imageBytes = convertToByteArray(image);
+        byte[] imageBytes = imageSerializer.toByteArray(image);
 
         GalaxyStructure structure = galaxyStructureMapper.toGalaxyStructure(galaxyRequestCmd);
 
@@ -89,11 +88,5 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .build();
 
         return calculator.create(cmd.getSeed());
-    }
-
-    private byte[] convertToByteArray(BufferedImage image) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
-        return baos.toByteArray();
     }
 }
