@@ -3,6 +3,11 @@ package org.dbs.sbgb.domain.model;
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.GalaxyDefaults;
+import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
+import org.dbs.sbgb.domain.service.StarFieldApplicator;
+import org.dbs.sbgb.domain.strategy.GalaxyGenerationContext;
+import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -26,99 +31,58 @@ public class GalaxyImageCalculator {
     private final Interpolation interpolation;
     private final FadeFunction fadeFunction;
     private final GalaxyColorCalculator colorCalculator;
+    private final GalaxyGeneratorFactory generatorFactory;
+    private final NoiseGeneratorFactory noiseGeneratorFactory;
+    private final StarFieldApplicator starFieldApplicator;
 
     private GalaxyImageCalculator(int width,
-                                  int height,
-                                  GalaxyParameters parameters,
-                                  Interpolation interpolation,
-                                  FadeFunction fadeFunction,
-                                  GalaxyColorCalculator colorCalculator) {
+            int height,
+            GalaxyParameters parameters,
+            Interpolation interpolation,
+            FadeFunction fadeFunction,
+            GalaxyColorCalculator colorCalculator,
+            GalaxyGeneratorFactory generatorFactory,
+            NoiseGeneratorFactory noiseGeneratorFactory,
+            StarFieldApplicator starFieldApplicator) {
         this.width = width;
         this.height = height;
         this.parameters = parameters;
         this.interpolation = interpolation;
         this.fadeFunction = fadeFunction;
         this.colorCalculator = colorCalculator;
+        this.generatorFactory = generatorFactory;
+        this.noiseGeneratorFactory = noiseGeneratorFactory;
+        this.starFieldApplicator = starFieldApplicator;
     }
 
     public BufferedImage create(long seed) {
         log.info("Creating galaxy image {}x{} with seed {} type {} multiLayer={}",
                 width, height, seed, parameters.getGalaxyType(), parameters.isMultiLayerNoiseEnabled());
 
-        // Initialize noise generator for organic texture
-        // Use multi-layer noise if enabled, otherwise use standard Perlin
-        PerlinGenerator noiseGenerator;
-        MultiLayerNoiseGenerator multiLayerNoise = null;
-
-        if (parameters.isMultiLayerNoiseEnabled()) {
-            // Multi-layer noise mode
-            multiLayerNoise = MultiLayerNoiseGenerator.builder()
-                .seed(seed)
-                .width(width)
-                .height(height)
-                .interpolation(interpolation)
-                .fadeFunction(fadeFunction)
-                .noiseType(NoiseType.FBM)
-                .macroScale(parameters.getMacroLayerScale())
-                .macroWeight(parameters.getMacroLayerWeight())
-                .mesoScale(parameters.getMesoLayerScale())
-                .mesoWeight(parameters.getMesoLayerWeight())
-                .microScale(parameters.getMicroLayerScale())
-                .microWeight(parameters.getMicroLayerWeight())
-                .build();
-            multiLayerNoise.initialize();
-
-            // Create a wrapper PerlinGenerator that delegates to MultiLayerNoiseGenerator
-            noiseGenerator = new MultiLayerNoiseAdapter(multiLayerNoise);
-        } else {
-            // Standard single-layer Perlin noise
-            noiseGenerator = new PerlinGenerator(interpolation, fadeFunction);
-            noiseGenerator.createNoisePipeline(
-                seed,
-                width,
-                height,
-                parameters.getNoiseOctaves(),
-                parameters.getNoisePersistence(),
-                parameters.getNoiseLacunarity(),
-                parameters.getNoiseScale(),
-                NoiseType.FBM
-            );
-            noiseGenerator.performNormalization();
-        }
+        PerlinGenerator noiseGenerator = noiseGeneratorFactory.createNoiseGenerator(
+                parameters, seed, width, height, interpolation, fadeFunction);
 
         GalaxyIntensityCalculator intensityCalculator = createIntensityCalculator(noiseGenerator, seed);
 
-        // Initialize domain warping if enabled
-        DomainWarpCalculator warpCalculator = null;
-        if (parameters.getWarpStrength() > 0.0) {
-            warpCalculator = new DomainWarpCalculator(
+        DomainWarpCalculator warpCalculator = createWarpCalculatorIfEnabled(seed);
+
+        BufferedImage galaxyImage = buildImage(intensityCalculator, warpCalculator);
+
+        return starFieldApplicator.applyIfEnabled(galaxyImage, parameters, seed);
+    }
+
+    private DomainWarpCalculator createWarpCalculatorIfEnabled(long seed) {
+        if (parameters.getWarpStrength() <= 0.0) {
+            return null;
+        }
+
+        return new DomainWarpCalculator(
                 width,
                 height,
                 parameters.getWarpStrength(),
                 seed,
                 interpolation,
-                fadeFunction
-            );
-        }
-
-        BufferedImage galaxyImage = buildImage(intensityCalculator, warpCalculator);
-
-        // Apply star field if enabled
-        if (parameters.getStarDensity() > 0.0) {
-            StarFieldGenerator starFieldGenerator = StarFieldGenerator.builder()
-                .width(width)
-                .height(height)
-                .starDensity(parameters.getStarDensity())
-                .maxStarSize(parameters.getMaxStarSize())
-                .diffractionSpikes(parameters.isDiffractionSpikes())
-                .spikeCount(parameters.getSpikeCount())
-                .seed(seed + 999999)  // Different seed for stars
-                .build();
-
-            galaxyImage = starFieldGenerator.applyStarField(galaxyImage);
-        }
-
-        return galaxyImage;
+                fadeFunction);
     }
 
     private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
@@ -130,9 +94,13 @@ public class GalaxyImageCalculator {
                     .seed(seed)
                     .coreSize(parameters.getCoreSize())
                     .galaxyRadius(parameters.getGalaxyRadius())
-                    .clusterCount(parameters.getClusterCount() != null ? parameters.getClusterCount() : 80)
-                    .clusterSize(parameters.getClusterSize() != null ? parameters.getClusterSize() : 60.0)
-                    .clusterConcentration(parameters.getClusterConcentration() != null ? parameters.getClusterConcentration() : 0.7)
+                    .clusterCount(parameters.getClusterCount() != null ? parameters.getClusterCount()
+                            : GalaxyDefaults.DEFAULT_CLUSTER_COUNT)
+                    .clusterSize(parameters.getClusterSize() != null ? parameters.getClusterSize()
+                            : GalaxyDefaults.DEFAULT_CLUSTER_SIZE)
+                    .clusterConcentration(
+                            parameters.getClusterConcentration() != null ? parameters.getClusterConcentration()
+                                    : GalaxyDefaults.DEFAULT_CLUSTER_CONCENTRATION)
                     .build();
             case SPIRAL -> GalaxyGenerator.builder()
                     .width(width)
@@ -150,9 +118,12 @@ public class GalaxyImageCalculator {
                     .noiseGenerator(noiseGenerator)
                     .coreSize(parameters.getCoreSize())
                     .galaxyRadius(parameters.getGalaxyRadius())
-                    .sersicIndex(parameters.getSersicIndex() != null ? parameters.getSersicIndex() : 4.0)
-                    .axisRatio(parameters.getAxisRatio() != null ? parameters.getAxisRatio() : 0.7)
-                    .orientationAngle(parameters.getOrientationAngle() != null ? parameters.getOrientationAngle() : 0.0)
+                    .sersicIndex(parameters.getSersicIndex() != null ? parameters.getSersicIndex()
+                            : GalaxyDefaults.DEFAULT_SERSIC_INDEX)
+                    .axisRatio(parameters.getAxisRatio() != null ? parameters.getAxisRatio()
+                            : GalaxyDefaults.DEFAULT_AXIS_RATIO)
+                    .orientationAngle(parameters.getOrientationAngle() != null ? parameters.getOrientationAngle()
+                            : GalaxyDefaults.DEFAULT_ORIENTATION_ANGLE)
                     .build();
             case RING -> RingGalaxyGenerator.builder()
                     .width(width)
@@ -160,10 +131,14 @@ public class GalaxyImageCalculator {
                     .noiseGenerator(noiseGenerator)
                     .coreSize(parameters.getCoreSize())
                     .galaxyRadius(parameters.getGalaxyRadius())
-                    .ringRadius(parameters.getRingRadius() != null ? parameters.getRingRadius() : 900.0)
-                    .ringWidth(parameters.getRingWidth() != null ? parameters.getRingWidth() : 150.0)
-                    .ringIntensity(parameters.getRingIntensity() != null ? parameters.getRingIntensity() : 1.0)
-                    .coreToRingRatio(parameters.getCoreToRingRatio() != null ? parameters.getCoreToRingRatio() : 0.3)
+                    .ringRadius(parameters.getRingRadius() != null ? parameters.getRingRadius()
+                            : GalaxyDefaults.DEFAULT_RING_RADIUS)
+                    .ringWidth(parameters.getRingWidth() != null ? parameters.getRingWidth()
+                            : GalaxyDefaults.DEFAULT_RING_WIDTH)
+                    .ringIntensity(parameters.getRingIntensity() != null ? parameters.getRingIntensity()
+                            : GalaxyDefaults.DEFAULT_RING_INTENSITY)
+                    .coreToRingRatio(parameters.getCoreToRingRatio() != null ? parameters.getCoreToRingRatio()
+                            : GalaxyDefaults.DEFAULT_CORE_TO_RING_RATIO)
                     .build();
             case IRREGULAR -> IrregularGalaxyGenerator.builder()
                     .width(width)
@@ -172,14 +147,18 @@ public class GalaxyImageCalculator {
                     .seed(seed)
                     .coreSize(parameters.getCoreSize())
                     .galaxyRadius(parameters.getGalaxyRadius())
-                    .irregularity(parameters.getIrregularity() != null ? parameters.getIrregularity() : 0.8)
-                    .clumpCount(parameters.getIrregularClumpCount() != null ? parameters.getIrregularClumpCount() : 15)
-                    .clumpSize(parameters.getIrregularClumpSize() != null ? parameters.getIrregularClumpSize() : 80.0)
+                    .irregularity(parameters.getIrregularity() != null ? parameters.getIrregularity()
+                            : GalaxyDefaults.DEFAULT_IRREGULARITY)
+                    .clumpCount(parameters.getIrregularClumpCount() != null ? parameters.getIrregularClumpCount()
+                            : GalaxyDefaults.DEFAULT_CLUMP_COUNT)
+                    .clumpSize(parameters.getIrregularClumpSize() != null ? parameters.getIrregularClumpSize()
+                            : GalaxyDefaults.DEFAULT_CLUMP_SIZE)
                     .build();
         };
     }
 
-    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator, DomainWarpCalculator warpCalculator) {
+    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator,
+            DomainWarpCalculator warpCalculator) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
         g2d.setBackground(colorCalculator.getSpaceBackgroundColor());
@@ -221,6 +200,9 @@ public class GalaxyImageCalculator {
         private Interpolation interpolation;
         private FadeFunction fadeFunction;
         private GalaxyColorCalculator colorCalculator;
+        private GalaxyGeneratorFactory generatorFactory;
+        private NoiseGeneratorFactory noiseGeneratorFactory;
+        private StarFieldApplicator starFieldApplicator;
 
         public Builder() {
             this.width = DEFAULT_IMAGE_WIDTH;
@@ -259,6 +241,21 @@ public class GalaxyImageCalculator {
             return this;
         }
 
+        public Builder withGeneratorFactory(GalaxyGeneratorFactory generatorFactory) {
+            this.generatorFactory = generatorFactory;
+            return this;
+        }
+
+        public Builder withNoiseGeneratorFactory(NoiseGeneratorFactory noiseGeneratorFactory) {
+            this.noiseGeneratorFactory = noiseGeneratorFactory;
+            return this;
+        }
+
+        public Builder withStarFieldApplicator(StarFieldApplicator starFieldApplicator) {
+            this.starFieldApplicator = starFieldApplicator;
+            return this;
+        }
+
         public GalaxyImageCalculator build() {
             if (parameters == null) {
                 throw new IllegalStateException("parameters must be set");
@@ -266,7 +263,17 @@ public class GalaxyImageCalculator {
             if (colorCalculator == null) {
                 throw new IllegalStateException("colorCalculator must be set");
             }
-            return new GalaxyImageCalculator(width, height, parameters, interpolation, fadeFunction, colorCalculator);
+            if (generatorFactory == null) {
+                throw new IllegalStateException("generatorFactory must be set");
+            }
+            if (noiseGeneratorFactory == null) {
+                throw new IllegalStateException("noiseGeneratorFactory must be set");
+            }
+            if (starFieldApplicator == null) {
+                throw new IllegalStateException("starFieldApplicator must be set");
+            }
+            return new GalaxyImageCalculator(width, height, parameters, interpolation, fadeFunction, colorCalculator,
+                    generatorFactory, noiseGeneratorFactory, starFieldApplicator);
         }
     }
 }
