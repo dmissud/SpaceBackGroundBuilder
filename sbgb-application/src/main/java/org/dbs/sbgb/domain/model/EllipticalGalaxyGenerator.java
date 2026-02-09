@@ -1,6 +1,7 @@
 package org.dbs.sbgb.domain.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 
 @Slf4j
 public class EllipticalGalaxyGenerator implements GalaxyIntensityCalculator {
@@ -64,7 +65,8 @@ public class EllipticalGalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Perlin noise (subtle for ellipticals)
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = 0.7 + (noiseValue * 0.3);
+        double noiseFactor = NoiseModulationConstants.ELLIPTICAL_NOISE_BASE
+                + (noiseValue * NoiseModulationConstants.ELLIPTICAL_NOISE_RANGE);
 
         // Smooth radial falloff
         double radialFalloff = Math.pow(1.0 - normalizedDistance, 1.5);
