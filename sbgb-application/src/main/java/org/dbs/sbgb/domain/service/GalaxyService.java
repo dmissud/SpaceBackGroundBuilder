@@ -3,6 +3,7 @@ package org.dbs.sbgb.domain.service;
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
 import org.dbs.sbgb.domain.exception.ImageNameAlreadyExistsException;
+import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
 import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
 import org.dbs.sbgb.domain.model.*;
 import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
@@ -27,6 +28,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private final GalaxyImageRepository galaxyImageRepository;
     private final GalaxyStructureMapper galaxyStructureMapper;
     private final GalaxyGeneratorFactory galaxyGeneratorFactory;
+    private final NoiseGeneratorFactory noiseGeneratorFactory;
+    private final StarFieldApplicator starFieldApplicator;
 
     @Override
     public List<GalaxyImage> findAllGalaxyImages() {
@@ -81,6 +84,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .withParameters(parameters)
                 .withColorCalculator(colorCalculator)
                 .withGeneratorFactory(galaxyGeneratorFactory)
+                .withNoiseGeneratorFactory(noiseGeneratorFactory)
+                .withStarFieldApplicator(starFieldApplicator)
                 .build();
 
         return calculator.create(cmd.getSeed());
