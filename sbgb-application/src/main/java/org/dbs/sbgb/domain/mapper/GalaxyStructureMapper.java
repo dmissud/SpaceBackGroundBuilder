@@ -1,5 +1,6 @@
 package org.dbs.sbgb.domain.mapper;
 
+import org.dbs.sbgb.domain.constant.GalaxyDefaults;
 import org.dbs.sbgb.domain.model.*;
 import org.dbs.sbgb.port.in.*;
 import org.springframework.stereotype.Component;
@@ -25,11 +26,14 @@ public class GalaxyStructureMapper {
                 .height(cmd.getHeight())
                 .seed(cmd.getSeed())
                 .galaxyType(cmd.getGalaxyType())
-                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), 2) : 2)
-                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), 80.0) : 80.0)
-                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), 4.0) : 4.0)
-                .coreSize(defaultIfNull(cmd.getCoreSize(), 0.05))
-                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), 1500.0))
+                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                        : GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                        : GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                        : GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                .coreSize(defaultIfNull(cmd.getCoreSize(), GalaxyDefaults.DEFAULT_CORE_SIZE))
+                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), GalaxyDefaults.DEFAULT_GALAXY_RADIUS))
                 .noiseOctaves(noise.octaves())
                 .noisePersistence(noise.persistence())
                 .noiseLacunarity(noise.lacunarity())
@@ -81,11 +85,14 @@ public class GalaxyStructureMapper {
 
         return GalaxyParameters.builder()
                 .galaxyType(galaxyType)
-                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), 2) : 2)
-                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), 80.0) : 80.0)
-                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), 4.0) : 4.0)
-                .coreSize(defaultIfNull(cmd.getCoreSize(), 0.05))
-                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), 1500.0))
+                .numberOfArms(spiral != null ? defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                        : GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                .armWidth(spiral != null ? defaultIfNull(spiral.armWidth(), GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                        : GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                .armRotation(spiral != null ? defaultIfNull(spiral.armRotation(), GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                        : GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                .coreSize(defaultIfNull(cmd.getCoreSize(), GalaxyDefaults.DEFAULT_CORE_SIZE))
+                .galaxyRadius(defaultIfNull(cmd.getGalaxyRadius(), GalaxyDefaults.DEFAULT_GALAXY_RADIUS))
                 .noiseOctaves(noise.octaves())
                 .noisePersistence(noise.persistence())
                 .noiseLacunarity(noise.lacunarity())
@@ -145,7 +152,7 @@ public class GalaxyStructureMapper {
 
     private GalaxyType parseGalaxyType(String galaxyTypeStr) {
         if (galaxyTypeStr == null || galaxyTypeStr.isBlank()) {
-            return GalaxyType.SPIRAL;
+            return GalaxyDefaults.DEFAULT_GALAXY_TYPE;
         }
         return GalaxyType.valueOf(galaxyTypeStr);
     }

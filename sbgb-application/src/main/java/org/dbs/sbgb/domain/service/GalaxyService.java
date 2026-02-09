@@ -5,6 +5,7 @@ import org.dbs.sbgb.common.UseCase;
 import org.dbs.sbgb.domain.exception.ImageNameAlreadyExistsException;
 import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
 import org.dbs.sbgb.domain.model.*;
+import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
@@ -25,6 +26,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
 
     private final GalaxyImageRepository galaxyImageRepository;
     private final GalaxyStructureMapper galaxyStructureMapper;
+    private final GalaxyGeneratorFactory galaxyGeneratorFactory;
 
     @Override
     public List<GalaxyImage> findAllGalaxyImages() {
@@ -78,6 +80,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .withHeight(cmd.getHeight())
                 .withParameters(parameters)
                 .withColorCalculator(colorCalculator)
+                .withGeneratorFactory(galaxyGeneratorFactory)
                 .build();
 
         return calculator.create(cmd.getSeed());
