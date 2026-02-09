@@ -67,7 +67,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         // Create color calculator based on colorPalette parameter
         GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
 
-        GalaxyImageCalculator calculator = new GalaxyImageCalculator.Builder()
+        GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
                 .withWidth(cmd.getWidth())
                 .withHeight(cmd.getHeight())
                 .withParameters(parameters)
@@ -77,6 +77,6 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .withStarFieldApplicator(starFieldApplicator)
                 .build();
 
-        return calculator.create(cmd.getSeed());
+        return renderer.create(cmd.getSeed());
     }
 }

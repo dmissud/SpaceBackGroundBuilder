@@ -13,11 +13,11 @@ import java.awt.image.BufferedImage;
 import java.util.stream.IntStream;
 
 /**
- * Calculator for generating realistic galaxy images
+ * Renderer for generating realistic galaxy images
  * Uses GalaxyGenerator for spiral structure and color mapping for appearance
  */
 @Slf4j
-public class GalaxyImageCalculator {
+public class GalaxyImageRenderer {
 
     public static final int DEFAULT_IMAGE_WIDTH = 4000;
     public static final int DEFAULT_IMAGE_HEIGHT = 4000;
@@ -34,7 +34,7 @@ public class GalaxyImageCalculator {
     private final NoiseGeneratorFactory noiseGeneratorFactory;
     private final StarFieldApplicator starFieldApplicator;
 
-    private GalaxyImageCalculator(int width,
+    private GalaxyImageRenderer(int width,
             int height,
             GalaxyParameters parameters,
             Interpolation interpolation,
@@ -61,11 +61,11 @@ public class GalaxyImageCalculator {
         PerlinGenerator noiseGenerator = noiseGeneratorFactory.createNoiseGenerator(
                 parameters, seed, width, height, interpolation, fadeFunction);
 
-        GalaxyIntensityCalculator intensityCalculator = createIntensityCalculator(noiseGenerator, seed);
+        GalaxyIntensityCalculator intensityCalculator = selectGeneratorForType(noiseGenerator, seed);
 
         DomainWarpCalculator warpCalculator = createWarpCalculatorIfEnabled(seed);
 
-        BufferedImage galaxyImage = buildImage(intensityCalculator, warpCalculator);
+        BufferedImage galaxyImage = renderPixels(intensityCalculator, warpCalculator);
 
         return starFieldApplicator.applyIfEnabled(galaxyImage, parameters, seed);
     }
@@ -84,7 +84,7 @@ public class GalaxyImageCalculator {
                 fadeFunction);
     }
 
-    private GalaxyIntensityCalculator createIntensityCalculator(PerlinGenerator noiseGenerator, long seed) {
+    private GalaxyIntensityCalculator selectGeneratorForType(PerlinGenerator noiseGenerator, long seed) {
         GalaxyGenerationContext context = GalaxyGenerationContext.builder()
                 .width(width)
                 .height(height)
@@ -96,7 +96,7 @@ public class GalaxyImageCalculator {
         return generatorFactory.create(parameters.getGalaxyType(), context);
     }
 
-    private BufferedImage buildImage(GalaxyIntensityCalculator intensityCalculator,
+    private BufferedImage renderPixels(GalaxyIntensityCalculator intensityCalculator,
             DomainWarpCalculator warpCalculator) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
@@ -195,7 +195,7 @@ public class GalaxyImageCalculator {
             return this;
         }
 
-        public GalaxyImageCalculator build() {
+        public GalaxyImageRenderer build() {
             if (parameters == null) {
                 throw new IllegalStateException("parameters must be set");
             }
@@ -211,7 +211,7 @@ public class GalaxyImageCalculator {
             if (starFieldApplicator == null) {
                 throw new IllegalStateException("starFieldApplicator must be set");
             }
-            return new GalaxyImageCalculator(width, height, parameters, interpolation, fadeFunction, colorCalculator,
+            return new GalaxyImageRenderer(width, height, parameters, interpolation, fadeFunction, colorCalculator,
                     generatorFactory, noiseGeneratorFactory, starFieldApplicator);
         }
     }
