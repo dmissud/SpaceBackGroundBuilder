@@ -3,22 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ '**' ]
-    paths:
-      - 'sbgb-*/**'
-      - 'Dockerfile.*'
-      - 'docker-compose*.yml'
-      - 'nginx.conf'
-      - 'pom.xml'
-      - '.github/workflows/main.yml'
   pull_request:
     branches: [ '**' ]
-    paths:
-      - 'sbgb-*/**'
-      - 'Dockerfile.*'
-      - 'docker-compose*.yml'
-      - 'nginx.conf'
-      - 'pom.xml'
-      - '.github/workflows/main.yml'
 
 jobs:
   build-and-test:
