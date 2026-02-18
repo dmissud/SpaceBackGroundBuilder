@@ -42,6 +42,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lower case repository name
+        run: echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Build and push Backend image
         uses: docker/build-push-action@v5
         with:
@@ -49,8 +52,8 @@ jobs:
           file: ./Dockerfile.backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/backend:latest
-            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+            ghcr.io/${{ env.REPO_LOWER }}/backend:latest
+            ghcr.io/${{ env.REPO_LOWER }}/backend:${{ github.sha }}
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
@@ -59,8 +62,8 @@ jobs:
           file: ./Dockerfile.frontend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/frontend:latest
-            ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+            ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
+            ghcr.io/${{ env.REPO_LOWER }}/frontend:${{ github.sha }}
 
   deploy:
     needs: docker-build-push
@@ -76,7 +79,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           # Set environment variables for docker-compose isolation
           export COMPOSE_PROJECT_NAME=sbgb
-          export GITHUB_REPOSITORY_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          export GITHUB_REPOSITORY_LOWER=${GITHUB_REPOSITORY,,}
           # Pull and Restart
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
