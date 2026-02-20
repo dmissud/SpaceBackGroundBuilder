@@ -7,6 +7,8 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {MatSlideToggle} from "@angular/material/slide-toggle";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 
@@ -23,7 +25,9 @@ import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
     MatIcon,
     MatSuffix,
     MatSelect,
-    MatOption
+    MatOption,
+    MatExpansionModule,
+    MatSlideToggle
 ],
     templateUrl: './galaxy-param.component.html',
     styleUrl: './galaxy-param.component.scss'
