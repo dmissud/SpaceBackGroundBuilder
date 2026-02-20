@@ -1,28 +1,29 @@
-<mat-tab-group>
-  <mat-tab label="Générateur">
-    <div class="split-container">
-      <!-- LEFT PANEL: Parameters (scrollable) -->
-      <div class="params-panel">
-        <app-sbgb-param #sbgbParam></app-sbgb-param>
-      </div>
+<app-generator-shell
+  generatorTabLabel="Générateur"
+  libraryTabLabel="Bibliothèque d'images">
 
-      <!-- RIGHT PANEL: Image Preview (sticky) -->
-      <div class="preview-panel">
-        <div class="preview-sticky">
-          <!-- Action Bar -->
-          <app-action-bar
-            [buttons]="actionBarButtons"
-            [isGenerating]="isGenerating()"
-            [summary]="getSummary()">
-          </app-action-bar>
+  <!-- Parameters panel content -->
+  <ng-template #paramContent>
+    <app-sbgb-param #sbgbParam></app-sbgb-param>
+  </ng-template>
 
-          <!-- Image Component -->
-          <app-sbgb-image></app-sbgb-image>
-        </div>
-      </div>
-    </div>
-  </mat-tab>
-  <mat-tab label="Bibliothèque d'images">
+  <!-- Action bar content -->
+  <ng-template #actionBarContent>
+    <app-action-bar
+      [buttons]="actionBarButtons"
+      [isGenerating]="isGenerating()"
+      [summary]="getSummary()">
+    </app-action-bar>
+  </ng-template>
+
+  <!-- Image preview content -->
+  <ng-template #imageContent>
+    <app-sbgb-image></app-sbgb-image>
+  </ng-template>
+
+  <!-- Library content -->
+  <ng-template #libraryContent>
     <app-sbgb-list (viewRequested)="onViewRequested($event)"></app-sbgb-list>
-  </mat-tab>
-</mat-tab-group>
+  </ng-template>
+
+</app-generator-shell>
