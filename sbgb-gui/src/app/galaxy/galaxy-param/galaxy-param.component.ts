@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatAccordion} from "@angular/material/expansion";
+import {MatButton} from "@angular/material/button";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
@@ -22,6 +23,7 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
     imports: [
     ReactiveFormsModule,
     MatAccordion,
+    MatButton,
     BasicInfoSectionComponent,
     PresetsSectionComponent,
     SpiralStructureSectionComponent,
@@ -39,10 +41,13 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
 })
 export class GalaxyParamComponent implements OnInit {
 
+  @ViewChild(MatAccordion) accordion!: MatAccordion;
+
   galaxyForm!: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
   loadedGalaxyName: string | null = null;
+  allPanelsExpanded = false;
   private isModifiedSinceBuild: boolean = true;
   private builtGalaxyParams: any = null;
 
@@ -681,6 +686,16 @@ export class GalaxyParamComponent implements OnInit {
           noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.0, scale: 200}
         });
         break;
+    }
+  }
+
+  toggleAllPanels(): void {
+    if (this.allPanelsExpanded) {
+      this.accordion.closeAll();
+      this.allPanelsExpanded = false;
+    } else {
+      this.accordion.openAll();
+      this.allPanelsExpanded = true;
     }
   }
 }
