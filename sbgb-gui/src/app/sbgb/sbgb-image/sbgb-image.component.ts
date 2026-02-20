@@ -11,9 +11,9 @@ import {ImagePreviewComponent} from "../../shared/components/image-preview/image
       <app-image-preview
         [imageUrl]="computedImage()"
         [isGenerating]="imageIsBuilding()"
-        emptyMessage="Aucune image générée"
-        emptyHint="Cliquez sur &quot;Générer aperçu&quot; pour créer votre image"
-        altText="Generated space image">
+        emptyMessage="Aucun ciel étoilé généré"
+        emptyHint="Cliquez sur &quot;Générer aperçu&quot; pour créer votre ciel étoilé"
+        altText="Ciel étoilé généré">
       </app-image-preview>
     `,
     styles: ``

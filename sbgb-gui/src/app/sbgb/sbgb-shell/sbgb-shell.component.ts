@@ -67,7 +67,7 @@ export class SbgbShellComponent {
 
   onViewRequested(sbgb: Sbgb) {
     if (this.paramComponent && this.paramComponent.hasUnsavedChanges()) {
-      if (confirm('Vous avez des modifications non enregistrées. Voulez-vous vraiment charger une autre image ?')) {
+      if (confirm('Vous avez des modifications non enregistrées. Voulez-vous vraiment charger un autre ciel étoilé ?')) {
         this.loadAndSwitch(sbgb);
       }
     } else {

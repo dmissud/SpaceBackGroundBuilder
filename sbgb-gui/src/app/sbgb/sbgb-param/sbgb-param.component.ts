@@ -216,7 +216,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         this.loadedFromDbSbgb = sbgb;
         // L'image buildée devient la référence BDD
         this.builtSbgb = sbgb;
-        this._snackBar.open('Image sauvegardée avec succès', 'OK', {
+        this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'
         });
@@ -284,14 +284,14 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     // Si l'image a un ID (vient de la BDD), vérifier si elle a été modifiée
     if (this.loadedFromDbSbgb && this.loadedFromDbSbgb.id) {
       if (!this.isModified(sbgb, this.loadedFromDbSbgb)) {
-        this._snackBar.open('L\'image n\'a pas été modifiée.', 'OK', {duration: 3000});
+        this._snackBar.open('Le ciel étoilé n\'a pas été modifié.', 'OK', {duration: 3000});
         return;
       }
 
       const isSameName = this.loadedFromDbSbgb.name === sbgb.name;
       const confirmMessage = isSameName
-        ? `L'image "${sbgb.name}" existe déjà et a été modifiée. Voulez-vous la mettre à jour ?`
-        : `L'image "${sbgb.name}" va être enregistrée. Voulez-vous continuer ?`;
+        ? `Le ciel étoilé "${sbgb.name}" existe déjà et a été modifié. Voulez-vous le mettre à jour ?`
+        : `Le ciel étoilé "${sbgb.name}" va être enregistré. Voulez-vous continuer ?`;
 
       const confirmUpdate = confirm(confirmMessage);
       if (confirmUpdate) {
@@ -319,9 +319,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   getBuildTooltip(): string {
     if (!this.isModifiedSinceBuild) {
-      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer une nouvelle image.';
+      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer un nouveau ciel étoilé.';
     }
-    return 'Générer l\'image avec les paramètres actuels';
+    return 'Générer le ciel étoilé avec les paramètres actuels';
   }
 
   canSave(): boolean {
@@ -347,21 +347,21 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   getSaveTooltip(): string {
     if (!this.isBuilt) {
-      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la sauvegarder.';
+      return 'Vous devez d\'abord générer un ciel étoilé (Build) avant de pouvoir le sauvegarder.';
     }
     if (this.isModifiedSinceBuild) {
-      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de sauvegarder.';
+      return 'Vous avez modifié les paramètres. Générez le ciel étoilé (Build) avant de sauvegarder.';
     }
     if (!this.builtSbgb) {
-      return 'Aucune image générée à sauvegarder.';
+      return 'Aucun ciel étoilé généré à sauvegarder.';
     }
     if (!this.loadedFromDbSbgb) {
-      return 'Sauvegarder cette nouvelle image dans la bibliothèque';
+      return 'Sauvegarder ce nouveau ciel étoilé dans la bibliothèque';
     }
     if (this.isModified(this.builtSbgb, this.loadedFromDbSbgb)) {
-      return 'Sauvegarder les modifications de cette image';
+      return 'Sauvegarder les modifications de ce ciel étoilé';
     }
-    return 'L\'image n\'a pas été modifiée par rapport à celle en bibliothèque.';
+    return 'Le ciel étoilé n\'a pas été modifié par rapport à celui en bibliothèque.';
   }
 
   canDownload(): boolean {
@@ -370,12 +370,12 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   getDownloadTooltip(): string {
     if (!this.isBuilt) {
-      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la télécharger.';
+      return 'Vous devez d\'abord générer un ciel étoilé (Build) avant de pouvoir le télécharger.';
     }
     if (this.isModifiedSinceBuild) {
-      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de télécharger.';
+      return 'Vous avez modifié les paramètres. Générez le ciel étoilé (Build) avant de télécharger.';
     }
-    return 'Télécharger l\'image générée sur votre PC';
+    return 'Télécharger le ciel étoilé généré sur votre PC';
   }
 
   downloadImage() {
