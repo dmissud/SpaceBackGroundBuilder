@@ -1,31 +1,32 @@
-<mat-tab-group>
-  <mat-tab label="Générateur">
-    <div class="split-container">
-      <!-- LEFT PANEL: Parameters (scrollable) -->
-      <div class="params-panel">
-        <app-galaxy-param #galaxyParam></app-galaxy-param>
-      </div>
+<app-generator-shell
+  generatorTabLabel="Générateur"
+  libraryTabLabel="Bibliothèque de galaxies">
 
-      <!-- RIGHT PANEL: Image Preview (sticky) -->
-      <div class="preview-panel">
-        <div class="preview-sticky">
-          <!-- Action Bar -->
-          <app-action-bar
-            [buttons]="actionBarButtons"
-            [isGenerating]="galaxyParam.isGenerating"
-            [summary]="getSummary()">
-          </app-action-bar>
+  <!-- Parameters panel content -->
+  <ng-template #paramContent>
+    <app-galaxy-param #galaxyParam></app-galaxy-param>
+  </ng-template>
 
-          <!-- Image Component -->
-          <app-galaxy-image
-            [imageUrl]="galaxyParam.generatedImageUrl"
-            [isGenerating]="galaxyParam.isGenerating">
-          </app-galaxy-image>
-        </div>
-      </div>
-    </div>
-  </mat-tab>
-  <mat-tab label="Bibliothèque de galaxies">
+  <!-- Action bar content -->
+  <ng-template #actionBarContent>
+    <app-action-bar
+      [buttons]="actionBarButtons"
+      [isGenerating]="galaxyParam.isGenerating"
+      [summary]="getSummary()">
+    </app-action-bar>
+  </ng-template>
+
+  <!-- Image preview content -->
+  <ng-template #imageContent>
+    <app-galaxy-image
+      [imageUrl]="galaxyParam.generatedImageUrl"
+      [isGenerating]="galaxyParam.isGenerating">
+    </app-galaxy-image>
+  </ng-template>
+
+  <!-- Library content -->
+  <ng-template #libraryContent>
     <app-galaxy-list (viewRequested)="onViewRequested($event)"></app-galaxy-list>
-  </mat-tab>
-</mat-tab-group>
+  </ng-template>
+
+</app-generator-shell>

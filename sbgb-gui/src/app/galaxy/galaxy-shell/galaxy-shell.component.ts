@@ -1,16 +1,15 @@
 import {Component, ViewChild} from '@angular/core';
-import {MatTab, MatTabGroup} from "@angular/material/tabs";
 import {GalaxyParamComponent} from "../galaxy-param/galaxy-param.component";
 import {GalaxyListComponent} from "../galaxy-list/galaxy-list.component";
 import {GalaxyImageComponent} from "../galaxy-image/galaxy-image.component";
 import {GalaxyImageDTO} from "../galaxy.model";
 import {ActionBarComponent, ActionBarButton} from "../../shared/components/action-bar/action-bar.component";
+import {GeneratorShellComponent} from "../../shared/components/generator-shell/generator-shell.component";
 
 @Component({
     selector: 'app-galaxy-shell',
     imports: [
-        MatTabGroup,
-        MatTab,
+        GeneratorShellComponent,
         GalaxyParamComponent,
         GalaxyListComponent,
         GalaxyImageComponent,
@@ -20,8 +19,13 @@ import {ActionBarComponent, ActionBarButton} from "../../shared/components/actio
     styleUrl: './galaxy-shell.component.scss'
 })
 export class GalaxyShellComponent {
-  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+  @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(GalaxyParamComponent) paramComponent!: GalaxyParamComponent;
+
+  // Expose paramComponent for template access via galaxyParam reference
+  get galaxyParam(): GalaxyParamComponent {
+    return this.paramComponent;
+  }
 
   // Action bar buttons configuration
   get actionBarButtons(): ActionBarButton[] {
@@ -61,6 +65,6 @@ export class GalaxyShellComponent {
     if (this.paramComponent) {
       this.paramComponent.loadGalaxy(galaxy);
     }
-    this.tabGroup.selectedIndex = 0;
+    this.shell.switchToGenerator();
   }
 }
