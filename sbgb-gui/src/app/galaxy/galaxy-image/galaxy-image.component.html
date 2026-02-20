@@ -1,0 +1,17 @@
+<div class="image-container">
+  @if (isGenerating) {
+    <div class="loading-state">
+      <mat-spinner diameter="80"></mat-spinner>
+    </div>
+  } @else if (imageUrl) {
+    <img [src]="imageUrl"
+      alt="Generated galaxy image"
+      class="preview-image">
+  } @else {
+    <div class="empty-state">
+      <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
+      <p>Aucune image générée</p>
+      <p>Cliquez sur "Générer aperçu" pour créer votre galaxie</p>
+    </div>
+  }
+</div>
