@@ -1,0 +1,24 @@
+<mat-tab-group>
+  <mat-tab [label]="generatorTabLabel">
+    <div class="split-container">
+      <!-- LEFT PANEL: Parameters (scrollable) -->
+      <div class="params-panel">
+        <ng-container *ngTemplateOutlet="paramContent"></ng-container>
+      </div>
+
+      <!-- RIGHT PANEL: Image Preview (sticky) -->
+      <div class="preview-panel">
+        <div class="preview-sticky">
+          <!-- Action Bar -->
+          <ng-container *ngTemplateOutlet="actionBarContent"></ng-container>
+
+          <!-- Image Component -->
+          <ng-container *ngTemplateOutlet="imageContent"></ng-container>
+        </div>
+      </div>
+    </div>
+  </mat-tab>
+  <mat-tab [label]="libraryTabLabel">
+    <ng-container *ngTemplateOutlet="libraryContent"></ng-container>
+  </mat-tab>
+</mat-tab-group>

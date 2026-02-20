@@ -7,7 +7,6 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 
@@ -24,8 +23,7 @@ import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
     MatIcon,
     MatSuffix,
     MatSelect,
-    MatOption,
-    MatProgressSpinner
+    MatOption
 ],
     templateUrl: './galaxy-param.component.html',
     styleUrl: './galaxy-param.component.scss'
@@ -36,6 +34,8 @@ export class GalaxyParamComponent implements OnInit {
   generatedImageUrl: string | null = null;
   isGenerating = false;
   loadedGalaxyName: string | null = null;
+  private isModifiedSinceBuild: boolean = true;
+  private builtGalaxyParams: any = null;
 
   constructor(
     private galaxyService: GalaxyService,
@@ -45,7 +45,6 @@ export class GalaxyParamComponent implements OnInit {
   ngOnInit(): void {
     this.galaxyForm = new FormGroup({
       name: new FormControl('Galaxy', [Validators.required]),
-      description: new FormControl('Generated spiral galaxy'),
       width: new FormControl(4000, [Validators.required, Validators.min(100)]),
       height: new FormControl(4000, [Validators.required, Validators.min(100)]),
       seed: new FormControl(Math.floor(Math.random() * 1000000)),
@@ -108,6 +107,11 @@ export class GalaxyParamComponent implements OnInit {
         outerColor: new FormControl('#3C5078')
       })
     });
+
+    // Track form changes to detect modifications
+    this.galaxyForm.valueChanges.subscribe(() => {
+      this.isModifiedSinceBuild = true;
+    });
   }
 
   onGalaxyTypeChange(): void {
@@ -132,6 +136,65 @@ export class GalaxyParamComponent implements OnInit {
     }
   }
 
+  getParametersSummary(): string {
+    const form = this.galaxyForm.value;
+    const type = form.galaxyType || 'SPIRAL';
+    const width = form.width || 4000;
+    const height = form.height || 4000;
+    const seed = form.seed || 0;
+    const palette = form.colorParameters?.colorPalette || 'CLASSIC';
+    const warp = form.warpStrength || 0;
+    const starDensity = form.starFieldParameters?.density || 0;
+    const spikes = form.starFieldParameters?.diffractionSpikes || false;
+    const multiLayer = form.multiLayerNoiseParameters?.enabled || false;
+
+    let summary = `${type} galaxy`;
+
+    // Add structure-specific info
+    if (type === 'SPIRAL') {
+      const arms = form.spiralParameters?.numberOfArms || 2;
+      const rotation = form.spiralParameters?.armRotation || 4;
+      summary += ` with ${arms} arm${arms > 1 ? 's' : ''}, rotation ${rotation}`;
+    } else if (type === 'VORONOI_CLUSTER') {
+      const clusters = form.voronoiParameters?.clusterCount || 80;
+      summary += ` with ${clusters} clusters`;
+    } else if (type === 'ELLIPTICAL') {
+      const sersic = form.ellipticalParameters?.sersicIndex || 4.0;
+      const ratio = form.ellipticalParameters?.axisRatio || 0.7;
+      summary += ` (Sersic n=${sersic}, axis ratio ${ratio})`;
+    } else if (type === 'RING') {
+      const radius = form.ringParameters?.ringRadius || 900;
+      const width = form.ringParameters?.ringWidth || 150;
+      summary += ` (ring radius ${radius}px, width ${width}px)`;
+    } else if (type === 'IRREGULAR') {
+      const irregularity = form.irregularParameters?.irregularity || 0.8;
+      const clumps = form.irregularParameters?.irregularClumpCount || 15;
+      summary += ` (irregularity ${irregularity}, ${clumps} clumps)`;
+    }
+
+    summary += `, ${width}x${height}px`;
+    summary += `, ${palette} palette`;
+
+    if (warp > 0) {
+      summary += `, warp ${warp}`;
+    }
+
+    if (multiLayer) {
+      summary += `, multi-layer noise`;
+    }
+
+    if (starDensity > 0) {
+      summary += `, star density ${starDensity}`;
+      if (spikes) {
+        summary += ' with diffraction spikes';
+      }
+    }
+
+    summary += `, seed ${seed}`;
+
+    return summary;
+  }
+
   generateGalaxy(): void {
     if (this.galaxyForm.invalid) {
       this.snackBar.open('Please fill all required fields', 'Close', {duration: 3000});
@@ -142,10 +205,15 @@ export class GalaxyParamComponent implements OnInit {
     this.generatedImageUrl = null; // Clear previous image
     const request: GalaxyRequestCmd = this.galaxyForm.value;
 
+    // Auto-generate description
+    request.description = this.getParametersSummary();
+
     this.galaxyService.buildGalaxy(request).subscribe({
       next: (blob) => {
         this.generatedImageUrl = URL.createObjectURL(blob);
         this.isGenerating = false;
+        this.isModifiedSinceBuild = false;
+        this.builtGalaxyParams = JSON.parse(JSON.stringify(this.galaxyForm.value));
         this.snackBar.open('Galaxy generated successfully!', 'Close', {duration: 3000});
       },
       error: (error) => {
@@ -163,6 +231,7 @@ export class GalaxyParamComponent implements OnInit {
     }
 
     const request: GalaxyRequestCmd = this.galaxyForm.value;
+    request.description = this.getParametersSummary(); // Auto-generate description
     request.forceUpdate = false;
 
     // First attempt without forceUpdate
@@ -325,8 +394,33 @@ export class GalaxyParamComponent implements OnInit {
     }
   }
 
+  canBuild(): boolean {
+    return this.isModifiedSinceBuild && !this.isGenerating;
+  }
+
+  getBuildTooltip(): string {
+    if (!this.isModifiedSinceBuild) {
+      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer une nouvelle image.';
+    }
+    return 'Générer l\'image avec les paramètres actuels';
+  }
+
+  canSave(): boolean {
+    return !!this.generatedImageUrl && !this.isModifiedSinceBuild && !this.isGenerating;
+  }
+
+  getSaveTooltip(): string {
+    if (!this.generatedImageUrl) {
+      return 'Vous devez d\'abord générer une image (Générer aperçu) avant de pouvoir la sauvegarder.';
+    }
+    if (this.isModifiedSinceBuild) {
+      return 'Vous avez modifié les paramètres. Générez l\'image (Générer aperçu) avant de sauvegarder.';
+    }
+    return 'Sauvegarder cette image dans la bibliothèque';
+  }
+
   canDownload(): boolean {
-    return !!this.generatedImageUrl && !this.isGenerating;
+    return !!this.generatedImageUrl && !this.isModifiedSinceBuild && !this.isGenerating;
   }
 
   getDownloadTooltip(): string {
@@ -334,7 +428,10 @@ export class GalaxyParamComponent implements OnInit {
       return 'Generation en cours, veuillez patienter.';
     }
     if (!this.generatedImageUrl) {
-      return 'Vous devez d\'abord generer une image (Generate Preview) avant de pouvoir la telecharger.';
+      return 'Vous devez d\'abord generer une image (Generer apercu) avant de pouvoir la telecharger.';
+    }
+    if (this.isModifiedSinceBuild) {
+      return 'Vous devez regenerer l\'image (Generer apercu) car les parametres ont ete modifies.';
     }
     return 'Telecharger l\'image generee sur votre PC';
   }

@@ -1,65 +1,35 @@
-<div style="display: flex; justify-content: space-between; align-items: center;">
-  <h2>Galaxy Generator</h2>
-  <div>
-    <button mat-raised-button
-      color="primary"
-      (click)="generateGalaxy()"
-      [disabled]="isGenerating || galaxyForm.invalid"
-      style="margin-right: 8px;">
-      Generate Preview
-    </button>
-    <button mat-raised-button
-      color="accent"
-      (click)="saveGalaxy()"
-      [disabled]="isGenerating || galaxyForm.invalid"
-      style="margin-right: 8px;">
-      Save Galaxy
-    </button>
-    <button mat-raised-button
-      (click)="downloadImage()"
-      [disabled]="!canDownload()"
-      [matTooltip]="getDownloadTooltip()"
-      matTooltipPosition="below">
-      Telecharger
-    </button>
-  </div>
-</div>
+<h2>Générateur de Galaxies</h2>
 
 <form [formGroup]="galaxyForm"
   style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
 
-  <!-- Name and Description -->
+  <!-- Name -->
   <section style="width: 100%; display: flex; gap: 10px; margin-bottom: 20px;">
     <mat-form-field style="flex: 1;">
-      <mat-label>Galaxy Name</mat-label>
+      <mat-label>Nom de la galaxie</mat-label>
       <input matInput type="text" formControlName="name">
-      <mat-icon matSuffix matTooltip="Name for this galaxy image">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="flex: 2;">
-      <mat-label>Description</mat-label>
-      <input matInput type="text" formControlName="description">
-      <mat-icon matSuffix matTooltip="Additional description">help_outline</mat-icon>
+      <mat-icon matSuffix matTooltip="Nom pour identifier cette image de galaxie">help_outline</mat-icon>
     </mat-form-field>
   </section>
 
   <!-- Galaxy Type -->
   <section style="margin-bottom: 20px;">
-    <h3>Galaxy Type</h3>
+    <h3>Type de galaxie</h3>
     <mat-form-field style="min-width: 200px;">
       <mat-label>Type</mat-label>
       <mat-select formControlName="galaxyType" (selectionChange)="onGalaxyTypeChange()">
-        <mat-option value="SPIRAL">Spiral</mat-option>
-        <mat-option value="VORONOI_CLUSTER">Voronoi Cluster</mat-option>
-        <mat-option value="ELLIPTICAL">Elliptical</mat-option>
-        <mat-option value="RING">Ring</mat-option>
-        <mat-option value="IRREGULAR">Irregular</mat-option>
+        <mat-option value="SPIRAL">Spirale</mat-option>
+        <mat-option value="VORONOI_CLUSTER">Amas Voronoi</mat-option>
+        <mat-option value="ELLIPTICAL">Elliptique</mat-option>
+        <mat-option value="RING">Anneau</mat-option>
+        <mat-option value="IRREGULAR">Irrégulière</mat-option>
       </mat-select>
     </mat-form-field>
   </section>
 
   <!-- Presets -->
   <section style="margin-bottom: 20px;">
-    <h3>Presets</h3>
+    <h3>Préconfigurations</h3>
     @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
       <div>
         <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic</button>
@@ -443,17 +413,3 @@
   </section>
 
 </form>
-
-<!-- Generated Image Preview -->
-<div style="margin-top: 30px;">
-  <h3>Generated Galaxy Preview</h3>
-  @if (isGenerating) {
-    <div style="display: flex; align-items: center; justify-content: center; min-height: 300px; border: 1px solid #ccc; border-radius: 8px;">
-      <mat-spinner diameter="80"></mat-spinner>
-    </div>
-  } @else if (generatedImageUrl) {
-    <img [src]="generatedImageUrl" alt="Generated Galaxy" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;">
-  } @else {
-    <p style="text-align: center; color: #666;">No image generated yet. Click "Generate Preview" to create a galaxy image.</p>
-  }
-</div>

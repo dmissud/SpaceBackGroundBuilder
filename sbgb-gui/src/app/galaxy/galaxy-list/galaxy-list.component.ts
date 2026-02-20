@@ -1,28 +1,31 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {MatTableModule} from "@angular/material/table";
-import {MatButtonModule} from "@angular/material/button";
-import {MatIconModule} from "@angular/material/icon";
-import {MatTooltipModule} from "@angular/material/tooltip";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO} from "../galaxy.model";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LibraryItem, LibraryListComponent} from "../../shared/components/library-list/library-list.component";
 
 
 @Component({
     selector: 'app-galaxy-list',
-    imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-],
-    templateUrl: './galaxy-list.component.html',
-    styleUrl: './galaxy-list.component.scss'
+    standalone: true,
+    imports: [LibraryListComponent],
+    template: `
+      <app-library-list
+        title="Galaxies enregistrées"
+        [items]="libraryItems"
+        [isLoading]="isLoading"
+        emptyMessage="Aucune galaxie enregistrée. Créez votre première galaxie !"
+        [showRefreshButton]="true"
+        (viewRequested)="onViewRequested($event)"
+        (refreshRequested)="loadGalaxies()">
+      </app-library-list>
+    `,
+    styles: ``
 })
 export class GalaxyListComponent implements OnInit {
 
-  displayedColumns: string[] = ['name', 'description', 'dimensions', 'structure', 'seed', 'actions'];
   galaxies: GalaxyImageDTO[] = [];
+  libraryItems: LibraryItem[] = [];
   isLoading = false;
 
   @Output() viewRequested = new EventEmitter<GalaxyImageDTO>();
@@ -41,35 +44,28 @@ export class GalaxyListComponent implements OnInit {
     this.galaxyService.getAllGalaxies().subscribe({
       next: (galaxies) => {
         this.galaxies = galaxies;
+        this.libraryItems = galaxies.map(g => ({
+          id: g.id,
+          name: g.name,
+          description: g.description,
+          width: g.galaxyStructure.width,
+          height: g.galaxyStructure.height,
+          seed: g.galaxyStructure.seed
+        }));
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading galaxies:', error);
-        this.snackBar.open('Error loading galaxies', 'Close', {duration: 3000});
+        this.snackBar.open('Erreur lors du chargement des galaxies', 'Fermer', {duration: 3000});
         this.isLoading = false;
       }
     });
   }
 
-  getDimensions(galaxy: GalaxyImageDTO): string {
-    return `${galaxy.galaxyStructure.width}x${galaxy.galaxyStructure.height}`;
-  }
-
-  getStructureInfo(galaxy: GalaxyImageDTO): string {
-    const type = galaxy.galaxyStructure.galaxyType || 'SPIRAL';
-    if (type === 'VORONOI_CLUSTER') {
-      return `Voronoi (${galaxy.galaxyStructure.voronoiParameters?.clusterCount || 80} clusters)`;
-    } else if (type === 'ELLIPTICAL') {
-      return `Elliptical (index ${galaxy.galaxyStructure.ellipticalParameters?.sersicIndex || 4.0})`;
-    } else if (type === 'RING') {
-      return `Ring (radius ${galaxy.galaxyStructure.ringParameters?.ringRadius || 900})`;
-    } else if (type === 'IRREGULAR') {
-      return `Irregular (${galaxy.galaxyStructure.irregularParameters?.irregularClumpCount || 15} clumps)`;
+  onViewRequested(item: LibraryItem): void {
+    const galaxy = this.galaxies.find(g => g.id === item.id);
+    if (galaxy) {
+      this.viewRequested.emit(galaxy);
     }
-    return `Spiral (${galaxy.galaxyStructure.spiralParameters?.numberOfArms || 2} arms)`;
-  }
-
-  viewGalaxy(galaxy: GalaxyImageDTO): void {
-    this.viewRequested.emit(galaxy);
   }
 }
