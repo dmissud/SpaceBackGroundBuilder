@@ -25,7 +25,7 @@ import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from
     MatOption
   ],
   template: `
-    <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel [expanded]="true" [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>info</mat-icon>

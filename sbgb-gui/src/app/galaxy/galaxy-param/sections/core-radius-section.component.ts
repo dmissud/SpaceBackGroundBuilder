@@ -22,7 +22,7 @@ import {MatTooltip} from '@angular/material/tooltip';
     MatSuffix
   ],
   template: `
-    <mat-expansion-panel>
+    <mat-expansion-panel [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>brightness_high</mat-icon>

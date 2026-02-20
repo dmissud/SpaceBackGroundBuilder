@@ -25,7 +25,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
     MatOption
   ],
   template: `
-    <mat-expansion-panel>
+    <mat-expansion-panel [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>palette</mat-icon>
