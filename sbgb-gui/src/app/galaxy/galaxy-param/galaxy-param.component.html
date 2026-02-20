@@ -62,30 +62,37 @@
     <h3>Presets</h3>
     @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
       <div>
-        <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic Spiral</button>
-        <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred Spiral</button>
-        <button mat-raised-button (click)="loadPreset('MULTI_ARM')">Multi-Arm</button>
+        <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic</button>
+        <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred</button>
+        <button mat-raised-button (click)="loadPreset('MULTI_ARM')" style="margin-right: 8px;">Multi-Arm</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_GRAND_DESIGN')" style="margin-right: 8px;">Grand Design</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_FLOCCULENT')" style="margin-right: 8px;">Flocculent</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_TIGHTLY_WOUND')">Tightly Wound</button>
       </div>
     }
     @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
       <div>
-        <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default Cluster</button>
-        <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense Cluster</button>
-        <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')">Sparse Cluster</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')" style="margin-right: 8px;">Sparse</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_GLOBULAR')">Globular</button>
       </div>
     }
     @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
       <div>
         <button mat-raised-button (click)="loadPreset('ELLIPTICAL_DEFAULT')" style="margin-right: 8px;">E3 Classic</button>
         <button mat-raised-button (click)="loadPreset('ELLIPTICAL_ROUND')" style="margin-right: 8px;">E0 Round</button>
-        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')">E6 Flat</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')" style="margin-right: 8px;">E6 Flat</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_GIANT')">Giant Elliptical</button>
       </div>
     }
     @if (galaxyForm.controls['galaxyType'].value === 'RING') {
       <div>
-        <button mat-raised-button (click)="loadPreset('RING_DEFAULT')" style="margin-right: 8px;">Classic Ring</button>
-        <button mat-raised-button (click)="loadPreset('RING_WIDE')" style="margin-right: 8px;">Wide Ring</button>
-        <button mat-raised-button (click)="loadPreset('RING_BRIGHT')">Bright Ring</button>
+        <button mat-raised-button (click)="loadPreset('RING_DEFAULT')" style="margin-right: 8px;">Classic</button>
+        <button mat-raised-button (click)="loadPreset('RING_WIDE')" style="margin-right: 8px;">Wide</button>
+        <button mat-raised-button (click)="loadPreset('RING_BRIGHT')" style="margin-right: 8px;">Bright</button>
+        <button mat-raised-button (click)="loadPreset('RING_THIN')" style="margin-right: 8px;">Thin</button>
+        <button mat-raised-button (click)="loadPreset('RING_DOUBLE')">Double</button>
       </div>
     }
     @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
@@ -95,6 +102,36 @@
         <button mat-raised-button (click)="loadPreset('IRREGULAR_DWARF')">Dwarf Irregular</button>
       </div>
     }
+  </section>
+
+  <!-- Randomize Parameters -->
+  <section style="margin-bottom: 20px;">
+    <h3>Randomize Parameters</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <button mat-raised-button color="primary" (click)="randomizeAll()" matTooltip="Randomize all parameters">
+        <mat-icon>shuffle</mat-icon> All
+      </button>
+      <button mat-stroked-button (click)="randomizeSeed()" matTooltip="Generate random seed">Seed</button>
+      <button mat-stroked-button (click)="randomizeCore()" matTooltip="Randomize core size and galaxy radius">Core</button>
+      <button mat-stroked-button (click)="randomizeNoise()" matTooltip="Randomize noise parameters">Noise</button>
+      <button mat-stroked-button (click)="randomizeWarping()" matTooltip="Randomize warp strength">Warping</button>
+      <button mat-stroked-button (click)="randomizeStarField()" matTooltip="Randomize star field">Stars</button>
+      @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+        <button mat-stroked-button (click)="randomizeSpiral()" matTooltip="Randomize spiral structure">Spiral</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+        <button mat-stroked-button (click)="randomizeVoronoi()" matTooltip="Randomize cluster parameters">Clusters</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+        <button mat-stroked-button (click)="randomizeElliptical()" matTooltip="Randomize elliptical shape">Shape</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'RING') {
+        <button mat-stroked-button (click)="randomizeRing()" matTooltip="Randomize ring structure">Ring</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+        <button mat-stroked-button (click)="randomizeIrregular()" matTooltip="Randomize irregular structure">Structure</button>
+      }
+    </div>
   </section>
 
   <!-- Image Dimensions -->
