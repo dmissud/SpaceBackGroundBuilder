@@ -76,15 +76,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Local Server
+      - name: Deploy to Kubernetes
         run: |
-          cd "$GITHUB_WORKSPACE"
-          # Login to GHCR (le token est fourni par l'environnement de l'action)
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          # Set environment variables for docker-compose isolation
-          export COMPOSE_PROJECT_NAME=sbgb
-          export GITHUB_REPOSITORY_LOWER=${GITHUB_REPOSITORY,,}
-          # Pull and Restart
-          docker compose -f docker-compose.prod.yml pull
-          docker compose -f docker-compose.prod.yml up -d --remove-orphans
-          docker image prune -f
+          # Deploy infrastructure (PostgreSQL) if changed
+          microk8s kubectl apply -f k8s/infra/postgres-shared.yaml
+
+          # Deploy SBGB application
+          microk8s kubectl apply -f k8s/sbgb/base/backend.yaml
+          microk8s kubectl apply -f k8s/sbgb/base/frontend.yaml
+          microk8s kubectl apply -f k8s/sbgb/base/ingress.yaml
+
+          # Force rollout restart to pull latest images
+          microk8s kubectl rollout restart deployment sbgb-backend -n sbgb
+          microk8s kubectl rollout restart deployment sbgb-frontend -n sbgb
+
+          # Wait for rollout to complete
+          microk8s kubectl rollout status deployment sbgb-backend -n sbgb --timeout=5m
+          microk8s kubectl rollout status deployment sbgb-frontend -n sbgb --timeout=5m
