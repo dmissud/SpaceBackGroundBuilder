@@ -34,7 +34,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
       </mat-expansion-panel-header>
 
       <!-- Color Palette -->
-      <div [formGroup]="formGroup" formGroupName="colorParameters">
+      <div formGroupName="colorParameters">
         <mat-form-field style="width: 100%; margin-bottom: 20px;">
           <mat-label>Palette de couleurs</mat-label>
           <mat-select formControlName="colorPalette">

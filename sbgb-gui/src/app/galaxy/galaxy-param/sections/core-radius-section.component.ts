@@ -29,7 +29,7 @@ import {MatTooltip} from '@angular/material/tooltip';
           &nbsp; Noyau et rayon
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div [formGroup]="formGroup" style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <mat-form-field style="flex: 1;">
           <mat-label>Taille du noyau</mat-label>
           <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">

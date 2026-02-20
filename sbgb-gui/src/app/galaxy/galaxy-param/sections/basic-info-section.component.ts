@@ -33,7 +33,7 @@ import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <div [formGroup]="formGroup">
+      <div>
         <!-- Name -->
         <mat-form-field style="width: 100%; margin-bottom: 16px;">
           <mat-label>Nom de la galaxie</mat-label>
