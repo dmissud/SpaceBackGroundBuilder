@@ -1,21 +1,22 @@
 import {Component, ViewChild} from '@angular/core';
-import {MatCard, MatCardContent} from "@angular/material/card";
 import {SbgbParamComponent} from "../sbgb-param/sbgb-param.component";
 import {SbgbImageComponent} from "../sbgb-image/sbgb-image.component";
 import {SbgbListComponent} from "../sbgb-list/sbgb-list.component";
 import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
+import {Store} from "@ngrx/store";
+import {selectImageBuild, selectImageIsBuilding} from "../state/sbgb.selectors";
+import {ActionBarComponent, ActionBarButton} from "../../shared/components/action-bar/action-bar.component";
 
 import {Sbgb} from "../sbgb.model";
 
 @Component({
     selector: 'app-sbgb-shell',
     imports: [
-        MatCard,
-        MatCardContent,
         SbgbParamComponent,
         SbgbImageComponent,
         SbgbListComponent,
-        MatTabsModule
+        MatTabsModule,
+        ActionBarComponent
     ],
     templateUrl: './sbgb-shell.component.html',
     styleUrl: './sbgb-shell.component.scss'
@@ -24,6 +25,45 @@ export class SbgbShellComponent {
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
   @ViewChild(SbgbParamComponent) paramComponent!: SbgbParamComponent;
   @ViewChild(SbgbListComponent) listComponent!: SbgbListComponent;
+
+  hasBuiltImage = this.store.selectSignal(selectImageBuild);
+  isGenerating = this.store.selectSignal(selectImageIsBuilding);
+
+  constructor(private store: Store) {}
+
+  // Action bar buttons configuration
+  get actionBarButtons(): ActionBarButton[] {
+    const param = this.paramComponent;
+    if (!param) return [];
+
+    return [
+      {
+        label: 'Générer aperçu',
+        color: 'primary',
+        disabled: !param.canBuild(),
+        tooltip: param.getBuildTooltip(),
+        action: () => param.computeImage()
+      },
+      {
+        label: 'Sauvegarder',
+        color: 'accent',
+        disabled: !param.canSave(),
+        tooltip: param.getSaveTooltip(),
+        action: () => param.saveImage()
+      },
+      {
+        label: 'Télécharger',
+        disabled: !param.canDownload(),
+        tooltip: param.getDownloadTooltip(),
+        action: () => param.downloadImage()
+      }
+    ];
+  }
+
+  getSummary(): string | null {
+    const param = this.paramComponent;
+    return this.hasBuiltImage() && param ? param.getParametersSummary() : null;
+  }
 
   switchToGenerator() {
     this.tabGroup.selectedIndex = 0;
