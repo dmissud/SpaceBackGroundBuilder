@@ -208,6 +208,123 @@ export class GalaxyParamComponent implements OnInit {
     });
   }
 
+  randomizeCore(): void {
+    this.galaxyForm.patchValue({
+      coreSize: +(0.02 + Math.random() * 0.08).toFixed(3),  // 0.02-0.10
+      galaxyRadius: Math.floor(1000 + Math.random() * 1000)  // 1000-2000
+    });
+  }
+
+  randomizeNoise(): void {
+    this.galaxyForm.patchValue({
+      noiseParameters: {
+        octaves: Math.floor(3 + Math.random() * 6),  // 3-8
+        persistence: +(0.4 + Math.random() * 0.4).toFixed(2),  // 0.4-0.8
+        lacunarity: +(1.5 + Math.random() * 1.5).toFixed(1),  // 1.5-3.0
+        scale: Math.floor(100 + Math.random() * 200)  // 100-300
+      }
+    });
+  }
+
+  randomizeWarping(): void {
+    this.galaxyForm.patchValue({
+      warpStrength: Math.floor(Math.random() * 150)  // 0-150
+    });
+  }
+
+  randomizeStarField(): void {
+    const density = +(Math.random() * 0.005).toFixed(4);  // 0-0.005
+    const hasSpikes = Math.random() > 0.7;
+    this.galaxyForm.patchValue({
+      starFieldParameters: {
+        density: density,
+        maxStarSize: Math.floor(2 + Math.random() * 7),  // 2-8
+        diffractionSpikes: hasSpikes,
+        spikeCount: hasSpikes ? (Math.random() > 0.5 ? 6 : 4) : 4
+      }
+    });
+  }
+
+  randomizeSpiral(): void {
+    this.galaxyForm.patchValue({
+      spiralParameters: {
+        numberOfArms: Math.floor(2 + Math.random() * 3),  // 2-4
+        armWidth: Math.floor(60 + Math.random() * 60),  // 60-120
+        armRotation: +(3 + Math.random() * 4).toFixed(1)  // 3-7
+      }
+    });
+  }
+
+  randomizeVoronoi(): void {
+    this.galaxyForm.patchValue({
+      voronoiParameters: {
+        clusterCount: Math.floor(30 + Math.random() * 170),  // 30-200
+        clusterSize: Math.floor(40 + Math.random() * 80),  // 40-120
+        clusterConcentration: +(0.3 + Math.random() * 0.6).toFixed(2)  // 0.3-0.9
+      }
+    });
+  }
+
+  randomizeElliptical(): void {
+    this.galaxyForm.patchValue({
+      ellipticalParameters: {
+        sersicIndex: +(1 + Math.random() * 7).toFixed(1),  // 1-8
+        axisRatio: +(0.3 + Math.random() * 0.7).toFixed(2),  // 0.3-1.0
+        orientationAngle: Math.floor(Math.random() * 360)  // 0-360
+      }
+    });
+  }
+
+  randomizeRing(): void {
+    const galaxyRadius = this.galaxyForm.value.galaxyRadius || 1500;
+    const ringRadius = Math.floor(galaxyRadius * 0.5 + Math.random() * galaxyRadius * 0.3);  // 50-80% of galaxy radius
+    this.galaxyForm.patchValue({
+      ringParameters: {
+        ringRadius: ringRadius,
+        ringWidth: Math.floor(80 + Math.random() * 200),  // 80-280
+        ringIntensity: +(0.6 + Math.random() * 1.0).toFixed(1),  // 0.6-1.6
+        coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)  // 0.1-0.7
+      }
+    });
+  }
+
+  randomizeIrregular(): void {
+    this.galaxyForm.patchValue({
+      irregularParameters: {
+        irregularity: +(0.6 + Math.random() * 0.4).toFixed(2),  // 0.6-1.0
+        irregularClumpCount: Math.floor(8 + Math.random() * 30),  // 8-38
+        irregularClumpSize: Math.floor(50 + Math.random() * 100)  // 50-150
+      }
+    });
+  }
+
+  randomizeAll(): void {
+    const galaxyType = this.galaxyForm.value.galaxyType;
+    this.randomizeSeed();
+    this.randomizeCore();
+    this.randomizeNoise();
+    this.randomizeWarping();
+    this.randomizeStarField();
+
+    switch (galaxyType) {
+      case 'SPIRAL':
+        this.randomizeSpiral();
+        break;
+      case 'VORONOI_CLUSTER':
+        this.randomizeVoronoi();
+        break;
+      case 'ELLIPTICAL':
+        this.randomizeElliptical();
+        break;
+      case 'RING':
+        this.randomizeRing();
+        break;
+      case 'IRREGULAR':
+        this.randomizeIrregular();
+        break;
+    }
+  }
+
   canDownload(): boolean {
     return !!this.generatedImageUrl && !this.isGenerating;
   }
@@ -288,6 +405,32 @@ export class GalaxyParamComponent implements OnInit {
           noiseParameters: {octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180}
         });
         break;
+      case 'SPIRAL_GRAND_DESIGN':
+        this.galaxyForm.patchValue({
+          coreSize: 0.06,
+          galaxyRadius: 1600,
+          spiralParameters: {numberOfArms: 2, armWidth: 120, armRotation: 3.5},
+          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220},
+          warpStrength: 50
+        });
+        break;
+      case 'SPIRAL_FLOCCULENT':
+        this.galaxyForm.patchValue({
+          coreSize: 0.03,
+          galaxyRadius: 1400,
+          spiralParameters: {numberOfArms: 4, armWidth: 60, armRotation: 6},
+          noiseParameters: {octaves: 8, persistence: 0.7, lacunarity: 2.8, scale: 120},
+          warpStrength: 80
+        });
+        break;
+      case 'SPIRAL_TIGHTLY_WOUND':
+        this.galaxyForm.patchValue({
+          coreSize: 0.07,
+          galaxyRadius: 1500,
+          spiralParameters: {numberOfArms: 3, armWidth: 50, armRotation: 8},
+          noiseParameters: {octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180}
+        });
+        break;
       case 'VORONOI_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
@@ -310,6 +453,14 @@ export class GalaxyParamComponent implements OnInit {
           galaxyRadius: 1500,
           voronoiParameters: {clusterCount: 30, clusterSize: 90, clusterConcentration: 0.4},
           noiseParameters: {octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250}
+        });
+        break;
+      case 'VORONOI_GLOBULAR':
+        this.galaxyForm.patchValue({
+          coreSize: 0.02,
+          galaxyRadius: 1300,
+          voronoiParameters: {clusterCount: 150, clusterSize: 30, clusterConcentration: 0.95},
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 180}
         });
         break;
       case 'ELLIPTICAL_DEFAULT':
@@ -336,6 +487,14 @@ export class GalaxyParamComponent implements OnInit {
           noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
         });
         break;
+      case 'ELLIPTICAL_GIANT':
+        this.galaxyForm.patchValue({
+          coreSize: 0.1,
+          galaxyRadius: 1800,
+          ellipticalParameters: {sersicIndex: 8.0, axisRatio: 0.85, orientationAngle: 0},
+          noiseParameters: {octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250}
+        });
+        break;
       case 'RING_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
@@ -358,6 +517,23 @@ export class GalaxyParamComponent implements OnInit {
           galaxyRadius: 1500,
           ringParameters: {ringRadius: 800, ringWidth: 120, ringIntensity: 1.2, coreToRingRatio: 0.5},
           noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 180}
+        });
+        break;
+      case 'RING_THIN':
+        this.galaxyForm.patchValue({
+          coreSize: 0.04,
+          galaxyRadius: 1500,
+          ringParameters: {ringRadius: 950, ringWidth: 80, ringIntensity: 1.5, coreToRingRatio: 0.2},
+          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220}
+        });
+        break;
+      case 'RING_DOUBLE':
+        this.galaxyForm.patchValue({
+          coreSize: 0.06,
+          galaxyRadius: 1600,
+          ringParameters: {ringRadius: 700, ringWidth: 200, ringIntensity: 0.9, coreToRingRatio: 0.4},
+          noiseParameters: {octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 160},
+          warpStrength: 30
         });
         break;
       case 'IRREGULAR_DEFAULT':
