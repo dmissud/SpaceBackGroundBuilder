@@ -22,9 +22,13 @@ export class GalaxyShellComponent {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(GalaxyParamComponent) paramComponent!: GalaxyParamComponent;
 
-  // Expose paramComponent for template access via galaxyParam reference
-  get galaxyParam(): GalaxyParamComponent {
-    return this.paramComponent;
+  // Expose properties for template access
+  get isGenerating(): boolean {
+    return this.paramComponent?.isGenerating || false;
+  }
+
+  get generatedImageUrl(): string | null {
+    return this.paramComponent?.generatedImageUrl || null;
   }
 
   // Action bar buttons configuration

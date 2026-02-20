@@ -11,7 +11,7 @@
   <ng-template #actionBarContent>
     <app-action-bar
       [buttons]="actionBarButtons"
-      [isGenerating]="galaxyParam.isGenerating"
+      [isGenerating]="isGenerating"
       [summary]="getSummary()">
     </app-action-bar>
   </ng-template>
@@ -19,8 +19,8 @@
   <!-- Image preview content -->
   <ng-template #imageContent>
     <app-galaxy-image
-      [imageUrl]="galaxyParam.generatedImageUrl"
-      [isGenerating]="galaxyParam.isGenerating">
+      [imageUrl]="generatedImageUrl"
+      [isGenerating]="isGenerating">
     </app-galaxy-image>
   </ng-template>
 
