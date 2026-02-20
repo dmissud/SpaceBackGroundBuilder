@@ -1,6 +1,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
   <h2 style="margin: 0;">Générateur de Galaxies</h2>
   <button mat-stroked-button (click)="toggleAllPanels()">
+    <mat-icon>{{ allPanelsExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>
     {{ allPanelsExpanded ? 'Replier tout' : 'Déplier tout' }}
   </button>
 </div>

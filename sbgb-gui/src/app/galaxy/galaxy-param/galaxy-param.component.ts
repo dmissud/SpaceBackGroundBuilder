@@ -3,6 +3,7 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatAccordion} from "@angular/material/expansion";
 import {MatButton} from "@angular/material/button";
+import {MatIcon} from "@angular/material/icon";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
@@ -24,6 +25,7 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
     ReactiveFormsModule,
     MatAccordion,
     MatButton,
+    MatIcon,
     BasicInfoSectionComponent,
     PresetsSectionComponent,
     SpiralStructureSectionComponent,
