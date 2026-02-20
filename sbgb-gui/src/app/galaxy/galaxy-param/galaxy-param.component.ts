@@ -2,8 +2,9 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatAccordion} from "@angular/material/expansion";
-import {MatButton} from "@angular/material/button";
+import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
+import {MatTooltip} from "@angular/material/tooltip";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
@@ -24,8 +25,9 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
     imports: [
     ReactiveFormsModule,
     MatAccordion,
-    MatButton,
+    MatIconButton,
     MatIcon,
+    MatTooltip,
     BasicInfoSectionComponent,
     PresetsSectionComponent,
     SpiralStructureSectionComponent,
