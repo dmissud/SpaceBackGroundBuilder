@@ -1,12 +1,20 @@
 import {Component, Input} from '@angular/core';
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {ImagePreviewComponent} from "../../shared/components/image-preview/image-preview.component";
 
 @Component({
   selector: 'app-galaxy-image',
   standalone: true,
-  imports: [MatProgressSpinner],
-  templateUrl: './galaxy-image.component.html',
-  styleUrl: './galaxy-image.component.scss'
+  imports: [ImagePreviewComponent],
+  template: `
+    <app-image-preview
+      [imageUrl]="imageUrl"
+      [isGenerating]="isGenerating"
+      emptyMessage="Aucune image générée"
+      emptyHint="Cliquez sur &quot;Générer aperçu&quot; pour créer votre galaxie"
+      altText="Generated galaxy image">
+    </app-image-preview>
+  `,
+  styles: ``
 })
 export class GalaxyImageComponent {
   @Input() imageUrl: string | null = null;

@@ -5,13 +5,13 @@
     </div>
   } @else if (imageUrl) {
     <img [src]="imageUrl"
-      alt="Generated galaxy image"
+      [alt]="altText"
       class="preview-image">
   } @else {
     <div class="empty-state">
       <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
-      <p>Aucune image générée</p>
-      <p>Cliquez sur "Générer aperçu" pour créer votre galaxie</p>
+      <p>{{ emptyMessage }}</p>
+      <p>{{ emptyHint }}</p>
     </div>
   }
 </div>
