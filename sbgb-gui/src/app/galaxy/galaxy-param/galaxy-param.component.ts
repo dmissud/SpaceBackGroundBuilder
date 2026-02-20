@@ -1,39 +1,57 @@
-import {Component, OnInit} from '@angular/core';
-import {MatButton} from "@angular/material/button";
-import {MatFormField, MatLabel, MatSuffix} from "@angular/material/form-field";
-import {MatInput} from "@angular/material/input";
-import {MatOption, MatSelect} from "@angular/material/select";
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatTooltip} from "@angular/material/tooltip";
+import {MatAccordion} from "@angular/material/expansion";
+import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
+import {MatTooltip} from "@angular/material/tooltip";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
+import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
+import {PresetsSectionComponent} from "./sections/presets-section.component";
+import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
+import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
+import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
+import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
+import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
+import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
+import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
+import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {ColorsSectionComponent} from "./sections/colors-section.component";
 
 
 @Component({
     selector: 'app-galaxy-param',
     imports: [
-    MatButton,
-    MatFormField,
-    MatInput,
-    MatLabel,
     ReactiveFormsModule,
-    MatTooltip,
+    MatAccordion,
+    MatIconButton,
     MatIcon,
-    MatSuffix,
-    MatSelect,
-    MatOption
+    MatTooltip,
+    BasicInfoSectionComponent,
+    PresetsSectionComponent,
+    SpiralStructureSectionComponent,
+    VoronoiStructureSectionComponent,
+    EllipticalStructureSectionComponent,
+    RingStructureSectionComponent,
+    IrregularStructureSectionComponent,
+    CoreRadiusSectionComponent,
+    NoiseTextureSectionComponent,
+    VisualEffectsSectionComponent,
+    ColorsSectionComponent
 ],
     templateUrl: './galaxy-param.component.html',
     styleUrl: './galaxy-param.component.scss'
 })
 export class GalaxyParamComponent implements OnInit {
 
+  @ViewChild(MatAccordion) accordion!: MatAccordion;
+
   galaxyForm!: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
   loadedGalaxyName: string | null = null;
+  allPanelsExpanded = false;
   private isModifiedSinceBuild: boolean = true;
   private builtGalaxyParams: any = null;
 
@@ -367,9 +385,8 @@ export class GalaxyParamComponent implements OnInit {
     });
   }
 
-  randomizeAll(): void {
+  randomizeStructure(): void {
     const galaxyType = this.galaxyForm.value.galaxyType;
-    this.randomizeSeed();
     this.randomizeCore();
     this.randomizeNoise();
     this.randomizeWarping();
@@ -392,6 +409,22 @@ export class GalaxyParamComponent implements OnInit {
         this.randomizeIrregular();
         break;
     }
+  }
+
+  randomizeColors(): void {
+    const palettes = ['CLASSIC', 'NEBULA', 'WARM', 'COLD', 'INFRARED', 'EMERALD'];
+    const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
+    this.galaxyForm.patchValue({
+      colorParameters: {
+        colorPalette: randomPalette
+      }
+    });
+  }
+
+  randomizeAll(): void {
+    this.randomizeSeed();
+    this.randomizeStructure();
+    this.randomizeColors();
   }
 
   canBuild(): boolean {
@@ -657,6 +690,16 @@ export class GalaxyParamComponent implements OnInit {
           noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.0, scale: 200}
         });
         break;
+    }
+  }
+
+  toggleAllPanels(): void {
+    if (this.allPanelsExpanded) {
+      this.accordion.closeAll();
+      this.allPanelsExpanded = false;
+    } else {
+      this.accordion.openAll();
+      this.allPanelsExpanded = true;
     }
   }
 }

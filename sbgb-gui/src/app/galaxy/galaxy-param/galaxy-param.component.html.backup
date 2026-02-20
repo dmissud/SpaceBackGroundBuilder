@@ -1,0 +1,415 @@
+<h2>Générateur de Galaxies</h2>
+
+<form [formGroup]="galaxyForm"
+  style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
+
+  <!-- Name -->
+  <section style="width: 100%; display: flex; gap: 10px; margin-bottom: 20px;">
+    <mat-form-field style="flex: 1;">
+      <mat-label>Nom de la galaxie</mat-label>
+      <input matInput type="text" formControlName="name">
+      <mat-icon matSuffix matTooltip="Nom pour identifier cette image de galaxie">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Galaxy Type -->
+  <section style="margin-bottom: 20px;">
+    <h3>Type de galaxie</h3>
+    <mat-form-field style="min-width: 200px;">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="galaxyType" (selectionChange)="onGalaxyTypeChange()">
+        <mat-option value="SPIRAL">Spirale</mat-option>
+        <mat-option value="VORONOI_CLUSTER">Amas Voronoi</mat-option>
+        <mat-option value="ELLIPTICAL">Elliptique</mat-option>
+        <mat-option value="RING">Anneau</mat-option>
+        <mat-option value="IRREGULAR">Irrégulière</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <!-- Presets -->
+  <section style="margin-bottom: 20px;">
+    <h3>Préconfigurations</h3>
+    @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('CLASSIC')" style="margin-right: 8px;">Classic</button>
+        <button mat-raised-button (click)="loadPreset('BARRED')" style="margin-right: 8px;">Barred</button>
+        <button mat-raised-button (click)="loadPreset('MULTI_ARM')" style="margin-right: 8px;">Multi-Arm</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_GRAND_DESIGN')" style="margin-right: 8px;">Grand Design</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_FLOCCULENT')" style="margin-right: 8px;">Flocculent</button>
+        <button mat-raised-button (click)="loadPreset('SPIRAL_TIGHTLY_WOUND')">Tightly Wound</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DEFAULT')" style="margin-right: 8px;">Default</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_DENSE')" style="margin-right: 8px;">Dense</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_SPARSE')" style="margin-right: 8px;">Sparse</button>
+        <button mat-raised-button (click)="loadPreset('VORONOI_GLOBULAR')">Globular</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_DEFAULT')" style="margin-right: 8px;">E3 Classic</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_ROUND')" style="margin-right: 8px;">E0 Round</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_FLAT')" style="margin-right: 8px;">E6 Flat</button>
+        <button mat-raised-button (click)="loadPreset('ELLIPTICAL_GIANT')">Giant Elliptical</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'RING') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('RING_DEFAULT')" style="margin-right: 8px;">Classic</button>
+        <button mat-raised-button (click)="loadPreset('RING_WIDE')" style="margin-right: 8px;">Wide</button>
+        <button mat-raised-button (click)="loadPreset('RING_BRIGHT')" style="margin-right: 8px;">Bright</button>
+        <button mat-raised-button (click)="loadPreset('RING_THIN')" style="margin-right: 8px;">Thin</button>
+        <button mat-raised-button (click)="loadPreset('RING_DOUBLE')">Double</button>
+      </div>
+    }
+    @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+      <div>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_DEFAULT')" style="margin-right: 8px;">SMC Default</button>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_CHAOTIC')" style="margin-right: 8px;">Chaotic</button>
+        <button mat-raised-button (click)="loadPreset('IRREGULAR_DWARF')">Dwarf Irregular</button>
+      </div>
+    }
+  </section>
+
+  <!-- Randomize Parameters -->
+  <section style="margin-bottom: 20px;">
+    <h3>Randomize Parameters</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <button mat-raised-button color="primary" (click)="randomizeAll()" matTooltip="Randomize all parameters">
+        <mat-icon>shuffle</mat-icon> All
+      </button>
+      <button mat-stroked-button (click)="randomizeSeed()" matTooltip="Generate random seed">Seed</button>
+      <button mat-stroked-button (click)="randomizeCore()" matTooltip="Randomize core size and galaxy radius">Core</button>
+      <button mat-stroked-button (click)="randomizeNoise()" matTooltip="Randomize noise parameters">Noise</button>
+      <button mat-stroked-button (click)="randomizeWarping()" matTooltip="Randomize warp strength">Warping</button>
+      <button mat-stroked-button (click)="randomizeStarField()" matTooltip="Randomize star field">Stars</button>
+      @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+        <button mat-stroked-button (click)="randomizeSpiral()" matTooltip="Randomize spiral structure">Spiral</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+        <button mat-stroked-button (click)="randomizeVoronoi()" matTooltip="Randomize cluster parameters">Clusters</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+        <button mat-stroked-button (click)="randomizeElliptical()" matTooltip="Randomize elliptical shape">Shape</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'RING') {
+        <button mat-stroked-button (click)="randomizeRing()" matTooltip="Randomize ring structure">Ring</button>
+      }
+      @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+        <button mat-stroked-button (click)="randomizeIrregular()" matTooltip="Randomize irregular structure">Structure</button>
+      }
+    </div>
+  </section>
+
+  <!-- Image Dimensions -->
+  <section style="margin-bottom: 20px;">
+    <h3>Image Dimensions</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Width</mat-label>
+      <input matInput type="number" formControlName="width">
+      <mat-icon matSuffix matTooltip="Image width in pixels">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Height</mat-label>
+      <input type="number" matInput formControlName="height">
+      <mat-icon matSuffix matTooltip="Image height in pixels">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Seed</mat-label>
+      <input type="number" matInput formControlName="seed">
+      <button mat-icon-button matSuffix (click)="randomizeSeed()" matTooltip="Random seed">
+        <mat-icon>casino</mat-icon>
+      </button>
+    </mat-form-field>
+  </section>
+
+  <!-- Spiral Structure (only for SPIRAL type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
+    <section style="margin-bottom: 20px;" formGroupName="spiralParameters">
+      <h3>Spiral Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Number of Arms</mat-label>
+        <input type="number" matInput formControlName="numberOfArms" min="1" max="6">
+        <mat-icon matSuffix matTooltip="Number of spiral arms (1-6)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Arm Width</mat-label>
+        <input type="number" matInput formControlName="armWidth" step="10" min="10">
+        <mat-icon matSuffix matTooltip="Width of spiral arms (larger = wider arms)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Arm Rotation</mat-label>
+        <input type="number" matInput formControlName="armRotation" step="0.5" min="1">
+        <mat-icon matSuffix matTooltip="Tightness of spiral (higher = tighter spiral)">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Common Parameters -->
+  <section style="margin-bottom: 20px;">
+    <h3>Galaxy Core & Size</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Core Size</mat-label>
+      <input type="number" matInput formControlName="coreSize" step="0.01" min="0.01" max="0.3">
+      <mat-icon matSuffix matTooltip="Size of bright core (0.01-0.3)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Galaxy Radius</mat-label>
+      <input type="number" matInput formControlName="galaxyRadius" step="100" min="500">
+      <mat-icon matSuffix matTooltip="Total galaxy radius in pixels">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Cluster Structure (only for VORONOI_CLUSTER type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
+    <section style="margin-bottom: 20px;" formGroupName="voronoiParameters">
+      <h3>Cluster Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Count</mat-label>
+        <input type="number" matInput formControlName="clusterCount" min="5" max="500">
+        <mat-icon matSuffix matTooltip="Number of star clusters (5-500)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Size</mat-label>
+        <input type="number" matInput formControlName="clusterSize" step="5" min="10">
+        <mat-icon matSuffix matTooltip="Size of each cluster (Gaussian sigma)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Cluster Concentration</mat-label>
+        <input type="number" matInput formControlName="clusterConcentration" step="0.05" min="0" max="1">
+        <mat-icon matSuffix matTooltip="Concentration towards center (0=uniform, 1=very concentrated)">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Elliptical Structure (only for ELLIPTICAL type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
+    <section style="margin-bottom: 20px;" formGroupName="ellipticalParameters">
+      <h3>Elliptical Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Sersic Index</mat-label>
+        <input type="number" matInput formControlName="sersicIndex" step="0.5" min="0.5" max="10">
+        <mat-icon matSuffix matTooltip="Sersic profile index (1=exponential, 4=de Vaucouleurs)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Axis Ratio</mat-label>
+        <input type="number" matInput formControlName="axisRatio" step="0.05" min="0.1" max="1">
+        <mat-icon matSuffix matTooltip="Ellipticity b/a ratio (1=circle, 0.1=very flat)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Orientation Angle</mat-label>
+        <input type="number" matInput formControlName="orientationAngle" step="5" min="0" max="360">
+        <mat-icon matSuffix matTooltip="Rotation angle in degrees (0-360)">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Ring Structure (only for RING type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'RING') {
+    <section style="margin-bottom: 20px;" formGroupName="ringParameters">
+      <h3>Ring Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Ring Radius</mat-label>
+        <input type="number" matInput formControlName="ringRadius" step="50" min="50">
+        <mat-icon matSuffix matTooltip="Distance from center to ring (pixels)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Ring Width</mat-label>
+        <input type="number" matInput formControlName="ringWidth" step="10" min="10">
+        <mat-icon matSuffix matTooltip="Thickness of the ring (pixels)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Ring Intensity</mat-label>
+        <input type="number" matInput formControlName="ringIntensity" step="0.1" min="0.1" max="2">
+        <mat-icon matSuffix matTooltip="Brightness of ring (0.1-2.0)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Core to Ring Ratio</mat-label>
+        <input type="number" matInput formControlName="coreToRingRatio" step="0.05" min="0" max="1">
+        <mat-icon matSuffix matTooltip="Core brightness relative to ring (0-1)">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Irregular Structure (only for IRREGULAR type) -->
+  @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
+    <section style="margin-bottom: 20px;" formGroupName="irregularParameters">
+      <h3>Irregular Structure</h3>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Irregularity</mat-label>
+        <input type="number" matInput formControlName="irregularity" step="0.05" min="0" max="1">
+        <mat-icon matSuffix matTooltip="Degree of chaos (0=smooth, 1=very chaotic)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Clump Count</mat-label>
+        <input type="number" matInput formControlName="irregularClumpCount" step="1" min="5" max="50">
+        <mat-icon matSuffix matTooltip="Number of star-forming clumps (5-50)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="margin-right: 10px;">
+        <mat-label>Clump Size</mat-label>
+        <input type="number" matInput formControlName="irregularClumpSize" step="10" min="20">
+        <mat-icon matSuffix matTooltip="Size of each clump in pixels (min 20)">help_outline</mat-icon>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Noise Texture -->
+  <section style="margin-bottom: 20px;" formGroupName="noiseParameters">
+    <h3>Noise Texture (for organic appearance)</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Noise Octaves</mat-label>
+      <input type="number" matInput formControlName="octaves" min="1" max="10">
+      <mat-icon matSuffix matTooltip="Detail layers (higher = more detail)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Persistence</mat-label>
+      <input type="number" matInput formControlName="persistence" step="0.05" min="0" max="1">
+      <mat-icon matSuffix matTooltip="Detail contribution (0-1)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Lacunarity</mat-label>
+      <input type="number" matInput formControlName="lacunarity" step="0.1" min="1">
+      <mat-icon matSuffix matTooltip="Frequency multiplier">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Noise Scale</mat-label>
+      <input type="number" matInput formControlName="scale" step="10" min="50">
+      <mat-icon matSuffix matTooltip="Texture scale">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Visual Enhancements -->
+  <section style="margin-bottom: 20px;">
+    <h3>Visual Enhancements</h3>
+    <mat-form-field style="margin-right: 10px; min-width: 200px;">
+      <mat-label>Domain Warping</mat-label>
+      <input type="number" matInput formControlName="warpStrength" step="10" min="0" max="300">
+      <mat-icon matSuffix matTooltip="Spatial deformation creating organic filaments (0=none, 50-200=filamentary)">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Color Palette -->
+  <section style="margin-bottom: 20px;" formGroupName="colorParameters">
+    <h3>Color Settings</h3>
+    <mat-form-field style="min-width: 200px;">
+      <mat-label>Color Palette</mat-label>
+      <mat-select formControlName="colorPalette">
+        <mat-option value="CLASSIC">Classic (Blue/White)</mat-option>
+        <mat-option value="NEBULA">Nebula (Purple/Cyan)</mat-option>
+        <mat-option value="WARM">Warm (Red/Orange/Yellow)</mat-option>
+        <mat-option value="COLD">Cold (Blue/Cyan)</mat-option>
+        <mat-option value="INFRARED">Infrared (Red/Yellow)</mat-option>
+        <mat-option value="EMERALD">Emerald (Green/Cyan)</mat-option>
+      </mat-select>
+      <mat-icon matSuffix matTooltip="Color palette for galaxy rendering">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+  <!-- Star Field -->
+  <section style="margin-bottom: 20px;" formGroupName="starFieldParameters">
+    <h3>Star Field Layer</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Star Density</mat-label>
+        <input type="number" matInput formControlName="density" step="0.0001" min="0" max="0.01">
+        <mat-icon matSuffix matTooltip="Density of stars (0=none, 0.001=typical, 0.01=max)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 150px;">
+        <mat-label>Max Star Size</mat-label>
+        <input type="number" matInput formControlName="maxStarSize" min="1" max="10">
+        <mat-icon matSuffix matTooltip="Maximum star size in pixels (1-10)">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Diffraction Spikes</mat-label>
+        <mat-select formControlName="diffractionSpikes">
+          <mat-option [value]="false">Disabled</mat-option>
+          <mat-option [value]="true">Enabled</mat-option>
+        </mat-select>
+        <mat-icon matSuffix matTooltip="Add diffraction spikes to bright stars">help_outline</mat-icon>
+      </mat-form-field>
+      <mat-form-field style="min-width: 150px;">
+        <mat-label>Spike Count</mat-label>
+        <input type="number" matInput formControlName="spikeCount" min="4" max="8" step="2">
+        <mat-icon matSuffix matTooltip="Number of diffraction spike branches (4, 6, 8)">help_outline</mat-icon>
+      </mat-form-field>
+    </div>
+  </section>
+
+  <!-- Multi-Layer Noise -->
+  <section style="margin-bottom: 20px;" formGroupName="multiLayerNoiseParameters">
+    <h3>Multi-Layer Noise</h3>
+    <div style="margin-bottom: 10px;">
+      <mat-form-field style="min-width: 200px;">
+        <mat-label>Multi-Layer Noise</mat-label>
+        <mat-select formControlName="enabled">
+          <mat-option [value]="false">Disabled</mat-option>
+          <mat-option [value]="true">Enabled</mat-option>
+        </mat-select>
+        <mat-icon matSuffix matTooltip="Enable multi-scale noise for richer textures (Macro+Meso+Micro layers)">help_outline</mat-icon>
+      </mat-form-field>
+    </div>
+    @if (galaxyForm.get('multiLayerNoiseParameters')?.get('enabled')?.value) {
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Macro Scale</mat-label>
+          <input type="number" matInput formControlName="macroLayerScale" step="0.1" min="0.1" max="5">
+          <mat-icon matSuffix matTooltip="Large-scale structures (lower frequency, default 0.3)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Macro Weight</mat-label>
+          <input type="number" matInput formControlName="macroLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of macro layer (default 0.5 = 50%)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Meso Scale</mat-label>
+          <input type="number" matInput formControlName="mesoLayerScale" step="0.1" min="0.1" max="5">
+          <mat-icon matSuffix matTooltip="Medium-scale details (medium frequency, default 1.0)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Meso Weight</mat-label>
+          <input type="number" matInput formControlName="mesoLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of meso layer (default 0.35 = 35%)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Micro Scale</mat-label>
+          <input type="number" matInput formControlName="microLayerScale" step="0.1" min="0.1" max="10">
+          <mat-icon matSuffix matTooltip="Fine-scale grain (higher frequency, default 3.0)">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field style="min-width: 150px;">
+          <mat-label>Micro Weight</mat-label>
+          <input type="number" matInput formControlName="microLayerWeight" step="0.05" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Weight of micro layer (default 0.15 = 15%)">help_outline</mat-icon>
+        </mat-form-field>
+      </div>
+    }
+  </section>
+
+  <!-- Colors -->
+  <section style="margin-bottom: 20px;" formGroupName="colorParameters">
+    <h3>Galaxy Colors (Legacy - overridden by palette)</h3>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Space Background</mat-label>
+      <input type="color" matInput formControlName="spaceBackgroundColor">
+      <mat-icon matSuffix matTooltip="Background space color (very dark)">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Core Color</mat-label>
+      <input type="color" matInput formControlName="coreColor">
+      <mat-icon matSuffix matTooltip="Bright core center color">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field style="margin-right: 10px;">
+      <mat-label>Arm Color</mat-label>
+      <input type="color" matInput formControlName="armColor">
+      <mat-icon matSuffix matTooltip="Spiral arms color">help_outline</mat-icon>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Outer Color</mat-label>
+      <input type="color" matInput formControlName="outerColor">
+      <mat-icon matSuffix matTooltip="Outer regions color">help_outline</mat-icon>
+    </mat-form-field>
+  </section>
+
+</form>
