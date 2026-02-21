@@ -44,15 +44,19 @@ import {MatOption, MatSelect} from '@angular/material/select';
             <mat-option value="COLD">Cold (Bleu/Cyan)</mat-option>
             <mat-option value="INFRARED">Infrared (Rouge/Jaune)</mat-option>
             <mat-option value="EMERALD">Emerald (Vert/Cyan)</mat-option>
+            <mat-option value="CUSTOM">Définie par l'utilisateur</mat-option>
           </mat-select>
           <mat-icon matSuffix matTooltip="Palette de couleurs pour le rendu">help_outline</mat-icon>
         </mat-form-field>
 
-        <!-- Legacy Colors -->
-        <h4>Couleurs personnalisées (Legacy)</h4>
-        <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
-          Ces paramètres sont remplacés par la palette ci-dessus
-        </p>
+        <!-- Custom Colors -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h4 style="margin: 0;">Couleurs personnalisées</h4>
+          <button mat-icon-button color="accent" (click)="onRandomizeCustomColors()" type="button"
+                  matTooltip="Générer 4 couleurs aléatoires">
+            <mat-icon>shuffle</mat-icon>
+          </button>
+        </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <mat-form-field>
             <mat-label>Fond spatial</mat-label>
@@ -82,4 +86,5 @@ import {MatOption, MatSelect} from '@angular/material/select';
 })
 export class ColorsSectionComponent {
   @Input() formGroup!: FormGroup;
+  @Input() onRandomizeCustomColors!: () => void;
 }

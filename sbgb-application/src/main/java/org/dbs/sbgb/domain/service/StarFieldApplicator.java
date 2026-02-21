@@ -18,10 +18,11 @@ public class StarFieldApplicator {
     /**
      * Apply star field to the given image if enabled in parameters.
      *
-     * @param image base galaxy image
+     * @param image      base galaxy image
      * @param parameters galaxy parameters containing star field configuration
-     * @param seed random seed for star generation
-     * @return image with star field applied, or original image if star field is disabled
+     * @param seed       random seed for star generation
+     * @return image with star field applied, or original image if star field is
+     *         disabled
      */
     public BufferedImage applyIfEnabled(BufferedImage image, GalaxyParameters parameters, long seed) {
         if (!isStarFieldEnabled(parameters)) {
@@ -33,7 +34,7 @@ public class StarFieldApplicator {
     }
 
     private boolean isStarFieldEnabled(GalaxyParameters parameters) {
-        return parameters.getStarFieldParameters().getStarDensity() > 0.0;
+        return parameters.getStarFieldParameters().isEnabled();
     }
 
     private BufferedImage applyStarField(BufferedImage image, GalaxyParameters parameters, long seed) {

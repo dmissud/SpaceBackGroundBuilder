@@ -108,7 +108,7 @@ class StarFieldApplicatorTest {
     // Helper methods
 
     private GalaxyParameters createTestParameters(double starDensity, int maxStarSize,
-                                                   boolean diffractionSpikes, int spikeCount) {
+            boolean diffractionSpikes, int spikeCount) {
         return GalaxyParameters.builder()
                 .galaxyType(org.dbs.sbgb.domain.model.GalaxyType.SPIRAL)
                 .coreParameters(CoreParameters.builder()
@@ -125,6 +125,7 @@ class StarFieldApplicatorTest {
                         .warpStrength(0.0)
                         .build())
                 .starFieldParameters(StarFieldParameters.builder()
+                        .enabled(starDensity > 0.0)
                         .starDensity(starDensity)
                         .maxStarSize(maxStarSize)
                         .diffractionSpikes(diffractionSpikes)

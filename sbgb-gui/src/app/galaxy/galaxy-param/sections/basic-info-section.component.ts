@@ -1,11 +1,11 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
-import {MatInput} from '@angular/material/input';
-import {MatIcon} from '@angular/material/icon';
-import {MatTooltip} from '@angular/material/tooltip';
-import {MatOption, MatSelect} from '@angular/material/select';
-import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
+import { Component, Input } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button'; import { MatOption, MatSelect } from '@angular/material/select';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-basic-info-section',
@@ -22,7 +22,8 @@ import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from
     MatTooltip,
     MatSuffix,
     MatSelect,
-    MatOption
+    MatOption,
+    MatIconButton
   ],
   template: `
     <mat-expansion-panel [expanded]="true" [formGroup]="formGroup">
@@ -73,6 +74,9 @@ import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from
         <mat-form-field style="width: 100%; margin-bottom: 16px;">
           <mat-label>Graine aléatoire</mat-label>
           <input matInput type="number" formControlName="seed">
+          <button mat-icon-button matSuffix (click)="onRandomizeSeed()" matTooltip="Générer une nouvelle graine" color="accent" type="button">
+            <mat-icon>shuffle</mat-icon>
+          </button>
           <mat-icon matSuffix matTooltip="Graine pour la génération procédurale">help_outline</mat-icon>
         </mat-form-field>
       </div>
@@ -83,4 +87,5 @@ import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from
 export class BasicInfoSectionComponent {
   @Input() formGroup!: FormGroup;
   @Input() onGalaxyTypeChange!: () => void;
+  @Input() onRandomizeSeed!: () => void;
 }
