@@ -217,7 +217,7 @@ export class GalaxyParamComponent implements OnInit {
       const clusters = form.voronoiParameters?.clusterCount || 80;
       summary += ` with ${String(clusters)} clusters`;
     } else if (type === 'ELLIPTICAL') {
-      const sersic = form.ellipticalParameters?.sersicIndex || 4.0;
+      const sersic = form.ellipticalParameters?.sersicIndex || 4;
       const ratio = form.ellipticalParameters?.axisRatio || 0.7;
       summary += ` (Sersic n=${String(sersic)}, axis ratio ${String(ratio)})`;
     } else if (type === 'RING') {
@@ -362,12 +362,16 @@ export class GalaxyParamComponent implements OnInit {
   randomizeStarField(): void {
     const density = +(Math.random() * 0.005).toFixed(4);  // 0-0.005
     const hasSpikes = Math.random() > 0.7;
+    let spikeCount = 4;
+    if (hasSpikes) {
+      spikeCount = Math.random() > 0.5 ? 6 : 4;
+    }
     this.galaxyForm.patchValue({
       starFieldParameters: {
         density: density,
         maxStarSize: Math.floor(2 + Math.random() * 7),  // 2-8
         diffractionSpikes: hasSpikes,
-        spikeCount: hasSpikes ? (Math.random() > 0.5 ? 6 : 4) : 4
+        spikeCount: spikeCount
       }
     });
   }
@@ -422,7 +426,7 @@ export class GalaxyParamComponent implements OnInit {
       ringParameters: {
         ringRadius: ringRadius,
         ringWidth: Math.floor(80 + Math.random() * 200),  // 80-280
-        ringIntensity: +(0.6 + Math.random() * 1.0).toFixed(1),  // 0.6-1.6
+        ringIntensity: +(0.6 + Math.random() * 1).toFixed(1),  // 0.6-1.6
         coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)  // 0.1-0.7
       }
     });
@@ -582,7 +586,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.05,
           galaxyRadius: 1500,
           spiralParameters: { numberOfArms: 2, armWidth: 80, armRotation: 4 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'BARRED':
@@ -606,7 +610,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.06,
           galaxyRadius: 1600,
           spiralParameters: { numberOfArms: 2, armWidth: 120, armRotation: 3.5 },
-          noiseParameters: { octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220 },
+          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2, scale: 220},
           warpStrength: 50
         });
         break;
@@ -632,7 +636,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.05,
           galaxyRadius: 1500,
           voronoiParameters: { clusterCount: 80, clusterSize: 60, clusterConcentration: 0.7 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'VORONOI_DENSE':
@@ -656,38 +660,38 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.02,
           galaxyRadius: 1300,
           voronoiParameters: { clusterCount: 150, clusterSize: 30, clusterConcentration: 0.95 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 180 }
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 180}
         });
         break;
       case 'ELLIPTICAL_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          ellipticalParameters: { sersicIndex: 4.0, axisRatio: 0.7, orientationAngle: 45 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          ellipticalParameters: {sersicIndex: 4, axisRatio: 0.7, orientationAngle: 45},
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'ELLIPTICAL_ROUND':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          ellipticalParameters: { sersicIndex: 2.0, axisRatio: 0.95, orientationAngle: 0 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          ellipticalParameters: {sersicIndex: 2, axisRatio: 0.95, orientationAngle: 0},
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'ELLIPTICAL_FLAT':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          ellipticalParameters: { sersicIndex: 6.0, axisRatio: 0.4, orientationAngle: 30 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          ellipticalParameters: {sersicIndex: 6, axisRatio: 0.4, orientationAngle: 30},
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'ELLIPTICAL_GIANT':
         this.galaxyForm.patchValue({
           coreSize: 0.1,
           galaxyRadius: 1800,
-          ellipticalParameters: { sersicIndex: 8.0, axisRatio: 0.85, orientationAngle: 0 },
+          ellipticalParameters: {sersicIndex: 8, axisRatio: 0.85, orientationAngle: 0},
           noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 }
         });
         break;
@@ -695,8 +699,8 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          ringParameters: { ringRadius: 900, ringWidth: 150, ringIntensity: 1.0, coreToRingRatio: 0.3 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          ringParameters: {ringRadius: 900, ringWidth: 150, ringIntensity: 1, coreToRingRatio: 0.3},
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'RING_WIDE':
@@ -704,7 +708,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.03,
           galaxyRadius: 1500,
           ringParameters: { ringRadius: 1000, ringWidth: 250, ringIntensity: 0.8, coreToRingRatio: 0.2 },
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
+          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
         });
         break;
       case 'RING_BRIGHT':
@@ -720,7 +724,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.04,
           galaxyRadius: 1500,
           ringParameters: { ringRadius: 950, ringWidth: 80, ringIntensity: 1.5, coreToRingRatio: 0.2 },
-          noiseParameters: { octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220 }
+          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2, scale: 220}
         });
         break;
       case 'RING_DOUBLE':
@@ -745,7 +749,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.02,
           galaxyRadius: 1500,
           irregularParameters: { irregularity: 0.95, irregularClumpCount: 25, irregularClumpSize: 60 },
-          noiseParameters: { octaves: 8, persistence: 0.8, lacunarity: 3.0, scale: 120 }
+          noiseParameters: {octaves: 8, persistence: 0.8, lacunarity: 3, scale: 120}
         });
         break;
       case 'IRREGULAR_DWARF':
@@ -753,7 +757,7 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.05,
           galaxyRadius: 1500,
           irregularParameters: { irregularity: 0.7, irregularClumpCount: 8, irregularClumpSize: 100 },
-          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.0, scale: 200 }
+          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2, scale: 200}
         });
         break;
     }
