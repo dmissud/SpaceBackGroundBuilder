@@ -1,15 +1,17 @@
-package org.dbs.sbgb.domain.model;
+package org.dbs.sbgb.infrastructure.persistence.entity;
 
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@AllArgsConstructor
+@Embeddable
+@Data
+@Builder
 @NoArgsConstructor
-@Getter
-@Setter
-public class ImageLayer {
+@AllArgsConstructor
+public class ImageLayerEntity {
     private String name;
     private boolean enabled;
     private int octaves;

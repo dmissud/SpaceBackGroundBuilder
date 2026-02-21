@@ -1,15 +1,17 @@
-package org.dbs.sbgb.domain.model.vo;
+package org.dbs.sbgb.infrastructure.persistence.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Embeddable
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoronoiCluster {
+public class VoronoiClusterEntity {
     private Integer clusterCount;
     private Double clusterSize;
     private Double clusterConcentration;

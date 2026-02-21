@@ -1,0 +1,18 @@
+package org.dbs.sbgb.infrastructure.persistence.entity;
+
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Embeddable
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class EllipticalStructureEntity {
+    private Double sersicIndex;
+    private Double axisRatio;
+    private Double orientationAngle;
+}
