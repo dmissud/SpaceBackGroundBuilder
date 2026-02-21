@@ -1,19 +1,23 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
-import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {GalaxyParamComponent} from './galaxy-param.component';
-import {GalaxyService} from '../galaxy.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GalaxyParamComponent } from './galaxy-param.component';
+import { GalaxyService } from '../galaxy.service';
 
 describe('GalaxyParamComponent', () => {
   let component: GalaxyParamComponent;
   let fixture: ComponentFixture<GalaxyParamComponent>;
-  let snackBar: jasmine.SpyObj<MatSnackBar>;
-  let galaxyService: jasmine.SpyObj<GalaxyService>;
+  let snackBar: jest.Mocked<MatSnackBar>;
+  let galaxyService: jest.Mocked<GalaxyService>;
 
   beforeEach(async () => {
-    snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
-    galaxyService = jasmine.createSpyObj('GalaxyService', ['buildGalaxy', 'createGalaxy', 'getAllGalaxies']);
+    snackBar = { open: jest.fn() } as any;
+    galaxyService = {
+      buildGalaxy: jest.fn(),
+      createGalaxy: jest.fn(),
+      getAllGalaxies: jest.fn()
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -22,8 +26,8 @@ describe('GalaxyParamComponent', () => {
         NoopAnimationsModule
       ],
       providers: [
-        {provide: MatSnackBar, useValue: snackBar},
-        {provide: GalaxyService, useValue: galaxyService}
+        { provide: MatSnackBar, useValue: snackBar },
+        { provide: GalaxyService, useValue: galaxyService }
       ]
     }).compileComponents();
 
@@ -47,7 +51,7 @@ describe('GalaxyParamComponent', () => {
       fixture.detectChanges();
       const downloadButton = findDownloadButton();
       expect(downloadButton).toBeTruthy();
-      expect(downloadButton.disabled).toBeTrue();
+      expect(downloadButton.disabled).toBeTruthy();
     });
 
     it('should have download button disabled while generating', () => {
@@ -55,7 +59,7 @@ describe('GalaxyParamComponent', () => {
       component.isGenerating = true;
       fixture.detectChanges();
       const downloadButton = findDownloadButton();
-      expect(downloadButton.disabled).toBeTrue();
+      expect(downloadButton.disabled).toBeTruthy();
     });
 
     it('should have download button enabled when image is generated and not generating', () => {
@@ -63,7 +67,7 @@ describe('GalaxyParamComponent', () => {
       component.isGenerating = false;
       fixture.detectChanges();
       const downloadButton = findDownloadButton();
-      expect(downloadButton.disabled).toBeFalse();
+      expect(downloadButton.disabled).toBeFalsy();
     });
   });
 
@@ -72,10 +76,10 @@ describe('GalaxyParamComponent', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
 
       const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
       spyOn(document, 'createElement').and.returnValue(fakeLink);
 
-      component.galaxyForm.patchValue({name: 'my-galaxy'});
+      component.galaxyForm.patchValue({ name: 'my-galaxy' });
 
       component.downloadImage();
 
@@ -89,10 +93,10 @@ describe('GalaxyParamComponent', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
 
       const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
       spyOn(document, 'createElement').and.returnValue(fakeLink);
 
-      component.galaxyForm.patchValue({name: ''});
+      component.galaxyForm.patchValue({ name: '' });
 
       component.downloadImage();
 
@@ -114,19 +118,19 @@ describe('GalaxyParamComponent', () => {
     it('should return false when no image is generated', () => {
       component.generatedImageUrl = null;
       component.isGenerating = false;
-      expect(component.canDownload()).toBeFalse();
+      expect(component.canDownload()).toBeFalsy();
     });
 
     it('should return false when generating', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake';
       component.isGenerating = true;
-      expect(component.canDownload()).toBeFalse();
+      expect(component.canDownload()).toBeFalsy();
     });
 
     it('should return true when image exists and not generating', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake';
       component.isGenerating = false;
-      expect(component.canDownload()).toBeTrue();
+      expect(component.canDownload()).toBeTruthy();
     });
   });
 
