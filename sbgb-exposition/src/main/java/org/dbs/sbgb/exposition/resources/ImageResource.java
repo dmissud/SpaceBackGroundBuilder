@@ -43,7 +43,7 @@ public class ImageResource {
         List<NoiseImage> images = findNoiseImagesUseCase.findAll();
         List<NoiseImageDTO> dtos = images.stream()
                 .map(mapperNoiseImage::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(dtos);
     }
 

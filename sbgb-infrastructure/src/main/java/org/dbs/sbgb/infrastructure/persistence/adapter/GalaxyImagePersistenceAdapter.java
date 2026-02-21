@@ -34,7 +34,7 @@ public class GalaxyImagePersistenceAdapter implements GalaxyImageRepository {
     public List<GalaxyImage> findAll() {
         return galaxyImageJpaRepository.findAll().stream()
                 .map(mapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -6,29 +6,18 @@ import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.EllipticalShapeParameters;
 
 @Slf4j
-public class EllipticalGalaxyGenerator implements GalaxyIntensityCalculator {
+public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
 
-    private final int width;
-    private final int height;
-    private final double centerX;
-    private final double centerY;
-    private final PerlinGenerator noiseGenerator;
-    private final CoreParameters coreParameters;
     private final EllipticalShapeParameters ellipticalParameters;
     private final double orientationAngleRad;
     private final double effectiveRadius;
     private final double bn;
 
     private EllipticalGalaxyGenerator(int width, int height,
-                                      PerlinGenerator noiseGenerator,
-                                      CoreParameters coreParameters,
-                                      EllipticalShapeParameters ellipticalParameters) {
-        this.width = width;
-        this.height = height;
-        this.centerX = width / 2.0;
-        this.centerY = height / 2.0;
-        this.noiseGenerator = noiseGenerator;
-        this.coreParameters = coreParameters;
+            PerlinGenerator noiseGenerator,
+            CoreParameters coreParameters,
+            EllipticalShapeParameters ellipticalParameters) {
+        super(width, height, noiseGenerator, coreParameters);
         this.ellipticalParameters = ellipticalParameters;
         this.orientationAngleRad = Math.toRadians(ellipticalParameters.getOrientationAngle());
         this.effectiveRadius = coreParameters.getGalaxyRadius() * 0.5;
@@ -37,20 +26,24 @@ public class EllipticalGalaxyGenerator implements GalaxyIntensityCalculator {
 
     @Override
     public double calculateGalaxyIntensity(int x, int y) {
-        double dx = x - centerX;
-        double dy = y - centerY;
+        PixelGeometry geo = calculateGeometry(x, y);
+        if (geo == null)
+            return 0.0;
 
         // Rotation for ellipse orientation
         double cosA = Math.cos(orientationAngleRad);
         double sinA = Math.sin(orientationAngleRad);
-        double rotX = dx * cosA + dy * sinA;
-        double rotY = -dx * sinA + dy * cosA;
+        double rotX = geo.dx * cosA + geo.dy * sinA;
+        double rotY = -geo.dx * sinA + geo.dy * cosA;
 
         // Elliptical distance
-        double ellipticalDistance = Math.sqrt(rotX * rotX + (rotY * rotY) / (ellipticalParameters.getAxisRatio() * ellipticalParameters.getAxisRatio()));
-        double normalizedDistance = ellipticalDistance / coreParameters.getGalaxyRadius();
+        double ellipticalDistance = Math.sqrt(rotX * rotX
+                + (rotY * rotY) / (ellipticalParameters.getAxisRatio() * ellipticalParameters.getAxisRatio()));
 
-        if (normalizedDistance > 1.0) {
+        // This is the normalized distance *along the ellipse*, not the regular radius
+        double normalizedEllipticalDistance = ellipticalDistance / coreParameters.getGalaxyRadius();
+
+        if (normalizedEllipticalDistance > 1.0) {
             return 0.0;
         }
 
@@ -64,7 +57,7 @@ public class EllipticalGalaxyGenerator implements GalaxyIntensityCalculator {
                 + (noiseValue * NoiseModulationConstants.ELLIPTICAL_NOISE_RANGE);
 
         // Smooth radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, 1.5);
+        double radialFalloff = Math.pow(1.0 - normalizedEllipticalDistance, 1.5);
 
         double combined = sersicIntensity * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);

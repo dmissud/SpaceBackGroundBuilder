@@ -11,14 +11,8 @@ import java.util.List;
 import java.util.Random;
 
 @Slf4j
-public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
+public class IrregularGalaxyGenerator extends AbstractGalaxyGenerator {
 
-    private final int width;
-    private final int height;
-    private final double centerX;
-    private final double centerY;
-    private final PerlinGenerator noiseGenerator;
-    private final CoreParameters coreParameters;
     private final IrregularStructureParameters irregularParameters;
     private final List<Clump> clumps;
 
@@ -34,16 +28,11 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
     }
 
     private IrregularGalaxyGenerator(int width, int height,
-                                     PerlinGenerator noiseGenerator,
-                                     long seed,
-                                     CoreParameters coreParameters,
-                                     IrregularStructureParameters irregularParameters) {
-        this.width = width;
-        this.height = height;
-        this.centerX = width / 2.0;
-        this.centerY = height / 2.0;
-        this.noiseGenerator = noiseGenerator;
-        this.coreParameters = coreParameters;
+            PerlinGenerator noiseGenerator,
+            long seed,
+            CoreParameters coreParameters,
+            IrregularStructureParameters irregularParameters) {
+        super(width, height, noiseGenerator, coreParameters);
         this.irregularParameters = irregularParameters;
 
         // Generate random clumps of star formation
@@ -72,18 +61,13 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
 
     @Override
     public double calculateGalaxyIntensity(int x, int y) {
-        double dx = x - centerX;
-        double dy = y - centerY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
-
-        if (normalizedDistance > 1.0) {
+        PixelGeometry geo = calculateGeometry(x, y);
+        if (geo == null)
             return 0.0;
-        }
 
         // Core contribution (small for irregular galaxies)
         double coreRadius = coreParameters.getGalaxyRadius() * coreParameters.getCoreSize();
-        double coreIntensity = Math.exp(-(distance * distance)
+        double coreIntensity = Math.exp(-(geo.distance * geo.distance)
                 / (RadialFalloffConstants.GAUSSIAN_DENOMINATOR * coreRadius * coreRadius));
         coreIntensity *= CoreIntensityConstants.IRREGULAR_CORE_MULTIPLIER;
 
@@ -101,13 +85,14 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
 
         // Strong Perlin noise for irregularity
         double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = (1.0 - irregularParameters.getIrregularity()) + (noiseValue * irregularParameters.getIrregularity());
+        double noiseFactor = (1.0 - irregularParameters.getIrregularity())
+                + (noiseValue * irregularParameters.getIrregularity());
 
         // Combine all sources
         double baseIntensity = coreIntensity + clumpIntensity * CoreIntensityConstants.IRREGULAR_CLUMP_WEIGHT;
 
         // Soft radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, 1.5);
+        double radialFalloff = Math.pow(1.0 - geo.normalizedDistance, 1.5);
 
         double combined = baseIntensity * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);
@@ -166,7 +151,8 @@ public class IrregularGalaxyGenerator implements GalaxyIntensityCalculator {
             if (noiseGenerator == null) {
                 throw new IllegalStateException("noiseGenerator must be set");
             }
-            return new IrregularGalaxyGenerator(width, height, noiseGenerator, seed, coreParameters, irregularParameters);
+            return new IrregularGalaxyGenerator(width, height, noiseGenerator, seed, coreParameters,
+                    irregularParameters);
         }
     }
 }

@@ -7,48 +7,33 @@ import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.RingStructureParameters;
 
 @Slf4j
-public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
+public class RingGalaxyGenerator extends AbstractGalaxyGenerator {
 
-    private final int width;
-    private final int height;
-    private final double centerX;
-    private final double centerY;
-    private final PerlinGenerator noiseGenerator;
-    private final CoreParameters coreParameters;
     private final RingStructureParameters ringParameters;
 
     private RingGalaxyGenerator(int width, int height,
-                                PerlinGenerator noiseGenerator,
-                                CoreParameters coreParameters,
-                                RingStructureParameters ringParameters) {
-        this.width = width;
-        this.height = height;
-        this.centerX = width / 2.0;
-        this.centerY = height / 2.0;
-        this.noiseGenerator = noiseGenerator;
-        this.coreParameters = coreParameters;
+            PerlinGenerator noiseGenerator,
+            CoreParameters coreParameters,
+            RingStructureParameters ringParameters) {
+        super(width, height, noiseGenerator, coreParameters);
         this.ringParameters = ringParameters;
     }
 
     @Override
     public double calculateGalaxyIntensity(int x, int y) {
-        double dx = x - centerX;
-        double dy = y - centerY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        double normalizedDistance = distance / coreParameters.getGalaxyRadius();
-
-        if (normalizedDistance > 1.0) {
+        PixelGeometry geo = calculateGeometry(x, y);
+        if (geo == null)
             return 0.0;
-        }
 
         // Core contribution (Gaussian)
         double coreRadius = coreParameters.getGalaxyRadius() * coreParameters.getCoreSize();
-        double coreIntensity = Math.exp(-(distance * distance) / (2.0 * coreRadius * coreRadius));
+        double coreIntensity = Math.exp(-(geo.distance * geo.distance) / (2.0 * coreRadius * coreRadius));
         coreIntensity *= ringParameters.getCoreToRingRatio();
 
         // Ring contribution (Gaussian profile centered on ringRadius)
-        double ringDistance = Math.abs(distance - ringParameters.getRingRadius());
-        double ringProfile = Math.exp(-(ringDistance * ringDistance) / (2.0 * ringParameters.getRingWidth() * ringParameters.getRingWidth()));
+        double ringDistance = Math.abs(geo.distance - ringParameters.getRingRadius());
+        double ringProfile = Math.exp(
+                -(ringDistance * ringDistance) / (2.0 * ringParameters.getRingWidth() * ringParameters.getRingWidth()));
         double ringContribution = ringProfile * ringParameters.getRingIntensity();
 
         // Combined intensity
@@ -60,7 +45,7 @@ public class RingGalaxyGenerator implements GalaxyIntensityCalculator {
                 + (noiseValue * NoiseModulationConstants.RING_NOISE_RANGE);
 
         // Smooth radial falloff to fade at edges
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
+        double radialFalloff = Math.pow(1.0 - geo.normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
 
         double combined = baseIntensity * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);

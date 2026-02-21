@@ -1,6 +1,6 @@
 package org.dbs.sbgb.domain.strategy;
 
-import org.dbs.sbgb.domain.model.GalaxyGenerator;
+import org.dbs.sbgb.domain.model.SpiralGalaxyGenerator;
 import org.dbs.sbgb.domain.model.GalaxyIntensityCalculator;
 import org.dbs.sbgb.domain.model.GalaxyParameters;
 import org.dbs.sbgb.domain.model.GalaxyType;
@@ -13,7 +13,7 @@ public class SpiralGeneratorStrategy implements GalaxyGeneratorStrategy {
     public GalaxyIntensityCalculator create(GalaxyGenerationContext context) {
         GalaxyParameters parameters = context.getParameters();
 
-        return GalaxyGenerator.builder()
+        return SpiralGalaxyGenerator.builder()
                 .width(context.getWidth())
                 .height(context.getHeight())
                 .noiseGenerator(context.getNoiseGenerator())

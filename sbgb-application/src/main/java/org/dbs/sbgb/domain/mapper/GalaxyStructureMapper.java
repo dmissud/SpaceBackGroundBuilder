@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class GalaxyStructureMapper {
 
         public GalaxyStructure toGalaxyStructure(GalaxyRequestCmd cmd) {
@@ -187,7 +190,8 @@ public class GalaxyStructureMapper {
                                 ColorPalette colorPalette = ColorPalette.valueOf(palette);
                                 return colorPalette.createCalculator();
                         } catch (IllegalArgumentException e) {
-                                // Fall back to custom colors if palette name is invalid
+                                log.warn("Invalid color palette name provided: {}. Falling back to custom colors.",
+                                                palette);
                         }
                 }
 
