@@ -76,7 +76,7 @@ class GalaxyImagePersistenceAdapterTest {
                                 .build();
 
                 // Act
-                GalaxyImage savedImage = adapter.save(image);
+                adapter.save(image);
                 Optional<GalaxyImage> retrievedOpt = adapter.findByName("Test Spiral");
 
                 // Assert
