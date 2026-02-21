@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 
 import { SbgbImageComponent } from './sbgb-image.component';
 
@@ -8,10 +9,11 @@ describe('SbgbImageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SbgbImageComponent]
+      imports: [SbgbImageComponent],
+      providers: [provideMockStore({ initialState: { sbgbs: { building: false, builtSbgb: null } } })]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(SbgbImageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

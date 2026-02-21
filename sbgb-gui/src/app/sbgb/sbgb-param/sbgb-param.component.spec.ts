@@ -1,19 +1,19 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
-import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {provideMockStore, MockStore} from '@ngrx/store/testing';
-import {provideMockActions} from '@ngrx/effects/testing';
-import {Observable, of} from 'rxjs';
-import {SbgbParamComponent} from './sbgb-param.component';
-import {SbgbPageActions} from '../state/sbgb.actions';
-import {Sbgb} from '../sbgb.model';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { Observable, of } from 'rxjs';
+import { SbgbParamComponent } from './sbgb-param.component';
+import { SbgbPageActions } from '../state/sbgb.actions';
+import { Sbgb } from '../sbgb.model';
 
 describe('SbgbParamComponent', () => {
   let component: SbgbParamComponent;
   let fixture: ComponentFixture<SbgbParamComponent>;
   let store: MockStore;
-  let snackBar: jasmine.SpyObj<MatSnackBar>;
+  let snackBar: jest.Mocked<MatSnackBar>;
   let actions$: Observable<any>;
 
   const mockSbgb: Sbgb = {
@@ -43,7 +43,7 @@ describe('SbgbParamComponent', () => {
 
   beforeEach(async () => {
     actions$ = of();
-    snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    snackBar = { open: jest.fn() } as any;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -52,7 +52,7 @@ describe('SbgbParamComponent', () => {
         NoopAnimationsModule
       ],
       providers: [
-        {provide: MatSnackBar, useValue: snackBar},
+        { provide: MatSnackBar, useValue: snackBar },
         provideMockActions(() => actions$),
         provideMockStore({
           initialState: {
@@ -140,12 +140,12 @@ describe('SbgbParamComponent', () => {
     it('should dispatch saveSbgb with forceUpdate=false when no image is loaded', () => {
       // @ts-ignore
       component.loadedFromDbSbgb = null;
-      component['_myForm'].patchValue({name: 'New Image'});
+      component['_myForm'].patchValue({ name: 'New Image' });
 
       component.saveImage();
 
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: false})
+        SbgbPageActions.saveSbgb({ sbgb: jasmine.anything() as any, forceUpdate: false })
       );
     });
 
@@ -173,7 +173,7 @@ describe('SbgbParamComponent', () => {
 
       component.saveImage();
 
-      expect(snackBar.open).toHaveBeenCalledWith(jasmine.stringMatching(/n'a pas été modifiée/), 'OK', jasmine.any(Object));
+      expect(snackBar.open).toHaveBeenCalledWith(expect.stringMatching(/n'a pas été modifiée/), 'OK', expect.any(Object));
       expect(store.dispatch).not.toHaveBeenCalled();
     });
 
@@ -193,9 +193,9 @@ describe('SbgbParamComponent', () => {
 
       component.saveImage();
 
-      expect(window.confirm).toHaveBeenCalledWith(jasmine.stringMatching(/existe déjà et a été modifiée/));
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/existe déjà et a été modifiée/));
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: true})
+        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: true })
       );
     });
 
@@ -215,9 +215,9 @@ describe('SbgbParamComponent', () => {
 
       component.saveImage();
 
-      expect(window.confirm).toHaveBeenCalledWith(jasmine.stringMatching(/va être enregistrée/));
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/va être enregistrée/));
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: false})
+        SbgbPageActions.saveSbgb({ sbgb: jasmine.anything() as any, forceUpdate: false })
       );
     });
   });
@@ -228,7 +228,7 @@ describe('SbgbParamComponent', () => {
       component.isBuilt = false;
       fixture.detectChanges();
       const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeTrue();
+      expect(saveButton.disabled).toBeTruthy();
     });
 
     it('should have save button disabled if modified since build', () => {
@@ -238,7 +238,7 @@ describe('SbgbParamComponent', () => {
       component.isModifiedSinceBuild = true;
       fixture.detectChanges();
       const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeTrue();
+      expect(saveButton.disabled).toBeTruthy();
     });
 
     it('should have save button enabled if built and not modified since build', () => {
@@ -250,7 +250,7 @@ describe('SbgbParamComponent', () => {
       component.builtSbgb = mockSbgb;
       fixture.detectChanges();
       const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeFalse();
+      expect(saveButton.disabled).toBeFalsy();
     });
 
     it('should have download button disabled if not built', () => {
@@ -260,7 +260,7 @@ describe('SbgbParamComponent', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
       const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
       expect(downloadButton).toBeTruthy();
-      expect(downloadButton.disabled).toBeTrue();
+      expect(downloadButton.disabled).toBeTruthy();
     });
 
     it('should have download button disabled if modified since build', () => {
@@ -271,7 +271,7 @@ describe('SbgbParamComponent', () => {
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
       const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-      expect(downloadButton.disabled).toBeTrue();
+      expect(downloadButton.disabled).toBeTruthy();
     });
 
     it('should have download button enabled if built and not modified since build', () => {
@@ -282,7 +282,7 @@ describe('SbgbParamComponent', () => {
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
       const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-      expect(downloadButton.disabled).toBeFalse();
+      expect(downloadButton.disabled).toBeFalsy();
     });
   });
 
@@ -292,10 +292,10 @@ describe('SbgbParamComponent', () => {
       spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
 
       const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
       spyOn(document, 'createElement').and.returnValue(fakeLink);
 
-      component['_myForm'].patchValue({name: 'my-stars'}, {emitEvent: false});
+      component['_myForm'].patchValue({ name: 'my-stars' }, { emitEvent: false });
 
       component.downloadImage();
 
@@ -310,10 +310,10 @@ describe('SbgbParamComponent', () => {
       spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
 
       const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
       spyOn(document, 'createElement').and.returnValue(fakeLink);
 
-      component['_myForm'].patchValue({name: ''}, {emitEvent: false});
+      component['_myForm'].patchValue({ name: '' }, { emitEvent: false });
 
       component.downloadImage();
 

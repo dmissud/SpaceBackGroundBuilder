@@ -10,6 +10,7 @@ Avant de modifier la structure métier et de casser les liens avec la base de do
 - [ ] **Tests Unitaires du Service (`GalaxyService`)** : Mocker les adaptateurs et vérifier strictement l'orchestration de `createGalaxyImage`, `findGalaxyImageById`, etc. (Paramètres de validation ➝ Génération UUID ➝ Persistance ➝ DTO).
 - [ ] **Tests d'Intégration Persistance (`GalaxyImagePersistenceAdapter`)** : Écrire des `DataJpaTest` sur les dépôts existants. Objectif : valider la bonne insertion des nombreux champs de `GalaxyStructure` et leur restitution exacte.
 - [ ] **Tests d'Intégration Web (`GalaxyResource`)** : Valider via `WebMvcTest` le format JSON des requêtes REST (inputs, outputs, codes d'erreur HTTP 400/404/409).
+- [x] **Couverture de tests globale (JaCoCo)** : Les rapports de test de tous les modules sont maintenant agrégés grâce à un module Maven dédié (`sbgb-coverage`). Le rapport unifié, combinant les résultats de l'application, l'infrastructure, et l'exposition, est disponible dans `sbgb-coverage/target/site/jacoco/index.html` après un `mvn clean verify`.
 
 ## 📦 Phase 2 : Assainissement du Domaine (Immutabilité & Composants)
 
