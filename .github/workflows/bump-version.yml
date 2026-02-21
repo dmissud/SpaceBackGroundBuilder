@@ -1,0 +1,54 @@
+name: Auto Bump Version
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop, master]
+
+jobs:
+  bump-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BUMP_VERSION_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Determine bump type
+        id: bump
+        run: |
+          SOURCE="${{ github.event.pull_request.head.ref }}"
+          TARGET="${{ github.event.pull_request.base.ref }}"
+
+          if [[ "$SOURCE" == fix/* ]]; then
+            echo "type=patch" >> $GITHUB_OUTPUT
+            echo "Bump PATCH (fix branch: $SOURCE)"
+          elif [[ "$TARGET" == "master" ]]; then
+            echo "type=major" >> $GITHUB_OUTPUT
+            echo "Bump MAJOR (merge into master)"
+          else
+            echo "type=minor" >> $GITHUB_OUTPUT
+            echo "Bump MINOR (merge into develop)"
+          fi
+
+      - name: Bump version
+        run: ./scripts/bump-version.sh ${{ steps.bump.outputs.type }}
+
+      - name: Push commit and tag
+        run: |
+          git push origin ${{ github.event.pull_request.base.ref }}
+          git push origin --tags

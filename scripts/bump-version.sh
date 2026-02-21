@@ -75,7 +75,7 @@ fi
 git add "$VERSION_FILE" "$PACKAGE_JSON"
 find "$REPO_ROOT" -name "pom.xml" -not -path "*/node_modules/*" -not -path "*/.git/*" | xargs git add
 
-git commit -m "chore(version): bump to $NEW_VERSION"
+git commit -m "chore(version): bump to $NEW_VERSION [skip ci]"
 git tag "v$NEW_VERSION"
 
 echo "Done. Version is now $NEW_VERSION (tag v$NEW_VERSION created locally)."
