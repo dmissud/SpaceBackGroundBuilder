@@ -4,12 +4,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,7 +25,7 @@ public class ImageRequestCmd {
     @NotNull
     private ColorCmd colorCmd;
 
-    @Getter
+    @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -62,7 +62,7 @@ public class ImageRequestCmd {
         private List<LayerCmd> layers;
     }
 
-    @Getter
+    @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
@@ -89,7 +89,7 @@ public class ImageRequestCmd {
         private long seedOffset;
     }
 
-    @Getter
+    @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor

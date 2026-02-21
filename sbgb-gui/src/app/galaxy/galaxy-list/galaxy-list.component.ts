@@ -1,4 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Subject, takeUntil} from "rxjs";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyImageDTO} from "../galaxy.model";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -6,10 +7,10 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
 
 
 @Component({
-    selector: 'app-galaxy-list',
-    standalone: true,
-    imports: [LibraryListComponent],
-    template: `
+  selector: 'app-galaxy-list',
+  standalone: true,
+  imports: [LibraryListComponent],
+  template: `
       <app-library-list
         title="Galaxies enregistrées"
         [items]="libraryItems"
@@ -20,7 +21,7 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
         (refreshRequested)="loadGalaxies()">
       </app-library-list>
     `,
-    styles: ``
+  styles: ``
 })
 export class GalaxyListComponent implements OnInit {
 
@@ -29,14 +30,25 @@ export class GalaxyListComponent implements OnInit {
   isLoading = false;
 
   @Output() viewRequested = new EventEmitter<GalaxyImageDTO>();
+  private destroy$ = new Subject<void>();
 
   constructor(
     private galaxyService: GalaxyService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadGalaxies();
+
+    this.galaxyService.galaxySaved$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadGalaxies());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadGalaxies(): void {

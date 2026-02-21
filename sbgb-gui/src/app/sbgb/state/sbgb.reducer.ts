@@ -65,12 +65,19 @@ export const sbgbsFeature = createFeature({
         sbgbs: sbgbs
       })),
     on(ImageApiActions.imagesSaveSuccess,
-      (state, {sbgb}) => ({
-        ...state,
-        sbgb: sbgb,
-        sbgbs: [...state.sbgbs, sbgb],
-        infoMessage: 'Image saved successfully'
-      })),
+      (state, {sbgb}) => {
+        const index = state.sbgbs.findIndex(s => s.id === sbgb.id);
+        const newSbgbs = index >= 0
+          ? [...state.sbgbs.slice(0, index), sbgb, ...state.sbgbs.slice(index + 1)]
+          : [...state.sbgbs, sbgb];
+
+        return {
+          ...state,
+          sbgb: sbgb,
+          sbgbs: newSbgbs,
+          infoMessage: 'Image saved successfully'
+        };
+      }),
     on(SbgbPageActions.selectSbgb,
       (state, {sbgb}) => ({
         ...state,

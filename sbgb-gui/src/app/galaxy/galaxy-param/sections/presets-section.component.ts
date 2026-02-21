@@ -1,8 +1,9 @@
 import {Component, Input} from '@angular/core';
-import {FormGroup} from '@angular/forms';
+import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-presets-section',
@@ -12,16 +13,30 @@ import {MatButton} from '@angular/material/button';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatIcon,
-    MatButton
+    MatButton,
+    MatSlideToggle,
+    ReactiveFormsModule
   ],
   template: `
-    <mat-expansion-panel>
+    <mat-expansion-panel [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>tune</mat-icon>
           &nbsp; Préconfigurations & Randomisation
         </mat-panel-title>
       </mat-expansion-panel-header>
+
+      <!-- Quick Toggles -->
+      <div formGroupName="starFieldParameters" style="margin-bottom: 16px; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+        <mat-slide-toggle formControlName="enabled">
+          <mat-icon style="vertical-align: middle; font-size: 18px; width: 18px; height: 18px;">auto_awesome</mat-icon>
+          Afficher les étoiles
+        </mat-slide-toggle>
+
+        <button mat-icon-button color="accent" (click)="onRandomizeStarField()" type="button" matTooltip="Randomiser uniquement les étoiles">
+          <mat-icon>shuffle</mat-icon>
+        </button>
+      </div>
 
       <!-- Presets -->
       <h4 style="margin-top: 0;">Préconfigurations</h4>
@@ -90,5 +105,6 @@ export class PresetsSectionComponent {
   @Input() onLoadPreset!: (preset: string) => void;
   @Input() onRandomizeStructure!: () => void;
   @Input() onRandomizeColors!: () => void;
+  @Input() onRandomizeStarField!: () => void;
   @Input() onRandomizeAll!: () => void;
 }

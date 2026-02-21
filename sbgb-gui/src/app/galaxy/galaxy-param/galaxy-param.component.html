@@ -17,6 +17,8 @@
     <!-- 2. PRESETS & RANDOMIZATION -->
     <app-presets-section [formGroup]="galaxyForm" [onLoadPreset]="loadPreset.bind(this)"
                          [onRandomizeStructure]="randomizeStructure.bind(this)"
+                         [onRandomizeColors]="randomizeCustomColors.bind(this)"
+                         [onRandomizeStarField]="randomizeStarField.bind(this)"
                          [onRandomizeAll]="randomizeAll.bind(this)">
     </app-presets-section>
 
