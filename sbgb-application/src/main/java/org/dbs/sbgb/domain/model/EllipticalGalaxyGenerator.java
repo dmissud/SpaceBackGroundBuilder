@@ -1,27 +1,46 @@
 package org.dbs.sbgb.domain.model;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.pipeline.JNoise;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.EllipticalShapeParameters;
 
+import java.util.concurrent.Executors;
+
+/**
+ * Implementation of Elliptical Galaxy Generator using JNoise 4.1.0 and Virtual
+ * Threads.
+ * Uses Sérsic profile with Ciotti approximation.
+ */
 @Slf4j
 public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
 
     private final EllipticalShapeParameters ellipticalParameters;
+    private final JNoise jNoise;
     private final double orientationAngleRad;
     private final double effectiveRadius;
     private final double bn;
 
-    private EllipticalGalaxyGenerator(int width, int height,
-            PerlinGenerator noiseGenerator,
+    public EllipticalGalaxyGenerator(int width, int height,
+                                     long seed,
             CoreParameters coreParameters,
             EllipticalShapeParameters ellipticalParameters) {
-        super(width, height, noiseGenerator, coreParameters);
+        super(width, height, null, coreParameters);
         this.ellipticalParameters = ellipticalParameters;
         this.orientationAngleRad = Math.toRadians(ellipticalParameters.getOrientationAngle());
         this.effectiveRadius = coreParameters.getGalaxyRadius() * 0.5;
-        this.bn = 1.9992 * ellipticalParameters.getSersicIndex() - 0.3271;
+
+        // Ciotti approximation: bn ≈ 2n - 1/3
+        this.bn = 2.0 * ellipticalParameters.getSersicIndex() - (1.0 / 3.0);
+
+        // Initialize JNoise 4.1.0 pipeline
+        this.jNoise = JNoise.newBuilder()
+                .perlin(seed, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
+                .scale(0.01)
+                .build();
     }
 
     @Override
@@ -40,27 +59,34 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
         double ellipticalDistance = Math.sqrt(rotX * rotX
                 + (rotY * rotY) / (ellipticalParameters.getAxisRatio() * ellipticalParameters.getAxisRatio()));
 
-        // This is the normalized distance *along the ellipse*, not the regular radius
-        double normalizedEllipticalDistance = ellipticalDistance / coreParameters.getGalaxyRadius();
-
-        if (normalizedEllipticalDistance > 1.0) {
-            return 0.0;
-        }
-
-        // Sersic profile
+        // Sersic profile: I(r) = Ie * exp(-bn * ((r/re)^(1/n) - 1))
         double rRatio = ellipticalDistance / effectiveRadius;
         double sersicIntensity = Math.exp(-bn * (Math.pow(rRatio, 1.0 / ellipticalParameters.getSersicIndex()) - 1.0));
 
-        // Perlin noise (subtle for ellipticals)
-        double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = NoiseModulationConstants.ELLIPTICAL_NOISE_BASE
-                + (noiseValue * NoiseModulationConstants.ELLIPTICAL_NOISE_RANGE);
+        // Noise Modulation
+        double perlinNoise = jNoise.evaluateNoise(x, y);
+        double finalIntensity = (0.2 + 0.8 * perlinNoise) * sersicIntensity;
 
-        // Smooth radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedEllipticalDistance, 1.5);
+        return Math.clamp(finalIntensity, 0.0, 1.0);
+    }
 
-        double combined = sersicIntensity * radialFalloff * noiseFactor;
-        return Math.clamp(combined, 0.0, 1.0);
+    /**
+     * Parallel batch rendering using Java 21 Virtual Threads.
+     */
+    public float[] generateBuffer() {
+        float[] buffer = new float[width * height];
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int y = 0; y < height; y++) {
+                final int currentY = y;
+                executor.submit(() -> {
+                    for (int x = 0; x < width; x++) {
+                        buffer[currentY * width + x] = (float) calculateGalaxyIntensity(x, currentY);
+                    }
+                });
+            }
+        }
+        log.info("Elliptical Galaxy buffer generation completed ({}x{})", width, height);
+        return buffer;
     }
 
     public static Builder builder() {
@@ -68,18 +94,11 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
     }
 
     public static class Builder {
-        private int width = 4000;
-        private int height = 4000;
-        private PerlinGenerator noiseGenerator;
-        private CoreParameters coreParameters = CoreParameters.builder()
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .build();
-        private EllipticalShapeParameters ellipticalParameters = EllipticalShapeParameters.builder()
-                .sersicIndex(4.0)
-                .axisRatio(0.7)
-                .orientationAngle(0.0)
-                .build();
+        private int width = 1000;
+        private int height = 1000;
+        private long seed = 12345L;
+        private CoreParameters coreParameters;
+        private EllipticalShapeParameters ellipticalParameters;
 
         public Builder width(int width) {
             this.width = width;
@@ -91,26 +110,23 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
             return this;
         }
 
-        public Builder noiseGenerator(PerlinGenerator noiseGenerator) {
-            this.noiseGenerator = noiseGenerator;
+        public Builder seed(long seed) {
+            this.seed = seed;
             return this;
         }
 
-        public Builder coreParameters(CoreParameters coreParameters) {
-            this.coreParameters = coreParameters;
+        public Builder coreParameters(CoreParameters cp) {
+            this.coreParameters = cp;
             return this;
         }
 
-        public Builder ellipticalParameters(EllipticalShapeParameters ellipticalParameters) {
-            this.ellipticalParameters = ellipticalParameters;
+        public Builder ellipticalParameters(EllipticalShapeParameters ep) {
+            this.ellipticalParameters = ep;
             return this;
         }
 
         public EllipticalGalaxyGenerator build() {
-            if (noiseGenerator == null) {
-                throw new IllegalStateException("noiseGenerator must be set");
-            }
-            return new EllipticalGalaxyGenerator(width, height, noiseGenerator, coreParameters, ellipticalParameters);
+            return new EllipticalGalaxyGenerator(width, height, seed, coreParameters, ellipticalParameters);
         }
     }
 }
