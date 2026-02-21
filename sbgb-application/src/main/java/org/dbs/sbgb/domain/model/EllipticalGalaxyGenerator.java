@@ -4,7 +4,6 @@ import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import de.articdive.jnoise.pipeline.JNoise;
 import lombok.extern.slf4j.Slf4j;
-import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
 import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.EllipticalShapeParameters;
 
