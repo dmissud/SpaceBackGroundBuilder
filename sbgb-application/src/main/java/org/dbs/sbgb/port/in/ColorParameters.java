@@ -5,12 +5,11 @@ import lombok.Builder;
 
 @Builder
 public record ColorParameters(
-        @Pattern(regexp = "NEBULA|CLASSIC|WARM|COLD|INFRARED|EMERALD") String colorPalette,
+        @Pattern(regexp = "NEBULA|CLASSIC|WARM|COLD|INFRARED|EMERALD|CUSTOM", message = "doit correspondre à \"NEBULA|CLASSIC|WARM|COLD|INFRARED|EMERALD|CUSTOM\"") String colorPalette,
         @Pattern(regexp = "^#([a-fA-F0-9]{6})$") String spaceBackgroundColor,
         @Pattern(regexp = "^#([a-fA-F0-9]{6})$") String coreColor,
         @Pattern(regexp = "^#([a-fA-F0-9]{6})$") String armColor,
-        @Pattern(regexp = "^#([a-fA-F0-9]{6})$") String outerColor
-) {
+        @Pattern(regexp = "^#([a-fA-F0-9]{6})$") String outerColor) {
     public static ColorParameters classicPalette() {
         return ColorParameters.builder()
                 .colorPalette("CLASSIC")
