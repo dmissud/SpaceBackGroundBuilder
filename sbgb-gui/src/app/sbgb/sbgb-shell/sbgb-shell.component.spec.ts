@@ -26,6 +26,7 @@ describe('SbgbShellComponent', () => {
     fixture = TestBed.createComponent(SbgbShellComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    fixture.detectChanges(); // Resolve ExpressionChangedAfterItHasBeenCheckedError from child component updating actionButtons
   });
 
   it('should create', () => {

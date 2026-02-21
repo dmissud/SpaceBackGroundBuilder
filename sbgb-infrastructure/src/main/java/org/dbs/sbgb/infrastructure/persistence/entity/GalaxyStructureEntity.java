@@ -31,7 +31,8 @@ public class GalaxyStructureEntity {
                         @AttributeOverride(name = "armWidth", column = @Column(name = "arm_width")),
                         @AttributeOverride(name = "armRotation", column = @Column(name = "arm_rotation")),
                         @AttributeOverride(name = "coreSize", column = @Column(name = "core_size")),
-                        @AttributeOverride(name = "galaxyRadius", column = @Column(name = "galaxy_radius"))
+                        @AttributeOverride(name = "galaxyRadius", column = @Column(name = "galaxy_radius")),
+                        @AttributeOverride(name = "darkLaneOpacity", column = @Column(name = "dark_lane_opacity"))
         })
         private SpiralStructureEntity spiralStructure;
 

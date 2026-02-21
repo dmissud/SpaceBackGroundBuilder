@@ -1,22 +1,22 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatAccordion} from "@angular/material/expansion";
-import {MatIcon} from "@angular/material/icon";
-import {MatTooltip} from "@angular/material/tooltip";
-import {GalaxyService} from "../galaxy.service";
-import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
-import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
-import {PresetsSectionComponent} from "./sections/presets-section.component";
-import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
-import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
-import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
-import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
-import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
-import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
-import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
-import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
-import {ColorsSectionComponent} from "./sections/colors-section.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatAccordion } from "@angular/material/expansion";
+import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
+import { GalaxyService } from "../galaxy.service";
+import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
+import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
+import { PresetsSectionComponent } from "./sections/presets-section.component";
+import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
+import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
+import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
+import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
+import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
+import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
+import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
+import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
+import { ColorsSectionComponent } from "./sections/colors-section.component";
 
 
 @Component({
@@ -87,7 +87,8 @@ export class GalaxyParamComponent implements OnInit {
       spiralParameters: this.fb.group({
         numberOfArms: new FormControl<number | null>(2, [Validators.required, Validators.min(1)]),
         armWidth: new FormControl<number | null>(80, [Validators.required, Validators.min(10)]),
-        armRotation: new FormControl<number | null>(4, [Validators.required])
+        armRotation: new FormControl<number | null>(4, [Validators.required]),
+        darkLaneOpacity: new FormControl<number | null>(0, [Validators.min(0), Validators.max(1)])
       }),
       voronoiParameters: this.fb.group({
         clusterCount: new FormControl<number | null>(80, [Validators.min(5), Validators.max(500)]),
@@ -391,7 +392,8 @@ export class GalaxyParamComponent implements OnInit {
       spiralParameters: {
         numberOfArms: Math.floor(2 + Math.random() * 3),  // 2-4
         armWidth: Math.floor(60 + Math.random() * 60),  // 60-120
-        armRotation: +(3 + Math.random() * 4).toFixed(1)  // 3-7
+        armRotation: +(3 + Math.random() * 4).toFixed(1),  // 3-7
+        darkLaneOpacity: +(Math.random()).toFixed(2)      // 0.0-1.0
       }
     });
   }
@@ -608,7 +610,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 2, armWidth: 80, armRotation: 4 },
+          spiralParameters: { numberOfArms: 2, armWidth: 80, armRotation: 4, darkLaneOpacity: 0.4 },
           noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 },
           starFieldParameters: this.BEAUTIFUL_STARFIELD,
           multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
@@ -618,7 +620,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 2, armWidth: 100, armRotation: 1.5 },
+          spiralParameters: { numberOfArms: 2, armWidth: 100, armRotation: 1.5, darkLaneOpacity: 0.2 },
           noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 },
           warpStrength: 20,
           starFieldParameters: this.BEAUTIFUL_STARFIELD
@@ -628,7 +630,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1600,
-          spiralParameters: { numberOfArms: 4, armWidth: 50, armRotation: 5.5 },
+          spiralParameters: { numberOfArms: 4, armWidth: 50, armRotation: 5.5, darkLaneOpacity: 0.5 },
           noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180 },
           warpStrength: 45,
           starFieldParameters: this.BEAUTIFUL_STARFIELD,
@@ -639,7 +641,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.06,
           galaxyRadius: 1800,
-          spiralParameters: { numberOfArms: 2, armWidth: 110, armRotation: 3.5 },
+          spiralParameters: { numberOfArms: 2, armWidth: 110, armRotation: 3.5, darkLaneOpacity: 0.1 },
           noiseParameters: { octaves: 5, persistence: 0.45, lacunarity: 2.0, scale: 220 },
           warpStrength: 10,
           starFieldParameters: this.BEAUTIFUL_STARFIELD,
@@ -650,7 +652,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1400,
-          spiralParameters: { numberOfArms: 5, armWidth: 40, armRotation: 6 },
+          spiralParameters: { numberOfArms: 5, armWidth: 40, armRotation: 6, darkLaneOpacity: 0.3 },
           noiseParameters: { octaves: 8, persistence: 0.75, lacunarity: 2.8, scale: 110 },
           warpStrength: 120,
           starFieldParameters: this.DENSE_STARFIELD,
@@ -669,7 +671,7 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 3, armWidth: 50, armRotation: 9 },
+          spiralParameters: { numberOfArms: 3, armWidth: 50, armRotation: 9, darkLaneOpacity: 0.0 },
           noiseParameters: { octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180 },
           starFieldParameters: this.BEAUTIFUL_STARFIELD
         });

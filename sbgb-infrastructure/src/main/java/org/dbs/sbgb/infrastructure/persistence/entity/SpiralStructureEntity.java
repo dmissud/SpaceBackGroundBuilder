@@ -19,4 +19,5 @@ public class SpiralStructureEntity {
     private Double armRotation;
     private Double coreSize;
     private Double galaxyRadius;
+    private Double darkLaneOpacity;
 }

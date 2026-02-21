@@ -25,4 +25,10 @@ public class SpiralStructureParameters {
      * Rotation coefficient for spiral arms (controls tightness)
      */
     double armRotation;
+
+    /**
+     * Opacity of the dark dust lanes (0.0 to 1.0)
+     */
+    @Builder.Default
+    double darkLaneOpacity = 0.0;
 }

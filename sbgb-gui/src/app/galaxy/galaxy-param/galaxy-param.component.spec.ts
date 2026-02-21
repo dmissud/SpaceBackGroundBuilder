@@ -11,6 +11,10 @@ describe('GalaxyParamComponent', () => {
   let snackBar: jest.Mocked<MatSnackBar>;
   let galaxyService: jest.Mocked<GalaxyService>;
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   beforeEach(async () => {
     snackBar = { open: jest.fn() } as any;
     galaxyService = {
@@ -41,33 +45,22 @@ describe('GalaxyParamComponent', () => {
   });
 
   describe('UI State - Download button', () => {
-    function findDownloadButton(): HTMLButtonElement {
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      return Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-    }
-
     it('should have download button disabled when no image is generated', () => {
       component.generatedImageUrl = null;
-      fixture.detectChanges();
-      const downloadButton = findDownloadButton();
-      expect(downloadButton).toBeTruthy();
-      expect(downloadButton.disabled).toBeTruthy();
+      expect(component.canDownload()).toBeFalsy();
     });
 
     it('should have download button disabled while generating', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake';
       component.isGenerating = true;
-      fixture.detectChanges();
-      const downloadButton = findDownloadButton();
-      expect(downloadButton.disabled).toBeTruthy();
+      expect(component.canDownload()).toBeFalsy();
     });
 
     it('should have download button enabled when image is generated and not generating', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake';
       component.isGenerating = false;
-      fixture.detectChanges();
-      const downloadButton = findDownloadButton();
-      expect(downloadButton.disabled).toBeFalsy();
+      (component as any).isModifiedSinceBuild = false;
+      expect(component.canDownload()).toBeTruthy();
     });
   });
 
@@ -75,9 +68,9 @@ describe('GalaxyParamComponent', () => {
     it('should create an anchor element and trigger download with form name', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
 
-      const clickSpy = jasmine.createSpy('click');
+      const clickSpy = jest.fn();
       const fakeLink = { href: '', download: '', click: clickSpy } as any;
-      spyOn(document, 'createElement').and.returnValue(fakeLink);
+      jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
       component.galaxyForm.patchValue({ name: 'my-galaxy' });
 
@@ -92,9 +85,9 @@ describe('GalaxyParamComponent', () => {
     it('should use default name when form name is empty', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
 
-      const clickSpy = jasmine.createSpy('click');
+      const clickSpy = jest.fn();
       const fakeLink = { href: '', download: '', click: clickSpy } as any;
-      spyOn(document, 'createElement').and.returnValue(fakeLink);
+      jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
       component.galaxyForm.patchValue({ name: '' });
 
@@ -106,7 +99,7 @@ describe('GalaxyParamComponent', () => {
 
     it('should not trigger download when no image is available', () => {
       component.generatedImageUrl = null;
-      const createElementSpy = spyOn(document, 'createElement');
+      const createElementSpy = jest.spyOn(document, 'createElement');
 
       component.downloadImage();
 
@@ -130,6 +123,7 @@ describe('GalaxyParamComponent', () => {
     it('should return true when image exists and not generating', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake';
       component.isGenerating = false;
+      (component as any).isModifiedSinceBuild = false;
       expect(component.canDownload()).toBeTruthy();
     });
   });
@@ -149,6 +143,7 @@ describe('GalaxyParamComponent', () => {
     it('should return download message when image is ready', () => {
       component.isGenerating = false;
       component.generatedImageUrl = 'blob:http://localhost/fake';
+      (component as any).isModifiedSinceBuild = false;
       expect(component.getDownloadTooltip()).toContain('Telecharger');
     });
   });

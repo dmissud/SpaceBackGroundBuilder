@@ -19,9 +19,10 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
 
     private final SpiralStructureParameters spiralParameters;
     private final JNoise jNoise;
+    private final JNoise darkLaneNoise;
 
     public SpiralGalaxyGenerator(int width, int height,
-                                 long seed,
+            long seed,
             CoreParameters coreParameters,
             SpiralStructureParameters spiralParameters) {
         super(width, height, null, coreParameters);
@@ -31,6 +32,12 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
         this.jNoise = JNoise.newBuilder()
                 .perlin(seed, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
                 .scale(0.01) // Adjustable scale for grain
+                .build();
+
+        // Initialize higher-frequency noise for dark lanes with seed offset
+        this.darkLaneNoise = JNoise.newBuilder()
+                .perlin(seed + 12345L, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
+                .scale(0.05) // Finer details for dust lanes
                 .build();
     }
 
@@ -53,12 +60,22 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
         // Geometric Intensity
         double geometricIntensity = Math.max(coreIntensity, armIntensity);
 
-        // Noise Modulation (JNoise 4.1.0)
-        double perlinNoise = jNoise.evaluateNoise(x, y);
-        // Intensity formula: (0.2 + 0.8 * perlin_noise) * geometric_intensity
-        double finalIntensity = (0.2 + 0.8 * perlinNoise) * geometricIntensity;
+        // 1. Star Noise Modulation (JNoise 4.1.0)
+        double starNoise = (0.2 + 0.8 * jNoise.evaluateNoise(x, y));
 
-        return Math.clamp(finalIntensity, 0.0, 1.0);
+        // 2. Dark Lane Subtractive Noise
+        // Normalize noise roughly to [0, 1]
+        double dustNoise = (darkLaneNoise.evaluateNoise(x, y) + 1.0) * 0.5;
+
+        // Dust blocks light primarily where the arms are, scaled by the opacity
+        // parameter
+        double dustBlock = dustNoise * armIntensity * spiralParameters.getDarkLaneOpacity();
+
+        // 3. Application
+        double combined = geometricIntensity * starNoise;
+        combined = combined - dustBlock;
+
+        return Math.clamp(combined, 0.0, 1.0);
     }
 
     private double calculateSpiralArmIntensity(double angle, double r, double c) {

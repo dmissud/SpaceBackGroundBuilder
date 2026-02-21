@@ -1,26 +1,32 @@
-import {Component, ViewChild} from '@angular/core';
-import {GalaxyParamComponent} from "../galaxy-param/galaxy-param.component";
-import {GalaxyListComponent} from "../galaxy-list/galaxy-list.component";
-import {GalaxyImageComponent} from "../galaxy-image/galaxy-image.component";
-import {GalaxyImageDTO} from "../galaxy.model";
-import {ActionBarComponent, ActionBarButton} from "../../shared/components/action-bar/action-bar.component";
-import {GeneratorShellComponent} from "../../shared/components/generator-shell/generator-shell.component";
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
+import { GalaxyListComponent } from "../galaxy-list/galaxy-list.component";
+import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
+import { GalaxyImageDTO } from "../galaxy.model";
+import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
+import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 
 @Component({
-    selector: 'app-galaxy-shell',
-    imports: [
-        GeneratorShellComponent,
-        GalaxyParamComponent,
-        GalaxyListComponent,
-        GalaxyImageComponent,
-        ActionBarComponent
-    ],
-    templateUrl: './galaxy-shell.component.html',
-    styleUrl: './galaxy-shell.component.scss'
+  selector: 'app-galaxy-shell',
+  imports: [
+    GeneratorShellComponent,
+    GalaxyParamComponent,
+    GalaxyListComponent,
+    GalaxyImageComponent,
+    ActionBarComponent
+  ],
+  templateUrl: './galaxy-shell.component.html',
+  styleUrl: './galaxy-shell.component.scss'
 })
-export class GalaxyShellComponent {
+export class GalaxyShellComponent implements AfterViewInit {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(GalaxyParamComponent) paramComponent!: GalaxyParamComponent;
+
+  constructor(private cdr: ChangeDetectorRef) { }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
 
   // Expose properties for template access
   get isGenerating(): boolean {

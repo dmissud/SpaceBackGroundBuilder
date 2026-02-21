@@ -9,6 +9,7 @@ export interface SpiralParameters {
   numberOfArms?: number;
   armWidth?: number;
   armRotation?: number;
+  darkLaneOpacity?: number;
 }
 
 export interface VoronoiParameters {
