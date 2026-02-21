@@ -20,8 +20,7 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
     private final EllipticalShapeParameters ellipticalParameters;
     private final JNoise jNoise;
     private final double orientationAngleRad;
-    private final double effectiveRadius;
-    private final double bn;
+    private final SersicProfile sersicProfile;
 
     public EllipticalGalaxyGenerator(int width, int height,
                                      long seed,
@@ -30,12 +29,10 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
         super(width, height, null, coreParameters);
         this.ellipticalParameters = ellipticalParameters;
         this.orientationAngleRad = Math.toRadians(ellipticalParameters.getOrientationAngle());
-        this.effectiveRadius = coreParameters.getGalaxyRadius() * 0.5;
+        this.sersicProfile = new SersicProfile(
+                ellipticalParameters.getSersicIndex(),
+                coreParameters.getGalaxyRadius() * 0.5);
 
-        // Ciotti approximation: bn ≈ 2n - 1/3
-        this.bn = 2.0 * ellipticalParameters.getSersicIndex() - (1.0 / 3.0);
-
-        // Initialize JNoise 4.1.0 pipeline
         this.jNoise = JNoise.newBuilder()
                 .perlin(seed, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
                 .scale(0.01)
@@ -58,9 +55,7 @@ public class EllipticalGalaxyGenerator extends AbstractGalaxyGenerator {
         double ellipticalDistance = Math.sqrt(rotX * rotX
                 + (rotY * rotY) / (ellipticalParameters.getAxisRatio() * ellipticalParameters.getAxisRatio()));
 
-        // Sersic profile: I(r) = Ie * exp(-bn * ((r/re)^(1/n) - 1))
-        double rRatio = ellipticalDistance / effectiveRadius;
-        double sersicIntensity = Math.exp(-bn * (Math.pow(rRatio, 1.0 / ellipticalParameters.getSersicIndex()) - 1.0));
+        double sersicIntensity = sersicProfile.computeIntensity(ellipticalDistance);
 
         // Noise Modulation
         double perlinNoise = jNoise.evaluateNoise(x, y);

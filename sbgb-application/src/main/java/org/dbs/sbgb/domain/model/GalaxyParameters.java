@@ -245,6 +245,56 @@ public class GalaxyParameters {
     }
 
     /**
+     * Giant elliptical (cD-type): high Sersic index, nearly circular, very extended.
+     * Models BCGs (Brightest Cluster Galaxies) like M87.
+     */
+    public static GalaxyParameters createGiantElliptical() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.ELLIPTICAL)
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.10)
+                .galaxyRadius(1900.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(2)
+                .persistence(0.3)
+                .lacunarity(1.8)
+                .scale(280.0)
+                .build())
+            .ellipticalParameters(EllipticalShapeParameters.builder()
+                .sersicIndex(8.0)
+                .axisRatio(0.85)
+                .orientationAngle(0.0)
+                .build())
+            .build();
+    }
+
+    /**
+     * Lenticular (S0-type): low Sersic index, edge-on, very flat disk without spiral arms.
+     * The low n=1.5 benefits from the precision of the Ciotti bn approximation.
+     */
+    public static GalaxyParameters createLenticularElliptical() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.ELLIPTICAL)
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.03)
+                .galaxyRadius(1600.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(3)
+                .persistence(0.35)
+                .lacunarity(2.0)
+                .scale(230.0)
+                .build())
+            .ellipticalParameters(EllipticalShapeParameters.builder()
+                .sersicIndex(1.5)
+                .axisRatio(0.25)
+                .orientationAngle(90.0)
+                .build())
+            .build();
+    }
+
+    /**
      * Create default parameters for a ring galaxy (Hoag's Object style)
      */
     public static GalaxyParameters createDefaultRing() {

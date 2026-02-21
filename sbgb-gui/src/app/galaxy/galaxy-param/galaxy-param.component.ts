@@ -755,6 +755,16 @@ export class GalaxyParamComponent implements OnInit {
           }
         });
         break;
+      case 'ELLIPTICAL_LENTICULAR':
+        this.galaxyForm.patchValue({
+          coreSize: 0.03,
+          galaxyRadius: 1600,
+          ellipticalParameters: { sersicIndex: 1.5, axisRatio: 0.25, orientationAngle: 90 },
+          noiseParameters: { octaves: 3, persistence: 0.35, lacunarity: 2.0, scale: 230 },
+          starFieldParameters: this.DENSE_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
+        });
+        break;
       case 'RING_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.06,
