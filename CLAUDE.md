@@ -183,18 +183,20 @@ Couche d'etoiles superposee sur tous types de galaxies.
 - Migration Liquibase 08-05 pour colonnes DB
 
 ## Phase E : RING
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Galaxie annulaire (type Hoag's Object).
-- Parametres envisages : `ringRadius`, `ringWidth`, `ringEccentricity`
-- Algorithme : profil Gaussien centre sur ringRadius + modulation angulaire pour variations d'epaisseur + noyau central + bruit Perlin + falloff
+- Parametres : `ringRadius`, `ringWidth`, `ringIntensity`, `coreToRingRatio`
+- Presets : RING_DEFAULT, RING_WIDE, RING_BRIGHT, RING_THIN, RING_DOUBLE
+- Algorithme : profil Gaussien centre sur ringRadius + noyau central + bruit Perlin + falloff
 
 ## Phase F : IRREGULAR
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Galaxie irreguliere sans structure definie (type Nuages de Magellan).
-- Parametres envisages : `irregularity`, `fragmentCount`
-- Algorithme : multiples centres de densite asymetriques + domain warping fort pour briser symetrie + frontiere fractale + bruit Perlin fort
+- Parametres : `irregularity`, `irregularClumpCount`, `irregularClumpSize`
+- Presets : IRREGULAR_DEFAULT (SMC), IRREGULAR_CHAOTIC, IRREGULAR_DWARF
+- Algorithme : multiples centres de densite asymetriques + domain warping fort + bruit Perlin fort
 
 ## Phase G : LENTICULAR
 **Statut : A FAIRE**
@@ -247,20 +249,23 @@ Champ d'etoiles independant avec distribution Poisson disk.
 ## Ameliorations a implementer
 
 ### Multi-couches de noise (priorite haute)
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
-Empiler 2-3 couches de bruit a des echelles differentes pour profondeur et variation.
+3 couches de bruit a des echelles differentes pour profondeur et variation.
 - Couches : Macro (x0.3, 50%), Meso (x1.0, 35%), Micro (x3.0, 15%)
-- Implementation : evolution du `PerlinGenerator` ou creation d'un `MultiLayerNoiseGenerator` wrapper
-- Chaque couche avec seed independante
+- Implementation : `MultiLayerNoiseGenerator` wrappant 3 `PerlinGenerator` avec seeds offsettees
+- Integre dans `NoiseGeneratorFactory`, active via `multiLayerNoiseParameters.enabled`
+- Support complet : domaine → ports → JPA → DTO → frontend
 
 ### Bloom / Glow du noyau (priorite moyenne)
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Post-traitement Gaussien sur zones a haute intensite pour effet de "debordement" lumineux.
-- Parametres : `bloomRadius` (0-100), `bloomIntensity` (0.0-1.0), `bloomThreshold` (0.1-1.0)
-- Algorithme : extraction masque pixels > seuil -> flou Gaussien -> composition additive
-- Implementation : post-traitement sur `BufferedImage` final via `ConvolveOp`
+- Parametres : `bloomRadius` (1-50), `bloomIntensity` (0.0-1.0), `bloomThreshold` (0.0-1.0)
+- Algorithme : extraction masque pixels > seuil -> flou Gaussien (ConvolveOp) -> composition additive
+- Implementation : `BloomPostProcessor` (domaine) + `BloomApplicator` (@Component)
+- Pipeline : renderPixels → starField → bloom
+- Support complet : domaine → ports → JPA (4 colonnes NOT NULL) → DTO → frontend (section "Effets visuels")
 
 ### Dark lanes / Absorption par la poussiere (priorite basse)
 **Statut : A FAIRE**
