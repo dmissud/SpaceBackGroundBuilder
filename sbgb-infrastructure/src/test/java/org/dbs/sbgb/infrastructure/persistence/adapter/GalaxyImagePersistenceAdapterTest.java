@@ -37,21 +37,29 @@ class GalaxyImagePersistenceAdapterTest {
                 .height(1000)
                 .seed(12345L)
                 .galaxyType("SPIRAL")
-                .numberOfArms(3)
-                .armWidth(0.5)
-                .armRotation(2.0)
-                .coreSize(0.1)
-                .galaxyRadius(400.0)
-                .noiseOctaves(4)
-                .noisePersistence(0.5)
-                .noiseLacunarity(2.0)
-                .noiseScale(0.1)
+                .spiralStructure(org.dbs.sbgb.domain.model.vo.SpiralStructure.builder()
+                        .numberOfArms(3)
+                        .armWidth(0.5)
+                        .armRotation(2.0)
+                        .coreSize(0.1)
+                        .galaxyRadius(400.0)
+                        .build())
+                .noiseTexture(org.dbs.sbgb.domain.model.vo.NoiseTexture.builder()
+                        .noiseOctaves(4)
+                        .noisePersistence(0.5)
+                        .noiseLacunarity(2.0)
+                        .noiseScale(0.1)
+                        .build())
                 .warpStrength(50.0)
-                .colorPalette("NEBULA")
-                .starDensity(0.005)
-                .maxStarSize(3)
-                .diffractionSpikes(true)
-                .spikeCount(4)
+                .colorConfig(org.dbs.sbgb.domain.model.vo.ColorConfig.builder()
+                        .colorPalette("NEBULA")
+                        .build())
+                .starField(org.dbs.sbgb.domain.model.vo.StarField.builder()
+                        .starDensity(0.005)
+                        .maxStarSize(3)
+                        .diffractionSpikes(true)
+                        .spikeCount(4)
+                        .build())
                 .build();
 
         GalaxyImage image = GalaxyImage.builder()
@@ -78,9 +86,9 @@ class GalaxyImagePersistenceAdapterTest {
         assertThat(retrievedStruct).isNotNull();
         assertThat(retrievedStruct.getWidth()).isEqualTo(1000);
         assertThat(retrievedStruct.getGalaxyType()).isEqualTo("SPIRAL");
-        assertThat(retrievedStruct.getNumberOfArms()).isEqualTo(3);
-        assertThat(retrievedStruct.getColorPalette()).isEqualTo("NEBULA");
+        assertThat(retrievedStruct.getSpiralStructure().getNumberOfArms()).isEqualTo(3);
+        assertThat(retrievedStruct.getColorConfig().getColorPalette()).isEqualTo("NEBULA");
         assertThat(retrievedStruct.getWarpStrength()).isEqualTo(50.0);
-        assertThat(retrievedStruct.isDiffractionSpikes()).isTrue();
+        assertThat(retrievedStruct.getStarField().isDiffractionSpikes()).isTrue();
     }
 }
