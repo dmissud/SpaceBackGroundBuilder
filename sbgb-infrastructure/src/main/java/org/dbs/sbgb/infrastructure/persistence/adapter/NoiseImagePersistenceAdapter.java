@@ -33,7 +33,7 @@ public class NoiseImagePersistenceAdapter implements NoiseImageRepository {
     public List<NoiseImage> findAll() {
         return noiseImageJpaRepository.findAll().stream()
                 .map(mapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -41,7 +41,7 @@ public class GalaxyResource {
         List<GalaxyImage> images = findGalaxyImagesUseCase.findAllGalaxyImages();
         List<GalaxyImageDTO> dtos = images.stream()
                 .map(mapperGalaxyImage::toDTO)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(dtos);
     }
 

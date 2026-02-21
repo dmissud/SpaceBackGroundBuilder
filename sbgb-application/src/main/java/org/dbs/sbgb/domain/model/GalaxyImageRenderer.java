@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 /**
  * Renderer for generating realistic galaxy images
- * Uses GalaxyGenerator for spiral structure and color mapping for appearance
+ * Uses SpiralGalaxyGenerator for spiral structure and color mapping for appearance
  */
 @Slf4j
 public class GalaxyImageRenderer {
