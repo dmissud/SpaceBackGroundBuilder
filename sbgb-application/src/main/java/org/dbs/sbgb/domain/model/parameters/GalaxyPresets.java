@@ -17,83 +17,56 @@ public final class GalaxyPresets {
      * Create default parameters for a classic spiral galaxy
      */
     public static GalaxyParameters createDefault() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.SPIRAL)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.05)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(4)
-                        .persistence(0.5)
-                        .lacunarity(2.0)
-                        .scale(200.0)
-                        .build())
-                .spiralParameters(SpiralStructureParameters.builder()
-                        .numberOfArms(2)
-                        .armWidth(80.0)
-                        .armRotation(4.0)
-                        .build())
-                .build();
+        return createFromSpiralPreset(SpiralPresets.CLASSIC);
     }
 
-    /**
-     * Create parameters for a barred spiral galaxy
-     */
     public static GalaxyParameters createBarredSpiral() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.SPIRAL)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.08)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(5)
-                        .persistence(0.6)
-                        .lacunarity(2.2)
-                        .scale(150.0)
-                        .build())
-                .spiralParameters(SpiralStructureParameters.builder()
-                        .numberOfArms(2)
-                        .armWidth(100.0)
-                        .armRotation(3.0)
-                        .build())
-                .build();
+        return createFromSpiralPreset(SpiralPresets.BARRED);
     }
 
-    /**
-     * Create parameters for a multi-arm galaxy (like M51)
-     */
     public static GalaxyParameters createMultiArm() {
+        return createFromSpiralPreset(SpiralPresets.MULTI_ARM);
+    }
+
+    private static GalaxyParameters createFromSpiralPreset(SpiralPresets preset) {
         return GalaxyParameters.builder()
                 .galaxyType(GalaxyType.SPIRAL)
                 .coreParameters(CoreParameters.builder()
-                        .coreSize(0.04)
-                        .galaxyRadius(1500.0)
+                        .coreSize(preset.coreSize())
+                        .galaxyRadius(preset.galaxyRadius())
                         .build())
                 .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(6)
-                        .persistence(0.55)
-                        .lacunarity(2.1)
-                        .scale(180.0)
+                        .octaves(4)
+                        .persistence(0.5)
+                        .lacunarity(2.0)
+                        .scale(200.0)
                         .build())
                 .spiralParameters(SpiralStructureParameters.builder()
-                        .numberOfArms(3)
-                        .armWidth(70.0)
-                        .armRotation(5.0)
+                        .numberOfArms(preset.numberOfArms())
+                        .armWidth(preset.armWidth())
+                        .armRotation(preset.armRotation())
                         .build())
                 .build();
     }
 
-    /**
-     * Create default parameters for a Voronoi cluster galaxy
-     */
     public static GalaxyParameters createDefaultVoronoi() {
+        return createFromVoronoiPreset(VoronoiPresets.CLASSIC);
+    }
+
+    public static GalaxyParameters createDenseVoronoi() {
+        return createFromVoronoiPreset(VoronoiPresets.DENSE);
+    }
+
+    public static GalaxyParameters createSparseVoronoi() {
+        return createFromVoronoiPreset(VoronoiPresets.SPARSE);
+    }
+
+    private static GalaxyParameters createFromVoronoiPreset(VoronoiPresets preset) {
         return GalaxyParameters.builder()
                 .galaxyType(GalaxyType.VORONOI_CLUSTER)
                 .coreParameters(CoreParameters.builder()
-                        .coreSize(0.05)
-                        .galaxyRadius(1500.0)
+                        .coreSize(preset.coreSize())
+                        .galaxyRadius(preset.galaxyRadius())
                         .build())
                 .noiseTextureParameters(NoiseTextureParameters.builder()
                         .octaves(4)
@@ -102,109 +75,31 @@ public final class GalaxyPresets {
                         .scale(200.0)
                         .build())
                 .voronoiParameters(VoronoiClusterParameters.builder()
-                        .clusterCount(80)
-                        .clusterSize(60.0)
-                        .clusterConcentration(0.7)
-                        .build())
-                .build();
-    }
-
-    /**
-     * Create parameters for a dense Voronoi cluster galaxy
-     */
-    public static GalaxyParameters createDenseVoronoi() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.VORONOI_CLUSTER)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.08)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(5)
-                        .persistence(0.6)
-                        .lacunarity(2.2)
-                        .scale(150.0)
-                        .build())
-                .voronoiParameters(VoronoiClusterParameters.builder()
-                        .clusterCount(200)
-                        .clusterSize(40.0)
-                        .clusterConcentration(0.85)
-                        .build())
-                .build();
-    }
-
-    /**
-     * Create parameters for a sparse Voronoi cluster galaxy
-     */
-    public static GalaxyParameters createSparseVoronoi() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.VORONOI_CLUSTER)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.03)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(3)
-                        .persistence(0.4)
-                        .lacunarity(1.8)
-                        .scale(250.0)
-                        .build())
-                .voronoiParameters(VoronoiClusterParameters.builder()
-                        .clusterCount(30)
-                        .clusterSize(90.0)
-                        .clusterConcentration(0.4)
+                        .clusterCount(preset.clusterCount())
+                        .clusterSize(preset.clusterSize())
+                        .clusterConcentration(preset.clusterConcentration())
                         .build())
                 .build();
     }
 
     public static GalaxyParameters createDefaultElliptical() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.ELLIPTICAL)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.05)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(4)
-                        .persistence(0.5)
-                        .lacunarity(2.0)
-                        .scale(200.0)
-                        .build())
-                .ellipticalParameters(EllipticalShapeParameters.builder()
-                        .sersicIndex(4.0)
-                        .axisRatio(0.7)
-                        .orientationAngle(45.0)
-                        .build())
-                .build();
+        return createFromEllipticalPreset(EllipticalPresets.CLASSIC);
     }
 
     public static GalaxyParameters createRoundElliptical() {
-        return GalaxyParameters.builder()
-                .galaxyType(GalaxyType.ELLIPTICAL)
-                .coreParameters(CoreParameters.builder()
-                        .coreSize(0.08)
-                        .galaxyRadius(1500.0)
-                        .build())
-                .noiseTextureParameters(NoiseTextureParameters.builder()
-                        .octaves(4)
-                        .persistence(0.5)
-                        .lacunarity(2.0)
-                        .scale(200.0)
-                        .build())
-                .ellipticalParameters(EllipticalShapeParameters.builder()
-                        .sersicIndex(2.0)
-                        .axisRatio(0.95)
-                        .orientationAngle(0.0)
-                        .build())
-                .build();
+        return createFromEllipticalPreset(EllipticalPresets.ROUND);
     }
 
     public static GalaxyParameters createFlatElliptical() {
+        return createFromEllipticalPreset(EllipticalPresets.FLAT);
+    }
+
+    private static GalaxyParameters createFromEllipticalPreset(EllipticalPresets preset) {
         return GalaxyParameters.builder()
                 .galaxyType(GalaxyType.ELLIPTICAL)
                 .coreParameters(CoreParameters.builder()
-                        .coreSize(0.04)
-                        .galaxyRadius(1500.0)
+                        .coreSize(preset.coreSize())
+                        .galaxyRadius(preset.galaxyRadius())
                         .build())
                 .noiseTextureParameters(NoiseTextureParameters.builder()
                         .octaves(4)
@@ -213,9 +108,9 @@ public final class GalaxyPresets {
                         .scale(200.0)
                         .build())
                 .ellipticalParameters(EllipticalShapeParameters.builder()
-                        .sersicIndex(6.0)
-                        .axisRatio(0.4)
-                        .orientationAngle(30.0)
+                        .sersicIndex(preset.sersicIndex())
+                        .axisRatio(preset.axisRatio())
+                        .orientationAngle(preset.orientationAngle())
                         .build())
                 .build();
     }
