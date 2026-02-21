@@ -33,6 +33,7 @@ public class GalaxyImageRenderer {
     private final GalaxyGeneratorFactory generatorFactory;
     private final NoiseGeneratorFactory noiseGeneratorFactory;
     private final StarFieldApplicator starFieldApplicator;
+    private final org.dbs.sbgb.domain.service.BloomApplicator bloomApplicator;
 
     private GalaxyImageRenderer(int width,
             int height,
@@ -42,7 +43,8 @@ public class GalaxyImageRenderer {
             GalaxyColorCalculator colorCalculator,
             GalaxyGeneratorFactory generatorFactory,
             NoiseGeneratorFactory noiseGeneratorFactory,
-            StarFieldApplicator starFieldApplicator) {
+            StarFieldApplicator starFieldApplicator,
+            org.dbs.sbgb.domain.service.BloomApplicator bloomApplicator) {
         this.width = width;
         this.height = height;
         this.parameters = parameters;
@@ -52,6 +54,7 @@ public class GalaxyImageRenderer {
         this.generatorFactory = generatorFactory;
         this.noiseGeneratorFactory = noiseGeneratorFactory;
         this.starFieldApplicator = starFieldApplicator;
+        this.bloomApplicator = bloomApplicator;
     }
 
     public BufferedImage create(long seed) {
@@ -66,8 +69,9 @@ public class GalaxyImageRenderer {
         DomainWarpCalculator warpCalculator = createWarpCalculatorIfEnabled(seed);
 
         BufferedImage galaxyImage = renderPixels(intensityCalculator, warpCalculator);
+        BufferedImage withStars = starFieldApplicator.applyIfEnabled(galaxyImage, parameters, seed);
 
-        return starFieldApplicator.applyIfEnabled(galaxyImage, parameters, seed);
+        return bloomApplicator.applyIfEnabled(withStars, parameters);
     }
 
     private DomainWarpCalculator createWarpCalculatorIfEnabled(long seed) {
@@ -142,6 +146,7 @@ public class GalaxyImageRenderer {
         private GalaxyGeneratorFactory generatorFactory;
         private NoiseGeneratorFactory noiseGeneratorFactory;
         private StarFieldApplicator starFieldApplicator;
+        private org.dbs.sbgb.domain.service.BloomApplicator bloomApplicator;
 
         public Builder() {
             this.width = DEFAULT_IMAGE_WIDTH;
@@ -195,6 +200,11 @@ public class GalaxyImageRenderer {
             return this;
         }
 
+        public Builder withBloomApplicator(org.dbs.sbgb.domain.service.BloomApplicator bloomApplicator) {
+            this.bloomApplicator = bloomApplicator;
+            return this;
+        }
+
         public GalaxyImageRenderer build() {
             if (parameters == null) {
                 throw new IllegalStateException("parameters must be set");
@@ -211,8 +221,11 @@ public class GalaxyImageRenderer {
             if (starFieldApplicator == null) {
                 throw new IllegalStateException("starFieldApplicator must be set");
             }
+            if (bloomApplicator == null) {
+                throw new IllegalStateException("bloomApplicator must be set");
+            }
             return new GalaxyImageRenderer(width, height, parameters, interpolation, fadeFunction, colorCalculator,
-                    generatorFactory, noiseGeneratorFactory, starFieldApplicator);
+                    generatorFactory, noiseGeneratorFactory, starFieldApplicator, bloomApplicator);
         }
     }
 }

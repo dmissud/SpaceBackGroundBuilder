@@ -74,5 +74,9 @@ public class GalaxyRequestCmd {
 
     @Valid
     @Builder.Default
+    private BloomParameters bloomParameters = BloomParameters.disabled();
+
+    @Valid
+    @Builder.Default
     private ColorParameters colorParameters = ColorParameters.classicPalette();
 }

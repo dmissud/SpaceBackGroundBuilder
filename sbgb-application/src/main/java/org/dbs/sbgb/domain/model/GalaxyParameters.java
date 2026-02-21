@@ -30,6 +30,9 @@ public class GalaxyParameters {
     StarFieldParameters starFieldParameters;
     MultiLayerNoiseParameters multiLayerNoiseParameters;
 
+    @Builder.Default
+    BloomParameters bloomParameters = BloomParameters.builder().build();
+
     // Type-specific parameters (nullable)
     SpiralStructureParameters spiralParameters;
     VoronoiClusterParameters voronoiParameters;

@@ -26,6 +26,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private final GalaxyGeneratorFactory galaxyGeneratorFactory;
     private final NoiseGeneratorFactory noiseGeneratorFactory;
     private final StarFieldApplicator starFieldApplicator;
+    private final BloomApplicator bloomApplicator;
     private final ImageSerializer imageSerializer;
     private final GalaxyImageDuplicationHandler duplicationHandler;
 
@@ -121,6 +122,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
                 .withGeneratorFactory(galaxyGeneratorFactory)
                 .withNoiseGeneratorFactory(noiseGeneratorFactory)
                 .withStarFieldApplicator(starFieldApplicator)
+                .withBloomApplicator(bloomApplicator)
                 .build();
 
         return renderer.create(cmd.getSeed());

@@ -142,6 +142,36 @@ import { MatSelect, MatOption } from '@angular/material/select';
           </div>
         }
       </div>
+
+      <!-- Bloom / Glow -->
+      <h4 formGroupName="bloomParameters">Bloom / Halo lumineux</h4>
+      <div formGroupName="bloomParameters" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <mat-slide-toggle formControlName="enabled">
+            Activer le bloom (halo sur zones lumineuses)
+          </mat-slide-toggle>
+        </div>
+
+        @if (formGroup.get('bloomParameters')?.get('enabled')?.value) {
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <mat-form-field style="min-width: 170px;">
+              <mat-label>Rayon bloom (px)</mat-label>
+              <input type="number" matInput formControlName="bloomRadius" min="1" max="50">
+              <mat-icon matSuffix matTooltip="Rayon du flou gaussien en pixels (1-50)">help_outline</mat-icon>
+            </mat-form-field>
+            <mat-form-field style="min-width: 170px;">
+              <mat-label>Intensité bloom</mat-label>
+              <input type="number" matInput formControlName="bloomIntensity" step="0.05" min="0" max="1">
+              <mat-icon matSuffix matTooltip="Intensité du halo (0=aucun, 1=max)">help_outline</mat-icon>
+            </mat-form-field>
+            <mat-form-field style="min-width: 170px;">
+              <mat-label>Seuil bloom</mat-label>
+              <input type="number" matInput formControlName="bloomThreshold" step="0.05" min="0" max="1">
+              <mat-icon matSuffix matTooltip="Luminosité minimale pour déclencher le bloom (0.3-0.7 recommandé)">help_outline</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+      </div>
     </mat-expansion-panel>
   `,
   styles: ``

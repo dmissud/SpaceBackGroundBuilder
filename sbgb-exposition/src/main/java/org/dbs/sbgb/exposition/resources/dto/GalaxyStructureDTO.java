@@ -26,5 +26,6 @@ public class GalaxyStructureDTO {
     private IrregularParametersDTO irregularParameters;
     private StarFieldParametersDTO starFieldParameters;
     private MultiLayerNoiseParametersDTO multiLayerNoiseParameters;
+    private BloomParametersDTO bloomParameters;
     private ColorParametersDTO colorParameters;
 }

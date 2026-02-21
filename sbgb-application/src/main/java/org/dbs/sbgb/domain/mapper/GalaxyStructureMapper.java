@@ -28,6 +28,7 @@ public class GalaxyStructureMapper {
                                 .irregularStructure(buildIrregularStructureVO(cmd.getIrregularParameters()))
                                 .starField(buildStarFieldVO(cmd.getStarFieldParameters()))
                                 .multiLayerNoise(buildMultiLayerNoiseVO(cmd.getMultiLayerNoiseParameters()))
+                                .bloomConfig(buildBloomConfigVO(cmd.getBloomParameters()))
                                 .colorConfig(buildColorConfigVO(cmd.getColorParameters()))
                                 .build();
         }
@@ -48,6 +49,7 @@ public class GalaxyStructureMapper {
                                 .ellipticalParameters(buildEllipticalParameters(cmd.getEllipticalParameters()))
                                 .ringParameters(buildRingParameters(cmd.getRingParameters()))
                                 .irregularParameters(buildIrregularParameters(cmd.getIrregularParameters()))
+                                .bloomParameters(buildBloomParameters(cmd.getBloomParameters()))
                                 .build();
         }
 
@@ -179,6 +181,26 @@ public class GalaxyStructureMapper {
                                 .mesoLayerWeight(multiLayer.mesoLayerWeight())
                                 .microLayerScale(multiLayer.microLayerScale())
                                 .microLayerWeight(multiLayer.microLayerWeight())
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.vo.BloomConfig buildBloomConfigVO(
+                        org.dbs.sbgb.port.in.BloomParameters bloom) {
+                return org.dbs.sbgb.domain.model.vo.BloomConfig.builder()
+                                .bloomEnabled(bloom.enabled())
+                                .bloomRadius(bloom.bloomRadius())
+                                .bloomIntensity(bloom.bloomIntensity())
+                                .bloomThreshold(bloom.bloomThreshold())
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.BloomParameters buildBloomParameters(
+                        org.dbs.sbgb.port.in.BloomParameters bloom) {
+                return org.dbs.sbgb.domain.model.parameters.BloomParameters.builder()
+                                .enabled(bloom.enabled())
+                                .bloomRadius(bloom.bloomRadius())
+                                .bloomIntensity(bloom.bloomIntensity())
+                                .bloomThreshold(bloom.bloomThreshold())
                                 .build();
         }
 
