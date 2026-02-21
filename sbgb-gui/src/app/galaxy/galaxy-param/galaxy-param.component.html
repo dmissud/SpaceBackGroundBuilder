@@ -16,8 +16,8 @@
 
     <!-- 2. PRESETS & RANDOMIZATION -->
     <app-presets-section [formGroup]="galaxyForm" [onLoadPreset]="loadPreset.bind(this)"
-      [onRandomizeStructure]="randomizeStructure.bind(this)" [onRandomizeColors]="randomizeColors.bind(this)"
-      [onRandomizeAll]="randomizeAll.bind(this)">
+                         [onRandomizeStructure]="randomizeStructure.bind(this)"
+                         [onRandomizeAll]="randomizeAll.bind(this)">
     </app-presets-section>
 
     <!-- 3. TYPE-SPECIFIC STRUCTURE -->
@@ -67,7 +67,7 @@
     </app-visual-effects-section>
 
     <!-- 7. COLORS -->
-    <app-colors-section [formGroup]="galaxyForm" [onRandomize]="randomizeColors.bind(this)">
+    <app-colors-section [formGroup]="galaxyForm" [onRandomizeCustomColors]="randomizeCustomColors.bind(this)">
     </app-colors-section>
 
   </mat-accordion>
