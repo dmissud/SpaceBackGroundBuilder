@@ -1,22 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatAccordion } from "@angular/material/expansion";
-import { MatIcon } from "@angular/material/icon";
-import { MatTooltip } from "@angular/material/tooltip";
-import { GalaxyService } from "../galaxy.service";
-import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
-import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
-import { PresetsSectionComponent } from "./sections/presets-section.component";
-import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
-import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
-import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
-import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
-import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
-import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
-import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
-import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
-import { ColorsSectionComponent } from "./sections/colors-section.component";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatAccordion} from "@angular/material/expansion";
+import {MatIcon} from "@angular/material/icon";
+import {MatTooltip} from "@angular/material/tooltip";
+import {GalaxyService} from "../galaxy.service";
+import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
+import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
+import {PresetsSectionComponent} from "./sections/presets-section.component";
+import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
+import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
+import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
+import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
+import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
+import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
+import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
+import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {ColorsSectionComponent} from "./sections/colors-section.component";
 
 
 @Component({
@@ -293,11 +293,10 @@ export class GalaxyParamComponent implements OnInit {
     request.forceUpdate = false;
 
     // First attempt without forceUpdate
-    this.isGenerating = true;
     this.galaxyService.createGalaxy(request).subscribe({
       next: (galaxy) => {
-        this.isGenerating = false;
         this.loadedGalaxyName = galaxy.name;
+        this.galaxyService.galaxySaved$.next(); // Trigger library refresh
         this.snackBar.open(`Galaxy "${galaxy.name}" saved successfully!`, 'Close', { duration: 3000 });
       },
       error: (error) => {
@@ -307,17 +306,15 @@ export class GalaxyParamComponent implements OnInit {
           const confirmUpdate = confirm(`La galaxie "${request.name}" existe deja. Voulez-vous la remplacer ?`);
           if (confirmUpdate) {
             request.forceUpdate = true;
-            this.isGenerating = true;
             this.galaxyService.createGalaxy(request).subscribe({
               next: (galaxy) => {
-                this.isGenerating = false;
                 this.loadedGalaxyName = galaxy.name;
+                this.galaxyService.galaxySaved$.next(); // Trigger library refresh
                 this.snackBar.open(`Galaxy "${galaxy.name}" updated successfully!`, 'Close', { duration: 3000 });
               },
               error: (err) => {
                 console.error('Error updating galaxy:', err);
                 this.snackBar.open('Error updating galaxy', 'Close', { duration: 3000 });
-                this.isGenerating = false;
               }
             });
           }
