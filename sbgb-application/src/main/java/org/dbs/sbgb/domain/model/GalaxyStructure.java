@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.dbs.sbgb.domain.model.vo.BloomConfig;
 import org.dbs.sbgb.domain.model.vo.ColorConfig;
 import org.dbs.sbgb.domain.model.vo.EllipticalStructure;
 import org.dbs.sbgb.domain.model.vo.IrregularStructure;
@@ -41,6 +42,8 @@ public class GalaxyStructure {
     private StarField starField;
 
     private MultiLayerNoise multiLayerNoise;
+
+    private BloomConfig bloomConfig;
 
     private ColorConfig colorConfig;
 

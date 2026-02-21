@@ -102,6 +102,15 @@ public class GalaxyStructureEntity {
 
         @Embedded
         @AttributeOverrides({
+                        @AttributeOverride(name = "bloomEnabled", column = @Column(name = "bloom_enabled")),
+                        @AttributeOverride(name = "bloomRadius", column = @Column(name = "bloom_radius")),
+                        @AttributeOverride(name = "bloomIntensity", column = @Column(name = "bloom_intensity")),
+                        @AttributeOverride(name = "bloomThreshold", column = @Column(name = "bloom_threshold"))
+        })
+        private BloomEntity bloom;
+
+        @Embedded
+        @AttributeOverrides({
                         @AttributeOverride(name = "colorPalette", column = @Column(name = "color_palette")),
                         @AttributeOverride(name = "spaceBackgroundColor", column = @Column(name = "space_background_color")),
                         @AttributeOverride(name = "coreColor", column = @Column(name = "core_color")),
