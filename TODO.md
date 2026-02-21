@@ -24,11 +24,10 @@ Une fois les tests en place, on nettoie le code interne du Modèle de Données a
 
 Le domaine est maintenant propre et testé, on coupe ses liens matériels avec le stockage (Base de Données). Cela va casser temporairement l'application, mais les tests de la *Phase 1* nous certifieront quand cela fonctionnera de nouveau parfaitement.
 
-- [ ] **Création des Entités JPA (`sbgb-infrastructure`)** : Créer les entités miroirs (`GalaxyImageEntity`, `GalaxyStructureEntity`, etc.) annotées avec `@Entity` et `@Table`.
-- [ ] **Création des Mappers Infra (MapStruct)** : Écrire les Mappers stricts et bidirectionnels entre les modèles du Domaine (`domain/model`) et les Entités JPA.
-- [ ] **Purge du Domaine (Indépendance Technique)** : Supprimer sans exception les dépendances `jakarta.persistence` ou liées à Sring Data des dossiers du domaine métier. Le package redevient des objets Java Purs (POJOs limités à la logique métier).
-- [ ] Refactorer l'implémentation de `GalaxyImagePersistenceAdapter` pour utiliser la conversion. Relancer toute la suite de tests pour validation totale.
-
+- [x] **Création des Entités JPA (`sbgb-infrastructure`)** : Créer les entités miroirs (`GalaxyImageEntity`, `GalaxyStructureEntity`, etc.) annotées avec `@Entity` et `@Table`.
+- [x] **Création des Mappers Infra (MapStruct)** : Écrire les Mappers stricts et bidirectionnels entre les modèles du Domaine (`domain/model`) et les Entités JPA.
+- [x] **Purge du Domaine (Indépendance Technique)** : Supprimer sans exception les dépendances `jakarta.persistence` ou liées à Sring Data des dossiers du domaine métier. Le package redevient des objets Java Purs (POJOs limités à la logique métier).
+- [x] Refactorer l'implémentation de `GalaxyImagePersistenceAdapter` pour utiliser la conversion. Relancer toute la suite de tests pour validation totale.
 ## 🧹 Phase 4 : Améliorations Évolutives & Code Mort (DRY)
 
 Nettoyage du code redondant entre les différentes implémentations. Validé automatiquement par les tests de Golden Master.

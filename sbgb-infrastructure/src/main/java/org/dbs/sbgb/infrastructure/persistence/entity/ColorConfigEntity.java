@@ -1,18 +1,20 @@
-package org.dbs.sbgb.domain.model.vo;
+package org.dbs.sbgb.infrastructure.persistence.entity;
 
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
+@Embeddable
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ColorConfig {
+public class ColorConfigEntity {
     private String colorPalette;
-
-    // Legacy color properties
     private String spaceBackgroundColor;
     private String coreColor;
     private String armColor;

@@ -1,15 +1,19 @@
-package org.dbs.sbgb.domain.model.vo;
+package org.dbs.sbgb.infrastructure.persistence.entity;
 
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
+@Embeddable
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IrregularStructure {
+public class IrregularStructureEntity {
     private Double irregularity;
     private Integer irregularClumpCount;
     private Double irregularClumpSize;
