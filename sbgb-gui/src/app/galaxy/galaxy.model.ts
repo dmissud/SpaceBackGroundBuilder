@@ -54,6 +54,13 @@ export interface MultiLayerNoiseParameters {
   microLayerWeight: number;
 }
 
+export interface BloomParameters {
+  enabled: boolean;
+  bloomRadius: number;
+  bloomIntensity: number;
+  bloomThreshold: number;
+}
+
 export interface ColorParameters {
   colorPalette?: string;
   spaceBackgroundColor?: string;
@@ -86,6 +93,7 @@ export interface GalaxyStructureDTO {
   irregularParameters?: IrregularParameters;
   starFieldParameters: StarFieldParameters;
   multiLayerNoiseParameters: MultiLayerNoiseParameters;
+  bloomParameters: BloomParameters;
   colorParameters: ColorParameters;
 }
 
@@ -108,5 +116,6 @@ export interface GalaxyRequestCmd {
   irregularParameters?: IrregularParameters;
   starFieldParameters: StarFieldParameters;
   multiLayerNoiseParameters: MultiLayerNoiseParameters;
+  bloomParameters: BloomParameters;
   colorParameters: ColorParameters;
 }

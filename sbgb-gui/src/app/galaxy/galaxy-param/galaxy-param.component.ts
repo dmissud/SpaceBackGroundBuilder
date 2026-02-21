@@ -118,6 +118,12 @@ export class GalaxyParamComponent implements OnInit {
         diffractionSpikes: new FormControl<boolean | null>(false),
         spikeCount: new FormControl<number | null>(4, [Validators.min(4), Validators.max(8)])
       }),
+      bloomParameters: this.fb.group({
+        enabled: new FormControl<boolean | null>(false),
+        bloomRadius: new FormControl<number | null>(10, [Validators.min(1), Validators.max(50)]),
+        bloomIntensity: new FormControl<number | null>(0.5, [Validators.min(0), Validators.max(1)]),
+        bloomThreshold: new FormControl<number | null>(0.5, [Validators.min(0), Validators.max(1)])
+      }),
       multiLayerNoiseParameters: this.fb.group({
         enabled: new FormControl<boolean | null>(false),
         macroLayerScale: new FormControl<number | null>(0.3, [Validators.min(0.1), Validators.max(5)]),
@@ -570,6 +576,7 @@ export class GalaxyParamComponent implements OnInit {
       irregularParameters: s.irregularParameters,
       starFieldParameters: s.starFieldParameters,
       multiLayerNoiseParameters: s.multiLayerNoiseParameters,
+      bloomParameters: s.bloomParameters,
       colorParameters: s.colorParameters
     });
 
