@@ -33,3 +33,10 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+  info:
+    env:
+      enabled: true
+info:
+  app:
+    name: SpaceBackGroundBuilder
+    version: "@project.version@"
