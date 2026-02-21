@@ -45,6 +45,9 @@ public interface MapperGalaxyImage {
                                                                                 .armRotation(structure
                                                                                                 .getSpiralStructure()
                                                                                                 .getArmRotation())
+                                                                                .darkLaneOpacity(structure
+                                                                                                .getSpiralStructure()
+                                                                                                .getDarkLaneOpacity())
                                                                                 .build()
                                                                 : null)
                                 .voronoiParameters(structure.getVoronoiCluster() != null && structure

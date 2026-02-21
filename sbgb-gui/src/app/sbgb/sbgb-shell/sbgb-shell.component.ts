@@ -1,27 +1,27 @@
-import {Component, ViewChild} from '@angular/core';
-import {SbgbParamComponent} from "../sbgb-param/sbgb-param.component";
-import {SbgbImageComponent} from "../sbgb-image/sbgb-image.component";
-import {SbgbListComponent} from "../sbgb-list/sbgb-list.component";
-import {Store} from "@ngrx/store";
-import {selectImageBuild, selectImageIsBuilding} from "../state/sbgb.selectors";
-import {ActionBarComponent, ActionBarButton} from "../../shared/components/action-bar/action-bar.component";
-import {GeneratorShellComponent} from "../../shared/components/generator-shell/generator-shell.component";
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { SbgbParamComponent } from "../sbgb-param/sbgb-param.component";
+import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
+import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
+import { Store } from "@ngrx/store";
+import { selectImageBuild, selectImageIsBuilding } from "../state/sbgb.selectors";
+import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
+import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 
-import {Sbgb} from "../sbgb.model";
+import { Sbgb } from "../sbgb.model";
 
 @Component({
-    selector: 'app-sbgb-shell',
-    imports: [
-        GeneratorShellComponent,
-        SbgbParamComponent,
-        SbgbImageComponent,
-        SbgbListComponent,
-        ActionBarComponent
-    ],
-    templateUrl: './sbgb-shell.component.html',
-    styleUrl: './sbgb-shell.component.scss'
+  selector: 'app-sbgb-shell',
+  imports: [
+    GeneratorShellComponent,
+    SbgbParamComponent,
+    SbgbImageComponent,
+    SbgbListComponent,
+    ActionBarComponent
+  ],
+  templateUrl: './sbgb-shell.component.html',
+  styleUrl: './sbgb-shell.component.scss'
 })
-export class SbgbShellComponent {
+export class SbgbShellComponent implements AfterViewInit {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(SbgbParamComponent) paramComponent!: SbgbParamComponent;
   @ViewChild(SbgbListComponent) listComponent!: SbgbListComponent;
@@ -29,7 +29,11 @@ export class SbgbShellComponent {
   hasBuiltImage = this.store.selectSignal(selectImageBuild);
   isGenerating = this.store.selectSignal(selectImageIsBuilding);
 
-  constructor(private store: Store) {}
+  constructor(private store: Store, private cdr: ChangeDetectorRef) { }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
 
   // Action bar buttons configuration
   get actionBarButtons(): ActionBarButton[] {

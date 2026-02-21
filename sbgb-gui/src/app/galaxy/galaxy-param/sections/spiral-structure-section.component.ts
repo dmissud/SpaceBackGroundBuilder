@@ -52,6 +52,11 @@ import { MatButton } from '@angular/material/button';
           <input type="number" matInput formControlName="armRotation" step="0.5" min="1">
           <mat-icon matSuffix matTooltip="Enroulement de la spirale">help_outline</mat-icon>
         </mat-form-field>
+        <mat-form-field>
+          <mat-label>Opacité sombre</mat-label>
+          <input type="number" matInput formControlName="darkLaneOpacity" step="0.1" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Opacité des bandes de poussière sombre (0-1)">help_outline</mat-icon>
+        </mat-form-field>
       </div>
     </mat-expansion-panel>
   `,

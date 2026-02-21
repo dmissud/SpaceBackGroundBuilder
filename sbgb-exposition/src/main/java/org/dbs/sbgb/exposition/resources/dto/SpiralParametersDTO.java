@@ -13,4 +13,5 @@ public class SpiralParametersDTO {
     private Integer numberOfArms;
     private Double armWidth;
     private Double armRotation;
+    private Double darkLaneOpacity;
 }
