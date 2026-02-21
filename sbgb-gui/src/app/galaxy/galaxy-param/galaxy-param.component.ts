@@ -1,22 +1,22 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatAccordion} from "@angular/material/expansion";
-import {MatIcon} from "@angular/material/icon";
-import {MatTooltip} from "@angular/material/tooltip";
-import {GalaxyService} from "../galaxy.service";
-import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
-import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
-import {PresetsSectionComponent} from "./sections/presets-section.component";
-import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
-import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
-import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
-import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
-import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
-import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
-import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
-import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
-import {ColorsSectionComponent} from "./sections/colors-section.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatAccordion } from "@angular/material/expansion";
+import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
+import { GalaxyService } from "../galaxy.service";
+import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
+import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
+import { PresetsSectionComponent } from "./sections/presets-section.component";
+import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
+import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
+import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
+import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
+import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
+import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
+import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
+import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
+import { ColorsSectionComponent } from "./sections/colors-section.component";
 
 
 @Component({
@@ -56,12 +56,12 @@ export class GalaxyParamComponent implements OnInit {
 
   // Representative colors for each predefined palette (Space, Core, Arms, Outer)
   private readonly PALETTE_COLORS: Record<string, { space: string, core: string, arms: string, outer: string }> = {
-    'CLASSIC': {space: '#05050f', core: '#fffadc', arms: '#b4c8ff', outer: '#3c5078'},
-    'NEBULA': {space: '#05050f', core: '#f0e6c8', arms: '#781e64', outer: '#3c8cd2'},
-    'WARM': {space: '#0a0505', core: '#fffaf0', arms: '#c86428', outer: '#8c3214'},
-    'COLD': {space: '#02050f', core: '#f0faff', arms: '#288cc8', outer: '#145096'},
-    'INFRARED': {space: '#000005', core: '#ffffc8', arms: '#b43c1e', outer: '#641414'},
-    'EMERALD': {space: '#020a08', core: '#f0fff0', arms: '#28b478', outer: '#146446'}
+    'CLASSIC': { space: '#05050f', core: '#fffadc', arms: '#b4c8ff', outer: '#3c5078' },
+    'NEBULA': { space: '#05050f', core: '#f0e6c8', arms: '#781e64', outer: '#3c8cd2' },
+    'WARM': { space: '#0a0505', core: '#fffaf0', arms: '#c86428', outer: '#8c3214' },
+    'COLD': { space: '#02050f', core: '#f0faff', arms: '#288cc8', outer: '#145096' },
+    'INFRARED': { space: '#000005', core: '#ffffc8', arms: '#b43c1e', outer: '#641414' },
+    'EMERALD': { space: '#020a08', core: '#f0fff0', arms: '#28b478', outer: '#146446' }
   };
 
   constructor(
@@ -152,7 +152,7 @@ export class GalaxyParamComponent implements OnInit {
             armColor: colors.arms,
             outerColor: colors.outer
           }
-        }, {emitEvent: false}); // Prevent infinite loop Triggering the individual color watcher
+        }, { emitEvent: false }); // Prevent infinite loop Triggering the individual color watcher
       }
     });
 
@@ -166,7 +166,7 @@ export class GalaxyParamComponent implements OnInit {
             colorParameters: {
               colorPalette: 'CUSTOM'
             }
-          }, {emitEvent: false});
+          }, { emitEvent: false });
         }
       });
     });
@@ -579,6 +579,32 @@ export class GalaxyParamComponent implements OnInit {
     this.generateGalaxy();
   }
 
+  private readonly BEAUTIFUL_STARFIELD = {
+    enabled: true,
+    density: 0.003,
+    maxStarSize: 4,
+    diffractionSpikes: true,
+    spikeCount: 4
+  };
+
+  private readonly DENSE_STARFIELD = {
+    enabled: true,
+    density: 0.008,
+    maxStarSize: 3,
+    diffractionSpikes: false,
+    spikeCount: 4
+  };
+
+  private readonly BEAUTIFUL_MULTILAYER_NOISE = {
+    enabled: true,
+    macroLayerScale: 0.8,
+    macroLayerWeight: 0.6,
+    mesoLayerScale: 2.2,
+    mesoLayerWeight: 0.25,
+    microLayerScale: 6.0,
+    microLayerWeight: 0.15
+  };
+
   loadPreset(preset: string): void {
     switch (preset) {
       case 'CLASSIC':
@@ -586,178 +612,235 @@ export class GalaxyParamComponent implements OnInit {
           coreSize: 0.05,
           galaxyRadius: 1500,
           spiralParameters: { numberOfArms: 2, armWidth: 80, armRotation: 4 },
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'BARRED':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 2, armWidth: 100, armRotation: 3 },
-          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 }
+          spiralParameters: { numberOfArms: 2, armWidth: 100, armRotation: 1.5 },
+          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 },
+          warpStrength: 20,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'MULTI_ARM':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
-          galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 3, armWidth: 70, armRotation: 5 },
-          noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180 }
+          galaxyRadius: 1600,
+          spiralParameters: { numberOfArms: 4, armWidth: 50, armRotation: 5.5 },
+          noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180 },
+          warpStrength: 45,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'SPIRAL_GRAND_DESIGN':
         this.galaxyForm.patchValue({
           coreSize: 0.06,
-          galaxyRadius: 1600,
-          spiralParameters: { numberOfArms: 2, armWidth: 120, armRotation: 3.5 },
-          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2, scale: 220},
-          warpStrength: 50
+          galaxyRadius: 1800,
+          spiralParameters: { numberOfArms: 2, armWidth: 110, armRotation: 3.5 },
+          noiseParameters: { octaves: 5, persistence: 0.45, lacunarity: 2.0, scale: 220 },
+          warpStrength: 10,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'SPIRAL_FLOCCULENT':
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1400,
-          spiralParameters: { numberOfArms: 4, armWidth: 60, armRotation: 6 },
-          noiseParameters: { octaves: 8, persistence: 0.7, lacunarity: 2.8, scale: 120 },
-          warpStrength: 80
+          spiralParameters: { numberOfArms: 5, armWidth: 40, armRotation: 6 },
+          noiseParameters: { octaves: 8, persistence: 0.75, lacunarity: 2.8, scale: 110 },
+          warpStrength: 120,
+          starFieldParameters: this.DENSE_STARFIELD,
+          multiLayerNoiseParameters: {
+            enabled: true,
+            macroLayerScale: 0.5,
+            macroLayerWeight: 0.4,
+            mesoLayerScale: 3.5,
+            mesoLayerWeight: 0.4,
+            microLayerScale: 8.0,
+            microLayerWeight: 0.2
+          }
         });
         break;
       case 'SPIRAL_TIGHTLY_WOUND':
         this.galaxyForm.patchValue({
-          coreSize: 0.07,
+          coreSize: 0.08,
           galaxyRadius: 1500,
-          spiralParameters: { numberOfArms: 3, armWidth: 50, armRotation: 8 },
-          noiseParameters: { octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180 }
+          spiralParameters: { numberOfArms: 3, armWidth: 50, armRotation: 9 },
+          noiseParameters: { octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'VORONOI_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          voronoiParameters: { clusterCount: 80, clusterSize: 60, clusterConcentration: 0.7 },
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          voronoiParameters: { clusterCount: 150, clusterSize: 60, clusterConcentration: 0.75 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'VORONOI_DENSE':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
-          galaxyRadius: 1500,
-          voronoiParameters: { clusterCount: 200, clusterSize: 40, clusterConcentration: 0.85 },
-          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 }
+          galaxyRadius: 1600,
+          voronoiParameters: { clusterCount: 380, clusterSize: 35, clusterConcentration: 0.92 },
+          noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.4, scale: 130 },
+          starFieldParameters: this.DENSE_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'VORONOI_SPARSE':
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1500,
-          voronoiParameters: { clusterCount: 30, clusterSize: 90, clusterConcentration: 0.4 },
-          noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 }
+          voronoiParameters: { clusterCount: 45, clusterSize: 100, clusterConcentration: 0.5 },
+          noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'VORONOI_GLOBULAR':
         this.galaxyForm.patchValue({
           coreSize: 0.02,
           galaxyRadius: 1300,
-          voronoiParameters: { clusterCount: 150, clusterSize: 30, clusterConcentration: 0.95 },
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 180}
+          voronoiParameters: { clusterCount: 250, clusterSize: 45, clusterConcentration: 0.98 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 180 },
+          starFieldParameters: this.DENSE_STARFIELD
         });
         break;
       case 'ELLIPTICAL_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 4, axisRatio: 0.7, orientationAngle: 45},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          ellipticalParameters: { sersicIndex: 4.0, axisRatio: 0.7, orientationAngle: 45 },
+          noiseParameters: { octaves: 3, persistence: 0.3, lacunarity: 2.0, scale: 220 },
+          starFieldParameters: this.DENSE_STARFIELD
         });
         break;
       case 'ELLIPTICAL_ROUND':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
-          galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 2, axisRatio: 0.95, orientationAngle: 0},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          galaxyRadius: 1600,
+          ellipticalParameters: { sersicIndex: 3.5, axisRatio: 0.95, orientationAngle: 0 },
+          noiseParameters: { octaves: 3, persistence: 0.25, lacunarity: 2.0, scale: 250 },
+          starFieldParameters: this.DENSE_STARFIELD
         });
         break;
       case 'ELLIPTICAL_FLAT':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 6, axisRatio: 0.4, orientationAngle: 30},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          ellipticalParameters: { sersicIndex: 5.0, axisRatio: 0.35, orientationAngle: 30 },
+          noiseParameters: { octaves: 4, persistence: 0.4, lacunarity: 2.2, scale: 200 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'ELLIPTICAL_GIANT':
         this.galaxyForm.patchValue({
           coreSize: 0.1,
-          galaxyRadius: 1800,
-          ellipticalParameters: {sersicIndex: 8, axisRatio: 0.85, orientationAngle: 0},
-          noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 }
+          galaxyRadius: 1900,
+          ellipticalParameters: { sersicIndex: 8.0, axisRatio: 0.85, orientationAngle: 0 },
+          noiseParameters: { octaves: 2, persistence: 0.3, lacunarity: 1.8, scale: 280 },
+          starFieldParameters: {
+            enabled: true,
+            density: 0.01,
+            maxStarSize: 2,
+            diffractionSpikes: false,
+            spikeCount: 4
+          }
         });
         break;
       case 'RING_DEFAULT':
         this.galaxyForm.patchValue({
-          coreSize: 0.05,
+          coreSize: 0.06,
           galaxyRadius: 1500,
-          ringParameters: {ringRadius: 900, ringWidth: 150, ringIntensity: 1, coreToRingRatio: 0.3},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          ringParameters: { ringRadius: 900, ringWidth: 150, ringIntensity: 1.1, coreToRingRatio: 0.35 },
+          noiseParameters: { octaves: 5, persistence: 0.5, lacunarity: 2.0, scale: 200 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'RING_WIDE':
         this.galaxyForm.patchValue({
-          coreSize: 0.03,
-          galaxyRadius: 1500,
-          ringParameters: { ringRadius: 1000, ringWidth: 250, ringIntensity: 0.8, coreToRingRatio: 0.2 },
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2, scale: 200}
+          coreSize: 0.04,
+          galaxyRadius: 1600,
+          ringParameters: { ringRadius: 1000, ringWidth: 320, ringIntensity: 0.95, coreToRingRatio: 0.2 },
+          noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.2, scale: 190 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'RING_BRIGHT':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          ringParameters: { ringRadius: 800, ringWidth: 120, ringIntensity: 1.2, coreToRingRatio: 0.5 },
-          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 180 }
+          ringParameters: { ringRadius: 750, ringWidth: 110, ringIntensity: 1.5, coreToRingRatio: 0.5 },
+          noiseParameters: { octaves: 7, persistence: 0.65, lacunarity: 2.4, scale: 160 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: {
+            enabled: true,
+            macroLayerScale: 1.5,
+            macroLayerWeight: 0.6,
+            mesoLayerScale: 4.0,
+            mesoLayerWeight: 0.3,
+            microLayerScale: 9.0,
+            microLayerWeight: 0.1
+          }
         });
         break;
       case 'RING_THIN':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          ringParameters: { ringRadius: 950, ringWidth: 80, ringIntensity: 1.5, coreToRingRatio: 0.2 },
-          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2, scale: 220}
+          ringParameters: { ringRadius: 950, ringWidth: 80, ringIntensity: 1.8, coreToRingRatio: 0.2 },
+          noiseParameters: { octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220 },
+          starFieldParameters: this.DENSE_STARFIELD
         });
         break;
       case 'RING_DOUBLE':
         this.galaxyForm.patchValue({
-          coreSize: 0.06,
-          galaxyRadius: 1600,
-          ringParameters: { ringRadius: 700, ringWidth: 200, ringIntensity: 0.9, coreToRingRatio: 0.4 },
+          coreSize: 0.07,
+          galaxyRadius: 1700,
+          ringParameters: { ringRadius: 650, ringWidth: 250, ringIntensity: 1.0, coreToRingRatio: 0.45 },
           noiseParameters: { octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 160 },
-          warpStrength: 30
+          warpStrength: 45,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
       case 'IRREGULAR_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1500,
-          irregularParameters: { irregularity: 0.8, irregularClumpCount: 15, irregularClumpSize: 80 },
-          noiseParameters: { octaves: 6, persistence: 0.7, lacunarity: 2.5, scale: 150 }
+          irregularParameters: { irregularity: 0.9, irregularClumpCount: 22, irregularClumpSize: 90 },
+          noiseParameters: { octaves: 7, persistence: 0.75, lacunarity: 2.6, scale: 140 },
+          warpStrength: 90,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'IRREGULAR_CHAOTIC':
         this.galaxyForm.patchValue({
           coreSize: 0.02,
-          galaxyRadius: 1500,
-          irregularParameters: { irregularity: 0.95, irregularClumpCount: 25, irregularClumpSize: 60 },
-          noiseParameters: {octaves: 8, persistence: 0.8, lacunarity: 3, scale: 120}
+          galaxyRadius: 1700,
+          irregularParameters: { irregularity: 1.0, irregularClumpCount: 45, irregularClumpSize: 70 },
+          noiseParameters: { octaves: 8, persistence: 0.85, lacunarity: 3.2, scale: 100 },
+          warpStrength: 250,
+          starFieldParameters: this.DENSE_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
         });
         break;
       case 'IRREGULAR_DWARF':
         this.galaxyForm.patchValue({
-          coreSize: 0.05,
-          galaxyRadius: 1500,
-          irregularParameters: { irregularity: 0.7, irregularClumpCount: 8, irregularClumpSize: 100 },
-          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2, scale: 200}
+          coreSize: 0.06,
+          galaxyRadius: 1200,
+          irregularParameters: { irregularity: 0.8, irregularClumpCount: 12, irregularClumpSize: 60 },
+          noiseParameters: { octaves: 5, persistence: 0.65, lacunarity: 2.2, scale: 200 },
+          starFieldParameters: this.BEAUTIFUL_STARFIELD
         });
         break;
     }
