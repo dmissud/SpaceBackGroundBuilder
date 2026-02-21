@@ -1,28 +1,28 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatAccordion} from "@angular/material/expansion";
-import {MatIconButton} from "@angular/material/button";
-import {MatIcon} from "@angular/material/icon";
-import {MatTooltip} from "@angular/material/tooltip";
-import {GalaxyService} from "../galaxy.service";
-import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
-import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
-import {PresetsSectionComponent} from "./sections/presets-section.component";
-import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
-import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
-import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
-import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
-import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
-import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
-import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
-import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
-import {ColorsSectionComponent} from "./sections/colors-section.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatAccordion } from "@angular/material/expansion";
+import { MatIconButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { MatTooltip } from "@angular/material/tooltip";
+import { GalaxyService } from "../galaxy.service";
+import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
+import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
+import { PresetsSectionComponent } from "./sections/presets-section.component";
+import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
+import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
+import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
+import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
+import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
+import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
+import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
+import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
+import { ColorsSectionComponent } from "./sections/colors-section.component";
 
 
 @Component({
-    selector: 'app-galaxy-param',
-    imports: [
+  selector: 'app-galaxy-param',
+  imports: [
     ReactiveFormsModule,
     MatAccordion,
     MatIconButton,
@@ -39,9 +39,9 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
     ColorsSectionComponent
-],
-    templateUrl: './galaxy-param.component.html',
-    styleUrl: './galaxy-param.component.scss'
+  ],
+  templateUrl: './galaxy-param.component.html',
+  styleUrl: './galaxy-param.component.scss'
 })
 export class GalaxyParamComponent implements OnInit {
 
@@ -58,7 +58,7 @@ export class GalaxyParamComponent implements OnInit {
   constructor(
     private galaxyService: GalaxyService,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.galaxyForm = new FormGroup({
@@ -103,6 +103,7 @@ export class GalaxyParamComponent implements OnInit {
         irregularClumpSize: new FormControl(80, [Validators.min(20)])
       }),
       starFieldParameters: new FormGroup({
+        enabled: new FormControl(false),
         density: new FormControl(0, [Validators.min(0), Validators.max(0.01)]),
         maxStarSize: new FormControl(4, [Validators.min(1), Validators.max(10)]),
         diffractionSpikes: new FormControl(false),
@@ -215,7 +216,7 @@ export class GalaxyParamComponent implements OnInit {
 
   generateGalaxy(): void {
     if (this.galaxyForm.invalid) {
-      this.snackBar.open('Please fill all required fields', 'Close', {duration: 3000});
+      this.snackBar.open('Please fill all required fields', 'Close', { duration: 3000 });
       return;
     }
 
@@ -232,11 +233,11 @@ export class GalaxyParamComponent implements OnInit {
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
         this.builtGalaxyParams = JSON.parse(JSON.stringify(this.galaxyForm.value));
-        this.snackBar.open('Galaxy generated successfully!', 'Close', {duration: 3000});
+        this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
       },
       error: (error) => {
         console.error('Error generating galaxy:', error);
-        this.snackBar.open('Error generating galaxy', 'Close', {duration: 3000});
+        this.snackBar.open('Error generating galaxy', 'Close', { duration: 3000 });
         this.isGenerating = false;
       }
     });
@@ -244,7 +245,7 @@ export class GalaxyParamComponent implements OnInit {
 
   saveGalaxy(): void {
     if (this.galaxyForm.invalid) {
-      this.snackBar.open('Please fill all required fields', 'Close', {duration: 3000});
+      this.snackBar.open('Please fill all required fields', 'Close', { duration: 3000 });
       return;
     }
 
@@ -258,7 +259,7 @@ export class GalaxyParamComponent implements OnInit {
       next: (galaxy) => {
         this.isGenerating = false;
         this.loadedGalaxyName = galaxy.name;
-        this.snackBar.open(`Galaxy "${galaxy.name}" saved successfully!`, 'Close', {duration: 3000});
+        this.snackBar.open(`Galaxy "${galaxy.name}" saved successfully!`, 'Close', { duration: 3000 });
       },
       error: (error) => {
         this.isGenerating = false;
@@ -272,18 +273,18 @@ export class GalaxyParamComponent implements OnInit {
               next: (galaxy) => {
                 this.isGenerating = false;
                 this.loadedGalaxyName = galaxy.name;
-                this.snackBar.open(`Galaxy "${galaxy.name}" updated successfully!`, 'Close', {duration: 3000});
+                this.snackBar.open(`Galaxy "${galaxy.name}" updated successfully!`, 'Close', { duration: 3000 });
               },
               error: (err) => {
                 console.error('Error updating galaxy:', err);
-                this.snackBar.open('Error updating galaxy', 'Close', {duration: 3000});
+                this.snackBar.open('Error updating galaxy', 'Close', { duration: 3000 });
                 this.isGenerating = false;
               }
             });
           }
         } else {
           console.error('Error saving galaxy:', error);
-          this.snackBar.open('Error saving galaxy', 'Close', {duration: 3000});
+          this.snackBar.open('Error saving galaxy', 'Close', { duration: 3000 });
         }
       }
     });
@@ -328,6 +329,19 @@ export class GalaxyParamComponent implements OnInit {
         maxStarSize: Math.floor(2 + Math.random() * 7),  // 2-8
         diffractionSpikes: hasSpikes,
         spikeCount: hasSpikes ? (Math.random() > 0.5 ? 6 : 4) : 4
+      }
+    });
+  }
+
+  randomizeMultiLayerNoise(): void {
+    this.galaxyForm.patchValue({
+      multiLayerNoiseParameters: {
+        macroLayerScale: +(0.1 + Math.random() * 4.9).toFixed(1),
+        macroLayerWeight: +(Math.random()).toFixed(2),
+        mesoLayerScale: +(0.1 + Math.random() * 4.9).toFixed(1),
+        mesoLayerWeight: +(Math.random()).toFixed(2),
+        microLayerScale: +(0.1 + Math.random() * 9.9).toFixed(1),
+        microLayerWeight: +(Math.random()).toFixed(2)
       }
     });
   }
@@ -391,6 +405,7 @@ export class GalaxyParamComponent implements OnInit {
     this.randomizeNoise();
     this.randomizeWarping();
     this.randomizeStarField();
+    this.randomizeMultiLayerNoise();
 
     switch (galaxyType) {
       case 'SPIRAL':
@@ -515,32 +530,32 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          spiralParameters: {numberOfArms: 2, armWidth: 80, armRotation: 4},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          spiralParameters: { numberOfArms: 2, armWidth: 80, armRotation: 4 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'BARRED':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          spiralParameters: {numberOfArms: 2, armWidth: 100, armRotation: 3},
-          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150}
+          spiralParameters: { numberOfArms: 2, armWidth: 100, armRotation: 3 },
+          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 }
         });
         break;
       case 'MULTI_ARM':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          spiralParameters: {numberOfArms: 3, armWidth: 70, armRotation: 5},
-          noiseParameters: {octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180}
+          spiralParameters: { numberOfArms: 3, armWidth: 70, armRotation: 5 },
+          noiseParameters: { octaves: 6, persistence: 0.55, lacunarity: 2.1, scale: 180 }
         });
         break;
       case 'SPIRAL_GRAND_DESIGN':
         this.galaxyForm.patchValue({
           coreSize: 0.06,
           galaxyRadius: 1600,
-          spiralParameters: {numberOfArms: 2, armWidth: 120, armRotation: 3.5},
-          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220},
+          spiralParameters: { numberOfArms: 2, armWidth: 120, armRotation: 3.5 },
+          noiseParameters: { octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220 },
           warpStrength: 50
         });
         break;
@@ -548,8 +563,8 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1400,
-          spiralParameters: {numberOfArms: 4, armWidth: 60, armRotation: 6},
-          noiseParameters: {octaves: 8, persistence: 0.7, lacunarity: 2.8, scale: 120},
+          spiralParameters: { numberOfArms: 4, armWidth: 60, armRotation: 6 },
+          noiseParameters: { octaves: 8, persistence: 0.7, lacunarity: 2.8, scale: 120 },
           warpStrength: 80
         });
         break;
@@ -557,112 +572,112 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.07,
           galaxyRadius: 1500,
-          spiralParameters: {numberOfArms: 3, armWidth: 50, armRotation: 8},
-          noiseParameters: {octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180}
+          spiralParameters: { numberOfArms: 3, armWidth: 50, armRotation: 8 },
+          noiseParameters: { octaves: 5, persistence: 0.5, lacunarity: 2.2, scale: 180 }
         });
         break;
       case 'VORONOI_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          voronoiParameters: {clusterCount: 80, clusterSize: 60, clusterConcentration: 0.7},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          voronoiParameters: { clusterCount: 80, clusterSize: 60, clusterConcentration: 0.7 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'VORONOI_DENSE':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          voronoiParameters: {clusterCount: 200, clusterSize: 40, clusterConcentration: 0.85},
-          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150}
+          voronoiParameters: { clusterCount: 200, clusterSize: 40, clusterConcentration: 0.85 },
+          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 150 }
         });
         break;
       case 'VORONOI_SPARSE':
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1500,
-          voronoiParameters: {clusterCount: 30, clusterSize: 90, clusterConcentration: 0.4},
-          noiseParameters: {octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250}
+          voronoiParameters: { clusterCount: 30, clusterSize: 90, clusterConcentration: 0.4 },
+          noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 }
         });
         break;
       case 'VORONOI_GLOBULAR':
         this.galaxyForm.patchValue({
           coreSize: 0.02,
           galaxyRadius: 1300,
-          voronoiParameters: {clusterCount: 150, clusterSize: 30, clusterConcentration: 0.95},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 180}
+          voronoiParameters: { clusterCount: 150, clusterSize: 30, clusterConcentration: 0.95 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 180 }
         });
         break;
       case 'ELLIPTICAL_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 4.0, axisRatio: 0.7, orientationAngle: 45},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          ellipticalParameters: { sersicIndex: 4.0, axisRatio: 0.7, orientationAngle: 45 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'ELLIPTICAL_ROUND':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 2.0, axisRatio: 0.95, orientationAngle: 0},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          ellipticalParameters: { sersicIndex: 2.0, axisRatio: 0.95, orientationAngle: 0 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'ELLIPTICAL_FLAT':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          ellipticalParameters: {sersicIndex: 6.0, axisRatio: 0.4, orientationAngle: 30},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          ellipticalParameters: { sersicIndex: 6.0, axisRatio: 0.4, orientationAngle: 30 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'ELLIPTICAL_GIANT':
         this.galaxyForm.patchValue({
           coreSize: 0.1,
           galaxyRadius: 1800,
-          ellipticalParameters: {sersicIndex: 8.0, axisRatio: 0.85, orientationAngle: 0},
-          noiseParameters: {octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250}
+          ellipticalParameters: { sersicIndex: 8.0, axisRatio: 0.85, orientationAngle: 0 },
+          noiseParameters: { octaves: 3, persistence: 0.4, lacunarity: 1.8, scale: 250 }
         });
         break;
       case 'RING_DEFAULT':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          ringParameters: {ringRadius: 900, ringWidth: 150, ringIntensity: 1.0, coreToRingRatio: 0.3},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          ringParameters: { ringRadius: 900, ringWidth: 150, ringIntensity: 1.0, coreToRingRatio: 0.3 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'RING_WIDE':
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1500,
-          ringParameters: {ringRadius: 1000, ringWidth: 250, ringIntensity: 0.8, coreToRingRatio: 0.2},
-          noiseParameters: {octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200}
+          ringParameters: { ringRadius: 1000, ringWidth: 250, ringIntensity: 0.8, coreToRingRatio: 0.2 },
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 }
         });
         break;
       case 'RING_BRIGHT':
         this.galaxyForm.patchValue({
           coreSize: 0.08,
           galaxyRadius: 1500,
-          ringParameters: {ringRadius: 800, ringWidth: 120, ringIntensity: 1.2, coreToRingRatio: 0.5},
-          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 180}
+          ringParameters: { ringRadius: 800, ringWidth: 120, ringIntensity: 1.2, coreToRingRatio: 0.5 },
+          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.2, scale: 180 }
         });
         break;
       case 'RING_THIN':
         this.galaxyForm.patchValue({
           coreSize: 0.04,
           galaxyRadius: 1500,
-          ringParameters: {ringRadius: 950, ringWidth: 80, ringIntensity: 1.5, coreToRingRatio: 0.2},
-          noiseParameters: {octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220}
+          ringParameters: { ringRadius: 950, ringWidth: 80, ringIntensity: 1.5, coreToRingRatio: 0.2 },
+          noiseParameters: { octaves: 4, persistence: 0.45, lacunarity: 2.0, scale: 220 }
         });
         break;
       case 'RING_DOUBLE':
         this.galaxyForm.patchValue({
           coreSize: 0.06,
           galaxyRadius: 1600,
-          ringParameters: {ringRadius: 700, ringWidth: 200, ringIntensity: 0.9, coreToRingRatio: 0.4},
-          noiseParameters: {octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 160},
+          ringParameters: { ringRadius: 700, ringWidth: 200, ringIntensity: 0.9, coreToRingRatio: 0.4 },
+          noiseParameters: { octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 160 },
           warpStrength: 30
         });
         break;
@@ -670,24 +685,24 @@ export class GalaxyParamComponent implements OnInit {
         this.galaxyForm.patchValue({
           coreSize: 0.03,
           galaxyRadius: 1500,
-          irregularParameters: {irregularity: 0.8, irregularClumpCount: 15, irregularClumpSize: 80},
-          noiseParameters: {octaves: 6, persistence: 0.7, lacunarity: 2.5, scale: 150}
+          irregularParameters: { irregularity: 0.8, irregularClumpCount: 15, irregularClumpSize: 80 },
+          noiseParameters: { octaves: 6, persistence: 0.7, lacunarity: 2.5, scale: 150 }
         });
         break;
       case 'IRREGULAR_CHAOTIC':
         this.galaxyForm.patchValue({
           coreSize: 0.02,
           galaxyRadius: 1500,
-          irregularParameters: {irregularity: 0.95, irregularClumpCount: 25, irregularClumpSize: 60},
-          noiseParameters: {octaves: 8, persistence: 0.8, lacunarity: 3.0, scale: 120}
+          irregularParameters: { irregularity: 0.95, irregularClumpCount: 25, irregularClumpSize: 60 },
+          noiseParameters: { octaves: 8, persistence: 0.8, lacunarity: 3.0, scale: 120 }
         });
         break;
       case 'IRREGULAR_DWARF':
         this.galaxyForm.patchValue({
           coreSize: 0.05,
           galaxyRadius: 1500,
-          irregularParameters: {irregularity: 0.7, irregularClumpCount: 8, irregularClumpSize: 100},
-          noiseParameters: {octaves: 5, persistence: 0.6, lacunarity: 2.0, scale: 200}
+          irregularParameters: { irregularity: 0.7, irregularClumpCount: 8, irregularClumpSize: 100 },
+          noiseParameters: { octaves: 5, persistence: 0.6, lacunarity: 2.0, scale: 200 }
         });
         break;
     }

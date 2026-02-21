@@ -1,10 +1,11 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
-import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
-import {MatInput} from '@angular/material/input';
-import {MatIcon} from '@angular/material/icon';
-import {MatTooltip} from '@angular/material/tooltip';
+import { Component, Input } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-core-radius-section',
@@ -19,7 +20,8 @@ import {MatTooltip} from '@angular/material/tooltip';
     MatInput,
     MatIcon,
     MatTooltip,
-    MatSuffix
+    MatSuffix,
+    MatButton
   ],
   template: `
     <mat-expansion-panel [formGroup]="formGroup">
@@ -29,6 +31,11 @@ import {MatTooltip} from '@angular/material/tooltip';
           &nbsp; Noyau et rayon
         </mat-panel-title>
       </mat-expansion-panel-header>
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <button mat-button color="accent" (click)="onRandomize()" type="button">
+          <mat-icon>shuffle</mat-icon> Aléatoire
+        </button>
+      </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <mat-form-field style="flex: 1;">
           <mat-label>Taille du noyau</mat-label>
@@ -47,4 +54,5 @@ import {MatTooltip} from '@angular/material/tooltip';
 })
 export class CoreRadiusSectionComponent {
   @Input() formGroup!: FormGroup;
+  @Input() onRandomize!: () => void;
 }

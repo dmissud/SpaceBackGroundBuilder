@@ -1,11 +1,12 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
-import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
-import {MatInput} from '@angular/material/input';
-import {MatIcon} from '@angular/material/icon';
-import {MatTooltip} from '@angular/material/tooltip';
-import {MatOption, MatSelect} from '@angular/material/select';
+import { Component, Input } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-colors-section',
@@ -22,7 +23,8 @@ import {MatOption, MatSelect} from '@angular/material/select';
     MatTooltip,
     MatSuffix,
     MatSelect,
-    MatOption
+    MatOption,
+    MatButton
   ],
   template: `
     <mat-expansion-panel [formGroup]="formGroup">
@@ -32,6 +34,12 @@ import {MatOption, MatSelect} from '@angular/material/select';
           &nbsp; Couleurs
         </mat-panel-title>
       </mat-expansion-panel-header>
+
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <button mat-button color="accent" (click)="onRandomize()" type="button">
+          <mat-icon>shuffle</mat-icon> Aléatoire
+        </button>
+      </div>
 
       <!-- Color Palette -->
       <div formGroupName="colorParameters">
@@ -82,4 +90,5 @@ import {MatOption, MatSelect} from '@angular/material/select';
 })
 export class ColorsSectionComponent {
   @Input() formGroup!: FormGroup;
+  @Input() onRandomize!: () => void;
 }
