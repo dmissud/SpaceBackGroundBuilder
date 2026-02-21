@@ -8,13 +8,14 @@ import lombok.Builder;
 
 @Builder
 public record StarFieldParameters(
+        boolean enabled,
         @DecimalMin("0.0") @DecimalMax("0.01") double density,
         @Min(1) @Max(10) int maxStarSize,
         boolean diffractionSpikes,
-        @Min(4) @Max(8) int spikeCount
-) {
+        @Min(4) @Max(8) int spikeCount) {
     public static StarFieldParameters noStars() {
         return StarFieldParameters.builder()
+                .enabled(false)
                 .density(0.0)
                 .maxStarSize(4)
                 .diffractionSpikes(false)

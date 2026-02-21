@@ -12,6 +12,12 @@ import lombok.Value;
 public class StarFieldParameters {
 
     /**
+     * Whether the star field is enabled
+     */
+    @Builder.Default
+    boolean enabled = false;
+
+    /**
      * Density of stars (0.0-0.01, typical 0.001)
      * Number of stars = density * width * height
      */
@@ -40,6 +46,6 @@ public class StarFieldParameters {
      * Check if star field is enabled
      */
     public boolean isEnabled() {
-        return starDensity > 0.0;
+        return enabled;
     }
 }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class StarFieldParametersDTO {
+    private boolean enabled;
     private double density;
     private int maxStarSize;
     private boolean diffractionSpikes;

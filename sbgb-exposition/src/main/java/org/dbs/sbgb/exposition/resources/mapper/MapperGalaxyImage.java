@@ -97,6 +97,7 @@ public interface MapperGalaxyImage {
                                                                                 .build()
                                                                 : null)
                                 .starFieldParameters(structure.getStarField() != null ? StarFieldParametersDTO.builder()
+                                                .enabled(structure.getStarField().isStarFieldEnabled())
                                                 .density(structure.getStarField().getStarDensity())
                                                 .maxStarSize(structure.getStarField().getMaxStarSize())
                                                 .diffractionSpikes(structure.getStarField().isDiffractionSpikes())

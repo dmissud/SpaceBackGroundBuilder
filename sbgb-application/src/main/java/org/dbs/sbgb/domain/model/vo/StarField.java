@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StarField {
+    private boolean starFieldEnabled;
     private double starDensity;
     private int maxStarSize;
     private boolean diffractionSpikes;
