@@ -64,7 +64,8 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_DEFAULT')">E3 Classic</button>
           <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_ROUND')">E0 Round</button>
           <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_FLAT')">E6 Flat</button>
-          <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_GIANT')">Giant</button>
+          <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_GIANT')">Giant cD</button>
+          <button mat-raised-button (click)="onLoadPreset('ELLIPTICAL_LENTICULAR')">Lenticulaire</button>
         </div>
       }
       @if (formGroup.controls['galaxyType'].value === 'RING') {

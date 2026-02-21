@@ -18,4 +18,10 @@ public record EllipticalPresets(
 
     public static final EllipticalPresets FLAT = new EllipticalPresets(
             "FLAT", 6.0, 0.4, 30.0, 0.04, 1500.0);
+
+    public static final EllipticalPresets GIANT = new EllipticalPresets(
+            "GIANT", 8.0, 0.85, 0.0, 0.10, 1900.0);
+
+    public static final EllipticalPresets LENTICULAR = new EllipticalPresets(
+            "LENTICULAR", 1.5, 0.25, 90.0, 0.03, 1600.0);
 }
