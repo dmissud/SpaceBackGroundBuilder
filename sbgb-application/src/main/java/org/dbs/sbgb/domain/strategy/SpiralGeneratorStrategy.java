@@ -1,9 +1,9 @@
 package org.dbs.sbgb.domain.strategy;
 
-import org.dbs.sbgb.domain.model.SpiralGalaxyGenerator;
 import org.dbs.sbgb.domain.model.GalaxyIntensityCalculator;
 import org.dbs.sbgb.domain.model.GalaxyParameters;
 import org.dbs.sbgb.domain.model.GalaxyType;
+import org.dbs.sbgb.domain.model.SpiralGalaxyGenerator;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +16,7 @@ public class SpiralGeneratorStrategy implements GalaxyGeneratorStrategy {
         return SpiralGalaxyGenerator.builder()
                 .width(context.getWidth())
                 .height(context.getHeight())
-                .noiseGenerator(context.getNoiseGenerator())
+                .seed(context.getSeed())
                 .coreParameters(parameters.getCoreParameters())
                 .spiralParameters(parameters.getSpiralParameters())
                 .build();

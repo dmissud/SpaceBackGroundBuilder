@@ -1,5 +1,8 @@
 package org.dbs.sbgb.domain.model;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.pipeline.JNoise;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
@@ -7,23 +10,31 @@ import org.dbs.sbgb.domain.constant.RadialFalloffConstants;
 import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.SpiralStructureParameters;
 
+import java.util.concurrent.Executors;
+
 /**
- * Generator for realistic galaxy structures with spiral arms
- * Combines geometric calculations (radial distance, spiral rotation)
- * with Perlin noise for organic appearance
+ * Implementation of Spiral Galaxy Generator using JNoise 4.1.0 and Virtual
+ * Threads.
+ * Follows the specific mathematical requirements for logarithmic spiral arms.
  */
 @Slf4j
 public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
 
-    // Galaxy parameters (Value Objects)
     private final SpiralStructureParameters spiralParameters;
+    private final JNoise jNoise;
 
     public SpiralGalaxyGenerator(int width, int height,
-            PerlinGenerator noiseGenerator,
+                                 long seed,
             CoreParameters coreParameters,
             SpiralStructureParameters spiralParameters) {
-        super(width, height, noiseGenerator, coreParameters);
+        super(width, height, null, coreParameters);
         this.spiralParameters = spiralParameters;
+
+        // Initialize JNoise 4.1.0 pipeline for dust/grain modulation
+        this.jNoise = JNoise.newBuilder()
+                .perlin(seed, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
+                .scale(0.01) // Adjustable scale for grain
+                .build();
     }
 
     @Override
@@ -32,72 +43,74 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
         if (geo == null)
             return 0.0;
 
-        // Calculate angle from center
+        double r = geo.distance;
+        double c = coreParameters.getCoreSize() * coreParameters.getGalaxyRadius();
         double angle = Math.atan2(geo.dy, geo.dx);
 
-        // Calculate core intensity (bright center, exponential falloff)
-        double coreIntensity = calculateCoreIntensity(geo.normalizedDistance);
+        // Core Intensity (Exponential)
+        double coreIntensity = Math.exp(-r / c);
 
-        // Calculate spiral arm intensity
-        double armIntensity = calculateSpiralArmIntensity(angle, geo.normalizedDistance);
+        // Spiral Arm Intensity
+        double armIntensity = calculateSpiralArmIntensity(angle, r, c);
 
-        // Add noise for organic look
-        double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = NoiseModulationConstants.NOISE_BASE_CONTRIBUTION
-                + (noiseValue * NoiseModulationConstants.NOISE_MODULATION_RANGE);
+        // Geometric Intensity
+        double geometricIntensity = Math.max(coreIntensity, armIntensity);
 
-        // Combine core and arms with radial falloff
-        double radialFalloff = Math.pow(1.0 - geo.normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
-        double combinedIntensity = (coreIntensity + armIntensity) * radialFalloff * noiseFactor;
+        // Noise Modulation (JNoise 4.1.0)
+        double perlinNoise = jNoise.evaluateNoise(x, y);
+        // Intensity formula: (0.2 + 0.8 * perlin_noise) * geometric_intensity
+        double finalIntensity = (0.2 + 0.8 * perlinNoise) * geometricIntensity;
 
-        return Math.clamp(combinedIntensity, 0.0, 1.0);
+        return Math.clamp(finalIntensity, 0.0, 1.0);
     }
 
-    /**
-     * Calculate core intensity - exponential bright center
-     */
-    private double calculateCoreIntensity(double normalizedDistance) {
-        if (normalizedDistance < coreParameters.getCoreSize()) {
-            // Very bright core with exponential falloff
-            double coreDistance = normalizedDistance / coreParameters.getCoreSize();
-            return Math.exp(-coreDistance * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
-                    * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER;
-        }
-        return 0.0;
-    }
+    private double calculateSpiralArmIntensity(double angle, double r, double c) {
+        if (r < 1.0)
+            return 1.0; // Avoid ln(0)
 
-    /**
-     * Calculate spiral arm intensity using logarithmic spiral formula
-     */
-    private double calculateSpiralArmIntensity(double angle, double normalizedDistance) {
         double maxArmIntensity = 0.0;
+        int n = spiralParameters.getNumberOfArms();
+        double rotation = spiralParameters.getArmRotation();
 
-        // Check each spiral arm
-        for (int arm = 0; arm < spiralParameters.getNumberOfArms(); arm++) {
-            double armBaseAngle = (2.0 * Math.PI * arm) / spiralParameters.getNumberOfArms();
+        for (int i = 0; i < n; i++) {
+            // Formula: θ = armRotation * ln(r/coreSize) + (2π * armIndex / numberOfArms)
+            double theta = rotation * Math.log(r / c) + (2.0 * Math.PI * i / n);
 
-            // Logarithmic spiral: angle = armRotation * ln(distance)
-            double spiralAngle = armBaseAngle + spiralParameters.getArmRotation() * Math.log(normalizedDistance + 0.1);
+            double deltaPhi = normalizeAngle(angle - theta);
 
-            // Normalize angles to [-PI, PI]
-            double angleDiff = normalizeAngle(angle - spiralAngle);
+            // Distance to arm center (angular distance converted to arc distance)
+            double armDist = Math.abs(deltaPhi) * r;
 
-            // Calculate distance to spiral arm center
-            double armDistance = Math.abs(angleDiff) * normalizedDistance * coreParameters.getGalaxyRadius()
-                    / spiralParameters.getArmWidth();
-
-            // Gaussian falloff from arm center
-            double armIntensity = Math.exp(-armDistance * armDistance * 0.5);
-
-            maxArmIntensity = Math.max(maxArmIntensity, armIntensity);
+            // Gaussian falloff based on arm width
+            double intensity = Math.exp(-(armDist * armDist) / (2.0 * Math.pow(spiralParameters.getArmWidth(), 2)));
+            maxArmIntensity = Math.max(maxArmIntensity, intensity);
         }
 
         return maxArmIntensity;
     }
 
     /**
-     * Normalize angle to [-PI, PI] range
+     * Parallel batch rendering using Java 21 Virtual Threads.
+     * Returns a float buffer compatible with PNG or TIFF HDR.
      */
+    public float[] generateBuffer() {
+        float[] buffer = new float[width * height];
+
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int y = 0; y < height; y++) {
+                final int currentY = y;
+                executor.submit(() -> {
+                    for (int x = 0; x < width; x++) {
+                        buffer[currentY * width + x] = (float) calculateGalaxyIntensity(x, currentY);
+                    }
+                });
+            }
+        } // Executor auto-closes, waiting for all virtual threads to complete
+
+        log.info("Spiral Galaxy buffer generation completed ({}x{})", width, height);
+        return buffer;
+    }
+
     private double normalizeAngle(double angle) {
         while (angle > Math.PI)
             angle -= 2.0 * Math.PI;
@@ -106,26 +119,16 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
         return angle;
     }
 
-    /**
-     * Create a builder for SpiralGalaxyGenerator
-     */
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        private int width = 4000;
-        private int height = 4000;
-        private PerlinGenerator noiseGenerator;
-        private CoreParameters coreParameters = CoreParameters.builder()
-                .coreSize(0.05)
-                .galaxyRadius(1000.0)
-                .build();
-        private SpiralStructureParameters spiralParameters = SpiralStructureParameters.builder()
-                .numberOfArms(2)
-                .armWidth(80.0)
-                .armRotation(4.0)
-                .build();
+        private int width = 1000;
+        private int height = 1000;
+        private long seed = 12345L;
+        private CoreParameters coreParameters;
+        private SpiralStructureParameters spiralParameters;
 
         public Builder width(int width) {
             this.width = width;
@@ -137,26 +140,23 @@ public class SpiralGalaxyGenerator extends AbstractGalaxyGenerator {
             return this;
         }
 
-        public Builder noiseGenerator(PerlinGenerator noiseGenerator) {
-            this.noiseGenerator = noiseGenerator;
+        public Builder seed(long seed) {
+            this.seed = seed;
             return this;
         }
 
-        public Builder coreParameters(CoreParameters coreParameters) {
-            this.coreParameters = coreParameters;
+        public Builder coreParameters(CoreParameters cp) {
+            this.coreParameters = cp;
             return this;
         }
 
-        public Builder spiralParameters(SpiralStructureParameters spiralParameters) {
-            this.spiralParameters = spiralParameters;
+        public Builder spiralParameters(SpiralStructureParameters sp) {
+            this.spiralParameters = sp;
             return this;
         }
 
         public SpiralGalaxyGenerator build() {
-            if (noiseGenerator == null) {
-                throw new IllegalStateException("noiseGenerator must be set");
-            }
-            return new SpiralGalaxyGenerator(width, height, noiseGenerator, coreParameters, spiralParameters);
+            return new SpiralGalaxyGenerator(width, height, seed, coreParameters, spiralParameters);
         }
     }
 }
