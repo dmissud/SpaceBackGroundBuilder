@@ -22,8 +22,7 @@ import {MatOption, MatSelect} from '@angular/material/select';
     MatTooltip,
     MatSuffix,
     MatSelect,
-    MatOption,
-    MatButton
+    MatOption
   ],
   template: `
     <mat-expansion-panel [formGroup]="formGroup">
@@ -33,12 +32,6 @@ import {MatOption, MatSelect} from '@angular/material/select';
           &nbsp; Couleurs
         </mat-panel-title>
       </mat-expansion-panel-header>
-
-      <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        <button mat-button color="accent" (click)="onRandomize()" type="button">
-          <mat-icon>shuffle</mat-icon> Aléatoire
-        </button>
-      </div>
 
       <!-- Color Palette -->
       <div formGroupName="colorParameters">
@@ -93,5 +86,5 @@ import {MatOption, MatSelect} from '@angular/material/select';
 })
 export class ColorsSectionComponent {
   @Input() formGroup!: FormGroup;
-  @Input() onRandomize!: () => void;
+  @Input() onRandomizeCustomColors!: () => void;
 }
