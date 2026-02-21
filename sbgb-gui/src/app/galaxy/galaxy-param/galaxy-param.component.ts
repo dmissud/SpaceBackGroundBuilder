@@ -465,12 +465,16 @@ export class GalaxyParamComponent implements OnInit {
     }
   }
 
-  randomizeColors(): void {
-    const palettes = ['CLASSIC', 'NEBULA', 'WARM', 'COLD', 'INFRARED', 'EMERALD'];
-    const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
+  randomizeCustomColors(): void {
+    const randomHex = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+
     this.galaxyForm.patchValue({
       colorParameters: {
-        colorPalette: randomPalette
+        colorPalette: 'CUSTOM',
+        spaceBackgroundColor: randomHex(),
+        coreColor: randomHex(),
+        armColor: randomHex(),
+        outerColor: randomHex()
       }
     });
   }
@@ -478,7 +482,15 @@ export class GalaxyParamComponent implements OnInit {
   randomizeAll(): void {
     this.randomizeSeed();
     this.randomizeStructure();
-    this.randomizeColors();
+
+    // For "Randomize All", it's better to pick a cohesive palette rather than completely random chaotic colors
+    const palettes = ['CLASSIC', 'NEBULA', 'WARM', 'COLD', 'INFRARED', 'EMERALD'];
+    const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
+    this.galaxyForm.patchValue({
+      colorParameters: {
+        colorPalette: randomPalette
+      }
+    });
   }
 
   canBuild(): boolean {
