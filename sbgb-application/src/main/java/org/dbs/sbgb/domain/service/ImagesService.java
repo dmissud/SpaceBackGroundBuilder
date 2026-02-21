@@ -24,6 +24,10 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
 
     private final NoiseImageRepository noiseImageRepository;
 
+    // Cache for the last generated image results
+    private ImageRequestCmd lastRequest;
+    private byte[] lastBytes;
+
     @Override
     public List<NoiseImage> findAll() {
         return noiseImageRepository.findAll();
@@ -32,7 +36,8 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
     @Override
     public byte[] buildNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
 
-        DefaultNoiseColorCalculator noiseColorCalculator = createDefaultNoiseColorCalculator(imageRequestCmd.getColorCmd());
+        DefaultNoiseColorCalculator noiseColorCalculator = createDefaultNoiseColorCalculator(
+                imageRequestCmd.getColorCmd());
 
         BufferedImage image;
         if (imageRequestCmd.getSizeCmd().isUseMultiLayer()) {
@@ -43,7 +48,8 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                     .withNoiseColorCalculator(noiseColorCalculator);
 
             // If custom layers are provided, use them; otherwise use preset
-            if (imageRequestCmd.getSizeCmd().getLayers() != null && !imageRequestCmd.getSizeCmd().getLayers().isEmpty()) {
+            if (imageRequestCmd.getSizeCmd().getLayers() != null
+                    && !imageRequestCmd.getSizeCmd().getLayers().isEmpty()) {
                 List<LayerConfig> customLayers = imageRequestCmd.getSizeCmd().getLayers().stream()
                         .map(layerCmd -> LayerConfig.builder()
                                 .name(layerCmd.getName())
@@ -80,7 +86,13 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
             image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
         }
 
-        return convertImageToByteArray(image);
+        byte[] bytes = convertImageToByteArray(image);
+
+        // Update cache
+        this.lastRequest = imageRequestCmd;
+        this.lastBytes = bytes;
+
+        return bytes;
     }
 
     private DefaultNoiseColorCalculator createDefaultNoiseColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
@@ -114,7 +126,13 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
             throw new ImageNameAlreadyExistsException(imageRequestCmd.getName());
         }
 
-        byte[] imageBytes = buildNoiseImage(imageRequestCmd);
+        byte[] imageBytes;
+        if (isSameImagery(imageRequestCmd, lastRequest) && lastBytes != null) {
+            imageBytes = lastBytes;
+        } else {
+            imageBytes = buildNoiseImage(imageRequestCmd);
+            // Cache is updated inside buildNoiseImage
+        }
 
         ImageStructure structure = new ImageStructure(
                 imageRequestCmd.getSizeCmd().getHeight(),
@@ -150,9 +168,17 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 0,
                 structure,
                 color,
-                imageBytes
-        );
+                imageBytes);
 
         return noiseImageRepository.save(noiseImage);
+    }
+
+    private boolean isSameImagery(ImageRequestCmd cmd1, ImageRequestCmd cmd2) {
+        if (cmd1 == null || cmd2 == null)
+            return false;
+
+        // Compare structure and colors (everything that affects the image bytes)
+        return java.util.Objects.equals(cmd1.getSizeCmd(), cmd2.getSizeCmd()) &&
+                java.util.Objects.equals(cmd1.getColorCmd(), cmd2.getColorCmd());
     }
 }
