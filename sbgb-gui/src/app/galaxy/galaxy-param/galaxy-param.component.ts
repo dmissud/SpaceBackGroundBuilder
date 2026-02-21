@@ -1,23 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatAccordion } from "@angular/material/expansion";
-import { MatIconButton } from "@angular/material/button";
-import { MatIcon } from "@angular/material/icon";
-import { MatTooltip } from "@angular/material/tooltip";
-import { GalaxyService } from "../galaxy.service";
-import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
-import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
-import { PresetsSectionComponent } from "./sections/presets-section.component";
-import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
-import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
-import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
-import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
-import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
-import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
-import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
-import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
-import { ColorsSectionComponent } from "./sections/colors-section.component";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatAccordion} from "@angular/material/expansion";
+import {MatIcon} from "@angular/material/icon";
+import {MatTooltip} from "@angular/material/tooltip";
+import {GalaxyService} from "../galaxy.service";
+import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
+import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
+import {PresetsSectionComponent} from "./sections/presets-section.component";
+import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
+import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
+import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
+import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
+import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
+import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
+import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
+import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {ColorsSectionComponent} from "./sections/colors-section.component";
 
 
 @Component({
@@ -25,7 +24,7 @@ import { ColorsSectionComponent } from "./sections/colors-section.component";
   imports: [
     ReactiveFormsModule,
     MatAccordion,
-    MatIconButton,
+    MatAccordion,
     MatIcon,
     MatTooltip,
     BasicInfoSectionComponent,
@@ -47,89 +46,129 @@ export class GalaxyParamComponent implements OnInit {
 
   @ViewChild(MatAccordion) accordion!: MatAccordion;
 
-  galaxyForm!: FormGroup;
+  galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
   loadedGalaxyName: string | null = null;
   allPanelsExpanded = false;
   private isModifiedSinceBuild: boolean = true;
-  private builtGalaxyParams: any = null;
+  private builtGalaxyParams: GalaxyRequestCmd | null = null;
+
+  // Representative colors for each predefined palette (Space, Core, Arms, Outer)
+  private readonly PALETTE_COLORS: Record<string, { space: string, core: string, arms: string, outer: string }> = {
+    'CLASSIC': {space: '#05050f', core: '#fffadc', arms: '#b4c8ff', outer: '#3c5078'},
+    'NEBULA': {space: '#05050f', core: '#f0e6c8', arms: '#781e64', outer: '#3c8cd2'},
+    'WARM': {space: '#0a0505', core: '#fffaf0', arms: '#c86428', outer: '#8c3214'},
+    'COLD': {space: '#02050f', core: '#f0faff', arms: '#288cc8', outer: '#145096'},
+    'INFRARED': {space: '#000005', core: '#ffffc8', arms: '#b43c1e', outer: '#641414'},
+    'EMERALD': {space: '#020a08', core: '#f0fff0', arms: '#28b478', outer: '#146446'}
+  };
 
   constructor(
-    private galaxyService: GalaxyService,
-    private snackBar: MatSnackBar
-  ) { }
-
-  ngOnInit(): void {
-    this.galaxyForm = new FormGroup({
-      name: new FormControl('Galaxy', [Validators.required]),
-      width: new FormControl(4000, [Validators.required, Validators.min(100)]),
-      height: new FormControl(4000, [Validators.required, Validators.min(100)]),
-      seed: new FormControl(Math.floor(Math.random() * 1000000)),
-      galaxyType: new FormControl('SPIRAL'),
-      coreSize: new FormControl(0.05, [Validators.required]),
-      galaxyRadius: new FormControl(1500, [Validators.required]),
-      warpStrength: new FormControl(0, [Validators.min(0), Validators.max(300)]),
-      noiseParameters: new FormGroup({
-        octaves: new FormControl(4, [Validators.required]),
-        persistence: new FormControl(0.5, [Validators.required]),
-        lacunarity: new FormControl(2.0, [Validators.required]),
-        scale: new FormControl(200, [Validators.required])
+    private readonly galaxyService: GalaxyService,
+    private readonly snackBar: MatSnackBar,
+    private readonly fb: FormBuilder
+  ) {
+    this.galaxyForm = this.fb.group({
+      name: new FormControl<string | null>('Galaxy', [Validators.required]),
+      width: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
+      height: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
+      seed: new FormControl<number | null>(Math.floor(Math.random() * 1000000)),
+      galaxyType: new FormControl<string | null>('SPIRAL'),
+      coreSize: new FormControl<number | null>(0.05, [Validators.required]),
+      galaxyRadius: new FormControl<number | null>(1500, [Validators.required]),
+      warpStrength: new FormControl<number | null>(0, [Validators.min(0), Validators.max(300)]),
+      noiseParameters: this.fb.group({
+        octaves: new FormControl<number | null>(4, [Validators.required]),
+        persistence: new FormControl<number | null>(0.5, [Validators.required]),
+        lacunarity: new FormControl<number | null>(2, [Validators.required]),
+        scale: new FormControl<number | null>(200, [Validators.required])
       }),
-      spiralParameters: new FormGroup({
-        numberOfArms: new FormControl(2, [Validators.required, Validators.min(1)]),
-        armWidth: new FormControl(80, [Validators.required, Validators.min(10)]),
-        armRotation: new FormControl(4, [Validators.required])
+      spiralParameters: this.fb.group({
+        numberOfArms: new FormControl<number | null>(2, [Validators.required, Validators.min(1)]),
+        armWidth: new FormControl<number | null>(80, [Validators.required, Validators.min(10)]),
+        armRotation: new FormControl<number | null>(4, [Validators.required])
       }),
-      voronoiParameters: new FormGroup({
-        clusterCount: new FormControl(80, [Validators.min(5), Validators.max(500)]),
-        clusterSize: new FormControl(60, [Validators.min(10)]),
-        clusterConcentration: new FormControl(0.7, [Validators.min(0), Validators.max(1)])
+      voronoiParameters: this.fb.group({
+        clusterCount: new FormControl<number | null>(80, [Validators.min(5), Validators.max(500)]),
+        clusterSize: new FormControl<number | null>(60, [Validators.min(10)]),
+        clusterConcentration: new FormControl<number | null>(0.7, [Validators.min(0), Validators.max(1)])
       }),
-      ellipticalParameters: new FormGroup({
-        sersicIndex: new FormControl(4.0, [Validators.min(0.5), Validators.max(10)]),
-        axisRatio: new FormControl(0.7, [Validators.min(0.1), Validators.max(1)]),
-        orientationAngle: new FormControl(0, [Validators.min(0), Validators.max(360)])
+      ellipticalParameters: this.fb.group({
+        sersicIndex: new FormControl<number | null>(4, [Validators.min(0.5), Validators.max(10)]),
+        axisRatio: new FormControl<number | null>(0.7, [Validators.min(0.1), Validators.max(1)]),
+        orientationAngle: new FormControl<number | null>(0, [Validators.min(0), Validators.max(360)])
       }),
-      ringParameters: new FormGroup({
-        ringRadius: new FormControl(900, [Validators.min(50)]),
-        ringWidth: new FormControl(150, [Validators.min(10)]),
-        ringIntensity: new FormControl(1.0, [Validators.min(0.1), Validators.max(2)]),
-        coreToRingRatio: new FormControl(0.3, [Validators.min(0), Validators.max(1)])
+      ringParameters: this.fb.group({
+        ringRadius: new FormControl<number | null>(900, [Validators.min(50)]),
+        ringWidth: new FormControl<number | null>(150, [Validators.min(10)]),
+        ringIntensity: new FormControl<number | null>(1, [Validators.min(0.1), Validators.max(2)]),
+        coreToRingRatio: new FormControl<number | null>(0.3, [Validators.min(0), Validators.max(1)])
       }),
-      irregularParameters: new FormGroup({
-        irregularity: new FormControl(0.8, [Validators.min(0), Validators.max(1)]),
-        irregularClumpCount: new FormControl(15, [Validators.min(5), Validators.max(50)]),
-        irregularClumpSize: new FormControl(80, [Validators.min(20)])
+      irregularParameters: this.fb.group({
+        irregularity: new FormControl<number | null>(0.8, [Validators.min(0), Validators.max(1)]),
+        irregularClumpCount: new FormControl<number | null>(15, [Validators.min(5), Validators.max(50)]),
+        irregularClumpSize: new FormControl<number | null>(80, [Validators.min(20)])
       }),
-      starFieldParameters: new FormGroup({
-        enabled: new FormControl(false),
-        density: new FormControl(0, [Validators.min(0), Validators.max(0.01)]),
-        maxStarSize: new FormControl(4, [Validators.min(1), Validators.max(10)]),
-        diffractionSpikes: new FormControl(false),
-        spikeCount: new FormControl(4, [Validators.min(4), Validators.max(8)])
+      starFieldParameters: this.fb.group({
+        enabled: new FormControl<boolean | null>(false),
+        density: new FormControl<number | null>(0, [Validators.min(0), Validators.max(0.01)]),
+        maxStarSize: new FormControl<number | null>(4, [Validators.min(1), Validators.max(10)]),
+        diffractionSpikes: new FormControl<boolean | null>(false),
+        spikeCount: new FormControl<number | null>(4, [Validators.min(4), Validators.max(8)])
       }),
-      multiLayerNoiseParameters: new FormGroup({
-        enabled: new FormControl(false),
-        macroLayerScale: new FormControl(0.3, [Validators.min(0.1), Validators.max(5)]),
-        macroLayerWeight: new FormControl(0.5, [Validators.min(0), Validators.max(1)]),
-        mesoLayerScale: new FormControl(1.0, [Validators.min(0.1), Validators.max(5)]),
-        mesoLayerWeight: new FormControl(0.35, [Validators.min(0), Validators.max(1)]),
-        microLayerScale: new FormControl(3.0, [Validators.min(0.1), Validators.max(10)]),
-        microLayerWeight: new FormControl(0.15, [Validators.min(0), Validators.max(1)])
+      multiLayerNoiseParameters: this.fb.group({
+        enabled: new FormControl<boolean | null>(false),
+        macroLayerScale: new FormControl<number | null>(0.3, [Validators.min(0.1), Validators.max(5)]),
+        macroLayerWeight: new FormControl<number | null>(0.5, [Validators.min(0), Validators.max(1)]),
+        mesoLayerScale: new FormControl<number | null>(1, [Validators.min(0.1), Validators.max(5)]),
+        mesoLayerWeight: new FormControl<number | null>(0.35, [Validators.min(0), Validators.max(1)]),
+        microLayerScale: new FormControl<number | null>(3, [Validators.min(0.1), Validators.max(10)]),
+        microLayerWeight: new FormControl<number | null>(0.15, [Validators.min(0), Validators.max(1)])
       }),
-      colorParameters: new FormGroup({
-        colorPalette: new FormControl('CLASSIC'),
-        spaceBackgroundColor: new FormControl('#050510'),
-        coreColor: new FormControl('#FFFADC'),
-        armColor: new FormControl('#B4C8FF'),
-        outerColor: new FormControl('#3C5078')
+      colorParameters: this.fb.group({
+        colorPalette: new FormControl<string | null>('CLASSIC'),
+        spaceBackgroundColor: new FormControl<string | null>('#050510'),
+        coreColor: new FormControl<string | null>('#FFFADC'),
+        armColor: new FormControl<string | null>('#B4C8FF'),
+        outerColor: new FormControl<string | null>('#3C5078')
       })
     });
+  }
 
-    // Track form changes to detect modifications
+  ngOnInit(): void {
     this.galaxyForm.valueChanges.subscribe(() => {
       this.isModifiedSinceBuild = true;
+    });
+
+    // Sync predefined palette selection to individual colors
+    this.galaxyForm.get('colorParameters.colorPalette')?.valueChanges.subscribe(palette => {
+      if (palette && palette !== 'CUSTOM' && this.PALETTE_COLORS[palette]) {
+        const colors = this.PALETTE_COLORS[palette];
+        this.galaxyForm.patchValue({
+          colorParameters: {
+            spaceBackgroundColor: colors.space,
+            coreColor: colors.core,
+            armColor: colors.arms,
+            outerColor: colors.outer
+          }
+        }, {emitEvent: false}); // Prevent infinite loop Triggering the individual color watcher
+      }
+    });
+
+    // Detect manual overrides to individual colors and switch palette to CUSTOM
+    const customColorsToWatch = ['spaceBackgroundColor', 'coreColor', 'armColor', 'outerColor'];
+    customColorsToWatch.forEach(controlName => {
+      this.galaxyForm.get(`colorParameters.${controlName}`)?.valueChanges.subscribe(() => {
+        const currentPalette = this.galaxyForm.get('colorParameters.colorPalette')?.value;
+        if (currentPalette !== 'CUSTOM') {
+          this.galaxyForm.patchValue({
+            colorParameters: {
+              colorPalette: 'CUSTOM'
+            }
+          }, {emitEvent: false});
+        }
+      });
     });
   }
 
@@ -167,35 +206,35 @@ export class GalaxyParamComponent implements OnInit {
     const spikes = form.starFieldParameters?.diffractionSpikes || false;
     const multiLayer = form.multiLayerNoiseParameters?.enabled || false;
 
-    let summary = `${type} galaxy`;
+    let summary = `${String(type)} galaxy`;
 
     // Add structure-specific info
     if (type === 'SPIRAL') {
       const arms = form.spiralParameters?.numberOfArms || 2;
       const rotation = form.spiralParameters?.armRotation || 4;
-      summary += ` with ${arms} arm${arms > 1 ? 's' : ''}, rotation ${rotation}`;
+      summary += ` with ${String(arms)} arm${arms > 1 ? 's' : ''}, rotation ${String(rotation)}`;
     } else if (type === 'VORONOI_CLUSTER') {
       const clusters = form.voronoiParameters?.clusterCount || 80;
-      summary += ` with ${clusters} clusters`;
+      summary += ` with ${String(clusters)} clusters`;
     } else if (type === 'ELLIPTICAL') {
       const sersic = form.ellipticalParameters?.sersicIndex || 4.0;
       const ratio = form.ellipticalParameters?.axisRatio || 0.7;
-      summary += ` (Sersic n=${sersic}, axis ratio ${ratio})`;
+      summary += ` (Sersic n=${String(sersic)}, axis ratio ${String(ratio)})`;
     } else if (type === 'RING') {
       const radius = form.ringParameters?.ringRadius || 900;
-      const width = form.ringParameters?.ringWidth || 150;
-      summary += ` (ring radius ${radius}px, width ${width}px)`;
+      const ringWidth = form.ringParameters?.ringWidth || 150;
+      summary += ` (ring radius ${String(radius)}px, width ${String(ringWidth)}px)`;
     } else if (type === 'IRREGULAR') {
       const irregularity = form.irregularParameters?.irregularity || 0.8;
       const clumps = form.irregularParameters?.irregularClumpCount || 15;
-      summary += ` (irregularity ${irregularity}, ${clumps} clumps)`;
+      summary += ` (irregularity ${String(irregularity)}, ${String(clumps)} clumps)`;
     }
 
-    summary += `, ${width}x${height}px`;
-    summary += `, ${palette} palette`;
+    summary += `, ${String(width)}x${String(height)}px`;
+    summary += `, ${String(palette)} palette`;
 
     if (warp > 0) {
-      summary += `, warp ${warp}`;
+      summary += `, warp ${String(warp)}`;
     }
 
     if (multiLayer) {
@@ -203,13 +242,13 @@ export class GalaxyParamComponent implements OnInit {
     }
 
     if (starDensity > 0) {
-      summary += `, star density ${starDensity}`;
+      summary += `, star density ${String(starDensity)}`;
       if (spikes) {
         summary += ' with diffraction spikes';
       }
     }
 
-    summary += `, seed ${seed}`;
+    summary += `, seed ${String(seed)}`;
 
     return summary;
   }
@@ -232,7 +271,7 @@ export class GalaxyParamComponent implements OnInit {
         this.generatedImageUrl = URL.createObjectURL(blob);
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
-        this.builtGalaxyParams = JSON.parse(JSON.stringify(this.galaxyForm.value));
+        this.builtGalaxyParams = structuredClone(this.galaxyForm.value) as GalaxyRequestCmd;
         this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
       },
       error: (error) => {
