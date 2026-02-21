@@ -1,5 +1,6 @@
 package org.dbs.sbgb.domain.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.GalaxyDefaults;
 import org.dbs.sbgb.domain.model.*;
 import org.dbs.sbgb.domain.model.parameters.*;
@@ -7,8 +8,6 @@ import org.dbs.sbgb.port.in.*;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -187,7 +186,7 @@ public class GalaxyStructureMapper {
         public GalaxyColorCalculator createColorCalculator(ColorParameters colorParams) {
                 // Use gradient palette if specified, otherwise use custom colors
                 String palette = colorParams.colorPalette();
-                if (palette != null && !palette.isBlank()) {
+                if (palette != null && !palette.isBlank() && !palette.equals("CUSTOM")) {
                         try {
                                 ColorPalette colorPalette = ColorPalette.valueOf(palette);
                                 return colorPalette.createCalculator();
