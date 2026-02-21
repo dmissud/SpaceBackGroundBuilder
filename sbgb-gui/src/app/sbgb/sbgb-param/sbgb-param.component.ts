@@ -15,8 +15,8 @@ import {MatIcon} from "@angular/material/icon";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
-    selector: 'app-sbgb-param',
-    imports: [
+  selector: 'app-sbgb-param',
+  imports: [
     MatFormField,
     MatInput,
     MatLabel,
@@ -26,9 +26,9 @@ import {Sbgb} from "../sbgb.model";
     MatTooltip,
     MatIcon,
     MatSuffix
-],
-    templateUrl: './sbgb-param.component.html',
-    styleUrl: './sbgb-param.component.scss'
+  ],
+  templateUrl: './sbgb-param.component.html',
+  styleUrl: './sbgb-param.component.scss'
 })
 export class SbgbParamComponent implements OnInit, OnDestroy {
 
@@ -230,6 +230,60 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         });
       }
     });
+
+    // Listen to preset changes in SBGB
+    this._myForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
+      if (preset && preset !== 'CUSTOM') {
+        this.applySbgbPreset(preset);
+      }
+    });
+  }
+
+  private applySbgbPreset(preset: string) {
+    const defaultStructure = {
+      octaves: 4,
+      persistence: 0.5,
+      lacunarity: 2.0,
+      scale: 200,
+      noiseType: 'FBM'
+    };
+
+    switch (preset) {
+      case 'DEEP_SPACE':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 6,
+          [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.5,
+          [SbgbParamComponent.CONTROL_LACUNARITY]: 2.2,
+          [SbgbParamComponent.CONTROL_SCALE]: 300,
+          [SbgbParamComponent.BACKGROUND_COLOR]: '#000005',
+          [SbgbParamComponent.MIDDLE_COLOR]: '#050515',
+          [SbgbParamComponent.FOREGROUND_COLOR]: '#0a0a25',
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer2_enabled: true // Stars
+        });
+        break;
+      case 'STARFIELD':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 2,
+          [SbgbParamComponent.CONTROL_SCALE]: 10,
+          [SbgbParamComponent.BACKGROUND_COLOR]: '#000000',
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer0_enabled: false,
+          layer1_enabled: false,
+          layer2_enabled: true // Stars only
+        });
+        break;
+      case 'NEBULA_DENSE':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 8,
+          [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.7,
+          [SbgbParamComponent.CONTROL_SCALE]: 150,
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer1_enabled: true,
+          layer2_enabled: true
+        });
+        break;
+    }
   }
 
   ngOnDestroy() {
@@ -414,7 +468,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       Number(c1.middleThreshold) !== Number(c2.middleThreshold) ||
       c1.interpolationType !== c2.interpolationType ||
       referenceSbgb.name !== currentSbgb.name;
-      // Note: description is auto-generated, no need to compare
+    // Note: description is auto-generated, no need to compare
   }
 
   private getSbgbFromForm(): Sbgb {
@@ -430,7 +484,15 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       presetValue,
       useMultiLayerValue
     } = this.extractImageFormValues();
-    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue}
+    const {
+      backgroundColorValue,
+      middleColorValue,
+      foregroundColorValue,
+      backThresholdValue,
+      middleThresholdValue,
+      interpolationTypeValue,
+      transparentBackgroundValue
+    }
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
 
@@ -547,7 +609,15 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
     let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
     let transparentBackgroundValue = this._myForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
-    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue};
+    return {
+      backgroundColorValue,
+      foregroundColorValue,
+      middleColorValue,
+      backThresholdValue,
+      middleThresholdValue,
+      interpolationTypeValue,
+      transparentBackgroundValue
+    };
   }
 
 }
