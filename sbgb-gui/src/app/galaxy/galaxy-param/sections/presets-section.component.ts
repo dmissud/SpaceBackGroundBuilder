@@ -1,9 +1,9 @@
-import {Component, Input} from '@angular/core';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle} from '@angular/material/expansion';
-import {MatIcon} from '@angular/material/icon';
-import {MatButton} from '@angular/material/button';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
+import { Component, Input } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-presets-section',
@@ -48,6 +48,7 @@ import {MatSlideToggle} from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_GRAND_DESIGN')">Grand Design</button>
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_FLOCCULENT')">Flocculent</button>
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_TIGHTLY_WOUND')">Tightly Wound</button>
+          <button mat-raised-button (click)="onLoadPreset('DUSTY_SPIRAL')">Dusty Spiral</button>
         </div>
       }
       @if (formGroup.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
