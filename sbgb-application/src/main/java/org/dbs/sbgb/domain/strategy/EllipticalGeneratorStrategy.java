@@ -16,7 +16,7 @@ public class EllipticalGeneratorStrategy implements GalaxyGeneratorStrategy {
         return EllipticalGalaxyGenerator.builder()
                 .width(context.getWidth())
                 .height(context.getHeight())
-                .noiseGenerator(context.getNoiseGenerator())
+                .seed(context.getSeed())
                 .coreParameters(parameters.getCoreParameters())
                 .ellipticalParameters(parameters.getEllipticalParameters())
                 .build();
