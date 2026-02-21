@@ -16,7 +16,6 @@ public class VoronoiGeneratorStrategy implements GalaxyGeneratorStrategy {
         return VoronoiClusterGalaxyGenerator.builder()
                 .width(context.getWidth())
                 .height(context.getHeight())
-                .noiseGenerator(context.getNoiseGenerator())
                 .seed(context.getSeed())
                 .coreParameters(parameters.getCoreParameters())
                 .voronoiParameters(parameters.getVoronoiParameters())

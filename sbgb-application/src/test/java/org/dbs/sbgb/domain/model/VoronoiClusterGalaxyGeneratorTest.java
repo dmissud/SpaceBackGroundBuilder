@@ -1,7 +1,5 @@
 package org.dbs.sbgb.domain.model;
 
-import de.articdive.jnoise.core.api.functions.Interpolation;
-import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import org.dbs.sbgb.domain.model.parameters.CoreParameters;
 import org.dbs.sbgb.domain.model.parameters.VoronoiClusterParameters;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,14 +22,9 @@ class VoronoiClusterGalaxyGeneratorTest {
 
     @BeforeEach
     void setUp() {
-        PerlinGenerator noiseGenerator = new PerlinGenerator(Interpolation.LINEAR, FadeFunction.NONE);
-        noiseGenerator.createNoisePipeline(SEED, WIDTH, HEIGHT, 4, 0.5, 2.0, 200.0, NoiseType.FBM);
-        noiseGenerator.performNormalization();
-
         generator = VoronoiClusterGalaxyGenerator.builder()
                 .width(WIDTH)
                 .height(HEIGHT)
-                .noiseGenerator(noiseGenerator)
                 .seed(SEED)
                 .coreParameters(CoreParameters.builder()
                         .coreSize(CORE_SIZE)
@@ -93,14 +86,9 @@ class VoronoiClusterGalaxyGeneratorTest {
 
     @Test
     void shouldBeReproducibleWithSameSeed() {
-        PerlinGenerator noiseGenerator2 = new PerlinGenerator(Interpolation.LINEAR, FadeFunction.NONE);
-        noiseGenerator2.createNoisePipeline(SEED, WIDTH, HEIGHT, 4, 0.5, 2.0, 200.0, NoiseType.FBM);
-        noiseGenerator2.performNormalization();
-
         VoronoiClusterGalaxyGenerator generator2 = VoronoiClusterGalaxyGenerator.builder()
                 .width(WIDTH)
                 .height(HEIGHT)
-                .noiseGenerator(noiseGenerator2)
                 .seed(SEED)
                 .coreParameters(CoreParameters.builder()
                         .coreSize(CORE_SIZE)

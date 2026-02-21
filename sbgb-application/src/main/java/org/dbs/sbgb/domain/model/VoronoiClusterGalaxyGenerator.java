@@ -1,5 +1,8 @@
 package org.dbs.sbgb.domain.model;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
+import de.articdive.jnoise.pipeline.JNoise;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.CoreIntensityConstants;
 import org.dbs.sbgb.domain.constant.NoiseModulationConstants;
@@ -10,7 +13,13 @@ import org.dbs.sbgb.domain.model.parameters.VoronoiClusterParameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
 
+/**
+ * Implementation of Voronoi Cluster Galaxy Generator using JNoise 4.1.0 and
+ * Virtual Threads.
+ * Uses an exponential distribution for cluster center placement.
+ */
 @Slf4j
 public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator {
 
@@ -18,24 +27,29 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
     private final int height;
     private final double centerX;
     private final double centerY;
-    private final PerlinGenerator noiseGenerator;
     private final CoreParameters coreParameters;
     private final VoronoiClusterParameters voronoiParameters;
     private final List<ClusterCenter> clusters;
+    private final JNoise jNoise;
 
-    private VoronoiClusterGalaxyGenerator(int width, int height,
-                                          PerlinGenerator noiseGenerator,
-                                          long seed,
-                                          CoreParameters coreParameters,
-                                          VoronoiClusterParameters voronoiParameters) {
+    public VoronoiClusterGalaxyGenerator(int width, int height,
+                                         long seed,
+                                         CoreParameters coreParameters,
+                                         VoronoiClusterParameters voronoiParameters) {
         this.width = width;
         this.height = height;
         this.centerX = width / 2.0;
         this.centerY = height / 2.0;
-        this.noiseGenerator = noiseGenerator;
         this.coreParameters = coreParameters;
         this.voronoiParameters = voronoiParameters;
-        this.clusters = generateClusters(seed, voronoiParameters.getClusterCount(), voronoiParameters.getClusterConcentration());
+        this.clusters = generateClusters(seed, voronoiParameters.getClusterCount(),
+                voronoiParameters.getClusterConcentration());
+
+        // Initialize JNoise 4.1.0 pipeline
+        this.jNoise = JNoise.newBuilder()
+                .perlin(seed, Interpolation.COSINE, FadeFunction.CUBIC_POLY)
+                .scale(0.01)
+                .build();
     }
 
     private List<ClusterCenter> generateClusters(long seed, int clusterCount, double concentration) {
@@ -43,17 +57,15 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
         List<ClusterCenter> result = new ArrayList<>(clusterCount);
 
         for (int i = 0; i < clusterCount; i++) {
-            // Distance from center using exponential concentration
-            double distance = coreParameters.getGalaxyRadius() * Math.pow(random.nextDouble(), 1.0 / (1.0 - concentration + 0.01));
-            distance = Math.min(distance, coreParameters.getGalaxyRadius() * 0.95);
+            // Exponential distribution for radial distance: r = -1/lambda * ln(1-u)
+            // lambda controlled by concentration
+            double lambda = 5.0 * concentration + 1.0;
+            double u = random.nextDouble() * 0.95; // Avoid edge
+            double r = (-1.0 / lambda) * Math.log(1.0 - u) * coreParameters.getGalaxyRadius();
 
-            // Random angle
             double angle = random.nextDouble() * 2.0 * Math.PI;
-
-            double x = centerX + distance * Math.cos(angle);
-            double y = centerY + distance * Math.sin(angle);
-
-            // Random brightness for each cluster
+            double x = centerX + r * Math.cos(angle);
+            double y = centerY + r * Math.sin(angle);
             double brightness = 0.3 + random.nextDouble() * 0.7;
 
             result.add(new ClusterCenter(x, y, brightness));
@@ -69,55 +81,63 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
         double distance = Math.sqrt(dx * dx + dy * dy);
         double normalizedDistance = distance / coreParameters.getGalaxyRadius();
 
-        if (normalizedDistance > 1.0) {
+        if (normalizedDistance > 1.0)
             return 0.0;
-        }
 
-        // Core intensity (same pattern as spiral)
+        // Core intensity
         double coreIntensity = (normalizedDistance < coreParameters.getCoreSize())
-                ? Math.exp(-(normalizedDistance / coreParameters.getCoreSize()) * CoreIntensityConstants.CORE_EXPONENTIAL_FALLOFF)
-                        * CoreIntensityConstants.CORE_BRIGHTNESS_MULTIPLIER
+                ? Math.exp(-(normalizedDistance / coreParameters.getCoreSize()) * 4.0)
                 : 0.0;
 
-        // Cluster intensity: sum of Gaussian contributions
+        // Cluster intensity (Gaussian sum)
         double clusterIntensity = 0.0;
+        double clusterSize = voronoiParameters.getClusterSize();
         for (ClusterCenter cluster : clusters) {
             double cdx = x - cluster.x;
             double cdy = y - cluster.y;
-            double cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-            clusterIntensity += cluster.brightness * Math.exp(-(cdist * cdist) / (2 * voronoiParameters.getClusterSize() * voronoiParameters.getClusterSize()));
+            double cdistSq = cdx * cdx + cdy * cdy;
+            clusterIntensity += cluster.brightness * Math.exp(-cdistSq / (2.0 * clusterSize * clusterSize));
         }
 
-        // Perlin noise modulation
-        double noiseValue = noiseGenerator.scaleNoiseNormalizedValue(x, y);
-        double noiseFactor = NoiseModulationConstants.NOISE_BASE_CONTRIBUTION
-                + (noiseValue * NoiseModulationConstants.NOISE_MODULATION_RANGE);
+        // Noise Modulation
+        double perlinNoise = jNoise.evaluateNoise(x, y);
+        double combined = (coreIntensity + clusterIntensity) * (0.2 + 0.8 * perlinNoise);
 
-        // Radial falloff
-        double radialFalloff = Math.pow(1.0 - normalizedDistance, RadialFalloffConstants.STANDARD_FALLOFF_EXPONENT);
-
-        double combined = (coreIntensity + clusterIntensity) * radialFalloff * noiseFactor;
         return Math.clamp(combined, 0.0, 1.0);
+    }
+
+    /**
+     * Parallel batch rendering using Java 21 Virtual Threads.
+     */
+    public float[] generateBuffer() {
+        float[] buffer = new float[width * height];
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int y = 0; y < height; y++) {
+                final int currentY = y;
+                executor.submit(() -> {
+                    for (int x = 0; x < width; x++) {
+                        buffer[currentY * width + x] = (float) calculateGalaxyIntensity(x, currentY);
+                    }
+                });
+            }
+        }
+        log.info("Voronoi Cluster Galaxy buffer generation completed ({}x{})", width, height);
+        return buffer;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
+    private record ClusterCenter(double x, double y, double brightness) {
+    }
+
     public static class Builder {
-        private int width = 4000;
-        private int height = 4000;
-        private PerlinGenerator noiseGenerator;
-        private long seed = 0L;
-        private CoreParameters coreParameters = CoreParameters.builder()
-                .coreSize(0.05)
-                .galaxyRadius(1500.0)
-                .build();
-        private VoronoiClusterParameters voronoiParameters = VoronoiClusterParameters.builder()
-                .clusterCount(80)
-                .clusterSize(60.0)
-                .clusterConcentration(0.7)
-                .build();
+        private int width = 1000;
+        private int height = 1000;
+        private long seed = 12345L;
+        private CoreParameters coreParameters;
+        private VoronoiClusterParameters voronoiParameters;
 
         public Builder width(int width) {
             this.width = width;
@@ -129,34 +149,23 @@ public class VoronoiClusterGalaxyGenerator implements GalaxyIntensityCalculator 
             return this;
         }
 
-        public Builder noiseGenerator(PerlinGenerator noiseGenerator) {
-            this.noiseGenerator = noiseGenerator;
-            return this;
-        }
-
         public Builder seed(long seed) {
             this.seed = seed;
             return this;
         }
 
-        public Builder coreParameters(CoreParameters coreParameters) {
-            this.coreParameters = coreParameters;
+        public Builder coreParameters(CoreParameters cp) {
+            this.coreParameters = cp;
             return this;
         }
 
-        public Builder voronoiParameters(VoronoiClusterParameters voronoiParameters) {
-            this.voronoiParameters = voronoiParameters;
+        public Builder voronoiParameters(VoronoiClusterParameters vp) {
+            this.voronoiParameters = vp;
             return this;
         }
 
         public VoronoiClusterGalaxyGenerator build() {
-            if (noiseGenerator == null) {
-                throw new IllegalStateException("noiseGenerator must be set");
-            }
-            return new VoronoiClusterGalaxyGenerator(width, height, noiseGenerator, seed, coreParameters, voronoiParameters);
+            return new VoronoiClusterGalaxyGenerator(width, height, seed, coreParameters, voronoiParameters);
         }
-    }
-
-    private record ClusterCenter(double x, double y, double brightness) {
     }
 }
