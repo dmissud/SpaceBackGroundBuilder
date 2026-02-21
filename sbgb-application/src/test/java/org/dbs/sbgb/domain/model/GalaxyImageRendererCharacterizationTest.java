@@ -3,6 +3,7 @@ package org.dbs.sbgb.domain.model;
 import de.articdive.jnoise.core.api.functions.Interpolation;
 import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
+import org.dbs.sbgb.domain.service.BloomApplicator;
 import org.dbs.sbgb.domain.service.StarFieldApplicator;
 import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 import org.dbs.sbgb.domain.strategy.SpiralGeneratorStrategy;
@@ -45,6 +46,7 @@ class GalaxyImageRendererCharacterizationTest {
         GalaxyGeneratorFactory generatorFactory = new GalaxyGeneratorFactory(List.of(new SpiralGeneratorStrategy()));
         NoiseGeneratorFactory noiseFactory = new NoiseGeneratorFactory();
         StarFieldApplicator starFieldApplicator = new StarFieldApplicator();
+        BloomApplicator bloomApplicator = new BloomApplicator();
 
         GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
                 .withWidth(500)
@@ -54,6 +56,7 @@ class GalaxyImageRendererCharacterizationTest {
                 .withGeneratorFactory(generatorFactory)
                 .withNoiseGeneratorFactory(noiseFactory)
                 .withStarFieldApplicator(starFieldApplicator)
+                .withBloomApplicator(bloomApplicator)
                 .withParameters(spiralParams)
                 .withColorCalculator(colorCalculator)
                 .build();

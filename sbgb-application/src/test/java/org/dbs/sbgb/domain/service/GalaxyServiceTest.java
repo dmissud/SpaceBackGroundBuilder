@@ -37,6 +37,8 @@ class GalaxyServiceTest {
         @Mock
         private StarFieldApplicator starFieldApplicator;
         @Mock
+        private BloomApplicator bloomApplicator;
+        @Mock
         private ImageSerializer imageSerializer;
         @Mock
         private GalaxyImageDuplicationHandler duplicationHandler;
