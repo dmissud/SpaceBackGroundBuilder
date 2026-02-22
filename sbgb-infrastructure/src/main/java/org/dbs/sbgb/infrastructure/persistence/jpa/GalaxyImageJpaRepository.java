@@ -2,12 +2,16 @@ package org.dbs.sbgb.infrastructure.persistence.jpa;
 
 import org.dbs.sbgb.infrastructure.persistence.entity.GalaxyImageEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface GalaxyImageJpaRepository extends JpaRepository<GalaxyImageEntity, UUID> {
-    Optional<GalaxyImageEntity> findByName(String name);
+
+    @Modifying
+    @Query("UPDATE GalaxyImageEntity g SET g.note = :note WHERE g.id = :id")
+    void updateNote(UUID id, int note);
 }
