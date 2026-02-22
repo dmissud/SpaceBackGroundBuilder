@@ -8,7 +8,6 @@ import org.dbs.sbgb.port.in.GalaxyRequestCmd;
 import org.dbs.sbgb.port.out.GalaxyImageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -20,8 +19,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class GalaxyServiceTest {
@@ -40,8 +39,6 @@ class GalaxyServiceTest {
         private BloomApplicator bloomApplicator;
         @Mock
         private ImageSerializer imageSerializer;
-        @Mock
-        private GalaxyImageDuplicationHandler duplicationHandler;
 
         @InjectMocks
         private GalaxyService galaxyService;
@@ -65,14 +62,11 @@ class GalaxyServiceTest {
         @Test
         void shouldCreateGalaxyImage() throws IOException {
                 GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
-                                .name("New Galaxy")
                                 .width(100)
                                 .height(100)
                                 .build();
 
                 UUID generatedId = UUID.randomUUID();
-                when(duplicationHandler.resolveId(anyString(), anyBoolean())).thenReturn(generatedId);
-                when(duplicationHandler.resolveNote(anyString())).thenReturn(1);
 
                 GalaxyParameters params = mock(GalaxyParameters.class);
                 when(params.getGalaxyType()).thenReturn(GalaxyType.SPIRAL);
@@ -99,9 +93,7 @@ class GalaxyServiceTest {
                 GalaxyIntensityCalculator intensityCalculator = mock(GalaxyIntensityCalculator.class);
                 when(galaxyGeneratorFactory.create(any(GalaxyType.class), any())).thenReturn(intensityCalculator);
 
-                when(starFieldApplicator.applyIfEnabled(any(), any(), anyLong())).thenAnswer(i -> i.getArgument(0)); // return
-                                                                                                                     // image
-                                                                                                                     // arg
+                when(starFieldApplicator.applyIfEnabled(any(), any(), anyLong())).thenAnswer(i -> i.getArgument(0));
 
                 byte[] fakeBytes = new byte[] { 10, 11, 12 };
                 when(imageSerializer.toByteArray(any(BufferedImage.class))).thenReturn(fakeBytes);
@@ -114,12 +106,20 @@ class GalaxyServiceTest {
                 savedImage.setImage(fakeBytes);
                 when(galaxyImageRepository.save(any(GalaxyImage.class))).thenReturn(savedImage);
 
-                // Act
                 GalaxyImage result = galaxyService.createGalaxyImage(cmd);
 
-                // Assert
                 assertThat(result.getId()).isEqualTo(generatedId);
                 assertThat(result.getImage()).isEqualTo(fakeBytes);
                 verify(galaxyImageRepository).save(any(GalaxyImage.class));
+        }
+
+        @Test
+        void shouldUpdateNote() {
+                UUID id = UUID.randomUUID();
+                int note = 4;
+
+                galaxyService.updateNote(id, note);
+
+                verify(galaxyImageRepository).updateNote(id, note);
         }
 }
