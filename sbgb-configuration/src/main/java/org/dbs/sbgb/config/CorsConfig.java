@@ -22,13 +22,13 @@ public class CorsConfig {
                     // car les requêtes arrivent du réseau Docker interne
                     registry.addMapping("/**")
                             .allowedOrigins("*")
-                            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                             .allowedHeaders("*");
                 } else {
                     // En développement, autoriser uniquement localhost:4200
                     registry.addMapping("/**")
                             .allowedOrigins("http://localhost:4200")
-                            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                             .allowedHeaders("*");
                 }
             }

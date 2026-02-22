@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class GalaxyRequestCmd {
     private String description;
 
-    @Min(1)
+    @Min(0)
     @Max(5)
     private int note;
 
