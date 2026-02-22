@@ -12,7 +12,6 @@ import java.util.UUID;
 @Builder
 public class GalaxyImageDTO extends RepresentationModel<GalaxyImageDTO> {
     private UUID id;
-    private String name;
     private String description;
     private int note;
     private GalaxyStructureDTO galaxyStructure;
