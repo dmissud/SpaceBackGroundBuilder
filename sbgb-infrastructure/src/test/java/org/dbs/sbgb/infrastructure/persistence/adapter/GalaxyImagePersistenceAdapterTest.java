@@ -92,6 +92,36 @@ class GalaxyImagePersistenceAdapterTest {
         }
 
         @Test
+        void shouldSaveAndRetrieveBloomConfig() {
+                UUID id = UUID.randomUUID();
+                GalaxyStructure structure = GalaxyStructure.builder()
+                                .width(500).height(500).seed(1L).galaxyType("SPIRAL")
+                                .bloomConfig(org.dbs.sbgb.domain.model.vo.BloomConfig.builder()
+                                                .bloomEnabled(true)
+                                                .bloomRadius(15)
+                                                .bloomIntensity(0.7)
+                                                .bloomThreshold(0.4)
+                                                .build())
+                                .build();
+
+                GalaxyImage image = GalaxyImage.builder()
+                                .id(id)
+                                .description("Bloom test galaxy")
+                                .note(2)
+                                .galaxyStructure(structure)
+                                .image(new byte[] { 1 })
+                                .build();
+
+                adapter.save(image);
+                GalaxyImage retrieved = adapter.findById(id);
+
+                assertThat(retrieved.getGalaxyStructure().getBloomConfig()).isNotNull();
+                assertThat(retrieved.getGalaxyStructure().getBloomConfig().isBloomEnabled()).isTrue();
+                assertThat(retrieved.getGalaxyStructure().getBloomConfig().getBloomRadius()).isEqualTo(15);
+                assertThat(retrieved.getGalaxyStructure().getBloomConfig().getBloomIntensity()).isEqualTo(0.7);
+        }
+
+        @Test
         void shouldUpdateNoteWithoutChangingOtherFields() {
                 UUID id = UUID.randomUUID();
                 GalaxyImage image = GalaxyImage.builder()
