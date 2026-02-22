@@ -14,6 +14,23 @@
       [isGenerating]="isGenerating"
       [summary]="getSummary()">
     </app-action-bar>
+
+    <!-- Star Rating - saves the galaxy -->
+    <div class="star-rating-container"
+         [matTooltip]="getRatingTooltip()"
+         matTooltipPosition="above">
+      <span class="star-rating-label">Noter &amp; sauvegarder :</span>
+      @for (star of starValues; track star) {
+        <button mat-icon-button
+                class="star-btn"
+                [class.active]="star <= currentNote"
+                [disabled]="!canRate()"
+                (click)="onNoteSelected(star)"
+                type="button">
+          <mat-icon>{{ star <= currentNote ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+      }
+    </div>
   </ng-template>
 
   <!-- Image preview content -->

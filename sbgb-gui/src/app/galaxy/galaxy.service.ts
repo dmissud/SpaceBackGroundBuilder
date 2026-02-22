@@ -32,4 +32,8 @@ export class GalaxyService {
   createGalaxy(request: GalaxyRequestCmd): Observable<GalaxyImageDTO> {
     return this.http.post<GalaxyImageDTO>(`${this.galaxyApiUrl}/create`, request);
   }
+
+  updateNote(id: string, note: number): Observable<void> {
+    return this.http.patch<void>(`${this.galaxyApiUrl}/${id}/note`, note);
+  }
 }
