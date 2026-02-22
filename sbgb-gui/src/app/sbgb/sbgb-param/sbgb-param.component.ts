@@ -222,6 +222,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         this.loadedSbgbId = sbgb.id ?? null;
         this.currentNote = sbgb.note ?? 0;
         this.builtSbgb = sbgb;
+        // Après la sauvegarde, conserver l'état permettant de noter/télécharger
+        this.isBuilt = true;
+        this.isModifiedSinceBuild = false;
         this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'

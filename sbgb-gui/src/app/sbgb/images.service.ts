@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
-import { HttpClient, HttpResponse } from "@angular/common/http";
+import {HttpClient, HttpResponse} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {Sbgb} from "./sbgb.model";
 
@@ -24,6 +24,8 @@ export class ImagesService {
 
   saveImage(sbgb: Sbgb): Observable<Sbgb> {
     const payload = {
+      name: sbgb.name || undefined,
+      description: sbgb.description || undefined,
       note: sbgb.note ?? 0,
       sizeCmd: sbgb.imageStructure,
       colorCmd: sbgb.imageColor
