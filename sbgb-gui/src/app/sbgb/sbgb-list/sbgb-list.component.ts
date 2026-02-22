@@ -17,6 +17,7 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
         [isLoading]="false"
         emptyMessage="Aucun ciel étoilé enregistré. Créez votre premier ciel étoilé !"
         [showRefreshButton]="false"
+        [showNameColumn]="false"
         (viewRequested)="onViewRequested($event)">
       </app-library-list>
     `,

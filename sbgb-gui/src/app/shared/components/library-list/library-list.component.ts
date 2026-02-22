@@ -38,7 +38,14 @@ export class LibraryListComponent {
   @Output() viewRequested = new EventEmitter<LibraryItem>();
   @Output() refreshRequested = new EventEmitter<void>();
 
-  displayedColumns: string[] = ['note', 'name', 'description', 'dimensions', 'actions'];
+  @Input() showNameColumn: boolean = true;
+
+  get displayedColumns(): string[] {
+    const cols = ['note'];
+    if (this.showNameColumn) cols.push('name');
+    cols.push('description', 'dimensions', 'actions');
+    return cols;
+  }
 
   get sortedItems(): LibraryItem[] {
     return [...this.items].sort((a, b) => (b.note ?? 0) - (a.note ?? 0));

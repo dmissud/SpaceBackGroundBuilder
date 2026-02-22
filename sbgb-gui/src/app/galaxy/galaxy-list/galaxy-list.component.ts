@@ -17,6 +17,7 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
         [isLoading]="isLoading"
         emptyMessage="Aucune galaxie enregistrée. Créez votre première galaxie !"
         [showRefreshButton]="true"
+        [showNameColumn]="false"
         (viewRequested)="onViewRequested($event)"
         (refreshRequested)="loadGalaxies()">
       </app-library-list>
@@ -58,11 +59,12 @@ export class GalaxyListComponent implements OnInit {
         this.galaxies = galaxies;
         this.libraryItems = galaxies.map(g => ({
           id: g.id,
-          name: g.note > 0 ? '★'.repeat(g.note) + '☆'.repeat(5 - g.note) : '☆☆☆☆☆',
+          name: '',
           description: g.description,
           width: g.galaxyStructure.width,
           height: g.galaxyStructure.height,
-          seed: g.galaxyStructure.seed
+          seed: g.galaxyStructure.seed,
+          note: g.note ?? 0
         }));
         this.isLoading = false;
       },
