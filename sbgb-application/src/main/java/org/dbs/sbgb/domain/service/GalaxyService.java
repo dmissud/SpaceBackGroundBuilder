@@ -10,6 +10,7 @@ import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
+import org.dbs.sbgb.port.in.UpdateGalaxyNoteUseCase;
 import org.dbs.sbgb.port.out.GalaxyImageRepository;
 
 import java.awt.image.BufferedImage;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @UseCase
 @RequiredArgsConstructor
-public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImageUseCase, FindGalaxyImagesUseCase {
+public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImageUseCase, FindGalaxyImagesUseCase, UpdateGalaxyNoteUseCase {
 
     private final GalaxyImageRepository galaxyImageRepository;
     private final GalaxyStructureMapper galaxyStructureMapper;
@@ -28,10 +29,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private final StarFieldApplicator starFieldApplicator;
     private final BloomApplicator bloomApplicator;
     private final ImageSerializer imageSerializer;
-    private final GalaxyImageDuplicationHandler duplicationHandler;
 
-    // Cache for the last generated image results to avoid re-calculating during
-    // save
+    // Cache for the last generated image results to avoid re-calculating during save
     private GalaxyRequestCmd lastRequest;
     private byte[] lastBytes;
 
@@ -45,7 +44,6 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
         byte[] bytes = imageSerializer.toByteArray(image);
 
-        // Update cache
         this.lastRequest = galaxyRequestCmd;
         this.lastBytes = bytes;
 
@@ -54,16 +52,12 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
 
     @Override
     public GalaxyImage createGalaxyImage(GalaxyRequestCmd galaxyRequestCmd) throws IOException {
-        UUID id = duplicationHandler.resolveId(galaxyRequestCmd.getName(), galaxyRequestCmd.isForceUpdate());
-        int note = duplicationHandler.resolveNote(galaxyRequestCmd.getName());
-
         byte[] imageBytes;
         if (isSameImagery(galaxyRequestCmd, lastRequest) && lastBytes != null) {
             imageBytes = lastBytes;
         } else {
             BufferedImage image = generateGalaxyBufferedImage(galaxyRequestCmd);
             imageBytes = imageSerializer.toByteArray(image);
-            // Optional: update cache here too?
             this.lastRequest = galaxyRequestCmd;
             this.lastBytes = imageBytes;
         }
@@ -71,10 +65,9 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         GalaxyStructure structure = galaxyStructureMapper.toGalaxyStructure(galaxyRequestCmd);
 
         GalaxyImage galaxyImage = GalaxyImage.builder()
-                .id(id)
-                .name(galaxyRequestCmd.getName())
+                .id(UUID.randomUUID())
                 .description(galaxyRequestCmd.getDescription())
-                .note(note)
+                .note(galaxyRequestCmd.getNote())
                 .galaxyStructure(structure)
                 .image(imageBytes)
                 .build();
@@ -82,14 +75,15 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
         return galaxyImageRepository.save(galaxyImage);
     }
 
+    @Override
+    public void updateNote(UUID id, int note) {
+        galaxyImageRepository.updateNote(id, note);
+    }
+
     private boolean isSameImagery(GalaxyRequestCmd cmd1, GalaxyRequestCmd cmd2) {
         if (cmd1 == null || cmd2 == null)
             return false;
 
-        // We compare everything except metadata (name, description, forceUpdate)
-        // A simple way since we have @Data is to compare a "stripped" version or just
-        // relevant fields.
-        // For safety and simplicity, we check the core parameters.
         return cmd1.getSeed() == cmd2.getSeed() &&
                 cmd1.getWidth() == cmd2.getWidth() &&
                 cmd1.getHeight() == cmd2.getHeight() &&
@@ -111,7 +105,6 @@ public class GalaxyService implements BuildGalaxyImageUseCase, CreateGalaxyImage
     private BufferedImage generateGalaxyBufferedImage(GalaxyRequestCmd cmd) {
         GalaxyParameters parameters = galaxyStructureMapper.toGalaxyParameters(cmd);
 
-        // Create color calculator based on colorPalette parameter
         GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
 
         GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
