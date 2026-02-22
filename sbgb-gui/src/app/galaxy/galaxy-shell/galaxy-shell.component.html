@@ -22,12 +22,12 @@
       <span class="star-rating-label">Noter &amp; sauvegarder :</span>
       @for (star of starValues; track star) {
         <button mat-icon-button
-                class="star-btn"
-                [class.active]="star <= currentNote"
                 [disabled]="!canRate()"
                 (click)="onNoteSelected(star)"
                 type="button">
-          <mat-icon>{{ star <= currentNote ? 'star' : 'star_border' }}</mat-icon>
+          <mat-icon [style.color]="star <= currentNote ? '#ffd740' : 'rgba(255,255,255,0.4)'">
+            {{ star <= currentNote ? 'star' : 'star_border' }}
+          </mat-icon>
         </button>
       }
     </div>

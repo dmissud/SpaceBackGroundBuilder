@@ -9,18 +9,4 @@
     margin-right: 4px;
     color: rgba(255, 255, 255, 0.7);
   }
-
-  .star-btn {
-    ::ng-deep mat-icon {
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    &.active ::ng-deep mat-icon {
-      color: #ffd740;
-    }
-
-    &:not([disabled]):hover ::ng-deep mat-icon {
-      color: #ffd740;
-    }
-  }
 }
