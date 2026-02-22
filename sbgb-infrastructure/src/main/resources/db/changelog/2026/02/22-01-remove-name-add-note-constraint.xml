@@ -10,7 +10,7 @@
     </changeSet>
 
     <changeSet id="22-01-add-note-check-constraint" author="daniel">
-        <sql>ALTER TABLE galaxy_image ADD CONSTRAINT chk_note_range CHECK (note >= 1 AND note &lt;= 5)</sql>
+        <sql>ALTER TABLE galaxy_image ADD CONSTRAINT chk_note_range CHECK (note &gt;= 1 AND note &lt;= 5)</sql>
         <rollback>
             <sql>ALTER TABLE galaxy_image DROP CONSTRAINT chk_note_range</sql>
         </rollback>
