@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,5 +41,11 @@ public class NoiseImagePersistenceAdapter implements NoiseImageRepository {
     @Transactional(readOnly = true)
     public Optional<NoiseImage> findByName(String name) {
         return noiseImageJpaRepository.findByName(name).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional
+    public void updateNote(UUID id, int note) {
+        noiseImageJpaRepository.updateNote(id, note);
     }
 }

@@ -1,23 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { MatAccordion } from "@angular/material/expansion";
-import { MatIcon } from "@angular/material/icon";
-import { MatTooltip } from "@angular/material/tooltip";
-import { GalaxyService } from "../galaxy.service";
-import { GalaxyImageDTO, GalaxyRequestCmd } from "../galaxy.model";
-import { BasicInfoSectionComponent } from "./sections/basic-info-section.component";
-import { PresetsSectionComponent } from "./sections/presets-section.component";
-import { SpiralStructureSectionComponent } from "./sections/spiral-structure-section.component";
-import { VoronoiStructureSectionComponent } from "./sections/voronoi-structure-section.component";
-import { EllipticalStructureSectionComponent } from "./sections/elliptical-structure-section.component";
-import { RingStructureSectionComponent } from "./sections/ring-structure-section.component";
-import { IrregularStructureSectionComponent } from "./sections/irregular-structure-section.component";
-import { CoreRadiusSectionComponent } from "./sections/core-radius-section.component";
-import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
-import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
-import { ColorsSectionComponent } from "./sections/colors-section.component";
-
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatAccordion} from "@angular/material/expansion";
+import {MatIcon} from "@angular/material/icon";
+import {MatTooltip} from "@angular/material/tooltip";
+import {GalaxyService} from "../galaxy.service";
+import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
+import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
+import {PresetsSectionComponent} from "./sections/presets-section.component";
+import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
+import {VoronoiStructureSectionComponent} from "./sections/voronoi-structure-section.component";
+import {EllipticalStructureSectionComponent} from "./sections/elliptical-structure-section.component";
+import {RingStructureSectionComponent} from "./sections/ring-structure-section.component";
+import {IrregularStructureSectionComponent} from "./sections/irregular-structure-section.component";
+import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
+import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
+import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {ColorsSectionComponent} from "./sections/colors-section.component";
 
 
 @Component({
@@ -43,7 +42,7 @@ import { ColorsSectionComponent } from "./sections/colors-section.component";
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
 })
-export class GalaxyParamComponent implements OnInit {
+export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatAccordion) accordion!: MatAccordion;
 
@@ -146,6 +145,16 @@ export class GalaxyParamComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const savedState = this.galaxyService.getState();
+    if (savedState) {
+      this.galaxyForm.patchValue(savedState.formValue, {emitEvent: false});
+      this.generatedImageUrl = savedState.generatedImageUrl;
+      this.loadedGalaxyId = savedState.loadedGalaxyId;
+      this.currentNote = savedState.currentNote;
+      this.isModifiedSinceBuild = savedState.isModifiedSinceBuild;
+      this.builtGalaxyParams = savedState.builtGalaxyParams;
+    }
+
     this.galaxyForm.valueChanges.subscribe(() => {
       this.isModifiedSinceBuild = true;
     });
@@ -280,6 +289,7 @@ export class GalaxyParamComponent implements OnInit {
         this.isModifiedSinceBuild = false;
         this.loadedGalaxyId = null;
         this.builtGalaxyParams = structuredClone(this.galaxyForm.value) as GalaxyRequestCmd;
+        this.saveCurrentState();
         this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
       },
       error: (error) => {
@@ -299,6 +309,7 @@ export class GalaxyParamComponent implements OnInit {
       this.galaxyService.updateNote(this.loadedGalaxyId, note).subscribe({
         next: () => {
           this.galaxyService.galaxySaved$.next();
+          this.saveCurrentState();
           this.snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', { duration: 3000 });
         },
         error: (error) => {
@@ -316,6 +327,7 @@ export class GalaxyParamComponent implements OnInit {
           this.loadedGalaxyId = galaxy.id;
           this.isModifiedSinceBuild = false;
           this.galaxyService.galaxySaved$.next();
+          this.saveCurrentState();
           this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', { duration: 3000 });
         },
         error: (error) => {
@@ -862,5 +874,20 @@ export class GalaxyParamComponent implements OnInit {
       this.accordion.openAll();
       this.allPanelsExpanded = true;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.saveCurrentState();
+  }
+
+  private saveCurrentState(): void {
+    this.galaxyService.saveState({
+      formValue: this.galaxyForm.getRawValue(),
+      generatedImageUrl: this.generatedImageUrl,
+      loadedGalaxyId: this.loadedGalaxyId,
+      currentNote: this.currentNote,
+      isModifiedSinceBuild: this.isModifiedSinceBuild,
+      builtGalaxyParams: this.builtGalaxyParams
+    });
   }
 }

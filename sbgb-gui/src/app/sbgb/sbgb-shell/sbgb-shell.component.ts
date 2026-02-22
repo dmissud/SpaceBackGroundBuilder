@@ -6,6 +6,9 @@ import { Store } from "@ngrx/store";
 import { selectImageBuild, selectImageIsBuilding } from "../state/sbgb.selectors";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { Sbgb } from "../sbgb.model";
 
@@ -16,7 +19,10 @@ import { Sbgb } from "../sbgb.model";
     SbgbParamComponent,
     SbgbImageComponent,
     SbgbListComponent,
-    ActionBarComponent
+    ActionBarComponent,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule
   ],
   templateUrl: './sbgb-shell.component.html',
   styleUrl: './sbgb-shell.component.scss'
@@ -35,7 +41,6 @@ export class SbgbShellComponent implements AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  // Action bar buttons configuration
   get actionBarButtons(): ActionBarButton[] {
     const param = this.paramComponent;
     if (!param) return [];
@@ -49,19 +54,32 @@ export class SbgbShellComponent implements AfterViewInit {
         action: () => param.computeImage()
       },
       {
-        label: 'Sauvegarder',
-        color: 'accent',
-        disabled: !param.canSave(),
-        tooltip: param.getSaveTooltip(),
-        action: () => param.saveImage()
-      },
-      {
         label: 'Télécharger',
         disabled: !param.canDownload(),
         tooltip: param.getDownloadTooltip(),
         action: () => param.downloadImage()
       }
     ];
+  }
+
+  get currentNote(): number {
+    return this.paramComponent?.currentNote || 0;
+  }
+
+  get starValues(): number[] {
+    return this.paramComponent?.starValues || [1, 2, 3, 4, 5];
+  }
+
+  canRate(): boolean {
+    return this.paramComponent?.canRate() || false;
+  }
+
+  getRatingTooltip(): string {
+    return this.paramComponent?.getRatingTooltip() || '';
+  }
+
+  onNoteSelected(note: number): void {
+    this.paramComponent?.onNoteSelected(note);
   }
 
   getSummary(): string | null {

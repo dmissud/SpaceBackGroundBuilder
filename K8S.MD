@@ -1,107 +1,169 @@
-### Résumé de la Configuration Déployée sur le Cluster `bree`
+### Guide de Déploiement Kubernetes
 
-Le déploiement a été structuré pour isoler les composants tout en mutualisant les ressources lourdes (Base de données).
+Ce document décrit comment déployer l'application SpaceBackgroundBuilder sur un cluster Kubernetes. Le déploiement est conçu pour être modulaire et configurable.
 
-#### 1. Architecture des Namespaces
+#### 1. Architecture du Déploiement
 
-- **Namespace `infra`** : Héberge le serveur PostgreSQL mutualisé (`postgres-shared`).
-- **Namespace `sbgb`** : Héberge l'application SpaceBackgroundBuilder (Frontend, Backend, Ingress).
+Le déploiement se compose généralement de deux parties :
+- **Infrastructure** : Héberge les services mutualisés comme la base de données PostgreSQL.
+- **Application SBGB** : Héberge les composants spécifiques de l'application (Frontend, Backend, Ingress).
 
-#### 2. Composants Déployés
+Composants principaux :
+- **PostgreSQL** : Base de données relationnelle pour la persistance des données.
+- **Backend Spring Boot** : API REST gérant la logique métier et la génération d'images.
+- **Frontend Nginx** : Application Angular servie par Nginx, incluant un proxy vers le backend.
+- **Ingress** : Gère le routage du trafic externe (HTTPS) vers les services.
 
-- **PostgreSQL (`infra`)** :
-    - Service : `postgres-shared.infra.svc.cluster.local:5432`
-    - Volume : Persistant (5Go).
-- **Backend Spring Boot (`sbgb`)** :
-    - Service : `sbgb-backend:8080`
-    - Image : `ghcr.io/dmissud/spacebackgroundbuilder/backend:latest`
-    - Connecté à la base `sbgb` dans `infra`.
-- **Frontend Nginx (`sbgb`)** :
-    - Service : `sbgb-frontend:80`
-    - Image : `ghcr.io/dmissud/spacebackgroundbuilder/frontend:latest`
-    - Configuré pour servir l'application sur le préfixe `/sbgb/`.
-- **Ingress (`sbgb`)** :
-    - Gère le trafic HTTPS sur `https://bree/`.
-    - Routage : `/sbgb` -> Frontend, `/sbgb/api` -> Backend.
-    - Certificat : Auto-signé (Secret `sbgb-tls-secret`).
+---
 
-#### 3. Points d'Accès
+#### 2. Déploiement avec Helm (Recommandé)
 
-- **Application** : `https://bree/sbgb/`
-- **Documentation API (Swagger)** : `https://bree/sbgb/api/swagger-ui.html`
+Helm permet un déploiement en une seule étape et facilite la gestion des configurations.
 
-#### 4. Emplacement des fichiers de configuration Kubernetes
+**Pré-requis :**
+- Helm installé.
+- Accès à votre cluster Kubernetes.
 
-Les fichiers YAML utilisés pour le déploiement sont organisés comme suit :
+**Installation :**
+```bash
+# Aller dans le répertoire du chart
+cd k8s/helm/sbgb
 
-- **Infrastructure commune** : `k8s/infra/postgres-shared.yaml` (PostgreSQL).
-- **Application SBGB** :
-    - `k8s/sbgb/base/backend.yaml` (Deployment & Service API).
-    - `k8s/sbgb/base/frontend.yaml` (Deployment, Service & ConfigMap Nginx).
-    - `k8s/sbgb/base/ingress.yaml` (Règles de routage HTTPS et Ingress).
+# Installer ou mettre à jour la release
+helm upgrade --install sbgb . \
+  --namespace sbgb \
+  --create-namespace \
+  --set ingress.host="votre-domaine.com"
+```
 
-#### 5. Commandes de déploiement et maintenance
+**Principales options de configuration (`values.yaml`) :**
+| Paramètre | Description | Défaut |
+|-----------|-------------|---------|
+| `postgresql.enabled` | Déployer une instance Postgres avec le chart | `true` |
+| `backend.image` | Image Docker du backend | `ghcr.io/dmissud/spacebackgroundbuilder/backend:latest` |
+| `frontend.image` | Image Docker du frontend | `ghcr.io/dmissud/spacebackgroundbuilder/frontend:latest` |
+| `ingress.host` | Nom d'hôte pour l'accès externe | `sbgb.example.com` |
+| `ingress.basePath` | Préfixe d'URL pour l'application | `/sbgb` |
 
-Voici les commandes principales pour gérer votre cluster `bree` :
+---
 
-**Déploiement initial / Mise à jour :**
+#### 3. Déploiement manuel avec Kubectl
+
+Si vous ne souhaitez pas utiliser Helm, vous pouvez appliquer les manifestes YAML individuellement.
+
+**Ordre de déploiement :**
 
 ```bash
-# Appliquer l'infrastructure (PostgreSQL)
-kubectl apply -f k8s/infra/postgres-shared.yaml
+# 1. Créer les namespaces
+kubectl create namespace infra
+kubectl create namespace sbgb
 
-# Appliquer l'application (dans l'ordre)
-kubectl apply -f k8s/sbgb/base/backend.yaml
-kubectl apply -f k8s/sbgb/base/frontend.yaml
-kubectl apply -f k8s/sbgb/base/ingress.yaml
+# 2. Déployer l'infrastructure (PostgreSQL)
+kubectl apply -f k8s/infra/
+
+# 3. Déployer l'application
+kubectl apply -f k8s/sbgb/base/
 ```
+
+---
+
+#### 4. Commandes de Maintenance
 
 **Vérification de l'état :**
-
 ```bash
-# Voir tous les pods de l'application
+# Voir les pods
 kubectl get pods -n sbgb
 
-# Voir les logs du backend (pour déboguer la génération)
+# Voir les logs du backend
 kubectl logs -n sbgb -l app=sbgb-backend --tail=100 -f
-
-# Voir les logs du frontend
-kubectl logs -n sbgb -l app=sbgb-frontend --tail=50
 ```
 
-**Redémarrage forcé (pour forcer le pull de la dernière image `latest`) :**
-
+**Mise à jour des images :**
 ```bash
+# Forcer le redémarrage pour récupérer la version 'latest'
 kubectl rollout restart deployment sbgb-backend -n sbgb
 kubectl rollout restart deployment sbgb-frontend -n sbgb
 ```
 
 ---
 
-### Erreurs Rencontrées et État de Résolution
+#### 5. Exemple : Configuration pour le Cluster `bree`
 
-#### A. Erreur de Redirections Infinies (`ERR_TOO_MANY_REDIRECTS`)
+Le cluster `bree` (MicroK8s) utilise la configuration spécifique suivante :
 
-- **Cause** : Conflit entre l'Ingress (force HTTPS) et Nginx (redirection absolue vers HTTP).
-- **Solution** : Ajout de `absolute_redirect off;` dans la configuration Nginx et passage en chemins relatifs.
-- **Statut** : ✅ **Résolu**.
+- **Host** : `bree`
+- **Namespaces** : `infra` (DB), `sbgb` (App)
+- **Accès Application** : `https://bree/sbgb/`
+- **Swagger UI** : `https://bree/sbgb/api/swagger-ui.html`
+- **Ingress Class** : `public`
+- **Certificat** : Auto-signé (Secret `sbgb-tls-secret`)
 
-#### B. Ressources Statiques (JS/CSS) non trouvées (404)
+Pour déployer sur `bree` via Helm :
+```bash
+helm upgrade --install sbgb k8s/helm/sbgb \
+  --namespace sbgb \
+  --set ingress.host="bree" \
+  --set ingress.className="public"
+```
 
-- **Cause** : Le frontend cherchait ses fichiers à la racine `/` au lieu de `/sbgb/`.
-- **Solution** : Correction du `<base href="/sbgb/">` et création d'un dossier physique `/sbgb` dans le pod frontend via
-  un script `postStart`.
-- **Statut** : ✅ **Résolu**.
+---
 
-#### C. Échec de Génération de Galaxie (`405 Method Not Allowed`)
+#### 7. Intégration avec IntelliJ IDEA (Alternative GUI)
 
-- **Problème actuel** : Lorsqu'on tente de générer une galaxie (`POST /sbgb/api/galaxies/build`), le serveur renvoie une
-  erreur 405.
-- **Diagnostic technique** :
-    - Le backend reçoit la requête mais prétend que seul `GET` est autorisé sur cet endpoint.
-    - Étrangement, le `POST` fonctionne pour d'autres ressources (ex: `/images/build`).
-    - L'Ingress a été mis à jour avec `rewrite-target` pour s'assurer que le backend reçoit bien `/galaxies/build` et
-      non `/sbgb/api/galaxies/build`.
-- **Hypothèse principale** : Incohérence entre l'image Docker `latest` déployée et le code source local, ou conflit de
-  routage interne à Spring Boot spécifique à l'objet `Galaxy`.
-- **Statut** : ⚠️ **En cours d'investigation**.
+Si vous utilisez IntelliJ IDEA Ultimate (ou avec les plugins **Kubernetes** et **Helm** installés), vous pouvez gérer le déploiement sans ligne de commande.
+
+**A. Déploiement via Helm (GUI) :**
+1. Faites un clic droit sur le dossier `k8s/helm/sbgb` ou sur le fichier `Chart.yaml`.
+2. Sélectionnez **Helm** > **Install / Upgrade**.
+3. Dans la boîte de dialogue, vous pouvez :
+   - Choisir le **Namespace** (`sbgb`).
+   - Cocher **Create Namespace** si nécessaire.
+   - Ajouter des arguments `--set` (ex: `ingress.host=votre-domaine.com`) dans le champ **Arguments**.
+4. Cliquez sur **OK**.
+
+**B. Déploiement Kubectl (GUI) :**
+1. Faites un clic droit sur le dossier `k8s/infra/` ou `k8s/sbgb/base/`.
+2. Sélectionnez **Kubernetes** > **Apply to Cluster**.
+
+**C. Surveillance (Tool Window "Services") :**
+1. Ouvrez l'onglet **Services** (en bas d'IntelliJ).
+2. Sous **Kubernetes**, connectez votre cluster.
+3. Vous pouvez naviguer dans les **Namespaces** (`sbgb`, `infra`), voir les **Pods**, consulter les **Logs** en temps réel et même ouvrir un terminal dans un conteneur.
+
+---
+
+#### 9. Déploiement Multi-environnements (Bree & Pi8)
+
+Le projet est configuré pour se déployer automatiquement sur plusieurs clusters (ex: `bree` et `pi8`) via une matrice dans GitHub Actions.
+
+**A. Configuration des Runners :**
+Chaque runner doit posséder les labels suivants pour être ciblé :
+- **Bree** : `self-hosted`, `sbgb`, `bree`
+- **Pi8** : `self-hosted`, `sbgb`, `pi8`
+
+**B. Ajout d'un nouveau Runner (ex: Raspberry Pi) :**
+1. Sur le Pi, téléchargez le runner ARM64.
+2. Configurez-le : `./config.sh --url https://github.com/dmissud/SpaceBackGroundBuilder --labels self-hosted,sbgb,pi8`.
+3. Installez-le en tant que service : `sudo ./svc.sh install && sudo ./svc.sh start`.
+
+**C. Architecture Multi-Arch :**
+Le workflow de build est configuré pour générer des images Docker compatibles `amd64` (Bree) et `arm64` (Raspberry Pi).
+
+---
+
+#### 10. Historique des Résolutions
+
+##### A. Redirections Infinies (`ERR_TOO_MANY_REDIRECTS`)
+- **Cause** : Conflit entre Ingress (HTTPS) et Nginx (redirection HTTP).
+- **Solution** : `absolute_redirect off;` dans Nginx et chemins relatifs.
+- **Statut** : ✅ Résolu.
+
+##### B. Ressources Statiques (404)
+- **Cause** : Le frontend cherchait `/` au lieu de `/sbgb/`.
+- **Solution** : `<base href="/sbgb/">` et configuration du chemin dans le pod.
+- **Statut** : ✅ Résolu.
+
+##### C. Échec de Génération (405 Method Not Allowed)
+- **Problème** : `POST /sbgb/api/galaxies/build` renvoie 405.
+- **Diagnostic** : Problème de routage ou de version d'image.
+- **Statut** : ⚠️ En cours d'investigation.

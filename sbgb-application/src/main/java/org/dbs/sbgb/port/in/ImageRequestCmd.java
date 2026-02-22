@@ -18,6 +18,8 @@ public class ImageRequestCmd {
     private String description;
     private String type;
     private boolean forceUpdate;
+    @Min(0) @Max(5)
+    private int note;
     @Valid
     @NotNull
     private SizeCmd sizeCmd;

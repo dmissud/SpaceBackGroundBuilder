@@ -50,10 +50,22 @@ export class SbgbEffects {
   saveImage$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SbgbPageActions.saveSbgb),
-      mergeMap(({sbgb, forceUpdate}) =>
-        this.imagesService.saveImage(sbgb, forceUpdate).pipe(
+      mergeMap(({sbgb}) =>
+        this.imagesService.saveImage(sbgb).pipe(
           map((savedSbgb) => ImageApiActions.imagesSaveSuccess({sbgb: savedSbgb})),
           catchError((error) => of(ImageApiActions.imagesSaveFail({message: error.error?.message || error.message})))
+        )
+      )
+    )
+  );
+
+  updateNote$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.updateNote),
+      mergeMap(({id, note}) =>
+        this.imagesService.updateNote(id, note).pipe(
+          map(() => ImageApiActions.imagesUpdateNoteSuccess({id, note})),
+          catchError((error) => of(ImageApiActions.imagesUpdateNoteFail({message: error.error?.message || error.message})))
         )
       )
     )

@@ -11,6 +11,7 @@ import org.dbs.sbgb.port.in.BuildNoiseImageUseCase;
 import org.dbs.sbgb.port.in.CreateNoiseImageUseCase;
 import org.dbs.sbgb.port.in.FindNoiseImagesUseCase;
 import org.dbs.sbgb.port.in.ImageRequestCmd;
+import org.dbs.sbgb.port.in.UpdateNoiseImageNoteUseCase;
 import org.dbs.sbgb.exposition.common.LogExecutionTime;
 import org.dbs.sbgb.exposition.resources.dto.NoiseImageDTO;
 import org.dbs.sbgb.exposition.resources.mapper.MapperNoiseImage;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -34,6 +37,7 @@ public class ImageResource {
     private final BuildNoiseImageUseCase buildNoiseImageUseCase;
     private final CreateNoiseImageUseCase createNoiseImageUseCase;
     private final FindNoiseImagesUseCase findNoiseImagesUseCase;
+    private final UpdateNoiseImageNoteUseCase updateNoiseImageNoteUseCase;
     private final MapperNoiseImage mapperNoiseImage;
 
     @GetMapping(value = "/images", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -78,5 +82,19 @@ public class ImageResource {
 
         return ResponseEntity.created(selfLink.toUri())
                 .body(noiseImageDTO);
+    }
+
+    @PatchMapping(value = "/images/{id}/note")
+    @Operation(description = "Update the note (rating) of a saved noise image")
+    @LogExecutionTime
+    public ResponseEntity<Void> updateNote(
+            @PathVariable("id") UUID id,
+            @RequestBody Map<String, Integer> body) {
+        Integer note = body.get("note");
+        if (note == null || note < 1 || note > 5) {
+            return ResponseEntity.badRequest().build();
+        }
+        updateNoiseImageNoteUseCase.updateNote(id, note);
+        return ResponseEntity.noContent().build();
     }
 }

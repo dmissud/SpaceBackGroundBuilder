@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
-import {GalaxyImageDTO, GalaxyRequestCmd} from './galaxy.model';
+import {GalaxyImageDTO, GalaxyPersistedState, GalaxyRequestCmd} from './galaxy.model';
 import {ApiService} from '../common/api.service';
 
 @Injectable({
@@ -11,12 +11,25 @@ export class GalaxyService {
 
   private readonly galaxyApiUrl: string;
   public readonly galaxySaved$ = new Subject<void>();
+  private persistedState: GalaxyPersistedState | null = null;
 
   constructor(
     private http: HttpClient,
     private apiService: ApiService
   ) {
     this.galaxyApiUrl = `${this.apiService.appUrl}/galaxies`;
+  }
+
+  saveState(state: GalaxyPersistedState): void {
+    this.persistedState = state;
+  }
+
+  getState(): GalaxyPersistedState | null {
+    return this.persistedState;
+  }
+
+  clearState(): void {
+    this.persistedState = null;
   }
 
   getAllGalaxies(): Observable<GalaxyImageDTO[]> {

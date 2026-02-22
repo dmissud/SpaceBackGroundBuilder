@@ -6,6 +6,7 @@ import org.dbs.sbgb.port.out.NoiseImageRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class NoiseImageRepositoryStub implements NoiseImageRepository {
@@ -25,5 +26,12 @@ public class NoiseImageRepositoryStub implements NoiseImageRepository {
     @Override
     public java.util.Optional<NoiseImage> findByName(String name) {
         return (savedImage != null && name.equals(savedImage.getName())) ? java.util.Optional.of(savedImage) : java.util.Optional.empty();
+    }
+
+    @Override
+    public void updateNote(UUID id, int note) {
+        if (savedImage != null && savedImage.getId().equals(id)) {
+            savedImage.setNote(note);
+        }
     }
 }

@@ -121,3 +121,12 @@ export interface GalaxyRequestCmd {
   bloomParameters: BloomParameters;
   colorParameters: ColorParameters;
 }
+
+export interface GalaxyPersistedState {
+  formValue: any;
+  generatedImageUrl: string | null;
+  loadedGalaxyId: string | null;
+  currentNote: number;
+  isModifiedSinceBuild: boolean;
+  builtGalaxyParams: GalaxyRequestCmd | null;
+}

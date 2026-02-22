@@ -59,10 +59,13 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   saveSuccessSub: Subscription | undefined;
 
   protected _myForm: FormGroup;
-  private loadedFromDbSbgb: Sbgb | null = null;  // Image chargée depuis la BDD
-  private builtSbgb: Sbgb | null = null;         // Image qui a été buildée
+  private loadedFromDbSbgb: Sbgb | null = null;
+  private builtSbgb: Sbgb | null = null;
   protected isModifiedSinceBuild: boolean = true;
   protected isBuilt: boolean = false;
+  loadedSbgbId: string | null = null;
+  currentNote: number = 0;
+  readonly starValues = [1, 2, 3, 4, 5];
 
   constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions) {
     this._myForm = new FormGroup({
@@ -146,8 +149,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         if (message === 'Image generated successfully') {
           this.isBuilt = true;
           this.isModifiedSinceBuild = false;
-          // Sauvegarder l'image qui vient d'être buildée
           this.builtSbgb = this.getSbgbFromForm();
+          if (!this.loadedSbgbId) {
+            this.currentNote = 0;
+          }
         }
         this._snackBar.open(message, 'Close', { // Utilisation du message reçu en tant que texte pour le Snackbar
           duration: 3000,
@@ -163,9 +168,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         const isDifferentImage = !this.loadedFromDbSbgb || this.loadedFromDbSbgb.id !== sbgb.id;
 
         if (isDifferentImage) {
-          console.log('Chargement d\'une nouvelle image depuis la BDD:', sbgb.id);
-          // Ne charger que les images qui ont un ID (venant de la BDD)
           this.loadedFromDbSbgb = sbgb;
+          this.loadedSbgbId = sbgb.id ?? null;
+          this.currentNote = sbgb.note ?? 0;
           this.isBuilt = false;
           this.builtSbgb = null;
           // Ne pas marquer comme modifié lors du chargement depuis la BDD
@@ -214,8 +219,12 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         console.log('Image sauvegardée avec succès, mise à jour de loadedFromDbSbgb:', sbgb);
         // Mettre à jour la référence BDD avec l'image sauvegardée
         this.loadedFromDbSbgb = sbgb;
-        // L'image buildée devient la référence BDD
+        this.loadedSbgbId = sbgb.id ?? null;
+        this.currentNote = sbgb.note ?? 0;
         this.builtSbgb = sbgb;
+        // Après la sauvegarde, conserver l'état permettant de noter/télécharger
+        this.isBuilt = true;
+        this.isModifiedSinceBuild = false;
         this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'
@@ -332,29 +341,27 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
   }
 
-  saveImage() {
-    const sbgb = this.builtSbgb || this.getSbgbFromForm();
+  onNoteSelected(note: number): void {
+    if (note < 1) return;
+    this.currentNote = note;
 
-    // Si l'image a un ID (vient de la BDD), vérifier si elle a été modifiée
-    if (this.loadedFromDbSbgb && this.loadedFromDbSbgb.id) {
-      if (!this.isModified(sbgb, this.loadedFromDbSbgb)) {
-        this._snackBar.open('Le ciel étoilé n\'a pas été modifié.', 'OK', {duration: 3000});
-        return;
-      }
-
-      const isSameName = this.loadedFromDbSbgb.name === sbgb.name;
-      const confirmMessage = isSameName
-        ? `Le ciel étoilé "${sbgb.name}" existe déjà et a été modifié. Voulez-vous le mettre à jour ?`
-        : `Le ciel étoilé "${sbgb.name}" va être enregistré. Voulez-vous continuer ?`;
-
-      const confirmUpdate = confirm(confirmMessage);
-      if (confirmUpdate) {
-        this.store.dispatch(SbgbPageActions.saveSbgb({sbgb, forceUpdate: isSameName}));
-      }
+    if (this.loadedSbgbId && !this.isModifiedSinceBuild) {
+      this.store.dispatch(SbgbPageActions.updateNote({id: this.loadedSbgbId, note}));
+      this._snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', {duration: 3000});
     } else {
-      // Nouvelle image ou image buildée sans ID
-      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb, forceUpdate: false}));
+      const sbgb = {...(this.builtSbgb || this.getSbgbFromForm()), note};
+      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb}));
     }
+  }
+
+  canRate(): boolean {
+    return this.isBuilt && !this.isModifiedSinceBuild;
+  }
+
+  getRatingTooltip(): string {
+    if (!this.isBuilt) return 'Générez d\'abord un ciel étoilé avant de pouvoir le noter et le sauvegarder.';
+    if (this.isModifiedSinceBuild) return 'Regénérez le ciel étoilé avant de noter.';
+    return 'Attribuez une note pour sauvegarder ce ciel étoilé';
   }
 
   public hasUnsavedChanges(): boolean {

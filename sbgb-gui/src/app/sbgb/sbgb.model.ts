@@ -39,6 +39,7 @@ export interface Sbgb {
   id?: string;
   name?: string;
   description?: string;
+  note?: number;
   imageStructure: Image;
   imageColor: Color;
 }

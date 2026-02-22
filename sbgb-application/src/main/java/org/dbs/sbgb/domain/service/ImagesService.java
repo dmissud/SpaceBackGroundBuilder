@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @UseCase
 @RequiredArgsConstructor
-public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUseCase, FindNoiseImagesUseCase {
+public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUseCase, FindNoiseImagesUseCase, org.dbs.sbgb.port.in.UpdateNoiseImageNoteUseCase {
 
     private final NoiseImageRepository noiseImageRepository;
 
@@ -115,23 +115,11 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
 
     @Override
     public NoiseImage createNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
-        // Validation du nom obligatoire
-        if (imageRequestCmd.getName() == null || imageRequestCmd.getName().isBlank()) {
-            throw new IllegalArgumentException("Le nom de l'image est obligatoire");
-        }
-
-        java.util.Optional<NoiseImage> existingImage = noiseImageRepository.findByName(imageRequestCmd.getName());
-
-        if (existingImage.isPresent() && !imageRequestCmd.isForceUpdate()) {
-            throw new ImageNameAlreadyExistsException(imageRequestCmd.getName());
-        }
-
         byte[] imageBytes;
         if (isSameImagery(imageRequestCmd, lastRequest) && lastBytes != null) {
             imageBytes = lastBytes;
         } else {
             imageBytes = buildNoiseImage(imageRequestCmd);
-            // Cache is updated inside buildNoiseImage
         }
 
         ImageStructure structure = new ImageStructure(
@@ -154,23 +142,21 @@ public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUs
                 imageRequestCmd.getColorCmd().getMiddleThreshold(),
                 InterpolationType.valueOf(imageRequestCmd.getColorCmd().getInterpolationType()));
 
-        UUID id = existingImage.map(NoiseImage::getId).orElse(UUID.randomUUID());
-
-        // Si la description est vide ou null, dupliquer le nom
-        String description = (imageRequestCmd.getDescription() == null || imageRequestCmd.getDescription().isBlank())
-                ? imageRequestCmd.getName()
-                : imageRequestCmd.getDescription();
-
         NoiseImage noiseImage = new NoiseImage(
-                id,
+                UUID.randomUUID(),
                 imageRequestCmd.getName(),
-                description,
-                0,
+                imageRequestCmd.getDescription(),
+                imageRequestCmd.getNote(),
                 structure,
                 color,
                 imageBytes);
 
         return noiseImageRepository.save(noiseImage);
+    }
+
+    @Override
+    public void updateNote(UUID id, int note) {
+        noiseImageRepository.updateNote(id, note);
     }
 
     private boolean isSameImagery(ImageRequestCmd cmd1, ImageRequestCmd cmd2) {
