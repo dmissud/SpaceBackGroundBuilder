@@ -13,6 +13,21 @@
       [buttons]="actionBarButtons"
       [isGenerating]="isGenerating()"
       [summary]="getSummary()">
+      @if (canRate()) {
+        <div class="star-rating-container"
+             matTooltip="Noter &amp; sauvegarder"
+             matTooltipPosition="above">
+          @for (star of starValues; track star) {
+            <button mat-icon-button
+                    (click)="onNoteSelected(star)"
+                    type="button">
+              <mat-icon [style.color]="star <= currentNote ? '#f59f00' : 'rgba(0,0,0,0.35)'">
+                {{ star <= currentNote ? 'star' : 'star_border' }}
+              </mat-icon>
+            </button>
+          }
+        </div>
+      }
     </app-action-bar>
   </ng-template>
 

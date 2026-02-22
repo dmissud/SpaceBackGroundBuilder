@@ -37,7 +37,8 @@ export class SbgbListComponent implements OnInit {
         description: s.description || '',
         width: s.imageStructure.width,
         height: s.imageStructure.height,
-        seed: s.imageStructure.seed
+        seed: s.imageStructure.seed,
+        note: s.note ?? 0
       })))
     ).subscribe(items => {
       this.libraryItems = items;

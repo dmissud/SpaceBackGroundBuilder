@@ -4,6 +4,7 @@ import { HttpClient, HttpResponse } from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {Sbgb} from "./sbgb.model";
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,15 +22,17 @@ export class ImagesService {
     return this.http.get<Sbgb[]>(this.appUrl + this.imagesListApiUrl);
   }
 
-  saveImage(sbgb: Sbgb, forceUpdate: boolean = false): Observable<Sbgb> {
+  saveImage(sbgb: Sbgb): Observable<Sbgb> {
     const payload = {
-      name: sbgb.name,
-      description: sbgb.description,
-      forceUpdate: forceUpdate,
+      note: sbgb.note ?? 0,
       sizeCmd: sbgb.imageStructure,
       colorCmd: sbgb.imageColor
     };
     return this.http.post<Sbgb>(this.appUrl + this.imagesSaveApiUrl, payload);
+  }
+
+  updateNote(id: string, note: number): Observable<void> {
+    return this.http.patch<void>(`${this.appUrl}/images/${id}/note`, { note });
   }
 
   buildImage(sbgb: Sbgb): Observable<HttpResponse<Blob>> {

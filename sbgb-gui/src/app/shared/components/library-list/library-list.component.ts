@@ -12,6 +12,7 @@ export interface LibraryItem {
   width: number;
   height: number;
   seed: number;
+  note?: number;
 }
 
 @Component({
@@ -37,7 +38,16 @@ export class LibraryListComponent {
   @Output() viewRequested = new EventEmitter<LibraryItem>();
   @Output() refreshRequested = new EventEmitter<void>();
 
-  displayedColumns: string[] = ['name', 'description', 'dimensions', 'seed', 'actions'];
+  displayedColumns: string[] = ['note', 'name', 'description', 'dimensions', 'actions'];
+
+  get sortedItems(): LibraryItem[] {
+    return [...this.items].sort((a, b) => (b.note ?? 0) - (a.note ?? 0));
+  }
+
+  getStars(item: LibraryItem): string {
+    const note = item.note ?? 0;
+    return '★'.repeat(note) + '☆'.repeat(5 - note);
+  }
 
   getDimensions(item: LibraryItem): string {
     return `${item.width}x${item.height}`;

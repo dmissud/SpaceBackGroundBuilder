@@ -82,6 +82,12 @@ export const sbgbsFeature = createFeature({
       (state, {sbgb}) => ({
         ...state,
         sbgb: sbgb
+      })),
+    on(ImageApiActions.imagesUpdateNoteSuccess,
+      (state, {id, note}) => ({
+        ...state,
+        sbgbs: state.sbgbs.map(s => s.id === id ? {...s, note} : s),
+        sbgb: state.sbgb?.id === id ? {...state.sbgb, note} : state.sbgb
       }))
   )
 });
