@@ -4,13 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.model.GalaxyImage;
 import org.dbs.sbgb.exposition.common.LogExecutionTime;
 import org.dbs.sbgb.exposition.resources.dto.GalaxyImageDTO;
+import java.util.Map;
 import org.dbs.sbgb.exposition.resources.mapper.MapperGalaxyImage;
 import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
@@ -74,12 +73,16 @@ public class GalaxyResource {
         return ResponseEntity.ok(dto);
     }
 
-    @PatchMapping(value = "/{id}/note", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{id}/note")
     @Operation(description = "Update the note (rating) of a saved galaxy image")
     @LogExecutionTime
     public ResponseEntity<Void> updateNote(
-            @PathVariable UUID id,
-            @RequestBody @Min(1) @Max(5) int note) {
+            @PathVariable("id") UUID id,
+            @RequestBody Map<String, Integer> body) {
+        Integer note = body.get("note");
+        if (note == null || note < 1 || note > 5) {
+            return ResponseEntity.badRequest().build();
+        }
         updateGalaxyNoteUseCase.updateNote(id, note);
         return ResponseEntity.noContent().build();
     }

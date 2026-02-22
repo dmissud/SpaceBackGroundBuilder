@@ -34,6 +34,6 @@ export class GalaxyService {
   }
 
   updateNote(id: string, note: number): Observable<void> {
-    return this.http.patch<void>(`${this.galaxyApiUrl}/${id}/note`, note);
+    return this.http.patch<void>(`${this.galaxyApiUrl}/${id}/note`, { note });
   }
 }
