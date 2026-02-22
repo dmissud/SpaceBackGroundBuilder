@@ -23,7 +23,6 @@ import java.util.UUID;
 public class GalaxyImageEntity {
     @Id
     private UUID id;
-    private String name;
     private String description;
     private int note;
 

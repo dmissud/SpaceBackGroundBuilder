@@ -3,7 +3,6 @@ package org.dbs.sbgb.port.out;
 import org.dbs.sbgb.domain.model.GalaxyImage;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface GalaxyImageRepository {
@@ -13,5 +12,5 @@ public interface GalaxyImageRepository {
 
     GalaxyImage findById(UUID id);
 
-    Optional<GalaxyImage> findByName(String name);
+    void updateNote(UUID id, int note);
 }

@@ -7,13 +7,15 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.model.GalaxyImage;
+import org.dbs.sbgb.exposition.common.LogExecutionTime;
+import org.dbs.sbgb.exposition.resources.dto.GalaxyImageDTO;
+import java.util.Map;
+import org.dbs.sbgb.exposition.resources.mapper.MapperGalaxyImage;
 import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
-import org.dbs.sbgb.exposition.common.LogExecutionTime;
-import org.dbs.sbgb.exposition.resources.dto.GalaxyImageDTO;
-import org.dbs.sbgb.exposition.resources.mapper.MapperGalaxyImage;
+import org.dbs.sbgb.port.in.UpdateGalaxyNoteUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -32,6 +34,7 @@ public class GalaxyResource {
     private final BuildGalaxyImageUseCase buildGalaxyImageUseCase;
     private final CreateGalaxyImageUseCase createGalaxyImageUseCase;
     private final FindGalaxyImagesUseCase findGalaxyImagesUseCase;
+    private final UpdateGalaxyNoteUseCase updateGalaxyNoteUseCase;
     private final MapperGalaxyImage mapperGalaxyImage;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,7 +53,7 @@ public class GalaxyResource {
             description = "Generate a galaxy image without saving",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(schema = @Schema(implementation = GalaxyRequestCmd.class)),
-                    description = "Galaxy generation parameters including spiral structure and noise texture settings"))
+                    description = "Galaxy generation parameters"))
     @LogExecutionTime
     public ResponseEntity<byte[]> buildGalaxy(@Valid @RequestBody final GalaxyRequestCmd galaxyRequestCmd) throws IOException {
         byte[] bytes = buildGalaxyImageUseCase.buildGalaxyImage(galaxyRequestCmd);
@@ -62,11 +65,25 @@ public class GalaxyResource {
             description = "Create and save a galaxy image",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(schema = @Schema(implementation = GalaxyRequestCmd.class)),
-                    description = "Galaxy generation parameters including spiral structure and noise texture settings"))
+                    description = "Galaxy generation parameters"))
     @LogExecutionTime
     public ResponseEntity<GalaxyImageDTO> createGalaxy(@Valid @RequestBody final GalaxyRequestCmd galaxyRequestCmd) throws IOException {
         GalaxyImage galaxyImage = createGalaxyImageUseCase.createGalaxyImage(galaxyRequestCmd);
         GalaxyImageDTO dto = mapperGalaxyImage.toDTO(galaxyImage);
         return ResponseEntity.ok(dto);
+    }
+
+    @PatchMapping(value = "/{id}/note")
+    @Operation(description = "Update the note (rating) of a saved galaxy image")
+    @LogExecutionTime
+    public ResponseEntity<Void> updateNote(
+            @PathVariable("id") UUID id,
+            @RequestBody Map<String, Integer> body) {
+        Integer note = body.get("note");
+        if (note == null || note < 1 || note > 5) {
+            return ResponseEntity.badRequest().build();
+        }
+        updateGalaxyNoteUseCase.updateNote(id, note);
+        return ResponseEntity.noContent().build();
     }
 }

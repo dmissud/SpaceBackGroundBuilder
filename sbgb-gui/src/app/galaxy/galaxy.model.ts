@@ -71,10 +71,13 @@ export interface ColorParameters {
 
 export interface GalaxyImageDTO {
   id: string;
-  name: string;
   description: string;
   note: number;
   galaxyStructure: GalaxyStructureDTO;
+}
+
+export interface NoteUpdateCmd {
+  note: number;
 }
 
 export interface GalaxyStructureDTO {
@@ -98,12 +101,11 @@ export interface GalaxyStructureDTO {
 }
 
 export interface GalaxyRequestCmd {
-  name: string;
   description: string;
+  note: number;
   width: number;
   height: number;
   seed: number;
-  forceUpdate?: boolean;
   galaxyType?: string;
   coreSize: number;
   galaxyRadius: number;

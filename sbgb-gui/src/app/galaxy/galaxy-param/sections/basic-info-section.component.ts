@@ -35,13 +35,6 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } fr
       </mat-expansion-panel-header>
 
       <div>
-        <!-- Name -->
-        <mat-form-field style="width: 100%; margin-bottom: 16px;">
-          <mat-label>Nom de la galaxie</mat-label>
-          <input matInput type="text" formControlName="name">
-          <mat-icon matSuffix matTooltip="Nom pour identifier cette galaxie">help_outline</mat-icon>
-        </mat-form-field>
-
         <!-- Galaxy Type -->
         <mat-form-field style="width: 100%; margin-bottom: 16px;">
           <mat-label>Type de galaxie</mat-label>

@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -44,8 +42,8 @@ public class GalaxyImagePersistenceAdapter implements GalaxyImageRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<GalaxyImage> findByName(String name) {
-        return galaxyImageJpaRepository.findByName(name).map(mapper::toDomain);
+    @Transactional
+    public void updateNote(UUID id, int note) {
+        galaxyImageJpaRepository.updateNote(id, note);
     }
 }

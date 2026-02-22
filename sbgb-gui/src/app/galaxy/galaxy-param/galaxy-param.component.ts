@@ -19,6 +19,7 @@ import { VisualEffectsSectionComponent } from "./sections/visual-effects-section
 import { ColorsSectionComponent } from "./sections/colors-section.component";
 
 
+
 @Component({
   selector: 'app-galaxy-param',
   imports: [
@@ -49,8 +50,10 @@ export class GalaxyParamComponent implements OnInit {
   galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
-  loadedGalaxyName: string | null = null;
+  loadedGalaxyId: string | null = null;
+  currentNote: number = 0;
   allPanelsExpanded = false;
+  readonly starValues = [1, 2, 3, 4, 5];
   private isModifiedSinceBuild: boolean = true;
   private builtGalaxyParams: GalaxyRequestCmd | null = null;
 
@@ -70,7 +73,6 @@ export class GalaxyParamComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {
     this.galaxyForm = this.fb.group({
-      name: new FormControl<string | null>('Galaxy', [Validators.required]),
       width: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
       height: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
       seed: new FormControl<number | null>(Math.floor(Math.random() * 1000000)),
@@ -159,7 +161,7 @@ export class GalaxyParamComponent implements OnInit {
             armColor: colors.arms,
             outerColor: colors.outer
           }
-        }, { emitEvent: false }); // Prevent infinite loop Triggering the individual color watcher
+        }, { emitEvent: false });
       }
     });
 
@@ -215,7 +217,6 @@ export class GalaxyParamComponent implements OnInit {
 
     let summary = `${String(type)} galaxy`;
 
-    // Add structure-specific info
     if (type === 'SPIRAL') {
       const arms = form.spiralParameters?.numberOfArms || 2;
       const rotation = form.spiralParameters?.armRotation || 4;
@@ -267,17 +268,17 @@ export class GalaxyParamComponent implements OnInit {
     }
 
     this.isGenerating = true;
-    this.generatedImageUrl = null; // Clear previous image
+    this.generatedImageUrl = null;
     const request: GalaxyRequestCmd = this.galaxyForm.value;
-
-    // Auto-generate description
     request.description = this.getParametersSummary();
+    request.note = 0;
 
     this.galaxyService.buildGalaxy(request).subscribe({
       next: (blob) => {
         this.generatedImageUrl = URL.createObjectURL(blob);
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
+        this.loadedGalaxyId = null;
         this.builtGalaxyParams = structuredClone(this.galaxyForm.value) as GalaxyRequestCmd;
         this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
       },
@@ -289,48 +290,40 @@ export class GalaxyParamComponent implements OnInit {
     });
   }
 
-  saveGalaxy(): void {
-    if (this.galaxyForm.invalid) {
-      this.snackBar.open('Please fill all required fields', 'Close', { duration: 3000 });
-      return;
-    }
+  onNoteSelected(note: number): void {
+    if (note < 1) return;
 
-    const request: GalaxyRequestCmd = this.galaxyForm.value;
-    request.description = this.getParametersSummary(); // Auto-generate description
-    request.forceUpdate = false;
+    this.currentNote = note;
 
-    // First attempt without forceUpdate
-    this.galaxyService.createGalaxy(request).subscribe({
-      next: (galaxy) => {
-        this.loadedGalaxyName = galaxy.name;
-        this.galaxyService.galaxySaved$.next(); // Trigger library refresh
-        this.snackBar.open(`Galaxy "${galaxy.name}" saved successfully!`, 'Close', { duration: 3000 });
-      },
-      error: (error) => {
-        this.isGenerating = false;
-        if (error.status === 409) {
-          // Name already exists - ask for confirmation
-          const confirmUpdate = confirm(`La galaxie "${request.name}" existe deja. Voulez-vous la remplacer ?`);
-          if (confirmUpdate) {
-            request.forceUpdate = true;
-            this.galaxyService.createGalaxy(request).subscribe({
-              next: (galaxy) => {
-                this.loadedGalaxyName = galaxy.name;
-                this.galaxyService.galaxySaved$.next(); // Trigger library refresh
-                this.snackBar.open(`Galaxy "${galaxy.name}" updated successfully!`, 'Close', { duration: 3000 });
-              },
-              error: (err) => {
-                console.error('Error updating galaxy:', err);
-                this.snackBar.open('Error updating galaxy', 'Close', { duration: 3000 });
-              }
-            });
-          }
-        } else {
-          console.error('Error saving galaxy:', error);
-          this.snackBar.open('Error saving galaxy', 'Close', { duration: 3000 });
+    if (this.loadedGalaxyId && !this.isModifiedSinceBuild) {
+      this.galaxyService.updateNote(this.loadedGalaxyId, note).subscribe({
+        next: () => {
+          this.galaxyService.galaxySaved$.next();
+          this.snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error updating note:', error);
+          this.snackBar.open('Erreur lors de la mise à jour de la note', 'Fermer', { duration: 3000 });
         }
-      }
-    });
+      });
+    } else {
+      const request: GalaxyRequestCmd = this.galaxyForm.value;
+      request.description = this.getParametersSummary();
+      request.note = note;
+
+      this.galaxyService.createGalaxy(request).subscribe({
+        next: (galaxy) => {
+          this.loadedGalaxyId = galaxy.id;
+          this.isModifiedSinceBuild = false;
+          this.galaxyService.galaxySaved$.next();
+          this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error saving galaxy:', error);
+          this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        }
+      });
+    }
   }
 
   randomizeSeed(): void {
@@ -341,30 +334,30 @@ export class GalaxyParamComponent implements OnInit {
 
   randomizeCore(): void {
     this.galaxyForm.patchValue({
-      coreSize: +(0.02 + Math.random() * 0.08).toFixed(3),  // 0.02-0.10
-      galaxyRadius: Math.floor(1000 + Math.random() * 1000)  // 1000-2000
+      coreSize: +(0.02 + Math.random() * 0.08).toFixed(3),
+      galaxyRadius: Math.floor(1000 + Math.random() * 1000)
     });
   }
 
   randomizeNoise(): void {
     this.galaxyForm.patchValue({
       noiseParameters: {
-        octaves: Math.floor(3 + Math.random() * 6),  // 3-8
-        persistence: +(0.4 + Math.random() * 0.4).toFixed(2),  // 0.4-0.8
-        lacunarity: +(1.5 + Math.random() * 1.5).toFixed(1),  // 1.5-3.0
-        scale: Math.floor(100 + Math.random() * 200)  // 100-300
+        octaves: Math.floor(3 + Math.random() * 6),
+        persistence: +(0.4 + Math.random() * 0.4).toFixed(2),
+        lacunarity: +(1.5 + Math.random() * 1.5).toFixed(1),
+        scale: Math.floor(100 + Math.random() * 200)
       }
     });
   }
 
   randomizeWarping(): void {
     this.galaxyForm.patchValue({
-      warpStrength: Math.floor(Math.random() * 150)  // 0-150
+      warpStrength: Math.floor(Math.random() * 150)
     });
   }
 
   randomizeStarField(): void {
-    const density = +(Math.random() * 0.005).toFixed(4);  // 0-0.005
+    const density = +(Math.random() * 0.005).toFixed(4);
     const hasSpikes = Math.random() > 0.7;
     let spikeCount = 4;
     if (hasSpikes) {
@@ -373,7 +366,7 @@ export class GalaxyParamComponent implements OnInit {
     this.galaxyForm.patchValue({
       starFieldParameters: {
         density: density,
-        maxStarSize: Math.floor(2 + Math.random() * 7),  // 2-8
+        maxStarSize: Math.floor(2 + Math.random() * 7),
         diffractionSpikes: hasSpikes,
         spikeCount: spikeCount
       }
@@ -396,10 +389,10 @@ export class GalaxyParamComponent implements OnInit {
   randomizeSpiral(): void {
     this.galaxyForm.patchValue({
       spiralParameters: {
-        numberOfArms: Math.floor(2 + Math.random() * 3),  // 2-4
-        armWidth: Math.floor(60 + Math.random() * 60),  // 60-120
-        armRotation: +(3 + Math.random() * 4).toFixed(1),  // 3-7
-        darkLaneOpacity: +(Math.random()).toFixed(2)      // 0.0-1.0
+        numberOfArms: Math.floor(2 + Math.random() * 3),
+        armWidth: Math.floor(60 + Math.random() * 60),
+        armRotation: +(3 + Math.random() * 4).toFixed(1),
+        darkLaneOpacity: +(Math.random()).toFixed(2)
       }
     });
   }
@@ -407,9 +400,9 @@ export class GalaxyParamComponent implements OnInit {
   randomizeVoronoi(): void {
     this.galaxyForm.patchValue({
       voronoiParameters: {
-        clusterCount: Math.floor(30 + Math.random() * 170),  // 30-200
-        clusterSize: Math.floor(40 + Math.random() * 80),  // 40-120
-        clusterConcentration: +(0.3 + Math.random() * 0.6).toFixed(2)  // 0.3-0.9
+        clusterCount: Math.floor(30 + Math.random() * 170),
+        clusterSize: Math.floor(40 + Math.random() * 80),
+        clusterConcentration: +(0.3 + Math.random() * 0.6).toFixed(2)
       }
     });
   }
@@ -417,22 +410,22 @@ export class GalaxyParamComponent implements OnInit {
   randomizeElliptical(): void {
     this.galaxyForm.patchValue({
       ellipticalParameters: {
-        sersicIndex: +(1 + Math.random() * 7).toFixed(1),  // 1-8
-        axisRatio: +(0.3 + Math.random() * 0.7).toFixed(2),  // 0.3-1.0
-        orientationAngle: Math.floor(Math.random() * 360)  // 0-360
+        sersicIndex: +(1 + Math.random() * 7).toFixed(1),
+        axisRatio: +(0.3 + Math.random() * 0.7).toFixed(2),
+        orientationAngle: Math.floor(Math.random() * 360)
       }
     });
   }
 
   randomizeRing(): void {
     const galaxyRadius = this.galaxyForm.value.galaxyRadius || 1500;
-    const ringRadius = Math.floor(galaxyRadius * 0.5 + Math.random() * galaxyRadius * 0.3);  // 50-80% of galaxy radius
+    const ringRadius = Math.floor(galaxyRadius * 0.5 + Math.random() * galaxyRadius * 0.3);
     this.galaxyForm.patchValue({
       ringParameters: {
         ringRadius: ringRadius,
-        ringWidth: Math.floor(80 + Math.random() * 200),  // 80-280
-        ringIntensity: +(0.6 + Math.random() * 1).toFixed(1),  // 0.6-1.6
-        coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)  // 0.1-0.7
+        ringWidth: Math.floor(80 + Math.random() * 200),
+        ringIntensity: +(0.6 + Math.random() * 1).toFixed(1),
+        coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)
       }
     });
   }
@@ -440,9 +433,9 @@ export class GalaxyParamComponent implements OnInit {
   randomizeIrregular(): void {
     this.galaxyForm.patchValue({
       irregularParameters: {
-        irregularity: +(0.6 + Math.random() * 0.4).toFixed(2),  // 0.6-1.0
-        irregularClumpCount: Math.floor(8 + Math.random() * 30),  // 8-38
-        irregularClumpSize: Math.floor(50 + Math.random() * 100)  // 50-150
+        irregularity: +(0.6 + Math.random() * 0.4).toFixed(2),
+        irregularClumpCount: Math.floor(8 + Math.random() * 30),
+        irregularClumpSize: Math.floor(50 + Math.random() * 100)
       }
     });
   }
@@ -492,7 +485,6 @@ export class GalaxyParamComponent implements OnInit {
     this.randomizeSeed();
     this.randomizeStructure();
 
-    // For "Randomize All", it's better to pick a cohesive palette rather than completely random chaotic colors
     const palettes = ['CLASSIC', 'NEBULA', 'WARM', 'COLD', 'INFRARED', 'EMERALD'];
     const randomPalette = palettes[Math.floor(Math.random() * palettes.length)];
     this.galaxyForm.patchValue({
@@ -513,18 +505,18 @@ export class GalaxyParamComponent implements OnInit {
     return 'Générer l\'image avec les paramètres actuels';
   }
 
-  canSave(): boolean {
-    return !!this.generatedImageUrl && !this.isModifiedSinceBuild && !this.isGenerating;
+  canRate(): boolean {
+    return !!this.generatedImageUrl && !this.isGenerating;
   }
 
-  getSaveTooltip(): string {
+  getRatingTooltip(): string {
     if (!this.generatedImageUrl) {
-      return 'Vous devez d\'abord générer une image (Générer aperçu) avant de pouvoir la sauvegarder.';
+      return 'Générez d\'abord une image avant de pouvoir la noter et la sauvegarder.';
     }
     if (this.isModifiedSinceBuild) {
-      return 'Vous avez modifié les paramètres. Générez l\'image (Générer aperçu) avant de sauvegarder.';
+      return 'Attribuez une note pour sauvegarder cette galaxie (les paramètres ont été modifiés depuis la dernière génération).';
     }
-    return 'Sauvegarder cette image dans la bibliothèque';
+    return 'Attribuez une note pour sauvegarder cette galaxie';
   }
 
   canDownload(): boolean {
@@ -549,8 +541,8 @@ export class GalaxyParamComponent implements OnInit {
 
     const link = document.createElement('a');
     link.href = this.generatedImageUrl;
-    const name = this.galaxyForm.controls['name'].value || 'galaxy-image';
-    link.download = `${name}.png`;
+    const description = this.getParametersSummary();
+    link.download = `galaxy-image.png`;
     link.click();
   }
 
@@ -559,7 +551,6 @@ export class GalaxyParamComponent implements OnInit {
     const galaxyType = s.galaxyType || 'SPIRAL';
 
     this.galaxyForm.patchValue({
-      name: galaxy.name,
       description: galaxy.description,
       width: s.width,
       height: s.height,
@@ -580,7 +571,8 @@ export class GalaxyParamComponent implements OnInit {
       colorParameters: s.colorParameters
     });
 
-    this.loadedGalaxyName = galaxy.name;
+    this.loadedGalaxyId = galaxy.id;
+    this.currentNote = galaxy.note;
     this.onGalaxyTypeChange();
     this.generateGalaxy();
   }

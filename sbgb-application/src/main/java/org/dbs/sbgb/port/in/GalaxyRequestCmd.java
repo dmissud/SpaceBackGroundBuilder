@@ -15,8 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GalaxyRequestCmd {
-    private String name;
     private String description;
+
+    @Min(0)
+    @Max(5)
+    private int note;
 
     @Min(100)
     @Max(4000)
@@ -27,8 +30,6 @@ public class GalaxyRequestCmd {
     private int height;
 
     private long seed;
-
-    private boolean forceUpdate;
 
     @Builder.Default
     private String galaxyType = "SPIRAL";

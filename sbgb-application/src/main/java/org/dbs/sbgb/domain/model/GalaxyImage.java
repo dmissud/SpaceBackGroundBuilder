@@ -13,7 +13,6 @@ import java.util.UUID;
 @Setter
 public class GalaxyImage {
     private UUID id;
-    private String name;
     private String description;
     private int note;
 
@@ -31,7 +30,6 @@ public class GalaxyImage {
 
     public static class GalaxyImageBuilder {
         private UUID id;
-        private String name;
         private String description;
         private int note;
         private GalaxyStructure galaxyStructure;
@@ -39,11 +37,6 @@ public class GalaxyImage {
 
         public GalaxyImageBuilder id(UUID id) {
             this.id = id;
-            return this;
-        }
-
-        public GalaxyImageBuilder name(String name) {
-            this.name = name;
             return this;
         }
 
@@ -70,7 +63,6 @@ public class GalaxyImage {
         public GalaxyImage build() {
             GalaxyImage galaxyImage = new GalaxyImage();
             galaxyImage.setId(this.id);
-            galaxyImage.setName(this.name);
             galaxyImage.setDescription(this.description);
             galaxyImage.setNote(this.note);
             galaxyImage.setGalaxyStructure(this.galaxyStructure);
