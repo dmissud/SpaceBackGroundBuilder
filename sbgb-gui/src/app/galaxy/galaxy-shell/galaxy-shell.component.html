@@ -18,14 +18,15 @@
     <!-- Star Rating - saves the galaxy -->
     <div class="star-rating-container"
          [matTooltip]="getRatingTooltip()"
-         matTooltipPosition="above">
+         matTooltipPosition="above"
+         [style.opacity]="canRate() ? '1' : '0.45'"
+         [style.pointer-events]="canRate() ? 'auto' : 'none'">
       <span class="star-rating-label">Noter &amp; sauvegarder :</span>
       @for (star of starValues; track star) {
         <button mat-icon-button
-                [disabled]="!canRate()"
                 (click)="onNoteSelected(star)"
                 type="button">
-          <mat-icon [style.color]="star <= currentNote ? '#ffd740' : 'rgba(255,255,255,0.4)'">
+          <mat-icon [style.color]="star <= currentNote ? '#f59f00' : 'rgba(0,0,0,0.35)'">
             {{ star <= currentNote ? 'star' : 'star_border' }}
           </mat-icon>
         </button>
