@@ -17,8 +17,7 @@ import { CoreRadiusSectionComponent } from "./sections/core-radius-section.compo
 import { NoiseTextureSectionComponent } from "./sections/noise-texture-section.component";
 import { VisualEffectsSectionComponent } from "./sections/visual-effects-section.component";
 import { ColorsSectionComponent } from "./sections/colors-section.component";
-import { NgFor } from "@angular/common";
-import { MatIconButton } from "@angular/material/button";
+
 
 
 @Component({
@@ -39,9 +38,7 @@ import { MatIconButton } from "@angular/material/button";
     CoreRadiusSectionComponent,
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
-    ColorsSectionComponent,
-    NgFor,
-    MatIconButton
+    ColorsSectionComponent
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
