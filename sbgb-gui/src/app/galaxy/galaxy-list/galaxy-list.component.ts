@@ -58,7 +58,7 @@ export class GalaxyListComponent implements OnInit {
         this.galaxies = galaxies;
         this.libraryItems = galaxies.map(g => ({
           id: g.id,
-          name: g.name,
+          name: g.note > 0 ? '★'.repeat(g.note) + '☆'.repeat(5 - g.note) : '☆☆☆☆☆',
           description: g.description,
           width: g.galaxyStructure.width,
           height: g.galaxyStructure.height,
