@@ -10,7 +10,6 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +32,7 @@ class GalaxyImagePersistenceAdapterTest {
         }
 
         @Test
-        void shouldSaveAndRetrieveGalaxyImageWithFullStructure() {
-                // Arrange
+        void shouldSaveAndRetrieveGalaxyImageById() {
                 UUID id = UUID.randomUUID();
                 GalaxyStructure structure = GalaxyStructure.builder()
                                 .width(1000)
@@ -68,22 +66,19 @@ class GalaxyImagePersistenceAdapterTest {
 
                 GalaxyImage image = GalaxyImage.builder()
                                 .id(id)
-                                .name("Test Spiral")
                                 .description("A test spiral galaxy")
-                                .note(1)
+                                .note(3)
                                 .galaxyStructure(structure)
                                 .image(new byte[] { 1, 2, 3, 4 })
                                 .build();
 
-                // Act
                 adapter.save(image);
-                Optional<GalaxyImage> retrievedOpt = adapter.findByName("Test Spiral");
+                GalaxyImage retrieved = adapter.findById(id);
 
-                // Assert
-                assertThat(retrievedOpt).isPresent();
-                GalaxyImage retrieved = retrievedOpt.get();
+                assertThat(retrieved).isNotNull();
                 assertThat(retrieved.getId()).isEqualTo(id);
-                assertThat(retrieved.getName()).isEqualTo("Test Spiral");
+                assertThat(retrieved.getDescription()).isEqualTo("A test spiral galaxy");
+                assertThat(retrieved.getNote()).isEqualTo(3);
                 assertThat(retrieved.getImage()).containsExactly(1, 2, 3, 4);
 
                 GalaxyStructure retrievedStruct = retrieved.getGalaxyStructure();
@@ -94,5 +89,26 @@ class GalaxyImagePersistenceAdapterTest {
                 assertThat(retrievedStruct.getColorConfig().getColorPalette()).isEqualTo("NEBULA");
                 assertThat(retrievedStruct.getWarpStrength()).isEqualTo(50.0);
                 assertThat(retrievedStruct.getStarField().isDiffractionSpikes()).isTrue();
+        }
+
+        @Test
+        void shouldUpdateNoteWithoutChangingOtherFields() {
+                UUID id = UUID.randomUUID();
+                GalaxyImage image = GalaxyImage.builder()
+                                .id(id)
+                                .description("Galaxy to rate")
+                                .note(1)
+                                .galaxyStructure(GalaxyStructure.builder()
+                                                .width(100).height(100).seed(1L).galaxyType("SPIRAL")
+                                                .build())
+                                .image(new byte[] { 5, 6 })
+                                .build();
+
+                adapter.save(image);
+                adapter.updateNote(id, 5);
+                GalaxyImage updated = adapter.findById(id);
+
+                assertThat(updated.getNote()).isEqualTo(5);
+                assertThat(updated.getDescription()).isEqualTo("Galaxy to rate");
         }
 }
