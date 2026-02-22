@@ -36,6 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -55,6 +58,7 @@ jobs:
           context: .
           file: ./Dockerfile.backend
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ghcr.io/${{ env.REPO_LOWER }}/backend:latest
             ghcr.io/${{ env.REPO_LOWER }}/backend:${{ github.sha }}
@@ -65,6 +69,7 @@ jobs:
           context: .
           file: ./Dockerfile.frontend
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
             ghcr.io/${{ env.REPO_LOWER }}/frontend:${{ github.sha }}
@@ -72,12 +77,24 @@ jobs:
   deploy:
     needs: docker-build-push
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-    runs-on: [ self-hosted, sbgb ]
+    strategy:
+      matrix:
+        target: [bree, pi8]
+        include:
+          - target: bree
+            ingress_host: bree
+          - target: pi8
+            ingress_host: pi8
+    runs-on: [ self-hosted, sbgb, "${{ matrix.target }}" ]
     steps:
       - uses: actions/checkout@v4
 
       - name: Deploy to Kubernetes
         run: |
+          # Patch host in ingress file for the specific target
+          sed -i "s/host: bree/host: ${{ matrix.ingress_host }}/g" k8s/sbgb/base/ingress.yaml
+          sed -i "s/- bree/- ${{ matrix.ingress_host }}/g" k8s/sbgb/base/ingress.yaml
+
           # Deploy infrastructure (PostgreSQL) if changed
           microk8s kubectl apply -f k8s/infra/postgres-shared.yaml
 
