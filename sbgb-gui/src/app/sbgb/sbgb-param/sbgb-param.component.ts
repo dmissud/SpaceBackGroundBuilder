@@ -12,6 +12,7 @@ import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
 import {Actions, ofType} from "@ngrx/effects";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
+import {MatExpansionModule} from "@angular/material/expansion";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
@@ -25,7 +26,8 @@ import {Sbgb} from "../sbgb.model";
     ReactiveFormsModule,
     MatTooltip,
     MatIcon,
-    MatSuffix
+    MatSuffix,
+    MatExpansionModule
   ],
   templateUrl: './sbgb-param.component.html',
   styleUrl: './sbgb-param.component.scss'
@@ -126,7 +128,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (backThreshold) => {
         let middleThreshold = this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(backThreshold);
+
           this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.setValue(backThreshold + 0.01);
         }
       }
@@ -135,7 +137,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (middleThreshold) => {
         let backThreshold = this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(middleThreshold);
+
           this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.setValue(middleThreshold - 0.01);
         }
       }
@@ -298,6 +300,17 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     if (this.saveSuccessSub) {
       this.saveSuccessSub.unsubscribe();
     }
+  }
+
+  describeBase(): string {
+    const f = this._myForm.value;
+    return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;
+  }
+
+  describeCosmetic(): string {
+    const f = this._myForm.value;
+    const transparency = f.transparentBackground ? 'transparent' : 'opaque';
+    return `${f.backgroundColor} → ${f.middleColor} → ${f.foregroundColor}, seuils ${Number(f.backThreshold).toFixed(2)}/${Number(f.middleThreshold).toFixed(2)}, ${transparency}`;
   }
 
   getParametersSummary(): string {
