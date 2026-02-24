@@ -1,0 +1,18 @@
+package org.dbs.sbgb.infrastructure.persistence.jpa;
+
+import org.dbs.sbgb.infrastructure.persistence.entity.NoiseBaseStructureEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface NoiseBaseStructureJpaRepository extends JpaRepository<NoiseBaseStructureEntity, UUID> {
+    Optional<NoiseBaseStructureEntity> findByConfigHash(int configHash);
+
+    @Modifying
+    @Query("UPDATE NoiseBaseStructureEntity e SET e.maxNote = :maxNote WHERE e.id = :id")
+    void updateMaxNote(@Param("id") UUID id, @Param("maxNote") int maxNote);
+}
