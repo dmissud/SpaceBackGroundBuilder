@@ -1,8 +1,8 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {selectSbgbs} from "../state/sbgb.selectors";
+import {selectBases} from "../state/sbgb.selectors";
 import {SbgbPageActions} from "../state/sbgb.actions";
-import {Sbgb} from "../sbgb.model";
+import {NoiseBaseStructureDto, Sbgb} from "../sbgb.model";
 import {map} from "rxjs/operators";
 import {LibraryItem, LibraryListComponent} from "../../shared/components/library-list/library-list.component";
 
@@ -25,28 +25,28 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
 })
 export class SbgbListComponent implements OnInit {
 
-  sbgbs: Sbgb[] = [];
+  bases: NoiseBaseStructureDto[] = [];
   libraryItems: LibraryItem[] = [];
 
   @Output() viewRequested = new EventEmitter<Sbgb>();
 
   constructor(private store: Store) {
-    this.store.select(selectSbgbs).pipe(
-      map(sbgbs => sbgbs.map(s => ({
-        id: s.id,
-        name: s.name || '',
-        description: s.description || '',
-        width: s.imageStructure.width,
-        height: s.imageStructure.height,
-        seed: s.imageStructure.seed,
-        note: s.note ?? 0
+    this.store.select(selectBases).pipe(
+      map(bases => bases.map(b => ({
+        id: b.id,
+        name: '',
+        description: b.description || '',
+        width: b.width,
+        height: b.height,
+        seed: b.seed,
+        note: b.maxNote ?? 0
       })))
     ).subscribe(items => {
       this.libraryItems = items;
     });
 
-    this.store.select(selectSbgbs).subscribe(sbgbs => {
-      this.sbgbs = sbgbs;
+    this.store.select(selectBases).subscribe(bases => {
+      this.bases = bases;
     });
   }
 
@@ -55,14 +55,42 @@ export class SbgbListComponent implements OnInit {
   }
 
   onViewRequested(item: LibraryItem): void {
-    const sbgb = this.sbgbs.find(s => s.id === item.id);
-    if (sbgb) {
-      this.viewRequested.emit(sbgb);
+    const base = this.bases.find(b => b.id === item.id);
+    if (base) {
+      this.viewRequested.emit(this.toSbgb(base));
     }
   }
 
   public confirmView(sbgb: Sbgb): void {
     this.store.dispatch(SbgbPageActions.selectSbgb({sbgb}));
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
+  }
+
+  private toSbgb(base: NoiseBaseStructureDto): Sbgb {
+    return {
+      id: base.id,
+      description: base.description,
+      note: base.maxNote,
+      imageStructure: {
+        width: base.width,
+        height: base.height,
+        seed: base.seed,
+        octaves: base.octaves,
+        persistence: base.persistence,
+        lacunarity: base.lacunarity,
+        scale: base.scale,
+        noiseType: base.noiseType,
+        preset: 'CUSTOM',
+        useMultiLayer: base.useMultiLayer
+      },
+      imageColor: {
+        back: '#000000',
+        middle: '#FFA500',
+        fore: '#FFFFFF',
+        backThreshold: 0.7,
+        middleThreshold: 0.75,
+        interpolationType: 'LINEAR'
+      }
+    };
   }
 }

@@ -2,169 +2,237 @@ package org.dbs.sbgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
-import org.dbs.sbgb.domain.exception.ImageNameAlreadyExistsException;
 import org.dbs.sbgb.domain.model.*;
-import org.dbs.sbgb.port.in.BuildNoiseImageUseCase;
-import org.dbs.sbgb.port.in.CreateNoiseImageUseCase;
-import org.dbs.sbgb.port.in.FindNoiseImagesUseCase;
-import org.dbs.sbgb.port.in.ImageRequestCmd;
-import org.dbs.sbgb.port.out.NoiseImageRepository;
+import org.dbs.sbgb.port.in.*;
+import org.dbs.sbgb.port.out.NoiseBaseStructureRepository;
+import org.dbs.sbgb.port.out.NoiseCosmeticRenderRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @UseCase
 @RequiredArgsConstructor
-public class ImagesService implements BuildNoiseImageUseCase, CreateNoiseImageUseCase, FindNoiseImagesUseCase, org.dbs.sbgb.port.in.UpdateNoiseImageNoteUseCase {
+public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticRenderUseCase,
+        FindNoiseBaseStructuresUseCase, DeleteNoiseCosmeticRenderUseCase {
 
-    private final NoiseImageRepository noiseImageRepository;
-
-    // Cache for the last generated image results
-    private ImageRequestCmd lastRequest;
-    private byte[] lastBytes;
+    private final NoiseBaseStructureRepository baseStructureRepository;
+    private final NoiseCosmeticRenderRepository cosmeticRenderRepository;
 
     @Override
-    public List<NoiseImage> findAll() {
-        return noiseImageRepository.findAll();
+    public byte[] buildNoiseImage(ImageRequestCmd cmd) throws IOException {
+        BufferedImage image = generateImage(cmd);
+        return toByteArray(image);
     }
 
     @Override
-    public byte[] buildNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
+    public NoiseCosmeticRender rate(ImageRequestCmd cmd) throws IOException {
+        validateNote(cmd.getNote());
 
-        DefaultNoiseColorCalculator noiseColorCalculator = createDefaultNoiseColorCalculator(
-                imageRequestCmd.getColorCmd());
+        byte[] thumbnail = buildThumbnail(cmd);
+        NoiseBaseStructure base = findOrCreateBase(cmd.getSizeCmd());
+        NoiseCosmeticRender render = findOrCreateRender(cmd, base, thumbnail);
+        NoiseCosmeticRender savedRender = cosmeticRenderRepository.save(render);
 
-        BufferedImage image;
-        if (imageRequestCmd.getSizeCmd().isUseMultiLayer()) {
-            // Use multi-layer calculator
-            MultiLayerNoiseImageCalculator.Builder multiLayerBuilder = new MultiLayerNoiseImageCalculator.Builder()
-                    .withHeight(imageRequestCmd.getSizeCmd().getHeight())
-                    .withWidth(imageRequestCmd.getSizeCmd().getWidth())
-                    .withNoiseColorCalculator(noiseColorCalculator);
+        recalculateMaxNote(base.id());
+        return savedRender;
+    }
 
-            // If custom layers are provided, use them; otherwise use preset
-            if (imageRequestCmd.getSizeCmd().getLayers() != null
-                    && !imageRequestCmd.getSizeCmd().getLayers().isEmpty()) {
-                List<LayerConfig> customLayers = imageRequestCmd.getSizeCmd().getLayers().stream()
-                        .map(layerCmd -> LayerConfig.builder()
-                                .name(layerCmd.getName())
-                                .enabled(layerCmd.isEnabled())
-                                .octaves(layerCmd.getOctaves())
-                                .persistence(layerCmd.getPersistence())
-                                .lacunarity(layerCmd.getLacunarity())
-                                .scale(layerCmd.getScale())
-                                .opacity(layerCmd.getOpacity())
-                                .blendMode(BlendMode.valueOf(layerCmd.getBlendMode()))
-                                .noiseType(NoiseType.valueOf(layerCmd.getNoiseType()))
-                                .seedOffset(layerCmd.getSeedOffset())
-                                .build())
-                        .toList();
-                multiLayerBuilder.withLayers(customLayers);
-            } else {
-                ImagePreset preset = ImagePreset.valueOf(imageRequestCmd.getSizeCmd().getPreset());
-                multiLayerBuilder.withPreset(preset);
-            }
+    @Override
+    public List<NoiseBaseStructure> findAllSortedByMaxNoteDesc() {
+        return baseStructureRepository.findAll().stream()
+                .sorted(Comparator.comparingInt(NoiseBaseStructure::maxNote).reversed())
+                .toList();
+    }
 
-            image = multiLayerBuilder.build().create(imageRequestCmd.getSizeCmd().getSeed());
+    @Override
+    public void deleteRender(UUID renderId) {
+        NoiseCosmeticRender render = cosmeticRenderRepository.findById(renderId)
+                .orElseThrow(() -> new IllegalArgumentException("Render not found: " + renderId));
+        UUID baseId = render.baseStructureId();
+
+        cosmeticRenderRepository.deleteById(renderId);
+
+        List<NoiseCosmeticRender> remaining = cosmeticRenderRepository.findAllByBaseStructureId(baseId);
+        if (remaining.isEmpty()) {
+            baseStructureRepository.deleteById(baseId);
         } else {
-            // Use single-layer calculator
-            NoiseImageCalculator noiseImageCalculator = new NoiseImageCalculator.Builder()
-                    .withHeight(imageRequestCmd.getSizeCmd().getHeight())
-                    .withWidth(imageRequestCmd.getSizeCmd().getWidth())
-                    .withOctaves(imageRequestCmd.getSizeCmd().getOctaves())
-                    .withPersistence(imageRequestCmd.getSizeCmd().getPersistence())
-                    .withLacunarity(imageRequestCmd.getSizeCmd().getLacunarity())
-                    .withScale(imageRequestCmd.getSizeCmd().getScale())
-                    .withNoiseType(NoiseType.valueOf(imageRequestCmd.getSizeCmd().getNoiseType()))
-                    .withNoiseColorCalculator(noiseColorCalculator)
-                    .build();
-            image = noiseImageCalculator.create(imageRequestCmd.getSizeCmd().getSeed());
+            int maxNote = remaining.stream().mapToInt(NoiseCosmeticRender::note).max().orElse(0);
+            baseStructureRepository.updateMaxNote(baseId, maxNote);
+        }
+    }
+
+    private void validateNote(int note) {
+        if (note < 1 || note > 5) {
+            throw new IllegalArgumentException("Note must be between 1 and 5, got: " + note);
+        }
+    }
+
+    private byte[] buildThumbnail(ImageRequestCmd cmd) throws IOException {
+        ImageRequestCmd.SizeCmd originalSize = cmd.getSizeCmd();
+        ImageRequestCmd thumbnailCmd = ImageRequestCmd.builder()
+                .sizeCmd(ImageRequestCmd.SizeCmd.builder()
+                        .width(200).height(200)
+                        .seed(originalSize.getSeed())
+                        .octaves(originalSize.getOctaves())
+                        .persistence(originalSize.getPersistence())
+                        .lacunarity(originalSize.getLacunarity())
+                        .scale(originalSize.getScale())
+                        .preset(originalSize.getPreset())
+                        .useMultiLayer(originalSize.isUseMultiLayer())
+                        .noiseType(originalSize.getNoiseType())
+                        .layers(originalSize.getLayers())
+                        .build())
+                .colorCmd(cmd.getColorCmd())
+                .build();
+        return buildNoiseImage(thumbnailCmd);
+    }
+
+    private NoiseBaseStructure findOrCreateBase(ImageRequestCmd.SizeCmd sizeCmd) {
+        int configHash = computeConfigHash(sizeCmd);
+        return baseStructureRepository.findByConfigHash(configHash)
+                .orElseGet(() -> {
+                    NoiseBaseStructure newBase = buildBaseStructure(sizeCmd, configHash);
+                    return baseStructureRepository.save(newBase);
+                });
+    }
+
+    private NoiseCosmeticRender findOrCreateRender(ImageRequestCmd cmd, NoiseBaseStructure base, byte[] thumbnail) {
+        int cosmeticHash = computeCosmeticHash(cmd.getColorCmd());
+        Optional<NoiseCosmeticRender> existing = cosmeticRenderRepository
+                .findByBaseStructureIdAndCosmeticHash(base.id(), cosmeticHash);
+
+        if (existing.isPresent()) {
+            NoiseCosmeticRender e = existing.get();
+            return new NoiseCosmeticRender(e.id(), base.id(), e.back(), e.middle(), e.fore(),
+                    e.backThreshold(), e.middleThreshold(), e.interpolationType(),
+                    e.transparentBackground(), cmd.getNote(), thumbnail, e.description());
         }
 
-        byte[] bytes = convertImageToByteArray(image);
-
-        // Update cache
-        this.lastRequest = imageRequestCmd;
-        this.lastBytes = bytes;
-
-        return bytes;
+        String description = buildCosmeticDescription(cmd.getColorCmd());
+        return new NoiseCosmeticRender(UUID.randomUUID(), base.id(),
+                cmd.getColorCmd().getBack(), cmd.getColorCmd().getMiddle(), cmd.getColorCmd().getFore(),
+                cmd.getColorCmd().getBackThreshold(), cmd.getColorCmd().getMiddleThreshold(),
+                cmd.getColorCmd().getInterpolationType(), cmd.getColorCmd().isTransparentBackground(),
+                cmd.getNote(), thumbnail, description);
     }
 
-    private DefaultNoiseColorCalculator createDefaultNoiseColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
-        InterpolationType interpolationType = InterpolationType.valueOf(colorCmd.getInterpolationType());
+    private void recalculateMaxNote(UUID baseId) {
+        int maxNote = cosmeticRenderRepository.findAllByBaseStructureId(baseId).stream()
+                .mapToInt(NoiseCosmeticRender::note).max().orElse(0);
+        baseStructureRepository.updateMaxNote(baseId, maxNote);
+    }
+
+    private int computeConfigHash(ImageRequestCmd.SizeCmd sizeCmd) {
+        String layersConfig = layersToString(sizeCmd);
+        return new NoiseBaseStructure(null, null, 0, sizeCmd.getWidth(), sizeCmd.getHeight(), sizeCmd.getSeed(),
+                sizeCmd.getOctaves(), sizeCmd.getPersistence(), sizeCmd.getLacunarity(), sizeCmd.getScale(),
+                sizeCmd.getNoiseType(), sizeCmd.isUseMultiLayer(), layersConfig).configHash();
+    }
+
+    private int computeCosmeticHash(ImageRequestCmd.ColorCmd colorCmd) {
+        return new NoiseCosmeticRender(null, null, colorCmd.getBack(), colorCmd.getMiddle(), colorCmd.getFore(),
+                colorCmd.getBackThreshold(), colorCmd.getMiddleThreshold(), colorCmd.getInterpolationType(),
+                colorCmd.isTransparentBackground(), 0, null, null).cosmeticHash();
+    }
+
+    private NoiseBaseStructure buildBaseStructure(ImageRequestCmd.SizeCmd sizeCmd, int configHash) {
+        String layersConfig = layersToString(sizeCmd);
+        NoiseBaseStructure template = new NoiseBaseStructure(null, null, 0, sizeCmd.getWidth(), sizeCmd.getHeight(),
+                sizeCmd.getSeed(), sizeCmd.getOctaves(), sizeCmd.getPersistence(), sizeCmd.getLacunarity(),
+                sizeCmd.getScale(), sizeCmd.getNoiseType(), sizeCmd.isUseMultiLayer(), layersConfig);
+        return new NoiseBaseStructure(UUID.randomUUID(), template.generateDescription(), 0,
+                sizeCmd.getWidth(), sizeCmd.getHeight(), sizeCmd.getSeed(), sizeCmd.getOctaves(),
+                sizeCmd.getPersistence(), sizeCmd.getLacunarity(), sizeCmd.getScale(),
+                sizeCmd.getNoiseType(), sizeCmd.isUseMultiLayer(), layersConfig);
+    }
+
+    private String buildCosmeticDescription(ImageRequestCmd.ColorCmd colorCmd) {
+        NoiseCosmeticRender template = new NoiseCosmeticRender(null, null,
+                colorCmd.getBack(), colorCmd.getMiddle(), colorCmd.getFore(),
+                colorCmd.getBackThreshold(), colorCmd.getMiddleThreshold(), colorCmd.getInterpolationType(),
+                colorCmd.isTransparentBackground(), 0, null, null);
+        return template.generateDescription();
+    }
+
+    private String layersToString(ImageRequestCmd.SizeCmd sizeCmd) {
+        if (!sizeCmd.isUseMultiLayer() || sizeCmd.getLayers() == null) {
+            return null;
+        }
+        return sizeCmd.getLayers().toString();
+    }
+
+    private BufferedImage generateImage(ImageRequestCmd cmd) {
+        DefaultNoiseColorCalculator colorCalculator = createColorCalculator(cmd.getColorCmd());
+        if (cmd.getSizeCmd().isUseMultiLayer()) {
+            return buildMultiLayerImage(cmd.getSizeCmd(), colorCalculator);
+        }
+        return buildSingleLayerImage(cmd.getSizeCmd(), colorCalculator);
+    }
+
+    private BufferedImage buildSingleLayerImage(ImageRequestCmd.SizeCmd sizeCmd, DefaultNoiseColorCalculator colorCalculator) {
+        return new NoiseImageCalculator.Builder()
+                .withHeight(sizeCmd.getHeight())
+                .withWidth(sizeCmd.getWidth())
+                .withOctaves(sizeCmd.getOctaves())
+                .withPersistence(sizeCmd.getPersistence())
+                .withLacunarity(sizeCmd.getLacunarity())
+                .withScale(sizeCmd.getScale())
+                .withNoiseType(NoiseType.valueOf(sizeCmd.getNoiseType()))
+                .withNoiseColorCalculator(colorCalculator)
+                .build()
+                .create(sizeCmd.getSeed());
+    }
+
+    private BufferedImage buildMultiLayerImage(ImageRequestCmd.SizeCmd sizeCmd, DefaultNoiseColorCalculator colorCalculator) {
+        MultiLayerNoiseImageCalculator.Builder builder = new MultiLayerNoiseImageCalculator.Builder()
+                .withHeight(sizeCmd.getHeight())
+                .withWidth(sizeCmd.getWidth())
+                .withNoiseColorCalculator(colorCalculator);
+
+        if (sizeCmd.getLayers() != null && !sizeCmd.getLayers().isEmpty()) {
+            List<LayerConfig> customLayers = sizeCmd.getLayers().stream()
+                    .map(l -> LayerConfig.builder()
+                            .name(l.getName())
+                            .enabled(l.isEnabled())
+                            .octaves(l.getOctaves())
+                            .persistence(l.getPersistence())
+                            .lacunarity(l.getLacunarity())
+                            .scale(l.getScale())
+                            .opacity(l.getOpacity())
+                            .blendMode(BlendMode.valueOf(l.getBlendMode()))
+                            .noiseType(NoiseType.valueOf(l.getNoiseType()))
+                            .seedOffset(l.getSeedOffset())
+                            .build())
+                    .toList();
+            builder.withLayers(customLayers);
+        } else {
+            builder.withPreset(ImagePreset.valueOf(sizeCmd.getPreset()));
+        }
+
+        return builder.build().create(sizeCmd.getSeed());
+    }
+
+    private DefaultNoiseColorCalculator createColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
         return new DefaultNoiseColorCalculator(
                 Color.decode(colorCmd.getBack()),
                 Color.decode(colorCmd.getMiddle()),
                 Color.decode(colorCmd.getFore()),
                 colorCmd.getBackThreshold(),
                 colorCmd.getMiddleThreshold(),
-                interpolationType,
+                InterpolationType.valueOf(colorCmd.getInterpolationType()),
                 colorCmd.isTransparentBackground());
     }
 
-    private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
+    private byte[] toByteArray(BufferedImage image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
         return outputStream.toByteArray();
-    }
-
-    @Override
-    public NoiseImage createNoiseImage(ImageRequestCmd imageRequestCmd) throws IOException {
-        byte[] imageBytes;
-        if (isSameImagery(imageRequestCmd, lastRequest) && lastBytes != null) {
-            imageBytes = lastBytes;
-        } else {
-            imageBytes = buildNoiseImage(imageRequestCmd);
-        }
-
-        ImageStructure structure = new ImageStructure(
-                imageRequestCmd.getSizeCmd().getHeight(),
-                imageRequestCmd.getSizeCmd().getWidth(),
-                imageRequestCmd.getSizeCmd().getSeed(),
-                imageRequestCmd.getSizeCmd().getOctaves(),
-                imageRequestCmd.getSizeCmd().getPersistence(),
-                imageRequestCmd.getSizeCmd().getLacunarity(),
-                imageRequestCmd.getSizeCmd().getScale(),
-                imageRequestCmd.getSizeCmd().getPreset(),
-                imageRequestCmd.getSizeCmd().isUseMultiLayer(),
-                NoiseType.valueOf(imageRequestCmd.getSizeCmd().getNoiseType()));
-
-        ImageColor color = new ImageColor(
-                imageRequestCmd.getColorCmd().getBack(),
-                imageRequestCmd.getColorCmd().getMiddle(),
-                imageRequestCmd.getColorCmd().getFore(),
-                imageRequestCmd.getColorCmd().getBackThreshold(),
-                imageRequestCmd.getColorCmd().getMiddleThreshold(),
-                InterpolationType.valueOf(imageRequestCmd.getColorCmd().getInterpolationType()));
-
-        NoiseImage noiseImage = new NoiseImage(
-                UUID.randomUUID(),
-                imageRequestCmd.getName(),
-                imageRequestCmd.getDescription(),
-                imageRequestCmd.getNote(),
-                structure,
-                color,
-                imageBytes);
-
-        return noiseImageRepository.save(noiseImage);
-    }
-
-    @Override
-    public void updateNote(UUID id, int note) {
-        noiseImageRepository.updateNote(id, note);
-    }
-
-    private boolean isSameImagery(ImageRequestCmd cmd1, ImageRequestCmd cmd2) {
-        if (cmd1 == null || cmd2 == null)
-            return false;
-
-        // Compare structure and colors (everything that affects the image bytes)
-        return java.util.Objects.equals(cmd1.getSizeCmd(), cmd2.getSizeCmd()) &&
-                java.util.Objects.equals(cmd1.getColorCmd(), cmd2.getColorCmd());
     }
 }

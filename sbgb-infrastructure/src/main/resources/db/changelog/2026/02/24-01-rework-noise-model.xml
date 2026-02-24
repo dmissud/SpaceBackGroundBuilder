@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="2026-02-24-01-drop-noise-image" author="sbgb">
+        <dropTable tableName="noise_image"/>
+    </changeSet>
+
+    <changeSet id="2026-02-24-02-create-noise-base-structure" author="sbgb">
+        <createTable tableName="noise_base_structure">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_note" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="width" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="height" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seed" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="octaves" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="persistence" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lacunarity" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scale" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="noise_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="use_multi_layer" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="layers_config" type="TEXT"/>
+            <column name="config_hash" type="INT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2026-02-24-03-create-noise-cosmetic-render" author="sbgb">
+        <createTable tableName="noise_cosmetic_render">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="base_structure_id" type="UUID">
+                <constraints nullable="false"
+                             foreignKeyName="fk_cosmetic_render_base_structure"
+                             references="noise_base_structure(id)"/>
+            </column>
+            <column name="description" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="thumbnail" type="BLOB"/>
+            <column name="back_color" type="VARCHAR(7)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middle_color" type="VARCHAR(7)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fore_color" type="VARCHAR(7)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="back_threshold" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="middle_threshold" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interpolation_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transparent_background" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cosmetic_hash" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="noise_cosmetic_render"
+                             columnNames="base_structure_id, cosmetic_hash"
+                             constraintName="uq_cosmetic_render_base_cosmetic_hash"/>
+
+        <sql>ALTER TABLE noise_cosmetic_render ADD CONSTRAINT chk_note_range CHECK (note >= 1 AND note &lt;= 5)</sql>
+    </changeSet>
+
+</databaseChangeLog>
