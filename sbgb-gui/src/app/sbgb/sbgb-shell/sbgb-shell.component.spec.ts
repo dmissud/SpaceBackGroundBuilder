@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { SbgbShellComponent } from './sbgb-shell.component';
 import { provideRouter } from '@angular/router';
@@ -31,5 +32,10 @@ describe('SbgbShellComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should contain image-rating-container class in image template area', () => {
+    const container = fixture.debugElement.query(By.css('.image-rating-container'));
+    expect(container).toBeTruthy();
   });
 });

@@ -39,33 +39,21 @@ export class SbgbEffects {
     this.actions$.pipe(
       ofType(SbgbPageActions.loadSbgbs),
       mergeMap(() =>
-        this.imagesService.getImages().pipe(
-          map((sbgbs) => ImageApiActions.imagesLoadSuccess({sbgbs})),
+        this.imagesService.getBases().pipe(
+          map((bases) => ImageApiActions.imagesLoadSuccess({bases})),
           catchError((error) => of(ImageApiActions.imagesLoadFail({message: error.message})))
         )
       )
     )
   );
 
-  saveImage$ = createEffect(() =>
+  rateImage$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(SbgbPageActions.saveSbgb),
-      mergeMap(({sbgb}) =>
-        this.imagesService.saveImage(sbgb).pipe(
-          map((savedSbgb) => ImageApiActions.imagesSaveSuccess({sbgb: savedSbgb})),
+      ofType(SbgbPageActions.rateSbgb),
+      mergeMap(({sbgb, note}) =>
+        this.imagesService.rateRender(sbgb, note).pipe(
+          map((render) => ImageApiActions.imagesSaveSuccess({render})),
           catchError((error) => of(ImageApiActions.imagesSaveFail({message: error.error?.message || error.message})))
-        )
-      )
-    )
-  );
-
-  updateNote$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(SbgbPageActions.updateNote),
-      mergeMap(({id, note}) =>
-        this.imagesService.updateNote(id, note).pipe(
-          map(() => ImageApiActions.imagesUpdateNoteSuccess({id, note})),
-          catchError((error) => of(ImageApiActions.imagesUpdateNoteFail({message: error.error?.message || error.message})))
         )
       )
     )

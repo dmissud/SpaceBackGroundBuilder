@@ -13,14 +13,23 @@
       [buttons]="actionBarButtons"
       [isGenerating]="isGenerating()"
       [summary]="getSummary()">
+    </app-action-bar>
+  </ng-template>
+
+  <!-- Image preview content -->
+  <ng-template #imageContent>
+    <div class="image-rating-container">
+      <div class="image-wrapper">
+        <app-sbgb-image></app-sbgb-image>
+      </div>
       @if (canRate()) {
-        <div class="star-rating-container"
-             matTooltip="Noter &amp; sauvegarder"
-             matTooltipPosition="above">
+        <div class="rating-panel">
+          <span class="rating-label">Note</span>
           @for (star of starValues; track star) {
             <button mat-icon-button
                     (click)="onNoteSelected(star)"
-                    type="button">
+                    type="button"
+                    [matTooltip]="star + '/5'">
               <mat-icon [style.color]="star <= currentNote ? '#f59f00' : 'rgba(0,0,0,0.35)'">
                 {{ star <= currentNote ? 'star' : 'star_border' }}
               </mat-icon>
@@ -28,12 +37,7 @@
           }
         </div>
       }
-    </app-action-bar>
-  </ng-template>
-
-  <!-- Image preview content -->
-  <ng-template #imageContent>
-    <app-sbgb-image></app-sbgb-image>
+    </div>
   </ng-template>
 
   <!-- Library content -->
