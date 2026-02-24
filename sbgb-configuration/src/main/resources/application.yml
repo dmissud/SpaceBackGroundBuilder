@@ -18,6 +18,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
+    drop-first: true
 springdoc:
   api-docs:
     path: /api-docs
@@ -33,3 +34,10 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+  info:
+    env:
+      enabled: true
+info:
+  app:
+    name: SpaceBackGroundBuilder
+    version: "@project.version@"

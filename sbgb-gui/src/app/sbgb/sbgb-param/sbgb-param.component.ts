@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {MatButton} from "@angular/material/button";
 import {MatFormField, MatLabel, MatSuffix} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
@@ -16,9 +15,8 @@ import {MatIcon} from "@angular/material/icon";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
-    selector: 'app-sbgb-param',
-    imports: [
-    MatButton,
+  selector: 'app-sbgb-param',
+  imports: [
     MatFormField,
     MatInput,
     MatLabel,
@@ -28,9 +26,9 @@ import {Sbgb} from "../sbgb.model";
     MatTooltip,
     MatIcon,
     MatSuffix
-],
-    templateUrl: './sbgb-param.component.html',
-    styleUrl: './sbgb-param.component.scss'
+  ],
+  templateUrl: './sbgb-param.component.html',
+  styleUrl: './sbgb-param.component.scss'
 })
 export class SbgbParamComponent implements OnInit, OnDestroy {
 
@@ -61,10 +59,13 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   saveSuccessSub: Subscription | undefined;
 
   protected _myForm: FormGroup;
-  private loadedFromDbSbgb: Sbgb | null = null;  // Image chargée depuis la BDD
-  private builtSbgb: Sbgb | null = null;         // Image qui a été buildée
+  private loadedFromDbSbgb: Sbgb | null = null;
+  private builtSbgb: Sbgb | null = null;
   protected isModifiedSinceBuild: boolean = true;
   protected isBuilt: boolean = false;
+  loadedSbgbId: string | null = null;
+  currentNote: number = 0;
+  readonly starValues = [1, 2, 3, 4, 5];
 
   constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions) {
     this._myForm = new FormGroup({
@@ -114,8 +115,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.MIDDLE_THRESHOLD]: new FormControl('0.75'),
       [SbgbParamComponent.INTERPOLATION_TYPE]: new FormControl('LINEAR'),
       [SbgbParamComponent.TRANSPARENT_BACKGROUND]: new FormControl(false),
-      [SbgbParamComponent.NAME]: new FormControl(''),
-      [SbgbParamComponent.DESCRIPTION]: new FormControl(''),
+      [SbgbParamComponent.NAME]: new FormControl('')
     });
 
     this._myForm.valueChanges.subscribe(() => {
@@ -149,8 +149,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         if (message === 'Image generated successfully') {
           this.isBuilt = true;
           this.isModifiedSinceBuild = false;
-          // Sauvegarder l'image qui vient d'être buildée
           this.builtSbgb = this.getSbgbFromForm();
+          if (!this.loadedSbgbId) {
+            this.currentNote = 0;
+          }
         }
         this._snackBar.open(message, 'Close', { // Utilisation du message reçu en tant que texte pour le Snackbar
           duration: 3000,
@@ -166,9 +168,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         const isDifferentImage = !this.loadedFromDbSbgb || this.loadedFromDbSbgb.id !== sbgb.id;
 
         if (isDifferentImage) {
-          console.log('Chargement d\'une nouvelle image depuis la BDD:', sbgb.id);
-          // Ne charger que les images qui ont un ID (venant de la BDD)
           this.loadedFromDbSbgb = sbgb;
+          this.loadedSbgbId = sbgb.id ?? null;
+          this.currentNote = sbgb.note ?? 0;
           this.isBuilt = false;
           this.builtSbgb = null;
           // Ne pas marquer comme modifié lors du chargement depuis la BDD
@@ -191,8 +193,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
             [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
             [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
-            [SbgbParamComponent.NAME]: sbgb.name || '',
-            [SbgbParamComponent.DESCRIPTION]: sbgb.description || '',
+            [SbgbParamComponent.NAME]: sbgb.name || ''
           }, {emitEvent: false});
           // S'assurer que le flag reste à true jusqu'au build automatique
           this.isModifiedSinceBuild = true;
@@ -218,9 +219,13 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         console.log('Image sauvegardée avec succès, mise à jour de loadedFromDbSbgb:', sbgb);
         // Mettre à jour la référence BDD avec l'image sauvegardée
         this.loadedFromDbSbgb = sbgb;
-        // L'image buildée devient la référence BDD
+        this.loadedSbgbId = sbgb.id ?? null;
+        this.currentNote = sbgb.note ?? 0;
         this.builtSbgb = sbgb;
-        this._snackBar.open('Image sauvegardée avec succès', 'OK', {
+        // Après la sauvegarde, conserver l'état permettant de noter/télécharger
+        this.isBuilt = true;
+        this.isModifiedSinceBuild = false;
+        this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'
         });
@@ -234,6 +239,60 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         });
       }
     });
+
+    // Listen to preset changes in SBGB
+    this._myForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
+      if (preset && preset !== 'CUSTOM') {
+        this.applySbgbPreset(preset);
+      }
+    });
+  }
+
+  private applySbgbPreset(preset: string) {
+    const defaultStructure = {
+      octaves: 4,
+      persistence: 0.5,
+      lacunarity: 2.0,
+      scale: 200,
+      noiseType: 'FBM'
+    };
+
+    switch (preset) {
+      case 'DEEP_SPACE':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 6,
+          [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.5,
+          [SbgbParamComponent.CONTROL_LACUNARITY]: 2.2,
+          [SbgbParamComponent.CONTROL_SCALE]: 300,
+          [SbgbParamComponent.BACKGROUND_COLOR]: '#000005',
+          [SbgbParamComponent.MIDDLE_COLOR]: '#050515',
+          [SbgbParamComponent.FOREGROUND_COLOR]: '#0a0a25',
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer2_enabled: true // Stars
+        });
+        break;
+      case 'STARFIELD':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 2,
+          [SbgbParamComponent.CONTROL_SCALE]: 10,
+          [SbgbParamComponent.BACKGROUND_COLOR]: '#000000',
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer0_enabled: false,
+          layer1_enabled: false,
+          layer2_enabled: true // Stars only
+        });
+        break;
+      case 'NEBULA_DENSE':
+        this._myForm.patchValue({
+          [SbgbParamComponent.CONTROL_OCTAVES]: 8,
+          [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.7,
+          [SbgbParamComponent.CONTROL_SCALE]: 150,
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer1_enabled: true,
+          layer2_enabled: true
+        });
+        break;
+    }
   }
 
   ngOnDestroy() {
@@ -251,34 +310,58 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     }
   }
 
+  getParametersSummary(): string {
+    const form = this._myForm.value;
+    const noiseType = form.noiseType || 'FBM';
+    const octaves = form.octaves || 4;
+    const width = form.width || 2048;
+    const height = form.height || 2048;
+    const seed = form.seed || 0;
+    const interpolation = form.interpolationType || 'LINEAR';
+    const useMultiLayer = form.useMultiLayer || false;
+    const preset = form.preset || 'CUSTOM';
+
+    let summary = `${noiseType} noise with ${octaves} octaves`;
+
+    if (useMultiLayer && preset !== 'CUSTOM') {
+      summary += `, ${preset} preset`;
+    } else if (useMultiLayer) {
+      summary += `, multi-layer enabled`;
+    }
+
+    summary += `, ${width}x${height}px`;
+    summary += `, ${interpolation} interpolation`;
+    summary += `, seed ${seed}`;
+
+    return summary;
+  }
+
   computeImage() {
     const sbgb = this.getSbgbFromForm();
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
   }
 
-  saveImage() {
-    const sbgb = this.builtSbgb || this.getSbgbFromForm();
+  onNoteSelected(note: number): void {
+    if (note < 1) return;
+    this.currentNote = note;
 
-    // Si l'image a un ID (vient de la BDD), vérifier si elle a été modifiée
-    if (this.loadedFromDbSbgb && this.loadedFromDbSbgb.id) {
-      if (!this.isModified(sbgb, this.loadedFromDbSbgb)) {
-        this._snackBar.open('L\'image n\'a pas été modifiée.', 'OK', {duration: 3000});
-        return;
-      }
-
-      const isSameName = this.loadedFromDbSbgb.name === sbgb.name;
-      const confirmMessage = isSameName
-        ? `L'image "${sbgb.name}" existe déjà et a été modifiée. Voulez-vous la mettre à jour ?`
-        : `L'image "${sbgb.name}" va être enregistrée. Voulez-vous continuer ?`;
-
-      const confirmUpdate = confirm(confirmMessage);
-      if (confirmUpdate) {
-        this.store.dispatch(SbgbPageActions.saveSbgb({sbgb, forceUpdate: isSameName}));
-      }
+    if (this.loadedSbgbId && !this.isModifiedSinceBuild) {
+      this.store.dispatch(SbgbPageActions.updateNote({id: this.loadedSbgbId, note}));
+      this._snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', {duration: 3000});
     } else {
-      // Nouvelle image ou image buildée sans ID
-      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb, forceUpdate: false}));
+      const sbgb = {...(this.builtSbgb || this.getSbgbFromForm()), note};
+      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb}));
     }
+  }
+
+  canRate(): boolean {
+    return this.isBuilt && !this.isModifiedSinceBuild;
+  }
+
+  getRatingTooltip(): string {
+    if (!this.isBuilt) return 'Générez d\'abord un ciel étoilé avant de pouvoir le noter et le sauvegarder.';
+    if (this.isModifiedSinceBuild) return 'Regénérez le ciel étoilé avant de noter.';
+    return 'Attribuez une note pour sauvegarder ce ciel étoilé';
   }
 
   public hasUnsavedChanges(): boolean {
@@ -290,19 +373,19 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     return this.isModified(currentSbgb, this.loadedFromDbSbgb);
   }
 
-  protected canBuild(): boolean {
+  canBuild(): boolean {
     // Le bouton Build est actif si les paramètres ont été modifiés depuis le dernier build
     return this.isModifiedSinceBuild;
   }
 
-  protected getBuildTooltip(): string {
+  getBuildTooltip(): string {
     if (!this.isModifiedSinceBuild) {
-      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer une nouvelle image.';
+      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer un nouveau ciel étoilé.';
     }
-    return 'Générer l\'image avec les paramètres actuels';
+    return 'Générer le ciel étoilé avec les paramètres actuels';
   }
 
-  protected canSave(): boolean {
+  canSave(): boolean {
     // Le bouton Save est actif si :
     // 1. Une image a été buildée (isBuilt = true)
     // 2. Le formulaire n'a pas été modifié depuis le build (isModifiedSinceBuild = false)
@@ -323,37 +406,37 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     return this.isModified(this.builtSbgb, this.loadedFromDbSbgb);
   }
 
-  protected getSaveTooltip(): string {
+  getSaveTooltip(): string {
     if (!this.isBuilt) {
-      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la sauvegarder.';
+      return 'Vous devez d\'abord générer un ciel étoilé (Build) avant de pouvoir le sauvegarder.';
     }
     if (this.isModifiedSinceBuild) {
-      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de sauvegarder.';
+      return 'Vous avez modifié les paramètres. Générez le ciel étoilé (Build) avant de sauvegarder.';
     }
     if (!this.builtSbgb) {
-      return 'Aucune image générée à sauvegarder.';
+      return 'Aucun ciel étoilé généré à sauvegarder.';
     }
     if (!this.loadedFromDbSbgb) {
-      return 'Sauvegarder cette nouvelle image dans la bibliothèque';
+      return 'Sauvegarder ce nouveau ciel étoilé dans la bibliothèque';
     }
     if (this.isModified(this.builtSbgb, this.loadedFromDbSbgb)) {
-      return 'Sauvegarder les modifications de cette image';
+      return 'Sauvegarder les modifications de ce ciel étoilé';
     }
-    return 'L\'image n\'a pas été modifiée par rapport à celle en bibliothèque.';
+    return 'Le ciel étoilé n\'a pas été modifié par rapport à celui en bibliothèque.';
   }
 
-  protected canDownload(): boolean {
+  canDownload(): boolean {
     return this.isBuilt && !this.isModifiedSinceBuild;
   }
 
-  protected getDownloadTooltip(): string {
+  getDownloadTooltip(): string {
     if (!this.isBuilt) {
-      return 'Vous devez d\'abord générer une image (Build) avant de pouvoir la télécharger.';
+      return 'Vous devez d\'abord générer un ciel étoilé (Build) avant de pouvoir le télécharger.';
     }
     if (this.isModifiedSinceBuild) {
-      return 'Vous avez modifié les paramètres. Générez l\'image (Build) avant de télécharger.';
+      return 'Vous avez modifié les paramètres. Générez le ciel étoilé (Build) avant de télécharger.';
     }
-    return 'Télécharger l\'image générée sur votre PC';
+    return 'Télécharger le ciel étoilé généré sur votre PC';
   }
 
   downloadImage() {
@@ -391,8 +474,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       Number(c1.backThreshold) !== Number(c2.backThreshold) ||
       Number(c1.middleThreshold) !== Number(c2.middleThreshold) ||
       c1.interpolationType !== c2.interpolationType ||
-      referenceSbgb.name !== currentSbgb.name ||
-      referenceSbgb.description !== currentSbgb.description;
+      referenceSbgb.name !== currentSbgb.name;
+    // Note: description is auto-generated, no need to compare
   }
 
   private getSbgbFromForm(): Sbgb {
@@ -408,7 +491,15 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       presetValue,
       useMultiLayerValue
     } = this.extractImageFormValues();
-    const {backgroundColorValue, middleColorValue, foregroundColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue}
+    const {
+      backgroundColorValue,
+      middleColorValue,
+      foregroundColorValue,
+      backThresholdValue,
+      middleThresholdValue,
+      interpolationTypeValue,
+      transparentBackgroundValue
+    }
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
 
@@ -488,7 +579,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   private extractMetaFormValues() {
     let nameValue = this._myForm.controls[SbgbParamComponent.NAME].value;
-    let descriptionValue = this._myForm.controls[SbgbParamComponent.DESCRIPTION].value;
+    let descriptionValue = this.getParametersSummary(); // Auto-generate description
     return {nameValue, descriptionValue};
   }
 
@@ -525,7 +616,15 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
     let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
     let transparentBackgroundValue = this._myForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
-    return {backgroundColorValue, foregroundColorValue, middleColorValue, backThresholdValue, middleThresholdValue, interpolationTypeValue, transparentBackgroundValue};
+    return {
+      backgroundColorValue,
+      foregroundColorValue,
+      middleColorValue,
+      backThresholdValue,
+      middleThresholdValue,
+      interpolationTypeValue,
+      transparentBackgroundValue
+    };
   }
 
 }

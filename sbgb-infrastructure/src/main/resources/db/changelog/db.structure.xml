@@ -21,4 +21,8 @@
     <include file="/db/changelog/2026/02/08-04-add-warping-and-palette-columns.xml"/>
     <include file="/db/changelog/2026/02/08-05-add-star-field-columns.xml"/>
     <include file="/db/changelog/2026/02/08-06-add-multi-layer-noise-columns.xml"/>
+    <include file="/db/changelog/2026/02/08-07-add-dark-lane-opacity-column.xml"/>
+    <include file="/db/changelog/2026/02/08-08-add-bloom-columns.xml"/>
+    <include file="/db/changelog/2026/02/22-01-remove-name-add-note-constraint.xml"/>
+    <include file="/db/changelog/2026/02/22-02-add-note-constraint-noise-image.xml"/>
 </databaseChangeLog>

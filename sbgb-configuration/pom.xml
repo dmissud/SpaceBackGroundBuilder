@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.dbs.sbgb</groupId>
         <artifactId>SpaceBackGroundBuilder</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.3.0</version>
     </parent>
 
     <artifactId>sbgb-configuration</artifactId>
@@ -21,6 +21,16 @@
         <dependency>
             <groupId>org.dbs.sbgb</groupId>
             <artifactId>sbgb-infrastructure</artifactId>
+        </dependency>
+
+        <!-- Add mapstruct dependency for generated mappers -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
         </dependency>
 
         <dependency>
@@ -85,6 +95,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

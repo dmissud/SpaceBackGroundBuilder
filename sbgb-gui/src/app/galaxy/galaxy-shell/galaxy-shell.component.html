@@ -1,13 +1,47 @@
-<div style="padding: 20px;">
-  <h1>Galaxy Generator</h1>
-  <p>Create realistic galaxies with customizable parameters</p>
+<app-generator-shell
+  generatorTabLabel="Générateur"
+  libraryTabLabel="Bibliothèque de galaxies">
 
-  <mat-tab-group>
-    <mat-tab label="Generator">
-      <app-galaxy-param></app-galaxy-param>
-    </mat-tab>
-    <mat-tab label="Saved Galaxies">
-      <app-galaxy-list (viewRequested)="onViewRequested($event)"></app-galaxy-list>
-    </mat-tab>
-  </mat-tab-group>
-</div>
+  <!-- Parameters panel content -->
+  <ng-template #paramContent>
+    <app-galaxy-param #galaxyParam></app-galaxy-param>
+  </ng-template>
+
+  <!-- Action bar content -->
+  <ng-template #actionBarContent>
+    <app-action-bar
+      [buttons]="actionBarButtons"
+      [isGenerating]="isGenerating"
+      [summary]="getSummary()">
+      @if (canRate()) {
+        <div class="star-rating-container"
+             matTooltip="Noter &amp; sauvegarder"
+             matTooltipPosition="above">
+          @for (star of starValues; track star) {
+            <button mat-icon-button
+                    (click)="onNoteSelected(star)"
+                    type="button">
+              <mat-icon [style.color]="star <= currentNote ? '#f59f00' : 'rgba(0,0,0,0.35)'">
+                {{ star <= currentNote ? 'star' : 'star_border' }}
+              </mat-icon>
+            </button>
+          }
+        </div>
+      }
+    </app-action-bar>
+  </ng-template>
+
+  <!-- Image preview content -->
+  <ng-template #imageContent>
+    <app-galaxy-image
+      [imageUrl]="generatedImageUrl"
+      [isGenerating]="isGenerating">
+    </app-galaxy-image>
+  </ng-template>
+
+  <!-- Library content -->
+  <ng-template #libraryContent>
+    <app-galaxy-list (viewRequested)="onViewRequested($event)"></app-galaxy-list>
+  </ng-template>
+
+</app-generator-shell>

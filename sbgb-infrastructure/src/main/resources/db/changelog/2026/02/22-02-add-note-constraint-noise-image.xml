@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="22-02-add-note-constraint-noise-image" author="sbgb">
+        <sql>ALTER TABLE noise_image ADD CONSTRAINT chk_noise_note CHECK (note &gt;= 0 AND note &lt;= 5)</sql>
+        <rollback>
+            <sql>ALTER TABLE noise_image DROP CONSTRAINT chk_noise_note</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

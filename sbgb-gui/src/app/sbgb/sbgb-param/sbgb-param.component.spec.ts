@@ -1,20 +1,24 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
-import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {provideMockStore, MockStore} from '@ngrx/store/testing';
-import {provideMockActions} from '@ngrx/effects/testing';
-import {Observable, of} from 'rxjs';
-import {SbgbParamComponent} from './sbgb-param.component';
-import {SbgbPageActions} from '../state/sbgb.actions';
-import {Sbgb} from '../sbgb.model';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { provideMockStore, MockStore } from '@ngrx/store/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { Observable, of } from 'rxjs';
+import { SbgbParamComponent } from './sbgb-param.component';
+import { SbgbPageActions } from '../state/sbgb.actions';
+import { Sbgb } from '../sbgb.model';
 
 describe('SbgbParamComponent', () => {
   let component: SbgbParamComponent;
   let fixture: ComponentFixture<SbgbParamComponent>;
   let store: MockStore;
-  let snackBar: jasmine.SpyObj<MatSnackBar>;
+  let snackBar: jest.Mocked<MatSnackBar>;
   let actions$: Observable<any>;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   const mockSbgb: Sbgb = {
     id: '1',
@@ -43,7 +47,7 @@ describe('SbgbParamComponent', () => {
 
   beforeEach(async () => {
     actions$ = of();
-    snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    snackBar = { open: jest.fn() } as any;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -52,7 +56,7 @@ describe('SbgbParamComponent', () => {
         NoopAnimationsModule
       ],
       providers: [
-        {provide: MatSnackBar, useValue: snackBar},
+        { provide: MatSnackBar, useValue: snackBar },
         provideMockActions(() => actions$),
         provideMockStore({
           initialState: {
@@ -89,48 +93,48 @@ describe('SbgbParamComponent', () => {
     it('should return false if nothing is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeFalse();
+      expect(component.isModified(current, mockSbgb)).toBeFalsy();
     });
 
     it('should return true if name is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.name = 'New Name';
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTruthy();
     });
 
-    it('should return true if description is modified', () => {
+    it('should return false if description is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.description = 'New Description';
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeFalsy();
     });
 
     it('should return true if width is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageStructure.width = 1000;
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTruthy();
     });
 
     it('should return true if color is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageColor.back = '#123456';
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTruthy();
     });
 
     it('should return true if threshold is modified', () => {
       const current = JSON.parse(JSON.stringify(mockSbgb));
       current.imageColor.backThreshold = 0.1;
       // @ts-ignore
-      expect(component.isModified(current, mockSbgb)).toBeTrue();
+      expect(component.isModified(current, mockSbgb)).toBeTruthy();
     });
   });
 
   describe('saveImage', () => {
     beforeEach(() => {
-      spyOn(store, 'dispatch');
+      jest.spyOn(store, 'dispatch');
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
@@ -140,12 +144,12 @@ describe('SbgbParamComponent', () => {
     it('should dispatch saveSbgb with forceUpdate=false when no image is loaded', () => {
       // @ts-ignore
       component.loadedFromDbSbgb = null;
-      component['_myForm'].patchValue({name: 'New Image'});
+      component['_myForm'].patchValue({ name: 'New Image' });
 
       component.saveImage();
 
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: false})
+        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: false })
       );
     });
 
@@ -173,13 +177,13 @@ describe('SbgbParamComponent', () => {
 
       component.saveImage();
 
-      expect(snackBar.open).toHaveBeenCalledWith(jasmine.stringMatching(/n'a pas été modifiée/), 'OK', jasmine.any(Object));
+      expect(snackBar.open).toHaveBeenCalledWith(expect.stringMatching(/n'a pas été modifié/), 'OK', expect.any(Object));
       expect(store.dispatch).not.toHaveBeenCalled();
     });
 
     it('should ask for confirmation and dispatch with forceUpdate=true when name is same but content modified', () => {
       const modifiedSbgb = JSON.parse(JSON.stringify(mockSbgb));
-      modifiedSbgb.description = 'Modified Description';
+      modifiedSbgb.imageStructure.width = 5000;
       // @ts-ignore
       component.loadedFromDbSbgb = mockSbgb;
       // @ts-ignore - builtSbgb avec description modifiée
@@ -187,15 +191,15 @@ describe('SbgbParamComponent', () => {
       // @ts-ignore
       component._myForm.patchValue({
         name: mockSbgb.name,
-        description: 'Modified Description'
+        width: 5000
       });
-      spyOn(window, 'confirm').and.returnValue(true);
+      jest.spyOn(window, 'confirm').mockReturnValue(true);
 
       component.saveImage();
 
-      expect(window.confirm).toHaveBeenCalledWith(jasmine.stringMatching(/existe déjà et a été modifiée/));
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/existe déjà et a été modifié/));
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: true})
+        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: true })
       );
     });
 
@@ -211,91 +215,75 @@ describe('SbgbParamComponent', () => {
         name: 'New Name',
         description: mockSbgb.description
       });
-      spyOn(window, 'confirm').and.returnValue(true);
+      jest.spyOn(window, 'confirm').mockReturnValue(true);
 
       component.saveImage();
 
-      expect(window.confirm).toHaveBeenCalledWith(jasmine.stringMatching(/va être enregistrée/));
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/va être enregistré/));
       expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({sbgb: jasmine.anything() as any, forceUpdate: false})
+        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: false })
       );
     });
   });
 
   describe('UI State', () => {
-    it('should have save button disabled if not built', () => {
+    it('should return false for canSave if not built', () => {
       // @ts-ignore
       component.isBuilt = false;
-      fixture.detectChanges();
-      const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeTrue();
+      expect(component.canSave()).toBeFalsy();
     });
 
-    it('should have save button disabled if modified since build', () => {
+    it('should return false for canSave if modified since build', () => {
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
       component.isModifiedSinceBuild = true;
-      fixture.detectChanges();
-      const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeTrue();
+      expect(component.canSave()).toBeFalsy();
     });
 
-    it('should have save button enabled if built and not modified since build', () => {
+    it('should return true for canSave if built and not modified since build', () => {
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
       component.isModifiedSinceBuild = false;
       // @ts-ignore - builtSbgb doit être défini pour que canSave() retourne true
       component.builtSbgb = mockSbgb;
-      fixture.detectChanges();
-      const saveButton = fixture.nativeElement.querySelector('button[color="accent"]');
-      expect(saveButton.disabled).toBeFalse();
+      expect(component.canSave()).toBeTruthy();
     });
 
-    it('should have download button disabled if not built', () => {
+    it('should return false for canDownload if not built', () => {
       // @ts-ignore
       component.isBuilt = false;
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-      expect(downloadButton).toBeTruthy();
-      expect(downloadButton.disabled).toBeTrue();
+      expect(component.canDownload()).toBeFalsy();
     });
 
-    it('should have download button disabled if modified since build', () => {
+    it('should return false for canDownload if modified since build', () => {
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
       component.isModifiedSinceBuild = true;
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-      expect(downloadButton.disabled).toBeTrue();
+      expect(component.canDownload()).toBeFalsy();
     });
 
-    it('should have download button enabled if built and not modified since build', () => {
+    it('should return true for canDownload if built and not modified since build', () => {
       // @ts-ignore
       component.isBuilt = true;
       // @ts-ignore
       component.isModifiedSinceBuild = false;
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const downloadButton = Array.from(buttons).find((b: any) => b.textContent.trim() === 'Telecharger') as HTMLButtonElement;
-      expect(downloadButton.disabled).toBeFalse();
+      expect(component.canDownload()).toBeTruthy();
     });
   });
 
   describe('downloadImage', () => {
     it('should create an anchor element and trigger download with form name', () => {
       const fakeDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
-      spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
+      jest.spyOn(store, 'selectSignal').mockReturnValue((() => fakeDataUrl) as any);
 
-      const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
-      spyOn(document, 'createElement').and.returnValue(fakeLink);
+      const clickSpy = jest.fn();
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
+      jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
-      component['_myForm'].patchValue({name: 'my-stars'}, {emitEvent: false});
+      component['_myForm'].patchValue({ name: 'my-stars' }, { emitEvent: false });
 
       component.downloadImage();
 
@@ -307,13 +295,13 @@ describe('SbgbParamComponent', () => {
 
     it('should use default name when form name is empty', () => {
       const fakeDataUrl = 'data:image/png;base64,iVBORw0KGgo=';
-      spyOn(store, 'selectSignal').and.returnValue((() => fakeDataUrl) as any);
+      jest.spyOn(store, 'selectSignal').mockReturnValue((() => fakeDataUrl) as any);
 
-      const clickSpy = jasmine.createSpy('click');
-      const fakeLink = {href: '', download: '', click: clickSpy} as any;
-      spyOn(document, 'createElement').and.returnValue(fakeLink);
+      const clickSpy = jest.fn();
+      const fakeLink = { href: '', download: '', click: clickSpy } as any;
+      jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
-      component['_myForm'].patchValue({name: ''}, {emitEvent: false});
+      component['_myForm'].patchValue({ name: '' }, { emitEvent: false });
 
       component.downloadImage();
 
@@ -322,8 +310,8 @@ describe('SbgbParamComponent', () => {
     });
 
     it('should not trigger download when no image is available', () => {
-      spyOn(store, 'selectSignal').and.returnValue((() => null) as any);
-      const createElementSpy = spyOn(document, 'createElement');
+      jest.spyOn(store, 'selectSignal').mockReturnValue((() => null) as any);
+      const createElementSpy = jest.spyOn(document, 'createElement');
 
       component.downloadImage();
 

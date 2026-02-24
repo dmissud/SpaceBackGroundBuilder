@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sbgb-ingress
+  namespace: sbgb
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - bree
+      secretName: sbgb-tls-secret
+  rules:
+    - host: bree
+      http:
+        paths:
+          - path: /sbgb(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: sbgb-frontend
+                port:
+                  number: 80
+          - path: /sbgb/api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: sbgb-backend
+                port:
+                  number: 8080

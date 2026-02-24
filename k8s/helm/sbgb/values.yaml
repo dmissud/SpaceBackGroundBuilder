@@ -1,0 +1,38 @@
+# Default values for sbgb chart
+
+namespace: sbgb
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  host: "" # Leave empty if enabled is true, otherwise provide external host
+  database: sbgb
+  user: sbgb_user
+  password: sbgb_password
+  adminUser: admin
+  adminPassword: admin_password
+  storage: 5Gi
+
+# Backend configuration
+backend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/backend:latest
+  replicas: 1
+  servicePort: 8080
+  javaOpts: "-Xms512m -Xmx2048m -XX:+UseG1GC"
+  springProfile: prod
+
+# Frontend configuration
+frontend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/frontend:latest
+  replicas: 1
+  servicePort: 80
+
+# Ingress configuration
+ingress:
+  enabled: true
+  host: sbgb.example.com
+  tls:
+    enabled: true
+    secretName: sbgb-tls-secret
+  className: public
+  basePath: /sbgb

@@ -11,8 +11,9 @@ COPY sbgb-exposition/pom.xml sbgb-exposition/
 COPY sbgb-configuration/pom.xml sbgb-configuration/
 COPY sbgb-cmd/pom.xml sbgb-cmd/
 
-# Remove sbgb-gui module reference from parent pom (not needed for backend build)
-RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml
+# Remove sbgb-gui and sbgb-coverage module references from parent pom (not needed for backend build)
+RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml && \
+    sed -i '/<module>sbgb-coverage<\/module>/d' pom.xml
 
 # Download dependencies (cached layer)
 RUN mvn dependency:go-offline -B
@@ -24,8 +25,9 @@ COPY sbgb-exposition/src sbgb-exposition/src
 COPY sbgb-configuration/src sbgb-configuration/src
 COPY sbgb-cmd/src sbgb-cmd/src
 
-# Remove sbgb-gui module reference again (in case pom.xml was re-copied)
-RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml
+# Remove sbgb-gui and sbgb-coverage module references again (in case pom.xml was re-copied)
+RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml && \
+    sed -i '/<module>sbgb-coverage<\/module>/d' pom.xml
 
 # Build all modules and install to local Maven repo
 RUN mvn clean install -DskipTests && \

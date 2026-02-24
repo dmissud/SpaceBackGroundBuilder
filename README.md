@@ -55,6 +55,29 @@ Pour supprimer également les données de la base :
 docker-compose down -v
 ```
 
+## 🐳 Utilisation des images pré-construites (Sans build local)
+
+Si vous souhaitez tester l'application rapidement sans avoir à compiler le code source ou construire les images localement, vous pouvez utiliser le fichier `docker-compose.prod.yml`.
+
+Ce fichier présente deux avantages majeurs :
+1. **Gain de temps** : Les images sont directement téléchargées depuis le **GitHub Container Registry (GHCR)**.
+2. **Environnement de production** : Vous testez exactement les mêmes images que celles qui sont validées par la CI/CD.
+
+### Lancer l'application avec les images publiées
+
+```bash
+# Pour être sûr d'utiliser les bonnes images (ex: dmissud)
+export GITHUB_REPOSITORY_LOWER=dmissud/spacebackgroundbuilder
+
+# Lancer l'application
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Pourquoi utiliser ce fichier ?
+* **Rapidité** : Évite l'étape de build locale (10-15 minutes).
+* **Fiabilité** : Utilise les images `latest` construites automatiquement lors des push sur la branche `master`.
+* **Simplicité** : Idéal pour une démonstration ou pour faire tester le projet à quelqu'un d'autre sans configuration locale complexe.
+
 ## 📦 Architecture Docker
 
 ```
@@ -89,6 +112,14 @@ docker-compose down -v
 - **Image** : PostgreSQL 16 Alpine
 - **Volumes** : Persistance des données via `postgres_data`
 - **Credentials** : `sbgb_user` / `sbgb_password` (à changer en production)
+
+## ☸️ Déploiement Kubernetes
+
+Le projet est prêt à être déployé sur un cluster Kubernetes (testé avec MicroK8s).
+
+- **Manifestes** : Les fichiers YAML et le **Chart Helm** se trouvent dans le dossier `k8s/`.
+- **Guide complet** : Consultez le fichier [**K8S.MD**](K8S.MD) pour les instructions détaillées de déploiement (Helm ou kubectl), l'architecture des namespaces et les commandes de maintenance.
+- **CI/CD** : Le déploiement est automatisé via GitHub Actions lors des push sur les branches principales. Le projet supporte le déploiement simultané sur plusieurs clusters (ex: `bree` en amd64 et `pi8` sur Raspberry Pi ARM64).
 
 ## 🛠️ Développement
 

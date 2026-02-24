@@ -1,3 +1,11 @@
+h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #3f51b5;
+  font-size: 1.5em;
+}
+
+// Form sections
 section {
   display: flex;
   flex-wrap: wrap;
@@ -9,6 +17,8 @@ h3 {
   width: 100%;
   margin: 10px 0;
   color: #3f51b5;
+  font-size: 1.1em;
+  font-weight: 500;
 }
 
 mat-form-field {

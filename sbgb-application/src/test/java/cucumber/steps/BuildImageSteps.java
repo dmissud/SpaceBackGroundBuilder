@@ -2,10 +2,10 @@ package cucumber.steps;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.dbs.spgb.domain.model.NoiseImage;
-import org.dbs.spgb.domain.service.ImagesService;
-import org.dbs.spgb.port.in.CreateNoiseImageUseCase;
-import org.dbs.spgb.port.in.ImageRequestCmd;
+import org.dbs.sbgb.domain.model.NoiseImage;
+import org.dbs.sbgb.domain.service.ImagesService;
+import org.dbs.sbgb.port.in.CreateNoiseImageUseCase;
+import org.dbs.sbgb.port.in.ImageRequestCmd;
 
 import java.io.IOException;
 import java.util.Map;

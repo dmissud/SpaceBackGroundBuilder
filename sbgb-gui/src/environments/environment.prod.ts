@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  API_DATA_PROVIDER_URL: '/api'
+  API_DATA_PROVIDER_URL: '/sbgb/api'
 };

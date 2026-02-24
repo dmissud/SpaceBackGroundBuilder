@@ -1,0 +1,95 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sbgb.fullname" . }}-postgres-init
+  labels:
+    {{- include "sbgb.labels" . | nindent 4 }}
+data:
+  init-db.sh: |
+    #!/bin/bash
+    set -e
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        CREATE DATABASE {{ .Values.postgresql.database }};
+        CREATE USER {{ .Values.postgresql.user }} WITH PASSWORD '{{ .Values.postgresql.password }}';
+        GRANT ALL PRIVILEGES ON DATABASE {{ .Values.postgresql.database }} TO {{ .Values.postgresql.user }};
+        ALTER DATABASE {{ .Values.postgresql.database }} OWNER TO {{ .Values.postgresql.user }};
+    EOSQL
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "sbgb.fullname" . }}-postgres-pvc
+  labels:
+    {{- include "sbgb.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.postgresql.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sbgb.fullname" . }}-postgres
+  labels:
+    {{- include "sbgb.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "sbgb.fullname" . }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ include "sbgb.fullname" . }}-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgresql.image }}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.adminUser }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.adminPassword }}
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+          livenessProbe:
+            exec:
+              command: [ "pg_isready", "-U", "{{ .Values.postgresql.adminUser }}", "-d", "postgres" ]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: [ "pg_isready", "-U", "{{ .Values.postgresql.adminUser }}", "-d", "postgres" ]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: {{ include "sbgb.fullname" . }}-postgres-pvc
+        - name: init-scripts
+          configMap:
+            name: {{ include "sbgb.fullname" . }}-postgres-init
+            defaultMode: 0755
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sbgb.fullname" . }}-postgres
+  labels:
+    {{- include "sbgb.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: {{ include "sbgb.fullname" . }}-postgres
+{{- end }}

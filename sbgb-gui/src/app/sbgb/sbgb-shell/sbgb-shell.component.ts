@@ -1,37 +1,95 @@
-import {Component, ViewChild} from '@angular/core';
-import {MatCard, MatCardContent} from "@angular/material/card";
-import {SbgbParamComponent} from "../sbgb-param/sbgb-param.component";
-import {SbgbImageComponent} from "../sbgb-image/sbgb-image.component";
-import {SbgbListComponent} from "../sbgb-list/sbgb-list.component";
-import {MatTabGroup, MatTabsModule} from "@angular/material/tabs";
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { SbgbParamComponent } from "../sbgb-param/sbgb-param.component";
+import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
+import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
+import { Store } from "@ngrx/store";
+import { selectImageBuild, selectImageIsBuilding } from "../state/sbgb.selectors";
+import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
+import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
-import {Sbgb} from "../sbgb.model";
+import { Sbgb } from "../sbgb.model";
 
 @Component({
-    selector: 'app-sbgb-shell',
-    imports: [
-        MatCard,
-        MatCardContent,
-        SbgbParamComponent,
-        SbgbImageComponent,
-        SbgbListComponent,
-        MatTabsModule
-    ],
-    templateUrl: './sbgb-shell.component.html',
-    styleUrl: './sbgb-shell.component.scss'
+  selector: 'app-sbgb-shell',
+  imports: [
+    GeneratorShellComponent,
+    SbgbParamComponent,
+    SbgbImageComponent,
+    SbgbListComponent,
+    ActionBarComponent,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule
+  ],
+  templateUrl: './sbgb-shell.component.html',
+  styleUrl: './sbgb-shell.component.scss'
 })
-export class SbgbShellComponent {
-  @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
+export class SbgbShellComponent implements AfterViewInit {
+  @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(SbgbParamComponent) paramComponent!: SbgbParamComponent;
   @ViewChild(SbgbListComponent) listComponent!: SbgbListComponent;
 
-  switchToGenerator() {
-    this.tabGroup.selectedIndex = 0;
+  hasBuiltImage = this.store.selectSignal(selectImageBuild);
+  isGenerating = this.store.selectSignal(selectImageIsBuilding);
+
+  constructor(private store: Store, private cdr: ChangeDetectorRef) { }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
+
+  get actionBarButtons(): ActionBarButton[] {
+    const param = this.paramComponent;
+    if (!param) return [];
+
+    return [
+      {
+        label: 'Générer aperçu',
+        color: 'primary',
+        disabled: !param.canBuild(),
+        tooltip: param.getBuildTooltip(),
+        action: () => param.computeImage()
+      },
+      {
+        label: 'Télécharger',
+        disabled: !param.canDownload(),
+        tooltip: param.getDownloadTooltip(),
+        action: () => param.downloadImage()
+      }
+    ];
+  }
+
+  get currentNote(): number {
+    return this.paramComponent?.currentNote || 0;
+  }
+
+  get starValues(): number[] {
+    return this.paramComponent?.starValues || [1, 2, 3, 4, 5];
+  }
+
+  canRate(): boolean {
+    return this.paramComponent?.canRate() || false;
+  }
+
+  getRatingTooltip(): string {
+    return this.paramComponent?.getRatingTooltip() || '';
+  }
+
+  onNoteSelected(note: number): void {
+    this.paramComponent?.onNoteSelected(note);
+  }
+
+  getSummary(): string | null {
+    const param = this.paramComponent;
+    return this.hasBuiltImage() && param ? param.getParametersSummary() : null;
   }
 
   onViewRequested(sbgb: Sbgb) {
     if (this.paramComponent && this.paramComponent.hasUnsavedChanges()) {
-      if (confirm('Vous avez des modifications non enregistrées. Voulez-vous vraiment charger une autre image ?')) {
+      if (confirm('Vous avez des modifications non enregistrées. Voulez-vous vraiment charger un autre ciel étoilé ?')) {
         this.loadAndSwitch(sbgb);
       }
     } else {
@@ -43,6 +101,6 @@ export class SbgbShellComponent {
     if (this.listComponent) {
       this.listComponent.confirmView(sbgb);
     }
-    this.switchToGenerator();
+    this.shell.switchToGenerator();
   }
 }

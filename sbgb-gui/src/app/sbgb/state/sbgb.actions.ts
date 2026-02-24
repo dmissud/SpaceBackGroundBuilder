@@ -5,7 +5,8 @@ export const SbgbPageActions = createActionGroup({
   source: 'Sbgbs Page',
   events: {
     'Build Sbgb': props<{ sbgb: Sbgb, build: boolean }>(),
-    'Save Sbgb': props<{ sbgb: Sbgb, forceUpdate?: boolean }>(),
+    'Save Sbgb': props<{ sbgb: Sbgb }>(),
+    'Update Note': props<{ id: string, note: number }>(),
     'Load Sbgbs': emptyProps(),
     'Select Sbgb': props<{ sbgb: Sbgb }>(),
     'Information': props<{ message: string, build: boolean }>()
@@ -20,6 +21,8 @@ export const ImageApiActions = createActionGroup({
     'Images Save Success': props<{ sbgb: Sbgb }>(),
     'Images Save Fail': props<{ message: string }>(),
     'Images Load Success': props<{ sbgbs: Sbgb[] }>(),
-    'Images Load Fail': props<{ message: string }>()
+    'Images Load Fail': props<{ message: string }>(),
+    'Images Update Note Success': props<{ id: string, note: number }>(),
+    'Images Update Note Fail': props<{ message: string }>()
   }
 })

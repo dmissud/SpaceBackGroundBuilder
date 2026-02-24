@@ -2,43 +2,63 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {selectSbgbs} from "../state/sbgb.selectors";
 import {SbgbPageActions} from "../state/sbgb.actions";
-import {Observable} from "rxjs";
 import {Sbgb} from "../sbgb.model";
-import { AsyncPipe } from "@angular/common";
-import {MatTableModule} from "@angular/material/table";
-import {MatButtonModule} from "@angular/material/button";
-import {MatIconModule} from "@angular/material/icon";
-import {MatTooltipModule} from "@angular/material/tooltip";
+import {map} from "rxjs/operators";
+import {LibraryItem, LibraryListComponent} from "../../shared/components/library-list/library-list.component";
 
 @Component({
     selector: 'app-sbgb-list',
-    imports: [
-    AsyncPipe,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-],
-    templateUrl: './sbgb-list.component.html',
-    styleUrl: './sbgb-list.component.scss'
+    standalone: true,
+    imports: [LibraryListComponent],
+    template: `
+      <app-library-list
+        title="Ciels étoilés enregistrés"
+        [items]="libraryItems"
+        [isLoading]="false"
+        emptyMessage="Aucun ciel étoilé enregistré. Créez votre premier ciel étoilé !"
+        [showRefreshButton]="false"
+        [showNameColumn]="false"
+        (viewRequested)="onViewRequested($event)">
+      </app-library-list>
+    `,
+    styles: ``
 })
 export class SbgbListComponent implements OnInit {
 
-  sbgbs$: Observable<Sbgb[]>;
-  displayedColumns: string[] = ['name', 'description', 'seed', 'actions'];
+  sbgbs: Sbgb[] = [];
+  libraryItems: LibraryItem[] = [];
 
   @Output() viewRequested = new EventEmitter<Sbgb>();
 
   constructor(private store: Store) {
-    this.sbgbs$ = this.store.select(selectSbgbs);
+    this.store.select(selectSbgbs).pipe(
+      map(sbgbs => sbgbs.map(s => ({
+        id: s.id,
+        name: s.name || '',
+        description: s.description || '',
+        width: s.imageStructure.width,
+        height: s.imageStructure.height,
+        seed: s.imageStructure.seed,
+        note: s.note ?? 0
+      })))
+    ).subscribe(items => {
+      this.libraryItems = items;
+    });
+
+    this.store.select(selectSbgbs).subscribe(sbgbs => {
+      this.sbgbs = sbgbs;
+    });
   }
 
   ngOnInit(): void {
     this.store.dispatch(SbgbPageActions.loadSbgbs());
   }
 
-  viewImage(sbgb: Sbgb): void {
-    this.viewRequested.emit(sbgb);
+  onViewRequested(item: LibraryItem): void {
+    const sbgb = this.sbgbs.find(s => s.id === item.id);
+    if (sbgb) {
+      this.viewRequested.emit(sbgb);
+    }
   }
 
   public confirmView(sbgb: Sbgb): void {

@@ -1,0 +1,30 @@
+<div class="actions-and-status">
+  <div class="action-buttons">
+    @for (button of buttons; track button.label) {
+      <button mat-raised-button
+        [color]="button.color"
+        [disabled]="button.disabled"
+        [matTooltip]="button.tooltip"
+        matTooltipPosition="below"
+        (click)="onButtonClick(button)">
+        {{ button.label }}
+      </button>
+    }
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Status: Loading or Summary -->
+  <div class="status-area">
+    @if (isGenerating) {
+      <div class="loading-status">
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>{{ generatingMessage }}</span>
+      </div>
+    } @else if (summary) {
+      <div class="parameters-summary">
+        <mat-icon>info</mat-icon>
+        <span>{{ summary }}</span>
+      </div>
+    }
+  </div>
+</div>

@@ -6,19 +6,74 @@
 
 ## Demarche
 
-- TDD
-- BDD
-- DDD
-- Clean Code
-- SOLID
-- KISS
-- YAGNI
-- DRY
-- GRASP
+### TDD STRICT (Test-Driven Development)
+
+**OBLIGATOIRE : Respecter le cycle Red-Green-Refactor**
+
+1. **RED** : Écrire le test AVANT le code de production
+   - Le test doit échouer (red)
+   - Ne jamais écrire de code de production sans test qui échoue d'abord
+
+2. **GREEN** : Écrire le code minimal pour faire passer le test
+   - Pas de sur-ingénierie
+   - Le code peut être "sale" à ce stade
+
+3. **REFACTOR** : Nettoyer le code en appliquant Clean Code
+   - Éliminer la duplication (DRY)
+   - Extraire les méthodes/classes (SRP)
+   - Nommer clairement (Clean Code)
+   - Appliquer SOLID, KISS, YAGNI
+   - Les tests doivent rester verts pendant le refactoring
+
+**Règles TDD strictes** :
+- JAMAIS de code de production sans test qui échoue d'abord
+- Commit après chaque cycle Red-Green-Refactor
+- Les tests sont du code de production : ils doivent être propres et maintenables
+- Privilégier les tests unitaires (rapides, isolés)
+- Tests d'intégration pour les ports (in/out)
+
+### Clean Code & Refactoring SYSTÉMATIQUE
+
+**À appliquer PENDANT la phase REFACTOR du TDD** :
+
+1. **Nommage explicite**
+   - Variables : intention claire (pas de `temp`, `data`, `x`)
+   - Méthodes : verbes d'action (pas de noms vagues)
+   - Classes : noms de concept métier
+
+2. **Fonctions courtes**
+   - Max 15-20 lignes par méthode
+   - Une seule responsabilité (SRP)
+   - Pas plus de 3 paramètres
+
+3. **Pas de duplication** (DRY)
+   - Extraire en méthode/classe dès que répétition
+
+4. **Pas de commentaires** (sauf Javadoc public API)
+   - Le code doit s'auto-documenter
+   - Si besoin de commentaire → refactorer le code
+
+5. **SOLID systématique**
+   - SRP : une classe = une responsabilité
+   - OCP : ouvert à l'extension, fermé à la modification
+   - LSP : substitution de Liskov
+   - ISP : interfaces ségrégées
+   - DIP : dépendre des abstractions
+
+### Processus de développement
+
+**Pour chaque nouvelle fonctionnalité** :
+
+1. Écrire le test Cucumber (BDD) pour le use case
+2. TDD strict pour implémenter le domaine :
+   - Test unitaire → Code minimal → Refactor Clean Code
+   - Répéter jusqu'à complétion
+3. TDD pour les ports in/out
+4. Implémenter le frontend avec tests
+5. Refactoring global si nécessaire
+6. Commit avec message descriptif
 
 Implémente le domaine en premier et les ports in/out ensuite.
-N'oublie pas de tester les ports in/out.
-Implémente aussi le frontend.
 Découpe le travail en itération fonctionnelle cohérente.
 
 ## Style de code
@@ -128,18 +183,20 @@ Couche d'etoiles superposee sur tous types de galaxies.
 - Migration Liquibase 08-05 pour colonnes DB
 
 ## Phase E : RING
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Galaxie annulaire (type Hoag's Object).
-- Parametres envisages : `ringRadius`, `ringWidth`, `ringEccentricity`
-- Algorithme : profil Gaussien centre sur ringRadius + modulation angulaire pour variations d'epaisseur + noyau central + bruit Perlin + falloff
+- Parametres : `ringRadius`, `ringWidth`, `ringIntensity`, `coreToRingRatio`
+- Presets : RING_DEFAULT, RING_WIDE, RING_BRIGHT, RING_THIN, RING_DOUBLE
+- Algorithme : profil Gaussien centre sur ringRadius + noyau central + bruit Perlin + falloff
 
 ## Phase F : IRREGULAR
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Galaxie irreguliere sans structure definie (type Nuages de Magellan).
-- Parametres envisages : `irregularity`, `fragmentCount`
-- Algorithme : multiples centres de densite asymetriques + domain warping fort pour briser symetrie + frontiere fractale + bruit Perlin fort
+- Parametres : `irregularity`, `irregularClumpCount`, `irregularClumpSize`
+- Presets : IRREGULAR_DEFAULT (SMC), IRREGULAR_CHAOTIC, IRREGULAR_DWARF
+- Algorithme : multiples centres de densite asymetriques + domain warping fort + bruit Perlin fort
 
 ## Phase G : LENTICULAR
 **Statut : A FAIRE**
@@ -192,20 +249,23 @@ Champ d'etoiles independant avec distribution Poisson disk.
 ## Ameliorations a implementer
 
 ### Multi-couches de noise (priorite haute)
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
-Empiler 2-3 couches de bruit a des echelles differentes pour profondeur et variation.
+3 couches de bruit a des echelles differentes pour profondeur et variation.
 - Couches : Macro (x0.3, 50%), Meso (x1.0, 35%), Micro (x3.0, 15%)
-- Implementation : evolution du `PerlinGenerator` ou creation d'un `MultiLayerNoiseGenerator` wrapper
-- Chaque couche avec seed independante
+- Implementation : `MultiLayerNoiseGenerator` wrappant 3 `PerlinGenerator` avec seeds offsettees
+- Integre dans `NoiseGeneratorFactory`, active via `multiLayerNoiseParameters.enabled`
+- Support complet : domaine → ports → JPA → DTO → frontend
 
 ### Bloom / Glow du noyau (priorite moyenne)
-**Statut : A FAIRE**
+**Statut : TERMINE**
 
 Post-traitement Gaussien sur zones a haute intensite pour effet de "debordement" lumineux.
-- Parametres : `bloomRadius` (0-100), `bloomIntensity` (0.0-1.0), `bloomThreshold` (0.1-1.0)
-- Algorithme : extraction masque pixels > seuil -> flou Gaussien -> composition additive
-- Implementation : post-traitement sur `BufferedImage` final via `ConvolveOp`
+- Parametres : `bloomRadius` (1-50), `bloomIntensity` (0.0-1.0), `bloomThreshold` (0.0-1.0)
+- Algorithme : extraction masque pixels > seuil -> flou Gaussien (ConvolveOp) -> composition additive
+- Implementation : `BloomPostProcessor` (domaine) + `BloomApplicator` (@Component)
+- Pipeline : renderPixels → starField → bloom
+- Support complet : domaine → ports → JPA (4 colonnes NOT NULL) → DTO → frontend (section "Effets visuels")
 
 ### Dark lanes / Absorption par la poussiere (priorite basse)
 **Statut : A FAIRE**
@@ -227,3 +287,108 @@ Couche de bruit soustractive pour zones d'ombre realistes.
 - **Domain Warping** : applicable a tous types via integration dans `GalaxyImageCalculator.buildImage()` avant le calcul d'intensite
 - **Star Field** : couche independante post-traitement, compositable sur tous types de galaxies
 - **Color Gradients** : `ColorPalette` enum avec palettes pre-definies, extensible avec `ColorStop` custom
+
+---
+
+# Plan d'amelioration Clean Code
+
+## Refactorings termines
+
+### ✅ 1. NoiseGeneratorFactory + StarFieldApplicator (commits c47c777, 717b511)
+**Statut : TERMINE**
+
+Extraction de la logique de creation de noise generator et d'application du star field.
+- `NoiseGeneratorFactory` : gestion Perlin vs MultiLayer
+- `StarFieldApplicator` : application independante du champ d'etoiles
+- `GalaxyImageCalculator.create()` : 76 lignes → 15 lignes
+
+### ✅ 2. Strategy Pattern pour eliminer duplication (PR #18 pending)
+**Statut : TERMINE** (branch feature/refactor-strategy-pattern-factory)
+
+Remplacement du switch de 70 lignes par delegation a `GalaxyGeneratorFactory`.
+- `GalaxyImageCalculator.createIntensityCalculator()` : 70 lignes → 10 lignes
+- Suppression du pattern repetitif `param != null ? param : default`
+- Tests : `GalaxyGeneratorFactoryTest` avec 6 scenarios
+
+### ✅ 3. Extraction des Magic Numbers (PR #19 pending)
+**Statut : TERMINE** (branch feature/extract-magic-numbers)
+
+Creation de 3 classes de constantes metier :
+- `NoiseModulationConstants` : base/range pour chaque type de galaxie
+- `RadialFalloffConstants` : exposants de falloff et denominateurs Gaussiens
+- `CoreIntensityConstants` : luminosite du noyau et poids pour irregular
+- 5 generators mis a jour (Spiral, Voronoi, Elliptical, Ring, Irregular)
+
+### ✅ 4. ImageSerializer extraction (PR #20 pending)
+**Statut : TERMINE** (branch feature/extract-image-serializer)
+
+Extraction de la serialisation d'images en composant dedie :
+- `@Component ImageSerializer` avec `toByteArray(BufferedImage, String format)`
+- `GalaxyService` injecte et utilise `ImageSerializer`
+- Tests : `ImageSerializerTest` avec 6 scenarios
+- Suppression de `convertToByteArray()` de GalaxyService
+
+### ✅ 5. Decomposition GalaxyParameters en Value Objects (PR #21 pending)
+**Statut : TERMINE** (branch feature/decompose-galaxy-parameters, commits 1e8f2c7, 6cbf706, 8f8c608)
+
+Refactoring complet de GalaxyParameters en 5 phases :
+- **Phase 1** : Creation de 10 Value Objects (CoreParameters, NoiseTextureParameters, SpiralStructureParameters, VoronoiClusterParameters, EllipticalShapeParameters, RingStructureParameters, IrregularStructureParameters, DomainWarpParameters, StarFieldParameters, MultiLayerNoiseParameters)
+- **Phase 2** : Migration de 14 factory methods pour utiliser les builders Value Objects
+- **Phase 3** : Migration de 5 generators + 5 strategies + 4 fichiers de tests
+- **Phase 4** : Suppression de 63 champs legacy de GalaxyParameters (602 → 393 lignes, -35%)
+- **Phase 5** : Suppression de 20+ methodes de compatibilite, mise a jour de tous les usages
+
+Benefices obtenus :
+- **SRP** : Chaque Value Object a une responsabilite unique
+- **Encapsulation** : Parametres lies groupes ensemble
+- **Simplification** : Strategy classes de 40 → 15 lignes (-62%)
+- **Type Safety** : Acces via Value Objects au lieu de champs individuels
+- **Maintenabilite** : Code plus clair, pas de duplication de logique fallback
+- 82 tests passent, refactoring 100% termine
+
+### ✅ 6. Simplification GalaxyService + Renaming + Validation (PR #22 pending)
+**Statut : TERMINE** (branch feature/simplify-galaxy-service, commits 2d36dd9, a22baf2)
+
+**Simplification GalaxyService.createGalaxyImage()** :
+- Creation de `@Component GalaxyImageDuplicationHandler` avec `resolveId()` et `resolveNote()`
+- Ajout de `GalaxyImageBuilder` inner class dans `GalaxyImage` (compatible JPA)
+- `createGalaxyImage()` reduit de 27 → 18 lignes (-33%)
+
+**Renommage pour clarte** :
+- `GalaxyImageCalculator` → `GalaxyImageRenderer` (terme plus precis)
+- `createIntensityCalculator()` → `selectGeneratorForType()` (plus expressif)
+- `buildImage()` → `renderPixels()` (indique l'operation reelle)
+
+**Validation** :
+- Creation de `@Component GalaxyParametersValidator`
+- Validation des parametres communs (core, noise texture)
+- Validation type-specific pour les 5 types de galaxies
+- Throws `IllegalArgumentException` avec messages detailles
+
+Tous les 82 tests passent.
+
+---
+
+## Benefices obtenus
+
+| Principe | Avant | Apres |
+|----------|-------|-------|
+| **SRP** | GalaxyImageCalculator = 7 responsabilites | ✅ 1 responsabilite par classe |
+| **DRY** | Switch de 70 lignes avec duplication | ✅ Factory pattern 10 lignes |
+| **Encapsulation** | 80+ champs plats dans GalaxyParameters | ✅ 10 Value Objects cohesifs |
+| **Testabilite** | Dependances cachees dans `new` | ✅ Injection via constructeur |
+| **Lisibilite** | Methodes de 50+ lignes, strategy 40 lignes | ✅ Methodes < 15 lignes, strategy 15 lignes |
+| **Maintenabilite** | Ajout d'un type = 10 fichiers | ✅ Ajout = 1 strategy + config |
+| **Nommage** | Termes vagues (Calculator, build) | ✅ Noms expressifs (Renderer, renderPixels) |
+| **Validation** | Pas de validation metier | ✅ Validator component avec regles metier |
+
+---
+
+## Plan d'amelioration Clean Code : TERMINE ✅
+
+Tous les refactorings Clean Code planifies ont ete realises avec succes :
+- ✅ 6 refactorings majeurs completes
+- ✅ 82 tests passent en continu
+- ✅ Architecture hexagonale respectee
+- ✅ Principes SOLID appliques
+- ✅ Code maintenable et extensible

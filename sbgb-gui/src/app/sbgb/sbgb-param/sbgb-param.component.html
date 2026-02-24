@@ -1,47 +1,6 @@
-<div style="display: flex; justify-content: space-between; align-items: center;">
-  <h2>Paramètre de Build</h2>
-  <div>
-    <button mat-raised-button
-      color="primary"
-      (click)="computeImage()"
-      [disabled]="!canBuild()"
-      [matTooltip]="getBuildTooltip()"
-      matTooltipPosition="below"
-      style="margin-right: 8px;">
-      Build
-    </button>
-    <button mat-raised-button
-      color="accent"
-      (click)="saveImage()"
-      [disabled]="!canSave()"
-      [matTooltip]="getSaveTooltip()"
-      matTooltipPosition="below"
-      style="margin-right: 8px;">
-      Sauvegarder
-    </button>
-    <button mat-raised-button
-      (click)="downloadImage()"
-      [disabled]="!canDownload()"
-      [matTooltip]="getDownloadTooltip()"
-      matTooltipPosition="below">
-      Telecharger
-    </button>
-  </div>
-</div>
+<h2>Générateur de Ciels étoilés</h2>
 <form [formGroup]="_myForm"
   style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
-  <section style="width: 100%; display: flex; gap: 10px;">
-    <mat-form-field style="flex: 1;">
-      <mat-label>Nom de l'image</mat-label>
-      <input matInput type="text" formControlName="name">
-      <mat-icon matSuffix matTooltip="Nom pour identifier cette image mémorisée.">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field style="flex: 2;">
-      <mat-label>Description</mat-label>
-      <input matInput type="text" formControlName="description">
-      <mat-icon matSuffix matTooltip="Description additionnelle de l'image.">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
   <section>
     <mat-form-field>
       <mat-label>Width</mat-label>

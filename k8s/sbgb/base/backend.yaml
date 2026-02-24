@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sbgb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sbgb-backend
+  namespace: sbgb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sbgb-backend
+  template:
+    metadata:
+      labels:
+        app: sbgb-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/dmissud/spacebackgroundbuilder/backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-shared.infra.svc.cluster.local:5432/sbgb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: sbgb_user
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: sbgb_password
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: JAVA_OPTS
+              value: "-Xms512m -Xmx2048m -XX:+UseG1GC"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sbgb-backend
+  namespace: sbgb
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: sbgb-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: sbgb
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: sbgb-backend
