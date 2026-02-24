@@ -300,6 +300,17 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     }
   }
 
+  describeBase(): string {
+    const f = this._myForm.value;
+    return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;
+  }
+
+  describeCosmetic(): string {
+    const f = this._myForm.value;
+    const transparency = f.transparentBackground ? 'transparent' : 'opaque';
+    return `${f.backgroundColor} → ${f.middleColor} → ${f.foregroundColor}, seuils ${Number(f.backThreshold).toFixed(2)}/${Number(f.middleThreshold).toFixed(2)}, ${transparency}`;
+  }
+
   getParametersSummary(): string {
     const form = this._myForm.value;
     const noiseType = form.noiseType || 'FBM';
