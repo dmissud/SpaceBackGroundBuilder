@@ -53,7 +53,35 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ## Incrément 2 — Layout générateur : accordéon + notation à côté de l'aperçu
 
-**Statut** : ⏸ En attente (démarre après merge I1)
+**Objectif** : Refonte visuelle du panneau générateur sans toucher au backend.
+
+**Branche** : `feature/I2-generator-layout`
+**Statut** : ✅ Terminé
+
+---
+
+### Étapes TDD
+
+| # | Cycle | Périmètre | Statut | Commit |
+|---|-------|-----------|--------|--------|
+| 2.1 | RED-GREEN | `describeBase()` et `describeCosmetic()` dans `SbgbParamComponent` | ✅ | `9c7c0a8` |
+| 2.2 | RED-GREEN | Accordéon `mat-expansion-panel` + layout 2 colonnes (Base &#124; Cosmétique) | ✅ | `72ae5b6` |
+| 2.3 | RED-GREEN | Notation déplacée à droite de l'aperçu (`image-rating-container` flex-row) | ✅ | `296d125` |
+
+---
+
+### Décisions techniques prises
+
+- **Accordéon ouvert par défaut** (`[expanded]="true"`) pour ne pas cacher les paramètres au premier chargement.
+- **Grid CSS 2 colonnes** (`grid-template-columns: 1fr 1fr`) dans le formulaire plutôt qu'un flex-wrap : meilleure consistance visuelle.
+- **Notation dans `#imageContent`** plutôt que dans `#actionBarContent` : permet le layout flex-row image/étoiles sans modifier `GeneratorShellComponent`.
+
+---
+
+### Problèmes rencontrés
+
+- **jest.config.js** : configuration `globalSetup` obsolète supprimée, `setup-jest.ts` migré vers `jest-preset-angular` v16.
+- **Tests saveImage** : anciens tests du spec `sbgb-param` référençaient `SbgbPageActions.saveSbgb` et `imagesSaveFail` supprimés en I1 — supprimés du spec.
 
 ---
 
