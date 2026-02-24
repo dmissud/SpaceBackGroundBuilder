@@ -128,7 +128,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (backThreshold) => {
         let middleThreshold = this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(backThreshold);
+
           this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.setValue(backThreshold + 0.01);
         }
       }
@@ -137,7 +137,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (middleThreshold) => {
         let backThreshold = this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(middleThreshold);
+
           this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.setValue(middleThreshold - 0.01);
         }
       }
