@@ -210,21 +210,11 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Écouter le succès de la sauvegarde
+    // Écouter le succès de la notation
     this.saveSuccessSub = this.actions$.pipe(
       ofType(ImageApiActions.imagesSaveSuccess, ImageApiActions.imagesSaveFail)
     ).subscribe((action) => {
       if (action.type === ImageApiActions.imagesSaveSuccess.type) {
-        const {sbgb} = action as ReturnType<typeof ImageApiActions.imagesSaveSuccess>;
-        console.log('Image sauvegardée avec succès, mise à jour de loadedFromDbSbgb:', sbgb);
-        // Mettre à jour la référence BDD avec l'image sauvegardée
-        this.loadedFromDbSbgb = sbgb;
-        this.loadedSbgbId = sbgb.id ?? null;
-        this.currentNote = sbgb.note ?? 0;
-        this.builtSbgb = sbgb;
-        // Après la sauvegarde, conserver l'état permettant de noter/télécharger
-        this.isBuilt = true;
-        this.isModifiedSinceBuild = false;
         this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'
@@ -344,14 +334,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   onNoteSelected(note: number): void {
     if (note < 1) return;
     this.currentNote = note;
-
-    if (this.loadedSbgbId && !this.isModifiedSinceBuild) {
-      this.store.dispatch(SbgbPageActions.updateNote({id: this.loadedSbgbId, note}));
-      this._snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', {duration: 3000});
-    } else {
-      const sbgb = {...(this.builtSbgb || this.getSbgbFromForm()), note};
-      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb}));
-    }
+    const sbgb = this.builtSbgb || this.getSbgbFromForm();
+    this.store.dispatch(SbgbPageActions.rateSbgb({sbgb, note}));
   }
 
   canRate(): boolean {
