@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {environment} from "../../environments/environment";
-import {Sbgb} from "./sbgb.model";
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "./sbgb.model";
 
 
 @Injectable({
@@ -10,31 +10,29 @@ import {Sbgb} from "./sbgb.model";
 })
 export class ImagesService {
 
-  private imagesApiUrl: string = '/images/build';
-  private imagesSaveApiUrl: string = '/images/create';
-  private imagesListApiUrl: string = '/images';
+  private buildApiUrl: string = '/images/build';
+  private rateApiUrl: string = '/images/renders/rate';
+  private basesApiUrl: string = '/images/bases';
   appUrl = environment.API_DATA_PROVIDER_URL;
 
   constructor(private http: HttpClient) {
   }
 
-  getImages(): Observable<Sbgb[]> {
-    return this.http.get<Sbgb[]>(this.appUrl + this.imagesListApiUrl);
+  getBases(): Observable<NoiseBaseStructureDto[]> {
+    return this.http.get<NoiseBaseStructureDto[]>(this.appUrl + this.basesApiUrl);
   }
 
-  saveImage(sbgb: Sbgb): Observable<Sbgb> {
+  rateRender(sbgb: Sbgb, note: number): Observable<NoiseCosmeticRenderDto> {
     const payload = {
-      name: sbgb.name || undefined,
-      description: sbgb.description || undefined,
-      note: sbgb.note ?? 0,
+      note,
       sizeCmd: sbgb.imageStructure,
       colorCmd: sbgb.imageColor
     };
-    return this.http.post<Sbgb>(this.appUrl + this.imagesSaveApiUrl, payload);
+    return this.http.post<NoiseCosmeticRenderDto>(this.appUrl + this.rateApiUrl, payload);
   }
 
-  updateNote(id: string, note: number): Observable<void> {
-    return this.http.patch<void>(`${this.appUrl}/images/${id}/note`, { note });
+  deleteRender(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.appUrl}/images/renders/${id}`);
   }
 
   buildImage(sbgb: Sbgb): Observable<HttpResponse<Blob>> {
@@ -42,7 +40,7 @@ export class ImagesService {
       sizeCmd: sbgb.imageStructure,
       colorCmd: sbgb.imageColor
     };
-    return this.http.post<Blob>(this.appUrl + this.imagesApiUrl, payload, {
+    return this.http.post<Blob>(this.appUrl + this.buildApiUrl, payload, {
       observe: 'response', responseType: 'blob' as 'json'
     });
   }

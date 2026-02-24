@@ -25,4 +25,5 @@
     <include file="/db/changelog/2026/02/08-08-add-bloom-columns.xml"/>
     <include file="/db/changelog/2026/02/22-01-remove-name-add-note-constraint.xml"/>
     <include file="/db/changelog/2026/02/22-02-add-note-constraint-noise-image.xml"/>
+    <include file="/db/changelog/2026/02/24-01-rework-noise-model.xml"/>
 </databaseChangeLog>

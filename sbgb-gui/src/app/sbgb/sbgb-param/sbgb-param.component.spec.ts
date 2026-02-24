@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Observable, of } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { SbgbParamComponent } from './sbgb-param.component';
 import { SbgbPageActions } from '../state/sbgb.actions';
 import { Sbgb } from '../sbgb.model';
@@ -132,99 +133,6 @@ describe('SbgbParamComponent', () => {
     });
   });
 
-  describe('saveImage', () => {
-    beforeEach(() => {
-      jest.spyOn(store, 'dispatch');
-      // @ts-ignore
-      component.isBuilt = true;
-      // @ts-ignore
-      component.isModifiedSinceBuild = true;
-    });
-
-    it('should dispatch saveSbgb with forceUpdate=false when no image is loaded', () => {
-      // @ts-ignore
-      component.loadedFromDbSbgb = null;
-      component['_myForm'].patchValue({ name: 'New Image' });
-
-      component.saveImage();
-
-      expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: false })
-      );
-    });
-
-    it('should show snackbar and not dispatch when nothing is modified', () => {
-      // @ts-ignore
-      component.loadedFromDbSbgb = mockSbgb;
-      // @ts-ignore - builtSbgb identique à loadedFromDbSbgb = pas de modification
-      component.builtSbgb = JSON.parse(JSON.stringify(mockSbgb));
-      // @ts-ignore
-      component._myForm.patchValue({
-        name: mockSbgb.name,
-        description: mockSbgb.description,
-        width: mockSbgb.imageStructure.width,
-        height: mockSbgb.imageStructure.height,
-        seed: mockSbgb.imageStructure.seed,
-        octaves: mockSbgb.imageStructure.octaves,
-        persistence: mockSbgb.imageStructure.persistence,
-        lacunarity: mockSbgb.imageStructure.lacunarity,
-        backgroundColor: mockSbgb.imageColor.back,
-        middleColor: mockSbgb.imageColor.middle,
-        foregroundColor: mockSbgb.imageColor.fore,
-        backThreshold: mockSbgb.imageColor.backThreshold,
-        middleThreshold: mockSbgb.imageColor.middleThreshold
-      });
-
-      component.saveImage();
-
-      expect(snackBar.open).toHaveBeenCalledWith(expect.stringMatching(/n'a pas été modifié/), 'OK', expect.any(Object));
-      expect(store.dispatch).not.toHaveBeenCalled();
-    });
-
-    it('should ask for confirmation and dispatch with forceUpdate=true when name is same but content modified', () => {
-      const modifiedSbgb = JSON.parse(JSON.stringify(mockSbgb));
-      modifiedSbgb.imageStructure.width = 5000;
-      // @ts-ignore
-      component.loadedFromDbSbgb = mockSbgb;
-      // @ts-ignore - builtSbgb avec description modifiée
-      component.builtSbgb = modifiedSbgb;
-      // @ts-ignore
-      component._myForm.patchValue({
-        name: mockSbgb.name,
-        width: 5000
-      });
-      jest.spyOn(window, 'confirm').mockReturnValue(true);
-
-      component.saveImage();
-
-      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/existe déjà et a été modifié/));
-      expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: true })
-      );
-    });
-
-    it('should ask for confirmation and dispatch with forceUpdate=false when name is modified', () => {
-      const modifiedSbgb = JSON.parse(JSON.stringify(mockSbgb));
-      modifiedSbgb.name = 'New Name';
-      // @ts-ignore
-      component.loadedFromDbSbgb = mockSbgb;
-      // @ts-ignore - builtSbgb avec nom modifié
-      component.builtSbgb = modifiedSbgb;
-      // @ts-ignore
-      component._myForm.patchValue({
-        name: 'New Name',
-        description: mockSbgb.description
-      });
-      jest.spyOn(window, 'confirm').mockReturnValue(true);
-
-      component.saveImage();
-
-      expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/va être enregistré/));
-      expect(store.dispatch).toHaveBeenCalledWith(
-        SbgbPageActions.saveSbgb({ sbgb: expect.anything() as any, forceUpdate: false })
-      );
-    });
-  });
 
   describe('UI State', () => {
     it('should return false for canSave if not built', () => {
@@ -316,6 +224,40 @@ describe('SbgbParamComponent', () => {
       component.downloadImage();
 
       expect(createElementSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('describeBase', () => {
+    it('should return base description from form values', () => {
+      component['_myForm'].patchValue({ width: 1920, height: 1080, seed: 42, octaves: 3, noiseType: 'FBM' });
+      expect(component.describeBase()).toBe('FBM 3oct — 1920×1080 — seed 42');
+    });
+  });
+
+  describe('describeCosmetic', () => {
+    it('should return opaque cosmetic description from form values', () => {
+      component['_myForm'].patchValue({
+        backgroundColor: '#6b2d8b', middleColor: '#ff9500', foregroundColor: '#ffffff',
+        backThreshold: 0.3, middleThreshold: 0.7, interpolationType: 'LINEAR', transparentBackground: false
+      });
+      expect(component.describeCosmetic()).toBe('#6b2d8b → #ff9500 → #ffffff, seuils 0.30/0.70, opaque');
+    });
+
+    it('should indicate transparent background in cosmetic description', () => {
+      component['_myForm'].patchValue({ transparentBackground: true, backThreshold: 0.3, middleThreshold: 0.7, interpolationType: 'LINEAR' });
+      expect(component.describeCosmetic()).toContain('transparent');
+    });
+  });
+
+  describe('accordion layout', () => {
+    it('should render mat-expansion-panel', () => {
+      const panel = fixture.debugElement.query(By.css('mat-expansion-panel'));
+      expect(panel).toBeTruthy();
+    });
+
+    it('should have two parameter columns', () => {
+      const columns = fixture.debugElement.queryAll(By.css('.param-column'));
+      expect(columns.length).toBe(2);
     });
   });
 });

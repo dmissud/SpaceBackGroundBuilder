@@ -1,1 +1,25 @@
-// Styles handled by generic generator-shell component
+.image-rating-container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.image-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.rating-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 52px;
+}
+
+.rating-label {
+  font-size: 0.75em;
+  color: rgba(0,0,0,0.6);
+  text-align: center;
+}

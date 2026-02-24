@@ -1,8 +1,29 @@
-h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #3f51b5;
-  font-size: 1.5em;
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.param-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-descriptions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85em;
+  color: rgba(0,0,0,0.7);
+}
+
+.base-description, .cosmetic-description {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 section {
@@ -22,4 +43,86 @@ h3 {
 
 mat-form-field {
   min-width: 200px;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+
+  input[type="checkbox"] {
+    margin-right: 8px;
+  }
+}
+
+.help-icon-inline {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.preset-field {
+  width: 200px;
+}
+
+.layers-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.layer-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 300px;
+
+  h3 {
+    margin-top: 0;
+  }
+
+  .layer-enabled-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.color-field {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.color-label-row {
+  display: flex;
+  align-items: center;
+}
+
+.interpolation-field {
+  width: 250px;
 }

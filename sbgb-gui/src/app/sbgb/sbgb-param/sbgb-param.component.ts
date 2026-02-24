@@ -12,6 +12,7 @@ import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
 import {Actions, ofType} from "@ngrx/effects";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
+import {MatExpansionModule} from "@angular/material/expansion";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
@@ -25,7 +26,8 @@ import {Sbgb} from "../sbgb.model";
     ReactiveFormsModule,
     MatTooltip,
     MatIcon,
-    MatSuffix
+    MatSuffix,
+    MatExpansionModule
   ],
   templateUrl: './sbgb-param.component.html',
   styleUrl: './sbgb-param.component.scss'
@@ -126,7 +128,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (backThreshold) => {
         let middleThreshold = this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(backThreshold);
+
           this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.setValue(backThreshold + 0.01);
         }
       }
@@ -135,7 +137,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       (middleThreshold) => {
         let backThreshold = this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.value;
         if (backThreshold >= middleThreshold) {
-          console.log(middleThreshold);
+
           this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.setValue(middleThreshold - 0.01);
         }
       }
@@ -210,21 +212,11 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Écouter le succès de la sauvegarde
+    // Écouter le succès de la notation
     this.saveSuccessSub = this.actions$.pipe(
       ofType(ImageApiActions.imagesSaveSuccess, ImageApiActions.imagesSaveFail)
     ).subscribe((action) => {
       if (action.type === ImageApiActions.imagesSaveSuccess.type) {
-        const {sbgb} = action as ReturnType<typeof ImageApiActions.imagesSaveSuccess>;
-        console.log('Image sauvegardée avec succès, mise à jour de loadedFromDbSbgb:', sbgb);
-        // Mettre à jour la référence BDD avec l'image sauvegardée
-        this.loadedFromDbSbgb = sbgb;
-        this.loadedSbgbId = sbgb.id ?? null;
-        this.currentNote = sbgb.note ?? 0;
-        this.builtSbgb = sbgb;
-        // Après la sauvegarde, conserver l'état permettant de noter/télécharger
-        this.isBuilt = true;
-        this.isModifiedSinceBuild = false;
         this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
           duration: 3000,
           verticalPosition: 'top'
@@ -310,6 +302,17 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     }
   }
 
+  describeBase(): string {
+    const f = this._myForm.value;
+    return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;
+  }
+
+  describeCosmetic(): string {
+    const f = this._myForm.value;
+    const transparency = f.transparentBackground ? 'transparent' : 'opaque';
+    return `${f.backgroundColor} → ${f.middleColor} → ${f.foregroundColor}, seuils ${Number(f.backThreshold).toFixed(2)}/${Number(f.middleThreshold).toFixed(2)}, ${transparency}`;
+  }
+
   getParametersSummary(): string {
     const form = this._myForm.value;
     const noiseType = form.noiseType || 'FBM';
@@ -344,14 +347,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   onNoteSelected(note: number): void {
     if (note < 1) return;
     this.currentNote = note;
-
-    if (this.loadedSbgbId && !this.isModifiedSinceBuild) {
-      this.store.dispatch(SbgbPageActions.updateNote({id: this.loadedSbgbId, note}));
-      this._snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', {duration: 3000});
-    } else {
-      const sbgb = {...(this.builtSbgb || this.getSbgbFromForm()), note};
-      this.store.dispatch(SbgbPageActions.saveSbgb({sbgb}));
-    }
+    const sbgb = this.builtSbgb || this.getSbgbFromForm();
+    this.store.dispatch(SbgbPageActions.rateSbgb({sbgb, note}));
   }
 
   canRate(): boolean {
