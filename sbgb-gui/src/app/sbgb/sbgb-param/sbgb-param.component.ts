@@ -12,6 +12,7 @@ import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
 import {Actions, ofType} from "@ngrx/effects";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
+import {MatExpansionModule} from "@angular/material/expansion";
 import {Sbgb} from "../sbgb.model";
 
 @Component({
@@ -25,7 +26,8 @@ import {Sbgb} from "../sbgb.model";
     ReactiveFormsModule,
     MatTooltip,
     MatIcon,
-    MatSuffix
+    MatSuffix,
+    MatExpansionModule
   ],
   templateUrl: './sbgb-param.component.html',
   styleUrl: './sbgb-param.component.scss'

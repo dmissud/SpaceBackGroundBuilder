@@ -1,8 +1,29 @@
-h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #3f51b5;
-  font-size: 1.5em;
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.param-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-descriptions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85em;
+  color: rgba(0,0,0,0.7);
+}
+
+.base-description, .cosmetic-description {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 section {

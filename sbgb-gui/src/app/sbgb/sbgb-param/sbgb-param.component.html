@@ -1,302 +1,221 @@
-<h2>Générateur de Ciels étoilés</h2>
-<form [formGroup]="_myForm"
-  style="display: flex; flex-direction: column; align-items: start; justify-content: space-between;">
-  <section>
-    <mat-form-field>
-      <mat-label>Width</mat-label>
-      <input matInput type="number" formControlName="width">
-      <mat-icon matSuffix matTooltip="Largeur de l'image générée (en pixels).">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Height</mat-label>
-      <input type="number" matInput formControlName="height">
-      <mat-icon matSuffix matTooltip="Hauteur de l'image générée (en pixels).">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Seed</mat-label>
-      <input type="number" matInput formControlName="seed">
-      <mat-icon matSuffix matTooltip="Graine aléatoire utilisée pour initialiser le générateur de bruit. Une même graine produit la même image.">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
-  <section>
-    <mat-form-field>
-      <mat-label>Octaves</mat-label>
-      <input type="number" matInput formControlName="octaves" min="1" max="10">
-      <mat-icon matSuffix matTooltip="Nombre de couches de bruit superposées. Plus d'octaves ajoutent des détails plus fins.">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Persistence</mat-label>
-      <input type="number" matInput formControlName="persistence" step="0.1" min="0" max="1">
-      <mat-icon matSuffix matTooltip="Détermine à quel point chaque octave successive contribue à la forme finale (amplitude).">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Lacunarity</mat-label>
-      <input type="number" matInput formControlName="lacunarity" step="0.1" min="1">
-      <mat-icon matSuffix matTooltip="Détermine le saut de fréquence entre chaque octave.">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Scale</mat-label>
-      <input type="number" matInput formControlName="scale" step="1" min="1" max="1000">
-      <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Type de bruit</mat-label>
-      <select matNativeControl formControlName="noiseType">
-        <option value="FBM">FBM (Fractal Brownian Motion)</option>
-        <option value="RIDGED">Ridged Multi-fractal</option>
-      </select>
-      <mat-icon matSuffix
-        matTooltip="Algorithme de génération de bruit. FBM: aspect nébuleux classique. RIDGED: aspect plus tranché, nervuré.">
-        help_outline
-      </mat-icon>
-    </mat-form-field>
-  </section>
-  <section style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-    <div style="display: flex; flex-direction: column;">
-      <label style="display: flex; align-items: center; margin-bottom: 8px;">
-        <input type="checkbox" formControlName="useMultiLayer" style="margin-right: 8px;">
-        Mode Multi-Layer
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active le rendu multi-couches avec blend modes pour un réalisme accru.">help_outline</mat-icon>
-      </label>
-    </div>
-    @if (_myForm.get('useMultiLayer')?.value && !_myForm.get('advancedMode')?.value) {
-      <mat-form-field style="width: 200px;">
-        <mat-label>Preset</mat-label>
-        <select matNativeControl formControlName="preset">
-          <option value="CUSTOM">Custom</option>
-          <option value="DEEP_SPACE">Deep Space</option>
-          <option value="NEBULA_DENSE">Nebula Dense</option>
-          <option value="STARFIELD">Starfield</option>
-          <option value="COSMIC_DUST">Cosmic Dust</option>
-          <option value="GALAXY">Galaxy</option>
-        </select>
-        <mat-icon matSuffix matTooltip="Preset de configuration multi-couches. DEEP_SPACE: espace profond, NEBULA_DENSE: nébuleuse dense, STARFIELD: champ d'étoiles, COSMIC_DUST: poussière cosmique, GALAXY: galaxie réaliste.">help_outline</mat-icon>
-      </mat-form-field>
-    }
-    @if (_myForm.get('useMultiLayer')?.value) {
-      <div style="display: flex; flex-direction: column;">
-        <label style="display: flex; align-items: center; margin-bottom: 8px;">
-          <input type="checkbox" formControlName="advancedMode" style="margin-right: 8px;">
-          Mode Avancé
-          <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active l'édition détaillée de chaque layer (background, nebula, stars).">help_outline</mat-icon>
-        </label>
-      </div>
-    }
-    <mat-form-field style="width: 250px;">
-      <mat-label>Type d'interpolation</mat-label>
-      <select matNativeControl formControlName="interpolationType">
-        <option value="LINEAR">Linear</option>
-        <option value="SMOOTHSTEP">Smoothstep</option>
-        <option value="SMOOTHERSTEP">Smootherstep</option>
-        <option value="COSINE">Cosine</option>
-        <option value="POWER_2">Power 2</option>
-        <option value="POWER_3">Power 3</option>
-      </select>
-      <mat-icon matSuffix matTooltip="Type d'interpolation pour les transitions de couleurs. LINEAR: transition uniforme, SMOOTHSTEP/SMOOTHERSTEP: transitions douces, COSINE: transition naturelle, POWER: transitions accentuées.">help_outline</mat-icon>
-    </mat-form-field>
-  </section>
+<mat-expansion-panel [expanded]="true">
+  <mat-expansion-panel-header>
+    <mat-panel-title class="panel-descriptions">
+      <span class="base-description">{{ describeBase() }}</span>
+      <span class="cosmetic-description">{{ describeCosmetic() }}</span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
 
-  <!-- Advanced Layer Configuration -->
-  @if (_myForm.get('useMultiLayer')?.value && _myForm.get('advancedMode')?.value) {
-    <section style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
-      <!-- Layer 0: Background -->
-      <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
-        <h3 style="margin-top: 0;">Layer 0: Background</h3>
-        <label style="display: flex; align-items: center; margin-bottom: 10px;">
-          <input type="checkbox" formControlName="layer0_enabled" style="margin-right: 8px;">
-          Activé
-        </label>
-        <mat-form-field style="width: 100%;">
+  <form [formGroup]="_myForm" class="two-columns">
+    <!-- Colonne gauche : Modèle de Base -->
+    <div class="param-column">
+      <h3>Modèle de Base</h3>
+      <section>
+        <mat-form-field>
+          <mat-label>Width</mat-label>
+          <input matInput type="number" formControlName="width">
+          <mat-icon matSuffix matTooltip="Largeur de l'image générée (en pixels).">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Height</mat-label>
+          <input type="number" matInput formControlName="height">
+          <mat-icon matSuffix matTooltip="Hauteur de l'image générée (en pixels).">help_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Seed</mat-label>
+          <input type="number" matInput formControlName="seed">
+          <mat-icon matSuffix matTooltip="Graine aléatoire utilisée pour initialiser le générateur de bruit. Une même graine produit la même image.">help_outline</mat-icon>
+        </mat-form-field>
+      </section>
+      <section>
+        <mat-form-field>
           <mat-label>Octaves</mat-label>
-          <input type="number" matInput formControlName="layer0_octaves" min="1" max="10">
+          <input type="number" matInput formControlName="octaves" min="1" max="10">
+          <mat-icon matSuffix matTooltip="Nombre de couches de bruit superposées. Plus d'octaves ajoutent des détails plus fins.">help_outline</mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
+        <mat-form-field>
           <mat-label>Persistence</mat-label>
-          <input type="number" matInput formControlName="layer0_persistence" step="0.1" min="0" max="1">
+          <input type="number" matInput formControlName="persistence" step="0.1" min="0" max="1">
+          <mat-icon matSuffix matTooltip="Détermine à quel point chaque octave successive contribue à la forme finale (amplitude).">help_outline</mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
+        <mat-form-field>
           <mat-label>Lacunarity</mat-label>
-          <input type="number" matInput formControlName="layer0_lacunarity" step="0.1" min="1">
+          <input type="number" matInput formControlName="lacunarity" step="0.1" min="1">
+          <mat-icon matSuffix matTooltip="Détermine le saut de fréquence entre chaque octave.">help_outline</mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
+        <mat-form-field>
           <mat-label>Scale</mat-label>
-          <input type="number" matInput formControlName="layer0_scale" step="1" min="1" max="1000">
+          <input type="number" matInput formControlName="scale" step="1" min="1" max="1000">
+          <mat-icon matSuffix matTooltip="Échelle du bruit. Plus la valeur est grande, plus le bruit est 'zoomé'.">help_outline</mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Opacity</mat-label>
-          <input type="number" matInput formControlName="layer0_opacity" step="0.1" min="0" max="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Blend Mode</mat-label>
-          <select matNativeControl formControlName="layer0_blendMode">
-            <option value="NORMAL">Normal</option>
-            <option value="MULTIPLY">Multiply</option>
-            <option value="SCREEN">Screen</option>
-            <option value="OVERLAY">Overlay</option>
-            <option value="ADD">Add</option>
+        <mat-form-field>
+          <mat-label>Type de bruit</mat-label>
+          <select matNativeControl formControlName="noiseType">
+            <option value="FBM">FBM (Fractal Brownian Motion)</option>
+            <option value="RIDGED">Ridged Multi-fractal</option>
           </select>
+          <mat-icon matSuffix
+            matTooltip="Algorithme de génération de bruit. FBM: aspect nébuleux classique. RIDGED: aspect plus tranché, nervuré.">
+            help_outline
+          </mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Noise Type</mat-label>
-          <select matNativeControl formControlName="layer0_noiseType">
-            <option value="FBM">FBM</option>
-            <option value="RIDGED">Ridged</option>
+      </section>
+      <section style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column;">
+          <label style="display: flex; align-items: center; margin-bottom: 8px;">
+            <input type="checkbox" formControlName="useMultiLayer" style="margin-right: 8px;">
+            Mode Multi-Layer
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active le rendu multi-couches avec blend modes pour un réalisme accru.">help_outline</mat-icon>
+          </label>
+        </div>
+        @if (_myForm.get('useMultiLayer')?.value && !_myForm.get('advancedMode')?.value) {
+          <mat-form-field style="width: 200px;">
+            <mat-label>Preset</mat-label>
+            <select matNativeControl formControlName="preset">
+              <option value="CUSTOM">Custom</option>
+              <option value="DEEP_SPACE">Deep Space</option>
+              <option value="NEBULA_DENSE">Nebula Dense</option>
+              <option value="STARFIELD">Starfield</option>
+              <option value="COSMIC_DUST">Cosmic Dust</option>
+              <option value="GALAXY">Galaxy</option>
+            </select>
+            <mat-icon matSuffix matTooltip="Preset de configuration multi-couches.">help_outline</mat-icon>
+          </mat-form-field>
+        }
+        @if (_myForm.get('useMultiLayer')?.value) {
+          <div style="display: flex; flex-direction: column;">
+            <label style="display: flex; align-items: center; margin-bottom: 8px;">
+              <input type="checkbox" formControlName="advancedMode" style="margin-right: 8px;">
+              Mode Avancé
+              <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Active l'édition détaillée de chaque layer (background, nebula, stars).">help_outline</mat-icon>
+            </label>
+          </div>
+        }
+      </section>
+
+      <!-- Advanced Layer Configuration -->
+      @if (_myForm.get('useMultiLayer')?.value && _myForm.get('advancedMode')?.value) {
+        <section style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+          <!-- Layer 0: Background -->
+          <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+            <h3 style="margin-top: 0;">Layer 0: Background</h3>
+            <label style="display: flex; align-items: center; margin-bottom: 10px;">
+              <input type="checkbox" formControlName="layer0_enabled" style="margin-right: 8px;">
+              Activé
+            </label>
+            <mat-form-field style="width: 100%;"><mat-label>Octaves</mat-label><input type="number" matInput formControlName="layer0_octaves" min="1" max="10"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Persistence</mat-label><input type="number" matInput formControlName="layer0_persistence" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Lacunarity</mat-label><input type="number" matInput formControlName="layer0_lacunarity" step="0.1" min="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Scale</mat-label><input type="number" matInput formControlName="layer0_scale" step="1" min="1" max="1000"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Opacity</mat-label><input type="number" matInput formControlName="layer0_opacity" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Blend Mode</mat-label><select matNativeControl formControlName="layer0_blendMode"><option value="NORMAL">Normal</option><option value="MULTIPLY">Multiply</option><option value="SCREEN">Screen</option><option value="OVERLAY">Overlay</option><option value="ADD">Add</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Noise Type</mat-label><select matNativeControl formControlName="layer0_noiseType"><option value="FBM">FBM</option><option value="RIDGED">Ridged</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Seed Offset</mat-label><input type="number" matInput formControlName="layer0_seedOffset"></mat-form-field>
+          </div>
+          <!-- Layer 1: Nebula -->
+          <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+            <h3 style="margin-top: 0;">Layer 1: Nebula</h3>
+            <label style="display: flex; align-items: center; margin-bottom: 10px;">
+              <input type="checkbox" formControlName="layer1_enabled" style="margin-right: 8px;">
+              Activé
+            </label>
+            <mat-form-field style="width: 100%;"><mat-label>Octaves</mat-label><input type="number" matInput formControlName="layer1_octaves" min="1" max="10"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Persistence</mat-label><input type="number" matInput formControlName="layer1_persistence" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Lacunarity</mat-label><input type="number" matInput formControlName="layer1_lacunarity" step="0.1" min="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Scale</mat-label><input type="number" matInput formControlName="layer1_scale" step="1" min="1" max="1000"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Opacity</mat-label><input type="number" matInput formControlName="layer1_opacity" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Blend Mode</mat-label><select matNativeControl formControlName="layer1_blendMode"><option value="NORMAL">Normal</option><option value="MULTIPLY">Multiply</option><option value="SCREEN">Screen</option><option value="OVERLAY">Overlay</option><option value="ADD">Add</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Noise Type</mat-label><select matNativeControl formControlName="layer1_noiseType"><option value="FBM">FBM</option><option value="RIDGED">Ridged</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Seed Offset</mat-label><input type="number" matInput formControlName="layer1_seedOffset"></mat-form-field>
+          </div>
+          <!-- Layer 2: Stars -->
+          <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
+            <h3 style="margin-top: 0;">Layer 2: Stars</h3>
+            <label style="display: flex; align-items: center; margin-bottom: 10px;">
+              <input type="checkbox" formControlName="layer2_enabled" style="margin-right: 8px;">
+              Activé
+            </label>
+            <mat-form-field style="width: 100%;"><mat-label>Octaves</mat-label><input type="number" matInput formControlName="layer2_octaves" min="1" max="10"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Persistence</mat-label><input type="number" matInput formControlName="layer2_persistence" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Lacunarity</mat-label><input type="number" matInput formControlName="layer2_lacunarity" step="0.1" min="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Scale</mat-label><input type="number" matInput formControlName="layer2_scale" step="1" min="1" max="1000"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Opacity</mat-label><input type="number" matInput formControlName="layer2_opacity" step="0.1" min="0" max="1"></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Blend Mode</mat-label><select matNativeControl formControlName="layer2_blendMode"><option value="NORMAL">Normal</option><option value="MULTIPLY">Multiply</option><option value="SCREEN">Screen</option><option value="OVERLAY">Overlay</option><option value="ADD">Add</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Noise Type</mat-label><select matNativeControl formControlName="layer2_noiseType"><option value="FBM">FBM</option><option value="RIDGED">Ridged</option></select></mat-form-field>
+            <mat-form-field style="width: 100%;"><mat-label>Seed Offset</mat-label><input type="number" matInput formControlName="layer2_seedOffset"></mat-form-field>
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- Colonne droite : Cosmétique -->
+    <div class="param-column">
+      <h3>Cosmétique</h3>
+      <section>
+        <mat-form-field style="width: 250px;">
+          <mat-label>Type d'interpolation</mat-label>
+          <select matNativeControl formControlName="interpolationType">
+            <option value="LINEAR">Linear</option>
+            <option value="SMOOTHSTEP">Smoothstep</option>
+            <option value="SMOOTHERSTEP">Smootherstep</option>
+            <option value="COSINE">Cosine</option>
+            <option value="POWER_2">Power 2</option>
+            <option value="POWER_3">Power 3</option>
           </select>
+          <mat-icon matSuffix matTooltip="Type d'interpolation pour les transitions de couleurs.">help_outline</mat-icon>
         </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Seed Offset</mat-label>
-          <input type="number" matInput formControlName="layer0_seedOffset">
-        </mat-form-field>
-      </div>
-      <!-- Layer 1: Nebula -->
-      <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
-        <h3 style="margin-top: 0;">Layer 1: Nebula</h3>
-        <label style="display: flex; align-items: center; margin-bottom: 10px;">
-          <input type="checkbox" formControlName="layer1_enabled" style="margin-right: 8px;">
-          Activé
-        </label>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Octaves</mat-label>
-          <input type="number" matInput formControlName="layer1_octaves" min="1" max="10">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Persistence</mat-label>
-          <input type="number" matInput formControlName="layer1_persistence" step="0.1" min="0" max="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Lacunarity</mat-label>
-          <input type="number" matInput formControlName="layer1_lacunarity" step="0.1" min="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Scale</mat-label>
-          <input type="number" matInput formControlName="layer1_scale" step="1" min="1" max="1000">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Opacity</mat-label>
-          <input type="number" matInput formControlName="layer1_opacity" step="0.1" min="0" max="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Blend Mode</mat-label>
-          <select matNativeControl formControlName="layer1_blendMode">
-            <option value="NORMAL">Normal</option>
-            <option value="MULTIPLY">Multiply</option>
-            <option value="SCREEN">Screen</option>
-            <option value="OVERLAY">Overlay</option>
-            <option value="ADD">Add</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Noise Type</mat-label>
-          <select matNativeControl formControlName="layer1_noiseType">
-            <option value="FBM">FBM</option>
-            <option value="RIDGED">Ridged</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Seed Offset</mat-label>
-          <input type="number" matInput formControlName="layer1_seedOffset">
-        </mat-form-field>
-      </div>
-      <!-- Layer 2: Stars -->
-      <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1; min-width: 300px;">
-        <h3 style="margin-top: 0;">Layer 2: Stars</h3>
-        <label style="display: flex; align-items: center; margin-bottom: 10px;">
-          <input type="checkbox" formControlName="layer2_enabled" style="margin-right: 8px;">
-          Activé
-        </label>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Octaves</mat-label>
-          <input type="number" matInput formControlName="layer2_octaves" min="1" max="10">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Persistence</mat-label>
-          <input type="number" matInput formControlName="layer2_persistence" step="0.1" min="0" max="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Lacunarity</mat-label>
-          <input type="number" matInput formControlName="layer2_lacunarity" step="0.1" min="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Scale</mat-label>
-          <input type="number" matInput formControlName="layer2_scale" step="1" min="1" max="1000">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Opacity</mat-label>
-          <input type="number" matInput formControlName="layer2_opacity" step="0.1" min="0" max="1">
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Blend Mode</mat-label>
-          <select matNativeControl formControlName="layer2_blendMode">
-            <option value="NORMAL">Normal</option>
-            <option value="MULTIPLY">Multiply</option>
-            <option value="SCREEN">Screen</option>
-            <option value="OVERLAY">Overlay</option>
-            <option value="ADD">Add</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Noise Type</mat-label>
-          <select matNativeControl formControlName="layer2_noiseType">
-            <option value="FBM">FBM</option>
-            <option value="RIDGED">Ridged</option>
-          </select>
-        </mat-form-field>
-        <mat-form-field style="width: 100%;">
-          <mat-label>Seed Offset</mat-label>
-          <input type="number" matInput formControlName="layer2_seedOffset">
-        </mat-form-field>
-      </div>
-    </section>
-  }
-  <section>
-    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <label style="display: flex; align-items: center; margin-bottom: 8px;">
-        <input type="checkbox" formControlName="transparentBackground" style="margin-right: 8px;">
-        Fond transparent
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;"
-          matTooltip="Rend le fond de l'image transparent (canal alpha). Utile pour superposer sur un autre fond.">
-          help_outline
-        </mat-icon>
-      </label>
+      </section>
+      <section>
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+          <label style="display: flex; align-items: center; margin-bottom: 8px;">
+            <input type="checkbox" formControlName="transparentBackground" style="margin-right: 8px;">
+            Fond transparent
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;"
+              matTooltip="Rend le fond de l'image transparent (canal alpha).">
+              help_outline
+            </mat-icon>
+          </label>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+          <div style="display: flex; align-items: center;">
+            <label for="backgroundColor">Background</label>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de faible intensité de bruit.">help_outline</mat-icon>
+          </div>
+          <input id="backgroundColor" type="color" formControlName="backgroundColor">
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+          <div style="display: flex; align-items: center;">
+            <label for="backThreshold">Back Threshold {{ _myForm.get("backThreshold")?.value }}</label>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur de fond et la couleur intermédiaire.">help_outline</mat-icon>
+          </div>
+          <mat-slider min="0.01" max="0.97" step="0.01" discrete="false">
+            <input id="backThreshold" matSliderThumb formControlName="backThreshold">
+          </mat-slider>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
+          <div style="display: flex; align-items: center;">
+            <label for="middleColor">Middle</label>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones d'intensité de bruit moyenne.">help_outline</mat-icon>
+          </div>
+          <input id="middleColor" type="color" formControlName="middleColor">
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
+          <div style="display: flex; align-items: center;">
+            <label for="middleThreshold">Middle Threshold {{ _myForm.get("middleThreshold")?.value }}</label>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur intermédiaire et la couleur de premier plan.">help_outline</mat-icon>
+          </div>
+          <mat-slider min="0.1" max="0.99" step="0.01" discrete="false">
+            <input id="middleThreshold" matSliderThumb formControlName="middleThreshold">
+          </mat-slider>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
+          <div style="display: flex; align-items: center;">
+            <label for="foregroundColor">Foreground</label>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de forte intensité de bruit.">help_outline</mat-icon>
+          </div>
+          <input id="foregroundColor" type="color" formControlName="foregroundColor">
+        </div>
+      </section>
     </div>
-    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <div style="display: flex; align-items: center;">
-        <label for="backgroundColor">Background</label>
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de faible intensité de bruit.">help_outline</mat-icon>
-      </div>
-      <input id="backgroundColor" type="color" formControlName="backgroundColor">
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <div style="display: flex; align-items: center;">
-        <label for="backThreshold">Back Threshold {{ _myForm.get("backThreshold")?.value }}</label>
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur de fond et la couleur intermédiaire.">help_outline</mat-icon>
-      </div>
-      <mat-slider min="0.01" max="0.97" step="0.01" discrete="false">
-        <input id="backThreshold" matSliderThumb formControlName="backThreshold">
-      </mat-slider>
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
-      <div style="display: flex; align-items: center;">
-        <label for="middleColor">Middle</label>
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones d'intensité de bruit moyenne.">help_outline</mat-icon>
-      </div>
-      <input id="middleColor" type="color" formControlName="middleColor">
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: center; width: 100%;">
-      <div style="display: flex; align-items: center;">
-        <label for="middleThreshold">Middle Threshold {{ _myForm.get("middleThreshold")?.value }}</label>
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Seuil déterminant la transition entre la couleur intermédiaire et la couleur de premier plan.">help_outline</mat-icon>
-      </div>
-      <mat-slider min="0.1" max="0.99" step="0.01" discrete="false">
-        <input id="middleThreshold" matSliderThumb formControlName="middleThreshold">
-      </mat-slider>
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%;">
-      <div style="display: flex; align-items: center;">
-        <label for="foregroundColor">Foreground</label>
-        <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-left: 4px;" matTooltip="Couleur pour les zones de forte intensité de bruit.">help_outline</mat-icon>
-      </div>
-      <input id="foregroundColor" type="color" formControlName="foregroundColor">
-    </div>
-  </section>
-</form>
+  </form>
+</mat-expansion-panel>

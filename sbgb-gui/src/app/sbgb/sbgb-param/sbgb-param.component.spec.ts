@@ -248,4 +248,16 @@ describe('SbgbParamComponent', () => {
       expect(component.describeCosmetic()).toContain('transparent');
     });
   });
+
+  describe('accordion layout', () => {
+    it('should render mat-expansion-panel', () => {
+      const panel = fixture.debugElement.query(By.css('mat-expansion-panel'));
+      expect(panel).toBeTruthy();
+    });
+
+    it('should have two parameter columns', () => {
+      const columns = fixture.debugElement.queryAll(By.css('.param-column'));
+      expect(columns.length).toBe(2);
+    });
+  });
 });
