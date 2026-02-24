@@ -2,10 +2,12 @@ package cucumber.steps;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.dbs.sbgb.domain.model.NoiseImage;
+import org.dbs.sbgb.domain.model.NoiseCosmeticRender;
 import org.dbs.sbgb.domain.service.ImagesService;
-import org.dbs.sbgb.port.in.CreateNoiseImageUseCase;
+import org.dbs.sbgb.port.in.BuildNoiseImageUseCase;
 import org.dbs.sbgb.port.in.ImageRequestCmd;
+import org.dbs.sbgb.port.out.NoiseBaseStructureRepository;
+import org.dbs.sbgb.port.out.NoiseCosmeticRenderRepository;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,58 +15,64 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildImageSteps {
-    private final CreateNoiseImageUseCase createNoiseImageUseCase;
-    private final NoiseImageRepositoryStub noiseImageRepository;
-    private NoiseImage noiseImage;
 
-    public BuildImageSteps() {
-        this.noiseImageRepository = new NoiseImageRepositoryStub();
-        this.createNoiseImageUseCase = new ImagesService(noiseImageRepository);
+    private final NoiseBaseStructureRepositoryStub baseRepo = new NoiseBaseStructureRepositoryStub();
+    private final NoiseCosmeticRenderRepositoryStub renderRepo = new NoiseCosmeticRenderRepositoryStub();
+    private final ImagesService imagesService = new ImagesService(baseRepo, renderRepo);
+
+    private byte[] builtImage;
+    private NoiseCosmeticRender savedRender;
+
+    @When("je construis une image de bruit avec les caractéristiques suivantes :")
+    public void je_construis_une_image_de_bruit(Map<String, String> data) throws IOException {
+        ImageRequestCmd cmd = buildCmd(data, 0);
+        builtImage = imagesService.buildNoiseImage(cmd);
     }
 
+    @When("je note un rendu cosmétique avec les caractéristiques suivantes :")
+    public void je_note_un_rendu_cosmetique(Map<String, String> data) throws IOException {
+        int note = Integer.parseInt(data.get("note"));
+        ImageRequestCmd cmd = buildCmd(data, note);
+        savedRender = imagesService.rate(cmd);
+    }
 
-    @When("je crée une image de fond d'écran avec les caractéristiques suivantes :")
-    public void je_crée_une_image_de_fond_d_écran_avec_les_caractéristiques_suivantes(Map<String, String> data) throws IOException {
+    @Then("l'image est générée avec succès")
+    public void l_image_est_generee_avec_succes() {
+        assertThat(builtImage).isNotNull().isNotEmpty();
+    }
+
+    @Then("la base de structure est sauvegardée")
+    public void la_base_est_sauvegardee() {
+        assertThat(baseRepo.getSavedBase()).isNotNull();
+    }
+
+    @Then("le rendu cosmétique est sauvegardé avec la note {int}")
+    public void le_rendu_est_sauvegarde_avec_la_note(int note) {
+        assertThat(savedRender).isNotNull();
+        assertThat(savedRender.note()).isEqualTo(note);
+    }
+
+    private ImageRequestCmd buildCmd(Map<String, String> data, int note) {
         String[] dimensions = data.get("taille").split("x");
         int width = Integer.parseInt(dimensions[0].trim());
         int height = Integer.parseInt(dimensions[1].trim());
 
-        String[] backColorData = data.get("back").split(" ");
-        String[] middleColorData = data.get("middle").split(" ");
+        String[] backData = data.get("back").split(" ");
+        String[] middleData = data.get("middle").split(" ");
 
-        ImageRequestCmd imageRequestCmd = ImageRequestCmd.builder()
-                .name(data.get("nom"))
-                .type(data.get("type"))
+        return ImageRequestCmd.builder()
+                .note(note)
                 .sizeCmd(ImageRequestCmd.SizeCmd.builder()
-                        .width(width)
-                        .height(height)
+                        .width(width).height(height)
                         .seed(Integer.parseInt(data.get("seed")))
                         .build())
                 .colorCmd(ImageRequestCmd.ColorCmd.builder()
-                        .back(backColorData[0])
-                        .backThreshold(Double.parseDouble(backColorData[1]))
-                        .middle(middleColorData[0])
-                        .middleThreshold(Double.parseDouble(middleColorData[1]))
+                        .back(backData[0])
+                        .backThreshold(Double.parseDouble(backData[1]))
+                        .middle(middleData[0])
+                        .middleThreshold(Double.parseDouble(middleData[1]))
                         .fore(data.get("front").trim())
                         .build())
                 .build();
-
-        noiseImage = createNoiseImageUseCase.createNoiseImage(imageRequestCmd);
     }
-
-    @Then("l'image est générée avec succès")
-    public void l_image_est_générée_avec_succès() {
-        assertThat(noiseImage).isNotNull();
-        assertThat(noiseImage.getId()).isNotNull();
-        assertThat(noiseImage.getImage()).isNotEmpty();
-    }
-
-    @Then("elle est sauvegardée avec la description {string}")
-    public void elle_est_sauvegardée_avec_la_description(String expectedDescription) {
-        NoiseImage savedNoiseImage = noiseImageRepository.getSavedImage();
-
-        assertThat(savedNoiseImage).isNotNull();
-        assertThat(savedNoiseImage.getDescription()).isEqualTo(expectedDescription);
-    }
-
 }
