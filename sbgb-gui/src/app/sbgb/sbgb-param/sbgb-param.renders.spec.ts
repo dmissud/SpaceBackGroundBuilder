@@ -1,3 +1,4 @@
+import {SbgbComparisonService} from '../sbgb-comparison.service';
 import {of, Subject} from 'rxjs';
 import {SbgbParamComponent} from './sbgb-param.component';
 import {SbgbPageActions} from '../state/sbgb.actions';
@@ -34,7 +35,7 @@ describe('SbgbParamComponent — renders logic', () => {
 
     const mockActions$ = {pipe: jest.fn().mockReturnValue(of())};
     const mockDialog: any = {open: jest.fn()};
-    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog);
+    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog, new SbgbComparisonService());
   });
 
   afterEach(() => {

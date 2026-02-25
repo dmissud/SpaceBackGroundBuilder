@@ -16,6 +16,7 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialog} from "@angular/material/dialog";
 import {SbgbStructuralChangeDialogComponent, StructuralChangeChoice} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
 import {NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
+import {SbgbComparisonService} from "../sbgb-comparison.service";
 
 @Component({
   selector: 'app-sbgb-param',
@@ -73,7 +74,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   currentNote: number = 0;
   readonly starValues = [1, 2, 3, 4, 5];
 
-  constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions, private dialog: MatDialog) {
+  constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions, private dialog: MatDialog, private sbgbComparison: SbgbComparisonService) {
     this.baseForm = new FormGroup({
       [SbgbParamComponent.CONTROL_WIDTH]: new FormControl('4000'),
       [SbgbParamComponent.CONTROL_HEIGHT]: new FormControl('4000'),
@@ -498,31 +499,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private isModified(currentSbgb: Sbgb, referenceSbgb: Sbgb): boolean {
-    if (!referenceSbgb) return true;
-
-    const s1 = referenceSbgb.imageStructure;
-    const s2 = currentSbgb.imageStructure;
-    const c1 = referenceSbgb.imageColor;
-    const c2 = currentSbgb.imageColor;
-
-    return Number(s1.width) !== Number(s2.width) ||
-      Number(s1.height) !== Number(s2.height) ||
-      Number(s1.seed) !== Number(s2.seed) ||
-      Number(s1.octaves) !== Number(s2.octaves) ||
-      Number(s1.persistence) !== Number(s2.persistence) ||
-      Number(s1.lacunarity) !== Number(s2.lacunarity) ||
-      Number(s1.scale) !== Number(s2.scale) ||
-      s1.noiseType !== s2.noiseType ||
-      s1.preset !== s2.preset ||
-      s1.useMultiLayer !== s2.useMultiLayer ||
-      c1.back !== c2.back ||
-      c1.middle !== c2.middle ||
-      c1.fore !== c2.fore ||
-      Number(c1.backThreshold) !== Number(c2.backThreshold) ||
-      Number(c1.middleThreshold) !== Number(c2.middleThreshold) ||
-      c1.interpolationType !== c2.interpolationType ||
-      referenceSbgb.name !== currentSbgb.name;
-    // Note: description is auto-generated, no need to compare
+    return this.sbgbComparison.isModified(currentSbgb, referenceSbgb);
   }
 
   private getSbgbFromForm(): Sbgb {
