@@ -31,6 +31,10 @@ export class ImagesService {
     return this.http.post<NoiseCosmeticRenderDto>(this.appUrl + this.rateApiUrl, payload);
   }
 
+  getRendersForBase(baseId: string): Observable<NoiseCosmeticRenderDto[]> {
+    return this.http.get<NoiseCosmeticRenderDto[]>(`${this.appUrl}/images/bases/${baseId}/renders`);
+  }
+
   deleteRender(id: string): Observable<void> {
     return this.http.delete<void>(`${this.appUrl}/images/renders/${id}`);
   }

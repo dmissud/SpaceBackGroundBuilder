@@ -59,6 +59,30 @@ export class SbgbEffects {
     )
   );
 
+  loadRendersForBase$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.loadRendersForBase),
+      mergeMap(({baseId}) =>
+        this.imagesService.getRendersForBase(baseId).pipe(
+          map((renders) => ImageApiActions.imagesRendersLoadSuccess({renders})),
+          catchError((error) => of(ImageApiActions.imagesRendersLoadFail({message: error.message})))
+        )
+      )
+    )
+  );
+
+  deleteRender$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.deleteRender),
+      mergeMap(({renderId}) =>
+        this.imagesService.deleteRender(renderId).pipe(
+          map(() => ImageApiActions.imagesDeleteRenderSuccess({renderId})),
+          catchError((error) => of(ImageApiActions.imagesDeleteRenderFail({message: error.message})))
+        )
+      )
+    )
+  );
+
   private loadImage(resolve: (value: (PromiseLike<string | ArrayBuffer | null> | string | ArrayBuffer | null)) => void, reject: (reason?: any) => void, response: HttpResponse<Blob>) {
     let reader = new FileReader();
     reader.onloadend = () => resolve(reader.result);
