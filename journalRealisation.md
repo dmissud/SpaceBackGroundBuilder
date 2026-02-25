@@ -166,11 +166,13 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 | # | Violation | Fichier | Statut |
 |---|-----------|---------|--------|
-| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | 🔄 En cours |
-| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ⏳ À faire |
-| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ⏳ À faire |
-| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ⏳ À faire |
-| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ⏳ À faire |
+| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | ✅ Terminé (commit e3f18ef) |
+| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ✅ Terminé (commit 365f3ab) |
+| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ✅ Terminé (commit e99f2af) |
+
+**Statut final CC-I3 : ✅ Terminé — 5 corrections, 5 commits, 22 tests ajoutés (17 frontend + 5 service). PR #45 ouverte.**
 
 ---
 
