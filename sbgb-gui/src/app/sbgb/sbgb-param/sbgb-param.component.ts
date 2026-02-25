@@ -13,6 +13,7 @@ import {Actions, ofType} from "@ngrx/effects";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
+import {MatDialog} from "@angular/material/dialog";
 import {NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 
 @Component({
@@ -63,6 +64,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   renders: NoiseCosmeticRenderDto[] = [];
 
+  baseForm: FormGroup;
+  cosmeticForm: FormGroup;
   protected _myForm: FormGroup;
   private loadedFromDbSbgb: Sbgb | null = null;
   private builtSbgb: Sbgb | null = null;
@@ -72,8 +75,8 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   currentNote: number = 0;
   readonly starValues = [1, 2, 3, 4, 5];
 
-  constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions) {
-    this._myForm = new FormGroup({
+  constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions, private dialog: MatDialog) {
+    this.baseForm = new FormGroup({
       [SbgbParamComponent.CONTROL_WIDTH]: new FormControl('4000'),
       [SbgbParamComponent.CONTROL_HEIGHT]: new FormControl('4000'),
       [SbgbParamComponent.CONTROL_SEED]: new FormControl('2569'),
@@ -85,7 +88,6 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.CONTROL_PRESET]: new FormControl('CUSTOM'),
       [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: new FormControl(false),
       [SbgbParamComponent.CONTROL_ADVANCED_MODE]: new FormControl(false),
-      // Layer controls
       layer0_enabled: new FormControl(true),
       layer0_octaves: new FormControl(3),
       layer0_persistence: new FormControl(0.5),
@@ -113,6 +115,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       layer2_blendMode: new FormControl('SCREEN'),
       layer2_noiseType: new FormControl('FBM'),
       layer2_seedOffset: new FormControl(2000),
+      [SbgbParamComponent.NAME]: new FormControl('')
+    });
+
+    this.cosmeticForm = new FormGroup({
       [SbgbParamComponent.BACKGROUND_COLOR]: new FormControl('#000000'),
       [SbgbParamComponent.MIDDLE_COLOR]: new FormControl('#FFA500'),
       [SbgbParamComponent.FOREGROUND_COLOR]: new FormControl('#FFFFFF'),
@@ -120,31 +126,33 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.MIDDLE_THRESHOLD]: new FormControl('0.75'),
       [SbgbParamComponent.INTERPOLATION_TYPE]: new FormControl('LINEAR'),
       [SbgbParamComponent.TRANSPARENT_BACKGROUND]: new FormControl(false),
-      [SbgbParamComponent.NAME]: new FormControl('')
+    });
+
+    this._myForm = new FormGroup({
+      base: this.baseForm,
+      cosmetic: this.cosmeticForm
     });
 
     this._myForm.valueChanges.subscribe(() => {
       this.isModifiedSinceBuild = true;
     });
 
-    this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.valueChanges.subscribe(
+    this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.valueChanges.subscribe(
       (backThreshold) => {
-        let middleThreshold = this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.value;
+        const middleThreshold = this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.value;
         if (backThreshold >= middleThreshold) {
-
-          this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.setValue(backThreshold + 0.01);
+          this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.setValue(backThreshold + 0.01);
         }
       }
-    )
-    this._myForm.get([SbgbParamComponent.MIDDLE_THRESHOLD])?.valueChanges.subscribe(
+    );
+    this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.valueChanges.subscribe(
       (middleThreshold) => {
-        let backThreshold = this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.value;
+        const backThreshold = this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.value;
         if (backThreshold >= middleThreshold) {
-
-          this._myForm.get([SbgbParamComponent.BACK_THRESHOLD])?.setValue(middleThreshold - 0.01);
+          this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.setValue(middleThreshold - 0.01);
         }
       }
-    )
+    );
   }
 
   ngOnInit() {
@@ -181,7 +189,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
           this.builtSbgb = null;
           // Ne pas marquer comme modifié lors du chargement depuis la BDD
           // Le flag sera géré par les modifications du formulaire et le succès du build
-          this._myForm.patchValue({
+          this.baseForm.patchValue({
             [SbgbParamComponent.CONTROL_WIDTH]: sbgb.imageStructure.width,
             [SbgbParamComponent.CONTROL_HEIGHT]: sbgb.imageStructure.height,
             [SbgbParamComponent.CONTROL_SEED]: sbgb.imageStructure.seed,
@@ -192,6 +200,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.CONTROL_NOISE_TYPE]: sbgb.imageStructure.noiseType || 'FBM',
             [SbgbParamComponent.CONTROL_PRESET]: sbgb.imageStructure.preset,
             [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: sbgb.imageStructure.useMultiLayer,
+            [SbgbParamComponent.NAME]: sbgb.name || ''
+          }, {emitEvent: false});
+          this.cosmeticForm.patchValue({
             [SbgbParamComponent.BACKGROUND_COLOR]: sbgb.imageColor.back,
             [SbgbParamComponent.MIDDLE_COLOR]: sbgb.imageColor.middle,
             [SbgbParamComponent.FOREGROUND_COLOR]: sbgb.imageColor.fore,
@@ -199,7 +210,6 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
             [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
             [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
             [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
-            [SbgbParamComponent.NAME]: sbgb.name || ''
           }, {emitEvent: false});
           // S'assurer que le flag reste à true jusqu'au build automatique
           this.isModifiedSinceBuild = true;
@@ -240,8 +250,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       this.renders = renders;
     });
 
-    // Listen to preset changes in SBGB
-    this._myForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
+    this.baseForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
       if (preset && preset !== 'CUSTOM') {
         this.applySbgbPreset(preset);
       }
@@ -249,41 +258,37 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private applySbgbPreset(preset: string) {
-    const defaultStructure = {
-      octaves: 4,
-      persistence: 0.5,
-      lacunarity: 2.0,
-      scale: 200,
-      noiseType: 'FBM'
-    };
-
     switch (preset) {
       case 'DEEP_SPACE':
-        this._myForm.patchValue({
+        this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 6,
           [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.5,
           [SbgbParamComponent.CONTROL_LACUNARITY]: 2.2,
           [SbgbParamComponent.CONTROL_SCALE]: 300,
+          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
+          layer2_enabled: true
+        });
+        this.cosmeticForm.patchValue({
           [SbgbParamComponent.BACKGROUND_COLOR]: '#000005',
           [SbgbParamComponent.MIDDLE_COLOR]: '#050515',
           [SbgbParamComponent.FOREGROUND_COLOR]: '#0a0a25',
-          [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
-          layer2_enabled: true // Stars
         });
         break;
       case 'STARFIELD':
-        this._myForm.patchValue({
+        this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 2,
           [SbgbParamComponent.CONTROL_SCALE]: 10,
-          [SbgbParamComponent.BACKGROUND_COLOR]: '#000000',
           [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: true,
           layer0_enabled: false,
           layer1_enabled: false,
-          layer2_enabled: true // Stars only
+          layer2_enabled: true
+        });
+        this.cosmeticForm.patchValue({
+          [SbgbParamComponent.BACKGROUND_COLOR]: '#000000',
         });
         break;
       case 'NEBULA_DENSE':
-        this._myForm.patchValue({
+        this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 8,
           [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.7,
           [SbgbParamComponent.CONTROL_SCALE]: 150,
@@ -312,18 +317,18 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   describeBase(): string {
-    const f = this._myForm.value;
+    const f = this.baseForm.value;
     return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;
   }
 
   describeCosmetic(): string {
-    const f = this._myForm.value;
+    const f = this.cosmeticForm.value;
     const transparency = f.transparentBackground ? 'transparent' : 'opaque';
     return `${f.backgroundColor} → ${f.middleColor} → ${f.foregroundColor}, seuils ${Number(f.backThreshold).toFixed(2)}/${Number(f.middleThreshold).toFixed(2)}, ${transparency}`;
   }
 
   getParametersSummary(): string {
-    const form = this._myForm.value;
+    const form = this.baseForm.value;
     const noiseType = form.noiseType || 'FBM';
     const octaves = form.octaves || 4;
     const width = form.width || 2048;
@@ -451,7 +456,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
     const link = document.createElement('a');
     link.href = image as string;
-    const name = this._myForm.controls['name'].value || 'space-image';
+    const name = this.baseForm.controls['name'].value || 'space-image';
     link.download = `${name}.png`;
     link.click();
   }
@@ -509,7 +514,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       = this.extractColorFormValues();
     const {nameValue, descriptionValue} = this.extractMetaFormValues();
 
-    const layers = useMultiLayerValue && this._myForm.get(SbgbParamComponent.CONTROL_ADVANCED_MODE)?.value
+    const layers = useMultiLayerValue && this.baseForm.get(SbgbParamComponent.CONTROL_ADVANCED_MODE)?.value
       ? this.extractLayersFromForm()
       : undefined;
 
@@ -584,22 +589,22 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private extractMetaFormValues() {
-    let nameValue = this._myForm.controls[SbgbParamComponent.NAME].value;
+    let nameValue = this.baseForm.controls[SbgbParamComponent.NAME].value;
     let descriptionValue = this.getParametersSummary(); // Auto-generate description
     return {nameValue, descriptionValue};
   }
 
   private extractImageFormValues() {
-    let widthValue = this._myForm.controls[SbgbParamComponent.CONTROL_WIDTH].value;
-    let heightValue = this._myForm.controls[SbgbParamComponent.CONTROL_HEIGHT].value;
-    let seedValue = this._myForm.controls[SbgbParamComponent.CONTROL_SEED].value;
-    let octavesValue = this._myForm.controls[SbgbParamComponent.CONTROL_OCTAVES].value;
-    let persistenceValue = this._myForm.controls[SbgbParamComponent.CONTROL_PERSISTENCE].value;
-    let lacunarityValue = this._myForm.controls[SbgbParamComponent.CONTROL_LACUNARITY].value;
-    let scaleValue = this._myForm.controls[SbgbParamComponent.CONTROL_SCALE].value;
-    let noiseTypeValue = this._myForm.controls[SbgbParamComponent.CONTROL_NOISE_TYPE].value;
-    let presetValue = this._myForm.controls[SbgbParamComponent.CONTROL_PRESET].value;
-    let useMultiLayerValue = this._myForm.controls[SbgbParamComponent.CONTROL_USE_MULTI_LAYER].value;
+    let widthValue = this.baseForm.controls[SbgbParamComponent.CONTROL_WIDTH].value;
+    let heightValue = this.baseForm.controls[SbgbParamComponent.CONTROL_HEIGHT].value;
+    let seedValue = this.baseForm.controls[SbgbParamComponent.CONTROL_SEED].value;
+    let octavesValue = this.baseForm.controls[SbgbParamComponent.CONTROL_OCTAVES].value;
+    let persistenceValue = this.baseForm.controls[SbgbParamComponent.CONTROL_PERSISTENCE].value;
+    let lacunarityValue = this.baseForm.controls[SbgbParamComponent.CONTROL_LACUNARITY].value;
+    let scaleValue = this.baseForm.controls[SbgbParamComponent.CONTROL_SCALE].value;
+    let noiseTypeValue = this.baseForm.controls[SbgbParamComponent.CONTROL_NOISE_TYPE].value;
+    let presetValue = this.baseForm.controls[SbgbParamComponent.CONTROL_PRESET].value;
+    let useMultiLayerValue = this.baseForm.controls[SbgbParamComponent.CONTROL_USE_MULTI_LAYER].value;
     return {
       widthValue,
       heightValue,
@@ -615,13 +620,13 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private extractColorFormValues() {
-    let backgroundColorValue = this._myForm.controls[SbgbParamComponent.BACKGROUND_COLOR].value;
-    let foregroundColorValue = this._myForm.controls[SbgbParamComponent.FOREGROUND_COLOR].value;
-    let middleColorValue = this._myForm.controls[SbgbParamComponent.MIDDLE_COLOR].value;
-    let backThresholdValue = this._myForm.controls[SbgbParamComponent.BACK_THRESHOLD].value;
-    let middleThresholdValue = this._myForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
-    let interpolationTypeValue = this._myForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
-    let transparentBackgroundValue = this._myForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
+    let backgroundColorValue = this.cosmeticForm.controls[SbgbParamComponent.BACKGROUND_COLOR].value;
+    let foregroundColorValue = this.cosmeticForm.controls[SbgbParamComponent.FOREGROUND_COLOR].value;
+    let middleColorValue = this.cosmeticForm.controls[SbgbParamComponent.MIDDLE_COLOR].value;
+    let backThresholdValue = this.cosmeticForm.controls[SbgbParamComponent.BACK_THRESHOLD].value;
+    let middleThresholdValue = this.cosmeticForm.controls[SbgbParamComponent.MIDDLE_THRESHOLD].value;
+    let interpolationTypeValue = this.cosmeticForm.controls[SbgbParamComponent.INTERPOLATION_TYPE].value;
+    let transparentBackgroundValue = this.cosmeticForm.controls[SbgbParamComponent.TRANSPARENT_BACKGROUND].value;
     return {
       backgroundColorValue,
       foregroundColorValue,

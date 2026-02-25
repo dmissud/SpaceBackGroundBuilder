@@ -33,7 +33,8 @@ describe('SbgbParamComponent — renders logic', () => {
     mockSnackBar = {open: jest.fn()};
 
     const mockActions$ = {pipe: jest.fn().mockReturnValue(of())};
-    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any);
+    const mockDialog: any = {open: jest.fn()};
+    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog);
   });
 
   afterEach(() => {
