@@ -19,4 +19,5 @@ public class NoiseCosmeticRenderDTO {
     private double middleThreshold;
     private String interpolationType;
     private boolean transparentBackground;
+    private byte[] thumbnail;
 }
