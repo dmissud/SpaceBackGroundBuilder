@@ -33,11 +33,13 @@ jobs:
         run: |
           # 1. Priorité aux Labels (Recommandation 3)
           LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
-          if echo "$LABELS" | grep -iq "major"; then
+          
+          # Mappage des labels GitHub standards aux types semver
+          if echo "$LABELS" | grep -iqE "major|breaking"; then
             TYPE="major"
-          elif echo "$LABELS" | grep -iq "minor"; then
+          elif echo "$LABELS" | grep -iqE "minor|enhancement"; then
             TYPE="minor"
-          elif echo "$LABELS" | grep -iq "patch"; then
+          elif echo "$LABELS" | grep -iqE "patch|bug|fix|documentation"; then
             TYPE="patch"
           else
             # 2. Logique de repli affinée (Recommandation 2)
