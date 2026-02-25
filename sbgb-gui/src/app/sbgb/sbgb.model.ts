@@ -63,6 +63,7 @@ export interface NoiseCosmeticRenderDto {
   middleThreshold: number;
   interpolationType: string;
   transparentBackground: boolean;
+  thumbnail: string | null;
 }
 
 export interface Sbgb {
@@ -72,4 +73,20 @@ export interface Sbgb {
   note?: number;
   imageStructure: Image;
   imageColor: Color;
+}
+
+export interface ActuatorInfo {
+  app: {
+    name: string;
+    version: string;
+  };
+  git: {
+    branch: string;
+    commit: {
+      id: {
+        abbrev: string;
+        full: string;
+      };
+    };
+  };
 }

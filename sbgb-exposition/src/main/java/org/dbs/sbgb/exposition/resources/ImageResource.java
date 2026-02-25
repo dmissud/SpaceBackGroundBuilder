@@ -14,6 +14,7 @@ import org.dbs.sbgb.exposition.resources.mapper.NoiseBaseStructureMapper;
 import org.dbs.sbgb.port.in.BuildNoiseImageUseCase;
 import org.dbs.sbgb.port.in.DeleteNoiseCosmeticRenderUseCase;
 import org.dbs.sbgb.port.in.FindNoiseBaseStructuresUseCase;
+import org.dbs.sbgb.port.in.FindNoiseCosmeticRendersUseCase;
 import org.dbs.sbgb.port.in.ImageRequestCmd;
 import org.dbs.sbgb.port.in.RateNoiseCosmeticRenderUseCase;
 import org.springframework.http.MediaType;
@@ -35,6 +36,7 @@ public class ImageResource {
     private final BuildNoiseImageUseCase buildNoiseImageUseCase;
     private final RateNoiseCosmeticRenderUseCase rateNoiseCosmeticRenderUseCase;
     private final FindNoiseBaseStructuresUseCase findNoiseBaseStructuresUseCase;
+    private final FindNoiseCosmeticRendersUseCase findNoiseCosmeticRendersUseCase;
     private final DeleteNoiseCosmeticRenderUseCase deleteNoiseCosmeticRenderUseCase;
     private final NoiseBaseStructureMapper baseStructureMapper;
     private final NoiseCosmeticRenderMapper cosmeticRenderMapper;
@@ -68,6 +70,17 @@ public class ImageResource {
         List<NoiseBaseStructureDTO> dtos = findNoiseBaseStructuresUseCase.findAllSortedByMaxNoteDesc()
                 .stream()
                 .map(baseStructureMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping(value = "/images/bases/{id}/renders", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Get all cosmetic renders for a given base structure")
+    @LogExecutionTime
+    public ResponseEntity<List<NoiseCosmeticRenderDTO>> getRendersForBase(@PathVariable("id") UUID id) {
+        List<NoiseCosmeticRenderDTO> dtos = findNoiseCosmeticRendersUseCase.findRendersByBaseId(id)
+                .stream()
+                .map(cosmeticRenderMapper::toDTO)
                 .toList();
         return ResponseEntity.ok(dtos);
     }

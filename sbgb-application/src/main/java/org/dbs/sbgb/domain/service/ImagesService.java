@@ -20,7 +20,7 @@ import java.util.UUID;
 @UseCase
 @RequiredArgsConstructor
 public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticRenderUseCase,
-        FindNoiseBaseStructuresUseCase, DeleteNoiseCosmeticRenderUseCase {
+        FindNoiseBaseStructuresUseCase, DeleteNoiseCosmeticRenderUseCase, FindNoiseCosmeticRendersUseCase {
 
     private final NoiseBaseStructureRepository baseStructureRepository;
     private final NoiseCosmeticRenderRepository cosmeticRenderRepository;
@@ -49,6 +49,11 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
         return baseStructureRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(NoiseBaseStructure::maxNote).reversed())
                 .toList();
+    }
+
+    @Override
+    public List<NoiseCosmeticRender> findRendersByBaseId(UUID baseId) {
+        return cosmeticRenderRepository.findAllByBaseStructureId(baseId);
     }
 
     @Override
@@ -108,18 +113,24 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
         Optional<NoiseCosmeticRender> existing = cosmeticRenderRepository
                 .findByBaseStructureIdAndCosmeticHash(base.id(), cosmeticHash);
 
-        if (existing.isPresent()) {
-            NoiseCosmeticRender e = existing.get();
-            return new NoiseCosmeticRender(e.id(), base.id(), e.back(), e.middle(), e.fore(),
-                    e.backThreshold(), e.middleThreshold(), e.interpolationType(),
-                    e.transparentBackground(), cmd.getNote(), thumbnail, e.description());
-        }
+        return existing.isPresent()
+                ? updateWithNewNote(existing.get(), cmd.getNote(), thumbnail)
+                : createNewRender(cmd, base, thumbnail);
+    }
 
+    private NoiseCosmeticRender updateWithNewNote(NoiseCosmeticRender existing, int note, byte[] thumbnail) {
+        return new NoiseCosmeticRender(existing.id(), existing.baseStructureId(), existing.back(), existing.middle(),
+                existing.fore(), existing.backThreshold(), existing.middleThreshold(), existing.interpolationType(),
+                existing.transparentBackground(), note, thumbnail, existing.description());
+    }
+
+    private NoiseCosmeticRender createNewRender(ImageRequestCmd cmd, NoiseBaseStructure base, byte[] thumbnail) {
         String description = buildCosmeticDescription(cmd.getColorCmd());
+        ImageRequestCmd.ColorCmd color = cmd.getColorCmd();
         return new NoiseCosmeticRender(UUID.randomUUID(), base.id(),
-                cmd.getColorCmd().getBack(), cmd.getColorCmd().getMiddle(), cmd.getColorCmd().getFore(),
-                cmd.getColorCmd().getBackThreshold(), cmd.getColorCmd().getMiddleThreshold(),
-                cmd.getColorCmd().getInterpolationType(), cmd.getColorCmd().isTransparentBackground(),
+                color.getBack(), color.getMiddle(), color.getFore(),
+                color.getBackThreshold(), color.getMiddleThreshold(),
+                color.getInterpolationType(), color.isTransparentBackground(),
                 cmd.getNote(), thumbnail, description);
     }
 
@@ -198,18 +209,7 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
 
         if (sizeCmd.getLayers() != null && !sizeCmd.getLayers().isEmpty()) {
             List<LayerConfig> customLayers = sizeCmd.getLayers().stream()
-                    .map(l -> LayerConfig.builder()
-                            .name(l.getName())
-                            .enabled(l.isEnabled())
-                            .octaves(l.getOctaves())
-                            .persistence(l.getPersistence())
-                            .lacunarity(l.getLacunarity())
-                            .scale(l.getScale())
-                            .opacity(l.getOpacity())
-                            .blendMode(BlendMode.valueOf(l.getBlendMode()))
-                            .noiseType(NoiseType.valueOf(l.getNoiseType()))
-                            .seedOffset(l.getSeedOffset())
-                            .build())
+                    .map(this::toLayerConfig)
                     .toList();
             builder.withLayers(customLayers);
         } else {
@@ -228,6 +228,21 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
                 colorCmd.getMiddleThreshold(),
                 InterpolationType.valueOf(colorCmd.getInterpolationType()),
                 colorCmd.isTransparentBackground());
+    }
+
+    private LayerConfig toLayerConfig(ImageRequestCmd.LayerCmd l) {
+        return LayerConfig.builder()
+                .name(l.getName())
+                .enabled(l.isEnabled())
+                .octaves(l.getOctaves())
+                .persistence(l.getPersistence())
+                .lacunarity(l.getLacunarity())
+                .scale(l.getScale())
+                .opacity(l.getOpacity())
+                .blendMode(BlendMode.valueOf(l.getBlendMode()))
+                .noiseType(NoiseType.valueOf(l.getNoiseType()))
+                .seedOffset(l.getSeedOffset())
+                .build();
     }
 
     private byte[] toByteArray(BufferedImage image) throws IOException {

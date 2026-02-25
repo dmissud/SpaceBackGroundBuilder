@@ -52,7 +52,12 @@
     <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
       <mat-icon>share</mat-icon>
     </button>
-    <span class="version-info">Current {{ name }} build: {{ version }}</span>
+    <span class="version-info" *ngIf="version">
+      v{{ version }}
+      <ng-container *ngIf="branch">
+        ({{ branch }}@{{ sha }})
+      </ng-container>
+    </span>
   </mat-toolbar>
   <nav class="navbar">
   </nav>

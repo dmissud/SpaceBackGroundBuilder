@@ -87,19 +87,109 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ## Incrément 3 — Séparation Base / Cosmétique + dialogue de choix
 
-**Statut** : ⏸ En attente (démarre après merge I2)
+**Objectif** : Le formulaire reflète explicitement la distinction Structurant / Cosmétique, et le système détecte les changements structurants pour proposer le dialogue.
+
+**Branche** : `feature/I3-base-cosmetic-split`
+**Statut** : ✅ Terminé
+
+---
+
+### Étapes TDD
+
+| # | Cycle | Périmètre | Statut | Commit |
+|---|-------|-----------|--------|--------|
+| 3.1 | RED-GREEN-REFACTOR | Use case `FindNoiseCosmeticRendersUseCase` (port OUT + impl + test) | ✅ | `feat(domain): add FindNoiseCosmeticRendersUseCase to list renders by base id` |
+| 3.2 | RED-GREEN-REFACTOR | Endpoint `GET /images/bases/{id}/renders` + `thumbnail` dans `NoiseCosmeticRenderDTO` | ✅ | `feat(exposition): add GET /images/bases/{id}/renders endpoint` |
+| 3.3 | RED-GREEN-REFACTOR | NgRx : actions `loadRendersForBase`, `deleteRender` + reducer `renders[]` + selectors | ✅ | `feat(ui): add NgRx actions, reducer and selectors for renders management` |
+| 3.4 | RED-GREEN-REFACTOR | Effect `loadRendersForBase$` + `deleteRender$` + `images.service.ts` update | ✅ | `feat(ui): add loadRendersForBase$ and deleteRender$ effects with service call` |
+| 3.5 | RED-GREEN-REFACTOR | `sbgb-param.component` : subscribe `selectRenders`, dispatch `loadRendersForBase` + `deleteRenderById` | ✅ | `feat(ui): integrate renders strip in sbgb-param and shell components` |
+| 3.6 | RED-GREEN-REFACTOR | Dialogue `SbgbStructuralChangeDialogComponent` (Option A vider / Option B ré-appliquer / Annuler) | ✅ | `feat(ui): add SbgbStructuralChangeDialogComponent with three choices` |
+| 3.7 | RED-GREEN-REFACTOR | Bande de vignettes des rendus sauvegardés + corbeille par rendu | ✅ | (inclus dans commit 3.5) |
+| 3.8 | RED-GREEN-REFACTOR | Séparation `baseForm` / `cosmeticForm` : deux sous-groupes distincts dans le FormGroup + template mis à jour | ✅ | `feat(ui): split form into baseForm and cosmeticForm sub-groups (I3 cycle 3.8)` |
+| 3.9 | RED-GREEN-REFACTOR | Détection `baseForm.valueChanges` + snapshot + dialogue + Option A (vider) + Annuler (restaurer snapshot) | ✅ | `feat(ui): detect structural changes and open dialog with clear/cancel options (I3 cycle 3.9)` |
+| 3.10 | RED-GREEN | Option B (ré-appliquer) : dispatch `rateSbgb` pour chaque rendu avec nouveaux params Base + cosmétiques existants | ✅ | `test(ui): add reapply renders spec validating Option B dispatches rateSbgb per render (I3 cycle 3.10)` |
+
+---
+
+### Décisions techniques prises
+
+- **`@PathVariable("id")` explicite** : Spring en contexte `@WebMvcTest` ne peut pas résoudre le nom du paramètre par réflexion sans le flag `-parameters`. Nommage explicite requis pour la testabilité.
+- **`baseForm` + `cosmeticForm`** : deux `FormGroup` indépendants, le `_myForm` parent les contient via `new FormGroup({ base: baseForm, cosmetic: cosmeticForm })`. Le template utilise `[formGroup]="baseForm"` et `[formGroup]="cosmeticForm"` sans `<form>` parent.
+- **Snapshot `baseFormSnapshot`** : capturé avant chaque changement via `valueChanges`. Restauré avec `patchValue(snapshot, {emitEvent: false})` pour ne pas déclencher un nouveau dialogue lors de l'annulation.
+- **Option B** : dispatch `rateSbgb` pour chaque rendu avec les params de base courants + cosmétiques du rendu. Utilise le find-or-create backend pour créer la nouvelle base et les rendus associés.
+- **Mock sélecteurs** : identifier les sélecteurs NgRx par identité objet (`selector === selectRenders`) plutôt que par `projector.toString()` (fragile car tous les projectors contiennent `sbgbState`).
+- **`thumbnail` dans `NoiseCosmeticRenderDTO`** : ajouté pour permettre l'affichage des vignettes dans la bande de rendus sauvegardés (`GET /images/bases/{id}/renders`). Le mapper MapStruct le mappe automatiquement depuis le domaine.
+- **`thumbnail` TypeScript** : `byte[]` Java est sérialisé par Jackson en base64 String → type `string | null` dans le modèle TS. Utilisé directement dans `[src]="'data:image/png;base64,' + render.thumbnail"`.
+- **Tests effects sans TestBed** : `SbgbEffects` testé par instanciation directe (`new SbgbEffects(mockService, actions$, null)`) pour contourner le problème `TestBed.initTestEnvironment()` préexistant.
+- **Jest component tests** : Tests composants Angular (`sbgb-param.component.spec.ts`, `sbgb-shell.component.spec.ts`) échouent avec "Need to call TestBed.initTestEnvironment() first" — problème de configuration Jest préexistant (`setup-jest.ts` utilise une API dépréciée). Non résolu dans I3 (hors périmètre).
+
+---
+
+### Problèmes rencontrés
+
+- **`@PathVariable` sans nom** : Spring retournait 400 avec "Name for argument of type [UUID] not specified" en test `@WebMvcTest`. Solution : `@PathVariable("id") UUID id`.
+- **Jasmine vs Jest** : Test effects initialement écrit avec `jasmine.SpyObj` — erreur TS2694. Réécriture avec `jest.Mocked<T>` et `jest.fn()`.
+- **Dialogue** : utilisation de `@Optional() @Inject(MAT_DIALOG_DATA)` pour permettre l'instanciation directe dans les tests sans le contexte Material Dialog complet.
+
+---
+
+**Statut final I3** : ✅ **Terminé et mergé** — 10 cycles TDD complétés, 11 commits atomiques, 134 tests backend + 21 tests frontend ciblés au vert. Mergé sur `develop` via **PR #44**.
+
+**Objectif atteint** : le formulaire reflète explicitement la distinction Structurant / Cosmétique (`baseForm` / `cosmeticForm`), et le système détecte les changements structurants pour proposer le dialogue (Option A : vider, Option B : ré-appliquer, Annuler : restaurer snapshot).
+
+---
+
+## Revue Clean Code I3
+
+**Fichier** : `clean-code-review-I3.md` (généré après merge PR #44)
+
+---
+
+## Corrections Clean Code I3
+
+**Branche** : `feature/CC-I3-clean-code`
+**Objectif** : Corriger les violations identifiées dans `clean-code-review-I3.md`
+
+### Corrections planifiées
+
+| # | Violation | Fichier | Statut |
+|---|-----------|---------|--------|
+| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | ✅ Terminé (commit e3f18ef) |
+| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ✅ Terminé (commit 365f3ab) |
+| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ✅ Terminé (commit e99f2af) |
+
+**Statut final CC-I3 : ✅ Terminé — 5 corrections, 5 commits, 22 tests ajoutés (17 frontend + 5 service). Mergé via PR #45.**
+
+---
+
+### Décisions techniques prises
+
+- **`HttpErrorHandlerService`** : service `providedIn: 'root'` avec chaîne de fallback `error?.error?.message || error?.message || error?.statusText || 'An unknown error occurred'`. Couvre les erreurs HTTP Spring (champ `error.message`), les erreurs réseau Angular (`message`) et les statuts HTTP bruts (`statusText`).
+- **`takeUntil(destroy$)`** : `Subject<void>` complété dans `ngOnDestroy()`. Remplace 5 variables `Subscription` et les unsubscriptions manuelles. Couvre toutes les souscriptions du constructeur ET de `ngOnInit`.
+- **`extractLayerConfig(index, name)`** : helper privé capturant l'index via closure sur `_myForm.get(layer${index}_${field})`. Réduit `extractLayersFromForm()` de 39 à 5 lignes.
+- **`SbgbComparisonService`** : service injectable décomposant `isModified()` en `structuresEqual()` et `colorsEqual()`. Chaque champ numérique wrappé dans `Number()` pour gérer les types string issus du formulaire.
+- **Tests directs sans TestBed** : tous les nouveaux tests instancient les classes directement (`new SbgbComparisonService()`, `new HttpErrorHandlerService()`, `new SbgbEffects(..., new HttpErrorHandlerService())`) pour contourner le problème préexistant `TestBed.initTestEnvironment()`.
+
+---
+
+### Problèmes rencontrés
+
+- **`ImageRequestCmd.LayerConfig` inexistant** : la méthode extraite `toLayerConfig()` utilisait initialement `ImageRequestCmd.LayerConfig` — type inexistant. Le type correct est `ImageRequestCmd.LayerCmd`. Corrigé à la compilation.
+- **Agent de surveillance Bash restreint** : l'agent background de mise à jour du journal n'avait pas accès aux outils d'édition de fichiers (uniquement Bash). Contourné en appliquant les modifications directement depuis le contexte principal.
 
 ---
 
 ## Incrément 4 — Bibliothèque hiérarchique
 
-**Statut** : ⏸ En attente (démarre après merge I2)
+**Statut** : ⏳ À démarrer (CC-I3 mergé via PR #45)
 
 ---
 
 ## Incrément 5 — Cache serveur (performance)
 
-**Statut** : ⏸ En attente (démarre après merge I1)
+**Statut** : ⏸ En attente (démarre après I4)
 
 ---
 
