@@ -13,10 +13,11 @@ Le cycle de versioning est déclenché par la fermeture et la fusion (**merge**)
 
 Le type de montée de version (`major`, `minor`, `patch`) est déterminé selon l'ordre de priorité suivant :
 
-1. **Labels GitHub (Priorité Haute)** : Si vous ajoutez un label à la Pull Request avant de la merger :
-    * Label `major` → `X.0.0`
-    * Label `minor` → `0.X.0`
-    * Label `patch` → `0.0.X`
+1. **Labels GitHub (Priorité Haute)** : Si vous ajoutez un label à la Pull Request avant de la merger. Le workflow est
+   aligné sur les labels standards de GitHub :
+    * **Major** : Label `major` ou `breaking`.
+    * **Minor** : Label `minor`, `enhancement` ou `feature`.
+    * **Patch** : Label `patch`, `bug` ou `fix`.
 2. **Branches de Fix** : Si le nom de la branche source commence par `fix/`, le système applique un `patch` par défaut.
 3. **Défaut (Fallback)** :
     * Merge vers `develop` → `minor` (ex: 1.1.0 → 1.2.0)
@@ -61,13 +62,14 @@ Lorsqu'une PR est fusionnée sur `master` (mise en production) :
 
 1. Travaillez sur vos branches `feature/*` ou `fix/*`.
 2. Ouvrez une PR vers `develop`.
-3. **Posez un label** (`major`, `minor`, `patch`) si vous voulez contrôler précisément la version.
+3. **Posez un label** (ex: `bug` pour un patch, `enhancement` pour une mineure) si vous voulez contrôler précisément la
+   version.
 4. Fusionnez la PR.
 
 ### Pour une Release
 
 1. Ouvrez une PR de `develop` vers `master`.
-2. Si c'est une version majeure (changement cassant), ajoutez le label `major`.
+2. Si c'est une version majeure (changement cassant), ajoutez le label `breaking` ou `major`.
 3. Fusionnez la PR.
 4. Vérifiez que le backend et le frontend affichent bien la nouvelle version (grâce à l'Actuator).
 
