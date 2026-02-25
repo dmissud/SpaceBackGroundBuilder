@@ -97,7 +97,7 @@ Découpe le travail en itération fonctionnelle cohérente.
 
 - Utiliser le **GitFlow** automatisé (voir `WORKFLOW.md` pour les détails et commandes Git)
 - Branches : `master` (stable), `develop` (dev), `feature/*`, `fix/*`
-- Versioning piloté par **Labels GitHub** (`major`, `minor`, `patch`)
+- Versioning piloté par **Labels GitHub** (`major`/`breaking`, `minor`/`enhancement`, `patch`/`bug`)
 - Commit format Angular (`feat:`, `fix:`, `chore:`, `test:`, `refactor:`)
 - Push sur `master` déclenche une synchronisation automatique vers `develop`
 - Utiliser `[skip ci]` pour les commits de montée de version automatisés
