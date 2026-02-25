@@ -4,7 +4,7 @@ import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage} from "../state/sbgb.selectors";
+import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage, selectRenders} from "../state/sbgb.selectors";
 import {Subscription} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
@@ -13,7 +13,7 @@ import {Actions, ofType} from "@ngrx/effects";
 import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {Sbgb} from "../sbgb.model";
+import {NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 
 @Component({
   selector: 'app-sbgb-param',
@@ -59,6 +59,9 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   sbgbSub: Subscription | undefined;
   errorSub: Subscription | undefined;
   saveSuccessSub: Subscription | undefined;
+  rendersSub: Subscription | undefined;
+
+  renders: NoiseCosmeticRenderDto[] = [];
 
   protected _myForm: FormGroup;
   private loadedFromDbSbgb: Sbgb | null = null;
@@ -172,6 +175,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         if (isDifferentImage) {
           this.loadedFromDbSbgb = sbgb;
           this.loadedSbgbId = sbgb.id ?? null;
+          this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: sbgb.id!}));
           this.currentNote = sbgb.note ?? 0;
           this.isBuilt = false;
           this.builtSbgb = null;
@@ -232,6 +236,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.rendersSub = this.store.select(selectRenders).subscribe((renders: NoiseCosmeticRenderDto[]) => {
+      this.renders = renders;
+    });
+
     // Listen to preset changes in SBGB
     this._myForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
       if (preset && preset !== 'CUSTOM') {
@@ -288,18 +296,19 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.infoMessageSub) {
-      this.infoMessageSub.unsubscribe();
-    }
-    if (this.sbgbSub) {
-      this.sbgbSub.unsubscribe();
-    }
-    if (this.errorSub) {
-      this.errorSub.unsubscribe();
-    }
-    if (this.saveSuccessSub) {
-      this.saveSuccessSub.unsubscribe();
-    }
+    this.infoMessageSub?.unsubscribe();
+    this.sbgbSub?.unsubscribe();
+    this.errorSub?.unsubscribe();
+    this.saveSuccessSub?.unsubscribe();
+    this.rendersSub?.unsubscribe();
+  }
+
+  deleteRenderById(renderId: string): void {
+    this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
+  }
+
+  loadRendersForBaseId(baseId: string): void {
+    this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
   describeBase(): string {

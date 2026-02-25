@@ -63,7 +63,7 @@ export interface NoiseCosmeticRenderDto {
   middleThreshold: number;
   interpolationType: string;
   transparentBackground: boolean;
-  thumbnail: number[] | null;
+  thumbnail: string | null;
 }
 
 export interface Sbgb {
