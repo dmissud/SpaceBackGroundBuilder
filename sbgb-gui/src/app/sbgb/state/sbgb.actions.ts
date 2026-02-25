@@ -8,7 +8,9 @@ export const SbgbPageActions = createActionGroup({
     'Rate Sbgb': props<{ sbgb: Sbgb, note: number }>(),
     'Load Sbgbs': emptyProps(),
     'Select Sbgb': props<{ sbgb: Sbgb }>(),
-    'Information': props<{ message: string, build: boolean }>()
+    'Information': props<{ message: string, build: boolean }>(),
+    'Load Renders For Base': props<{ baseId: string }>(),
+    'Delete Render': props<{ renderId: string }>()
   }
 });
 
@@ -20,6 +22,10 @@ export const ImageApiActions = createActionGroup({
     'Images Save Success': props<{ render: NoiseCosmeticRenderDto }>(),
     'Images Save Fail': props<{ message: string }>(),
     'Images Load Success': props<{ bases: NoiseBaseStructureDto[] }>(),
-    'Images Load Fail': props<{ message: string }>()
+    'Images Load Fail': props<{ message: string }>(),
+    'Images Renders Load Success': props<{ renders: NoiseCosmeticRenderDto[] }>(),
+    'Images Renders Load Fail': props<{ message: string }>(),
+    'Images Delete Render Success': props<{ renderId: string }>(),
+    'Images Delete Render Fail': props<{ message: string }>()
   }
 })

@@ -32,3 +32,8 @@ export const selectCurrentSbgb = createSelector(
   selectSbgbState,
   (sbgbState) => sbgbState.sbgb
 );
+
+export const selectRenders = createSelector(
+  selectSbgbState,
+  (sbgbState) => sbgbState.renders
+);

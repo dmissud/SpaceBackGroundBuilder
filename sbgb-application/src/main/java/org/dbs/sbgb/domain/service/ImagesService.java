@@ -20,7 +20,7 @@ import java.util.UUID;
 @UseCase
 @RequiredArgsConstructor
 public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticRenderUseCase,
-        FindNoiseBaseStructuresUseCase, DeleteNoiseCosmeticRenderUseCase {
+        FindNoiseBaseStructuresUseCase, DeleteNoiseCosmeticRenderUseCase, FindNoiseCosmeticRendersUseCase {
 
     private final NoiseBaseStructureRepository baseStructureRepository;
     private final NoiseCosmeticRenderRepository cosmeticRenderRepository;
@@ -49,6 +49,11 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
         return baseStructureRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(NoiseBaseStructure::maxNote).reversed())
                 .toList();
+    }
+
+    @Override
+    public List<NoiseCosmeticRender> findRendersByBaseId(UUID baseId) {
+        return cosmeticRenderRepository.findAllByBaseStructureId(baseId);
     }
 
     @Override
