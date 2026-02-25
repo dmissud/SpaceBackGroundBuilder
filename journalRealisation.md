@@ -105,12 +105,19 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 | 3.5 | RED-GREEN-REFACTOR | `sbgb-param.component` : subscribe `selectRenders`, dispatch `loadRendersForBase` + `deleteRenderById` | ✅ | `feat(ui): integrate renders strip in sbgb-param and shell components` |
 | 3.6 | RED-GREEN-REFACTOR | Dialogue `SbgbStructuralChangeDialogComponent` (Option A vider / Option B ré-appliquer / Annuler) | ✅ | `feat(ui): add SbgbStructuralChangeDialogComponent with three choices` |
 | 3.7 | RED-GREEN-REFACTOR | Bande de vignettes des rendus sauvegardés + corbeille par rendu | ✅ | (inclus dans commit 3.5) |
+| 3.8 | RED-GREEN-REFACTOR | Séparation `baseForm` / `cosmeticForm` : deux sous-groupes distincts dans le FormGroup + template mis à jour | ✅ | `feat(ui): split form into baseForm and cosmeticForm sub-groups (I3 cycle 3.8)` |
+| 3.9 | RED-GREEN-REFACTOR | Détection `baseForm.valueChanges` + snapshot + dialogue + Option A (vider) + Annuler (restaurer snapshot) | ✅ | `feat(ui): detect structural changes and open dialog with clear/cancel options (I3 cycle 3.9)` |
+| 3.10 | RED-GREEN | Option B (ré-appliquer) : dispatch `rateSbgb` pour chaque rendu avec nouveaux params Base + cosmétiques existants | ✅ | `test(ui): add reapply renders spec validating Option B dispatches rateSbgb per render (I3 cycle 3.10)` |
 
 ---
 
 ### Décisions techniques prises
 
 - **`@PathVariable("id")` explicite** : Spring en contexte `@WebMvcTest` ne peut pas résoudre le nom du paramètre par réflexion sans le flag `-parameters`. Nommage explicite requis pour la testabilité.
+- **`baseForm` + `cosmeticForm`** : deux `FormGroup` indépendants, le `_myForm` parent les contient via `new FormGroup({ base: baseForm, cosmetic: cosmeticForm })`. Le template utilise `[formGroup]="baseForm"` et `[formGroup]="cosmeticForm"` sans `<form>` parent.
+- **Snapshot `baseFormSnapshot`** : capturé avant chaque changement via `valueChanges`. Restauré avec `patchValue(snapshot, {emitEvent: false})` pour ne pas déclencher un nouveau dialogue lors de l'annulation.
+- **Option B** : dispatch `rateSbgb` pour chaque rendu avec les params de base courants + cosmétiques du rendu. Utilise le find-or-create backend pour créer la nouvelle base et les rendus associés.
+- **Mock sélecteurs** : identifier les sélecteurs NgRx par identité objet (`selector === selectRenders`) plutôt que par `projector.toString()` (fragile car tous les projectors contiennent `sbgbState`).
 - **`thumbnail` dans `NoiseCosmeticRenderDTO`** : ajouté pour permettre l'affichage des vignettes dans la bande de rendus sauvegardés (`GET /images/bases/{id}/renders`). Le mapper MapStruct le mappe automatiquement depuis le domaine.
 - **`thumbnail` TypeScript** : `byte[]` Java est sérialisé par Jackson en base64 String → type `string | null` dans le modèle TS. Utilisé directement dans `[src]="'data:image/png;base64,' + render.thumbnail"`.
 - **Tests effects sans TestBed** : `SbgbEffects` testé par instanciation directe (`new SbgbEffects(mockService, actions$, null)`) pour contourner le problème `TestBed.initTestEnvironment()` préexistant.
@@ -126,7 +133,9 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
-**Statut final I3** : ✅ **Terminé** — 7 cycles TDD complétés, 6 commits atomiques, 134 tests backend + 14 tests frontend ciblés au vert.
+**Statut final I3** : ✅ **Terminé** — 10 cycles TDD complétés, 11 commits atomiques, 134 tests backend + 21 tests frontend ciblés au vert.
+
+**Objectif atteint** : le formulaire reflète explicitement la distinction Structurant / Cosmétique (`baseForm` / `cosmeticForm`), et le système détecte les changements structurants pour proposer le dialogue (Option A : vider, Option B : ré-appliquer, Annuler : restaurer snapshot).
 
 ---
 
