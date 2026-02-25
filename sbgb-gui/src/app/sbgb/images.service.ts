@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {environment} from "../../environments/environment";
-import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "./sbgb.model";
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb, ActuatorInfo} from "./sbgb.model";
 
 
 @Injectable({
@@ -13,9 +13,14 @@ export class ImagesService {
   private buildApiUrl: string = '/images/build';
   private rateApiUrl: string = '/images/renders/rate';
   private basesApiUrl: string = '/images/bases';
+  private infoApiUrl: string = '/actuator/info';
   appUrl = environment.API_DATA_PROVIDER_URL;
 
   constructor(private http: HttpClient) {
+  }
+
+  getActuatorInfo(): Observable<ActuatorInfo> {
+    return this.http.get<ActuatorInfo>(this.appUrl + this.infoApiUrl);
   }
 
   getBases(): Observable<NoiseBaseStructureDto[]> {
