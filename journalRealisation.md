@@ -133,21 +133,27 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
-**Statut final I3** : ✅ **Terminé** — 10 cycles TDD complétés, 11 commits atomiques, 134 tests backend + 21 tests frontend ciblés au vert.
+**Statut final I3** : ✅ **Terminé et mergé** — 10 cycles TDD complétés, 11 commits atomiques, 134 tests backend + 21 tests frontend ciblés au vert. Mergé sur `develop` via **PR #44**.
 
 **Objectif atteint** : le formulaire reflète explicitement la distinction Structurant / Cosmétique (`baseForm` / `cosmeticForm`), et le système détecte les changements structurants pour proposer le dialogue (Option A : vider, Option B : ré-appliquer, Annuler : restaurer snapshot).
 
 ---
 
+## Revue Clean Code I3
+
+**Fichier** : `clean-code-review-I3.md` (généré après merge PR #44)
+
+---
+
 ## Incrément 4 — Bibliothèque hiérarchique
 
-**Statut** : ⏸ En attente (démarre après merge I3)
+**Statut** : ⏳ À démarrer (I3 mergé via PR #44)
 
 ---
 
 ## Incrément 5 — Cache serveur (performance)
 
-**Statut** : ⏸ En attente (démarre après merge I1)
+**Statut** : ⏸ En attente (démarre après merge I1 — déjà fait)
 
 ---
 
