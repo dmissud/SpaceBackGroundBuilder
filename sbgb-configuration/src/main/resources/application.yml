@@ -37,6 +37,8 @@ management:
   info:
     env:
       enabled: true
+    git:
+      mode: full # Permet d'avoir le SHA complet et les détails du commit
 info:
   app:
     name: SpaceBackGroundBuilder
