@@ -87,13 +87,52 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ## Incrément 3 — Séparation Base / Cosmétique + dialogue de choix
 
-**Statut** : ⏸ En attente (démarre après merge I2)
+**Objectif** : Le formulaire reflète explicitement la distinction Structurant / Cosmétique, et le système détecte les changements structurants pour proposer le dialogue.
+
+**Branche** : `feature/I3-base-cosmetic-split`
+**Statut** : ✅ Terminé
+
+---
+
+### Étapes TDD
+
+| # | Cycle | Périmètre | Statut | Commit |
+|---|-------|-----------|--------|--------|
+| 3.1 | RED-GREEN-REFACTOR | Use case `FindNoiseCosmeticRendersUseCase` (port OUT + impl + test) | ✅ | `feat(domain): add FindNoiseCosmeticRendersUseCase to list renders by base id` |
+| 3.2 | RED-GREEN-REFACTOR | Endpoint `GET /images/bases/{id}/renders` + `thumbnail` dans `NoiseCosmeticRenderDTO` | ✅ | `feat(exposition): add GET /images/bases/{id}/renders endpoint` |
+| 3.3 | RED-GREEN-REFACTOR | NgRx : actions `loadRendersForBase`, `deleteRender` + reducer `renders[]` + selectors | ✅ | `feat(ui): add NgRx actions, reducer and selectors for renders management` |
+| 3.4 | RED-GREEN-REFACTOR | Effect `loadRendersForBase$` + `deleteRender$` + `images.service.ts` update | ✅ | `feat(ui): add loadRendersForBase$ and deleteRender$ effects with service call` |
+| 3.5 | RED-GREEN-REFACTOR | `sbgb-param.component` : subscribe `selectRenders`, dispatch `loadRendersForBase` + `deleteRenderById` | ✅ | `feat(ui): integrate renders strip in sbgb-param and shell components` |
+| 3.6 | RED-GREEN-REFACTOR | Dialogue `SbgbStructuralChangeDialogComponent` (Option A vider / Option B ré-appliquer / Annuler) | ✅ | `feat(ui): add SbgbStructuralChangeDialogComponent with three choices` |
+| 3.7 | RED-GREEN-REFACTOR | Bande de vignettes des rendus sauvegardés + corbeille par rendu | ✅ | (inclus dans commit 3.5) |
+
+---
+
+### Décisions techniques prises
+
+- **`@PathVariable("id")` explicite** : Spring en contexte `@WebMvcTest` ne peut pas résoudre le nom du paramètre par réflexion sans le flag `-parameters`. Nommage explicite requis pour la testabilité.
+- **`thumbnail` dans `NoiseCosmeticRenderDTO`** : ajouté pour permettre l'affichage des vignettes dans la bande de rendus sauvegardés (`GET /images/bases/{id}/renders`). Le mapper MapStruct le mappe automatiquement depuis le domaine.
+- **`thumbnail` TypeScript** : `byte[]` Java est sérialisé par Jackson en base64 String → type `string | null` dans le modèle TS. Utilisé directement dans `[src]="'data:image/png;base64,' + render.thumbnail"`.
+- **Tests effects sans TestBed** : `SbgbEffects` testé par instanciation directe (`new SbgbEffects(mockService, actions$, null)`) pour contourner le problème `TestBed.initTestEnvironment()` préexistant.
+- **Jest component tests** : Tests composants Angular (`sbgb-param.component.spec.ts`, `sbgb-shell.component.spec.ts`) échouent avec "Need to call TestBed.initTestEnvironment() first" — problème de configuration Jest préexistant (`setup-jest.ts` utilise une API dépréciée). Non résolu dans I3 (hors périmètre).
+
+---
+
+### Problèmes rencontrés
+
+- **`@PathVariable` sans nom** : Spring retournait 400 avec "Name for argument of type [UUID] not specified" en test `@WebMvcTest`. Solution : `@PathVariable("id") UUID id`.
+- **Jasmine vs Jest** : Test effects initialement écrit avec `jasmine.SpyObj` — erreur TS2694. Réécriture avec `jest.Mocked<T>` et `jest.fn()`.
+- **Dialogue** : utilisation de `@Optional() @Inject(MAT_DIALOG_DATA)` pour permettre l'instanciation directe dans les tests sans le contexte Material Dialog complet.
+
+---
+
+**Statut final I3** : ✅ **Terminé** — 7 cycles TDD complétés, 6 commits atomiques, 134 tests backend + 14 tests frontend ciblés au vert.
 
 ---
 
 ## Incrément 4 — Bibliothèque hiérarchique
 
-**Statut** : ⏸ En attente (démarre après merge I2)
+**Statut** : ⏸ En attente (démarre après merge I3)
 
 ---
 
