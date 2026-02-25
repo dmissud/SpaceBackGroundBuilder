@@ -50,5 +50,11 @@ jobs:
 
       - name: Push commit and tag
         run: |
-          git push origin ${{ github.event.pull_request.base.ref }}
+          TARGET="${{ github.event.pull_request.base.ref }}"
+          git push origin $TARGET
           git push origin --tags
+          
+          if [[ "$TARGET" == "master" ]]; then
+            echo "Pushing new version to develop branch as well"
+            git push origin HEAD:develop
+          fi
