@@ -3,6 +3,7 @@ import {Actions} from '@ngrx/effects';
 import {SbgbEffects} from './sbgb.effects';
 import {ImageApiActions, SbgbPageActions} from './sbgb.actions';
 import {NoiseCosmeticRenderDto} from '../sbgb.model';
+import {HttpErrorHandlerService} from '../http-error-handler.service';
 
 const aRender = (): NoiseCosmeticRenderDto => ({
   id: 'render-1', baseStructureId: 'base-1', description: 'desc',
@@ -27,7 +28,7 @@ describe('SbgbEffects', () => {
       service.getRendersForBase.mockReturnValue(of(renders));
       const action = SbgbPageActions.loadRendersForBase({baseId: 'base-1'});
       const actions$ = new Actions(of(action));
-      const effects = new SbgbEffects(service as any, actions$, null as any);
+      const effects = new SbgbEffects(service as any, actions$, null as any, new HttpErrorHandlerService());
 
       effects.loadRendersForBase$.subscribe((dispatched: any) => {
         expect(dispatched).toEqual(ImageApiActions.imagesRendersLoadSuccess({renders}));
@@ -40,7 +41,7 @@ describe('SbgbEffects', () => {
       service.getRendersForBase.mockReturnValue(throwError(() => new Error('Network error')));
       const action = SbgbPageActions.loadRendersForBase({baseId: 'base-1'});
       const actions$ = new Actions(of(action));
-      const effects = new SbgbEffects(service as any, actions$, null as any);
+      const effects = new SbgbEffects(service as any, actions$, null as any, new HttpErrorHandlerService());
 
       effects.loadRendersForBase$.subscribe((dispatched: any) => {
         expect(dispatched).toEqual(ImageApiActions.imagesRendersLoadFail({message: 'Network error'}));
@@ -55,7 +56,7 @@ describe('SbgbEffects', () => {
       service.deleteRender.mockReturnValue(of(undefined));
       const action = SbgbPageActions.deleteRender({renderId: 'render-1'});
       const actions$ = new Actions(of(action));
-      const effects = new SbgbEffects(service as any, actions$, null as any);
+      const effects = new SbgbEffects(service as any, actions$, null as any, new HttpErrorHandlerService());
 
       effects.deleteRender$.subscribe((dispatched: any) => {
         expect(dispatched).toEqual(ImageApiActions.imagesDeleteRenderSuccess({renderId: 'render-1'}));
@@ -68,7 +69,7 @@ describe('SbgbEffects', () => {
       service.deleteRender.mockReturnValue(throwError(() => ({message: 'Server error'})));
       const action = SbgbPageActions.deleteRender({renderId: 'render-1'});
       const actions$ = new Actions(of(action));
-      const effects = new SbgbEffects(service as any, actions$, null as any);
+      const effects = new SbgbEffects(service as any, actions$, null as any, new HttpErrorHandlerService());
 
       effects.deleteRender$.subscribe((dispatched: any) => {
         expect(dispatched).toEqual(ImageApiActions.imagesDeleteRenderFail({message: 'Server error'}));
