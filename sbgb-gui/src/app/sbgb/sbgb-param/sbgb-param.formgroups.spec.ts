@@ -1,3 +1,4 @@
+import {SbgbComparisonService} from '../sbgb-comparison.service';
 import {of} from 'rxjs';
 import {SbgbParamComponent} from './sbgb-param.component';
 
@@ -16,7 +17,7 @@ describe('SbgbParamComponent — baseForm / cosmeticForm split', () => {
     mockSnackBar = {open: jest.fn()};
     mockDialog = {open: jest.fn()};
     const mockActions$ = {pipe: jest.fn().mockReturnValue(of())};
-    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog);
+    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog, new SbgbComparisonService());
   });
 
   afterEach(() => {

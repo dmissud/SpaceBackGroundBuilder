@@ -1,3 +1,4 @@
+import {SbgbComparisonService} from '../sbgb-comparison.service';
 import {of, Subject} from 'rxjs';
 import {SbgbParamComponent} from './sbgb-param.component';
 import {SbgbPageActions} from '../state/sbgb.actions';
@@ -38,7 +39,7 @@ describe('SbgbParamComponent — structural change detection', () => {
       open: jest.fn().mockReturnValue({afterClosed: () => dialogAfterClosed$.asObservable()})
     };
     const mockActions$ = {pipe: jest.fn().mockReturnValue(of())};
-    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog);
+    component = new SbgbParamComponent(mockSnackBar, mockStore, mockActions$ as any, mockDialog, new SbgbComparisonService());
     component.ngOnInit();
   });
 

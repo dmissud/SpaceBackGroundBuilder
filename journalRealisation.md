@@ -145,15 +145,51 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
+## Corrections Clean Code I3
+
+**Branche** : `feature/CC-I3-clean-code`
+**Objectif** : Corriger les violations identifiées dans `clean-code-review-I3.md`
+
+### Corrections planifiées
+
+| # | Violation | Fichier | Statut |
+|---|-----------|---------|--------|
+| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | ✅ Terminé (commit e3f18ef) |
+| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
+| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ✅ Terminé (commit 365f3ab) |
+| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ✅ Terminé (commit e99f2af) |
+
+**Statut final CC-I3 : ✅ Terminé — 5 corrections, 5 commits, 22 tests ajoutés (17 frontend + 5 service). Mergé via PR #45.**
+
+---
+
+### Décisions techniques prises
+
+- **`HttpErrorHandlerService`** : service `providedIn: 'root'` avec chaîne de fallback `error?.error?.message || error?.message || error?.statusText || 'An unknown error occurred'`. Couvre les erreurs HTTP Spring (champ `error.message`), les erreurs réseau Angular (`message`) et les statuts HTTP bruts (`statusText`).
+- **`takeUntil(destroy$)`** : `Subject<void>` complété dans `ngOnDestroy()`. Remplace 5 variables `Subscription` et les unsubscriptions manuelles. Couvre toutes les souscriptions du constructeur ET de `ngOnInit`.
+- **`extractLayerConfig(index, name)`** : helper privé capturant l'index via closure sur `_myForm.get(layer${index}_${field})`. Réduit `extractLayersFromForm()` de 39 à 5 lignes.
+- **`SbgbComparisonService`** : service injectable décomposant `isModified()` en `structuresEqual()` et `colorsEqual()`. Chaque champ numérique wrappé dans `Number()` pour gérer les types string issus du formulaire.
+- **Tests directs sans TestBed** : tous les nouveaux tests instancient les classes directement (`new SbgbComparisonService()`, `new HttpErrorHandlerService()`, `new SbgbEffects(..., new HttpErrorHandlerService())`) pour contourner le problème préexistant `TestBed.initTestEnvironment()`.
+
+---
+
+### Problèmes rencontrés
+
+- **`ImageRequestCmd.LayerConfig` inexistant** : la méthode extraite `toLayerConfig()` utilisait initialement `ImageRequestCmd.LayerConfig` — type inexistant. Le type correct est `ImageRequestCmd.LayerCmd`. Corrigé à la compilation.
+- **Agent de surveillance Bash restreint** : l'agent background de mise à jour du journal n'avait pas accès aux outils d'édition de fichiers (uniquement Bash). Contourné en appliquant les modifications directement depuis le contexte principal.
+
+---
+
 ## Incrément 4 — Bibliothèque hiérarchique
 
-**Statut** : ⏳ À démarrer (I3 mergé via PR #44)
+**Statut** : ⏳ À démarrer (CC-I3 mergé via PR #45)
 
 ---
 
 ## Incrément 5 — Cache serveur (performance)
 
-**Statut** : ⏸ En attente (démarre après merge I1 — déjà fait)
+**Statut** : ⏸ En attente (démarre après I4)
 
 ---
 
