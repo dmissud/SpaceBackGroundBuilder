@@ -95,12 +95,12 @@ Découpe le travail en itération fonctionnelle cohérente.
 
 ## Git
 
-- Utiliser le gitflow
-- Commence toujours par une nouvelle branche feature
-- Ajoute les fichiers modifies ou cree au repo git
-- Commit avec un message clair et descriptif
-- Push regulierement sur la branche de travail
-- Utiliser des commits avec le format angular
+- Utiliser le **GitFlow** automatisé (voir `WORKFLOW.md` pour les détails et commandes Git)
+- Branches : `master` (stable), `develop` (dev), `feature/*`, `fix/*`
+- Versioning piloté par **Labels GitHub** (`major`/`breaking`, `minor`/`enhancement`, `patch`/`bug`)
+- Commit format Angular (`feat:`, `fix:`, `chore:`, `test:`, `refactor:`)
+- Push sur `master` déclenche une synchronisation automatique vers `develop`
+- Utiliser `[skip ci]` pour les commits de montée de version automatisés
 
 ---
 
