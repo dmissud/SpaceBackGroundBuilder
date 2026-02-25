@@ -14,6 +14,7 @@ import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialog} from "@angular/material/dialog";
+import {SbgbStructuralChangeDialogComponent, StructuralChangeChoice} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
 import {NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 
 @Component({
@@ -67,6 +68,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   baseForm: FormGroup;
   cosmeticForm: FormGroup;
   protected _myForm: FormGroup;
+  private baseFormSnapshot: any = null;
   private loadedFromDbSbgb: Sbgb | null = null;
   private builtSbgb: Sbgb | null = null;
   protected isModifiedSinceBuild: boolean = true;
@@ -250,6 +252,28 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       this.renders = renders;
     });
 
+    this.baseFormSnapshot = this.baseForm.value;
+    this.baseForm.valueChanges.subscribe(newValue => {
+      if (this.renders.length > 0) {
+        const snapshot = this.baseFormSnapshot;
+        this.baseFormSnapshot = newValue;
+        this.dialog.open(SbgbStructuralChangeDialogComponent, {
+          data: {rendersCount: this.renders.length}
+        }).afterClosed().subscribe((choice: StructuralChangeChoice | undefined) => {
+          if (choice === StructuralChangeChoice.CLEAR) {
+            this.renders.forEach(r => this.store.dispatch(SbgbPageActions.deleteRender({renderId: r.id})));
+          } else if (choice === StructuralChangeChoice.REAPPLY) {
+            this.reapplyRendersWithNewBase();
+          } else {
+            this.baseFormSnapshot = snapshot;
+            this.baseForm.patchValue(snapshot, {emitEvent: false});
+          }
+        });
+      } else {
+        this.baseFormSnapshot = newValue;
+      }
+    });
+
     this.baseForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.subscribe(preset => {
       if (preset && preset !== 'CUSTOM') {
         this.applySbgbPreset(preset);
@@ -306,6 +330,25 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.errorSub?.unsubscribe();
     this.saveSuccessSub?.unsubscribe();
     this.rendersSub?.unsubscribe();
+  }
+
+  reapplyRendersWithNewBase(): void {
+    const currentSbgb = this.getSbgbFromForm();
+    this.renders.forEach(render => {
+      const sbgbWithRenderCosmetic: Sbgb = {
+        ...currentSbgb,
+        imageColor: {
+          back: render.back,
+          middle: render.middle,
+          fore: render.fore,
+          backThreshold: render.backThreshold,
+          middleThreshold: render.middleThreshold,
+          interpolationType: render.interpolationType,
+          transparentBackground: render.transparentBackground
+        }
+      };
+      this.store.dispatch(SbgbPageActions.rateSbgb({sbgb: sbgbWithRenderCosmetic, note: render.note}));
+    });
   }
 
   deleteRenderById(renderId: string): void {
