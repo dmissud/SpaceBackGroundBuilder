@@ -375,6 +375,8 @@ Ce projet est sous licence propriétaire. Tous droits réservés.
 ## 🤝 Contribution
 
 Ce projet suit les principes TDD, BDD, DDD et Clean Code.
+Le workflow de versioning est automatisé (GitFlow + Labels GitHub). Pour plus de détails, consultez le document [*
+*WORKFLOW.md**](WORKFLOW.md).
 
 Pour contribuer :
 1. Fork le projet
