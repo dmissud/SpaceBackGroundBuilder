@@ -1,10 +1,11 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
 import {ImageApiActions, SbgbPageActions} from './sbgb.actions';
-import {NoiseBaseStructureDto, Sbgb} from "../sbgb.model";
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 
 export interface SbgbState {
   sbgb: Sbgb | null;
   bases: NoiseBaseStructureDto[];
+  renders: NoiseCosmeticRenderDto[];
   image: string | ArrayBuffer | null;
   building: boolean;
   infoMessage: string,
@@ -14,6 +15,7 @@ export interface SbgbState {
 export const initialState: SbgbState = {
   sbgb: null,
   bases: [],
+  renders: [],
   image: null,
   building: false,
   infoMessage: '',
@@ -58,6 +60,16 @@ export const sbgbsFeature = createFeature({
       (state, {sbgb}) => ({
         ...state,
         sbgb: sbgb
+      })),
+    on(ImageApiActions.imagesRendersLoadSuccess,
+      (state, {renders}) => ({
+        ...state,
+        renders: renders
+      })),
+    on(ImageApiActions.imagesDeleteRenderSuccess,
+      (state, {renderId}) => ({
+        ...state,
+        renders: state.renders.filter(r => r.id !== renderId)
       }))
   )
 });
