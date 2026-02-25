@@ -157,6 +157,23 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
+## Corrections Clean Code I3
+
+**Branche** : `feature/CC-I3-clean-code`
+**Objectif** : Corriger les violations identifiées dans `clean-code-review-I3.md`
+
+### Corrections planifiées
+
+| # | Violation | Fichier | Statut |
+|---|-----------|---------|--------|
+| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | 🔄 En cours |
+| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ⏳ À faire |
+| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ⏳ À faire |
+| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ⏳ À faire |
+| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ⏳ À faire |
+
+---
+
 ## Légende
 - ✅ Terminé
 - 🔄 En cours
