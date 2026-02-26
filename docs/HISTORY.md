@@ -1,13 +1,16 @@
-# Journal de Réalisation — Nouveau Flux de Travail Ciel Étoilé
+# Historique des Réalisations et Refactorings
 
-## Références
-- Spec fonctionnelle : `ImproveFluxWorkfow.md`
-- Plan d'implémentation : `planImplementationFlux.md`
-- Branche de travail : `feature/I1-new-data-model`
+Ce document compile l'historique du projet, incluant le journal de réalisation des nouvelles fonctionnalités et le suivi des refactorings Clean Code.
+
+## 1. Journal de Réalisation — Nouveau Flux de Travail Ciel Étoilé
+
+### Références
+- Spec fonctionnelle : `docs/sbgb-cmd-workflow-spec.md`
+- Plan d'implémentation : `docs/sbgb-cmd-workflow-plan.md`
 
 ---
 
-## Incrément 1 — Fondations : nouveau modèle de données + sauvegarde par notation
+### Incrément 1 — Fondations : nouveau modèle de données + sauvegarde par notation
 
 **Objectif** : Remplacer `noise_image` (table plate) par `noise_base_structure` (1) + `noise_cosmetic_render` (N).
 Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `UpdateNoiseImageNoteUseCase`.
@@ -15,9 +18,7 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 **Branche** : `feature/I1-new-data-model`
 **Statut** : ✅ Terminé
 
----
-
-### Étapes TDD
+#### Étapes TDD
 
 | # | Cycle | Périmètre | Statut | Commit |
 |---|-------|-----------|--------|--------|
@@ -30,10 +31,7 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 | 1.7 | RED-GREEN-REFACTOR | Controller REST (`POST /images/build`, `POST /images/renders/rate`, `GET /images/bases`, `DELETE /images/renders/{id}`) | ✅ | `feat(exposition): rewrite ImageResource with new noise workflow endpoints` |
 | 1.8 | RED-GREEN-REFACTOR | Frontend NgRx : actions, reducer, effects, selectors, composants adaptés | ✅ | `feat(ui): adapt NgRx state and components to new noise workflow API` |
 
----
-
-### Décisions techniques prises
-
+#### Décisions techniques prises
 - **`configHash()` et `cosmeticHash()`** : calculés via `Objects.hash()` sur tous les champs structurants/cosmétiques. Utilisés comme colonne UNIQUE en base pour le find-or-create.
 - **Thumbnail 200×200** : générée lors du `rate()` dans `ImagesService` (appel interne à `buildNoiseImage` avec dimensions réduites).
 - **MapStruct — conflit de noms de beans** : les mappers `sbgb-infrastructure` et `sbgb-exposition` généraient des beans du même nom. Résolu avec `implementationName = "NoiseBaseStructureDTOMapperImpl"` / `"NoiseCosmeticRenderDTOMapperImpl"` dans les mappers d'exposition.
@@ -43,58 +41,36 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
-### Problèmes rencontrés
-
-- **Conflit de bean MapStruct** au démarrage Spring : deux modules Maven généraient `noiseBaseStructureMapperImpl` et `noiseCosmeticRenderMapperImpl`. Résolu par `implementationName` dans l'annotation `@Mapper` côté exposition.
-- **`@Mapping(target = "thumbnail", ignore = true)`** : annotation en trop dans `NoiseCosmeticRenderMapper` (exposition) car le DTO n'a pas de champ thumbnail — supprimée.
-- **Frontend — méthodes obsolètes** : `getImages()`, `saveImage()`, `updateNote()` supprimées du service ; tous les consommateurs NgRx (effects, reducers, composants) mis à jour en conséquence.
-
----
-
-## Incrément 2 — Layout générateur : accordéon + notation à côté de l'aperçu
+### Incrément 2 — Layout générateur : accordéon + notation à côté de l'aperçu
 
 **Objectif** : Refonte visuelle du panneau générateur sans toucher au backend.
 
 **Branche** : `feature/I2-generator-layout`
 **Statut** : ✅ Terminé
 
----
-
-### Étapes TDD
+#### Étapes TDD
 
 | # | Cycle | Périmètre | Statut | Commit |
 |---|-------|-----------|--------|--------|
 | 2.1 | RED-GREEN | `describeBase()` et `describeCosmetic()` dans `SbgbParamComponent` | ✅ | `9c7c0a8` |
-| 2.2 | RED-GREEN | Accordéon `mat-expansion-panel` + layout 2 colonnes (Base &#124; Cosmétique) | ✅ | `72ae5b6` |
+| 2.2 | RED-GREEN | Accordéon `mat-expansion-panel` + layout 2 colonnes (Base | Cosmétique) | ✅ | `72ae5b6` |
 | 2.3 | RED-GREEN | Notation déplacée à droite de l'aperçu (`image-rating-container` flex-row) | ✅ | `296d125` |
 
----
-
-### Décisions techniques prises
-
+#### Décisions techniques prises
 - **Accordéon ouvert par défaut** (`[expanded]="true"`) pour ne pas cacher les paramètres au premier chargement.
 - **Grid CSS 2 colonnes** (`grid-template-columns: 1fr 1fr`) dans le formulaire plutôt qu'un flex-wrap : meilleure consistance visuelle.
 - **Notation dans `#imageContent`** plutôt que dans `#actionBarContent` : permet le layout flex-row image/étoiles sans modifier `GeneratorShellComponent`.
 
 ---
 
-### Problèmes rencontrés
-
-- **jest.config.js** : configuration `globalSetup` obsolète supprimée, `setup-jest.ts` migré vers `jest-preset-angular` v16.
-- **Tests saveImage** : anciens tests du spec `sbgb-param` référençaient `SbgbPageActions.saveSbgb` et `imagesSaveFail` supprimés en I1 — supprimés du spec.
-
----
-
-## Incrément 3 — Séparation Base / Cosmétique + dialogue de choix
+### Incrément 3 — Séparation Base / Cosmétique + dialogue de choix
 
 **Objectif** : Le formulaire reflète explicitement la distinction Structurant / Cosmétique, et le système détecte les changements structurants pour proposer le dialogue.
 
 **Branche** : `feature/I3-base-cosmetic-split`
 **Statut** : ✅ Terminé
 
----
-
-### Étapes TDD
+#### Étapes TDD
 
 | # | Cycle | Périmètre | Statut | Commit |
 |---|-------|-----------|--------|--------|
@@ -109,93 +85,54 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 | 3.9 | RED-GREEN-REFACTOR | Détection `baseForm.valueChanges` + snapshot + dialogue + Option A (vider) + Annuler (restaurer snapshot) | ✅ | `feat(ui): detect structural changes and open dialog with clear/cancel options (I3 cycle 3.9)` |
 | 3.10 | RED-GREEN | Option B (ré-appliquer) : dispatch `rateSbgb` pour chaque rendu avec nouveaux params Base + cosmétiques existants | ✅ | `test(ui): add reapply renders spec validating Option B dispatches rateSbgb per render (I3 cycle 3.10)` |
 
----
-
-### Décisions techniques prises
-
+#### Décisions techniques prises
 - **`@PathVariable("id")` explicite** : Spring en contexte `@WebMvcTest` ne peut pas résoudre le nom du paramètre par réflexion sans le flag `-parameters`. Nommage explicite requis pour la testabilité.
 - **`baseForm` + `cosmeticForm`** : deux `FormGroup` indépendants, le `_myForm` parent les contient via `new FormGroup({ base: baseForm, cosmetic: cosmeticForm })`. Le template utilise `[formGroup]="baseForm"` et `[formGroup]="cosmeticForm"` sans `<form>` parent.
 - **Snapshot `baseFormSnapshot`** : capturé avant chaque changement via `valueChanges`. Restauré avec `patchValue(snapshot, {emitEvent: false})` pour ne pas déclencher un nouveau dialogue lors de l'annulation.
 - **Option B** : dispatch `rateSbgb` pour chaque rendu avec les params de base courants + cosmétiques du rendu. Utilise le find-or-create backend pour créer la nouvelle base et les rendus associés.
-- **Mock sélecteurs** : identifier les sélecteurs NgRx par identité objet (`selector === selectRenders`) plutôt que par `projector.toString()` (fragile car tous les projectors contiennent `sbgbState`).
 - **`thumbnail` dans `NoiseCosmeticRenderDTO`** : ajouté pour permettre l'affichage des vignettes dans la bande de rendus sauvegardés (`GET /images/bases/{id}/renders`). Le mapper MapStruct le mappe automatiquement depuis le domaine.
 - **`thumbnail` TypeScript** : `byte[]` Java est sérialisé par Jackson en base64 String → type `string | null` dans le modèle TS. Utilisé directement dans `[src]="'data:image/png;base64,' + render.thumbnail"`.
-- **Tests effects sans TestBed** : `SbgbEffects` testé par instanciation directe (`new SbgbEffects(mockService, actions$, null)`) pour contourner le problème `TestBed.initTestEnvironment()` préexistant.
-- **Jest component tests** : Tests composants Angular (`sbgb-param.component.spec.ts`, `sbgb-shell.component.spec.ts`) échouent avec "Need to call TestBed.initTestEnvironment() first" — problème de configuration Jest préexistant (`setup-jest.ts` utilise une API dépréciée). Non résolu dans I3 (hors périmètre).
 
 ---
 
-### Problèmes rencontrés
+## 2. Plan d'amélioration Clean Code (Historique)
 
-- **`@PathVariable` sans nom** : Spring retournait 400 avec "Name for argument of type [UUID] not specified" en test `@WebMvcTest`. Solution : `@PathVariable("id") UUID id`.
-- **Jasmine vs Jest** : Test effects initialement écrit avec `jasmine.SpyObj` — erreur TS2694. Réécriture avec `jest.Mocked<T>` et `jest.fn()`.
-- **Dialogue** : utilisation de `@Optional() @Inject(MAT_DIALOG_DATA)` pour permettre l'instanciation directe dans les tests sans le contexte Material Dialog complet.
+### Refactorings terminés
 
----
+#### ✅ 1. NoiseGeneratorFactory + StarFieldApplicator
+Extraction de la logique de creation de noise generator et d'application du star field.
+- `NoiseGeneratorFactory` : gestion Perlin vs MultiLayer
+- `StarFieldApplicator` : application independante du champ d'etoiles
+- `GalaxyImageCalculator.create()` : 76 lignes → 15 lignes
 
-**Statut final I3** : ✅ **Terminé et mergé** — 10 cycles TDD complétés, 11 commits atomiques, 134 tests backend + 21 tests frontend ciblés au vert. Mergé sur `develop` via **PR #44**.
+#### ✅ 2. Strategy Pattern pour eliminer duplication
+Remplacement du switch de 70 lignes par delegation a `GalaxyGeneratorFactory`.
+- `GalaxyImageCalculator.createIntensityCalculator()` : 70 lignes → 10 lignes
+- Suppression du pattern repetitif `param != null ? param : default`
 
-**Objectif atteint** : le formulaire reflète explicitement la distinction Structurant / Cosmétique (`baseForm` / `cosmeticForm`), et le système détecte les changements structurants pour proposer le dialogue (Option A : vider, Option B : ré-appliquer, Annuler : restaurer snapshot).
+#### ✅ 3. Extraction des Magic Numbers
+Creation de 3 classes de constantes metier :
+- `NoiseModulationConstants` : base/range pour chaque type de galaxie
+- `RadialFalloffConstants` : exposants de falloff et denominateurs Gaussiens
+- `CoreIntensityConstants` : luminosite du noyau et poids pour irregular
+- 5 generators mis a jour (Spiral, Voronoi, Elliptical, Ring, Irregular)
 
----
+#### ✅ 4. ImageSerializer extraction
+Extraction de la serialisation d'images en composant dedie :
+- `@Component ImageSerializer` avec `toByteArray(BufferedImage, String format)`
+- `GalaxyService` injecte et utilise `ImageSerializer`
+- Suppression de `convertToByteArray()` de GalaxyService
 
-## Revue Clean Code I3
+#### ✅ 5. Decomposition GalaxyParameters en Value Objects
+Refactoring complet de GalaxyParameters en 5 phases :
+- **Phase 1** : Creation de 10 Value Objects
+- **Phase 2** : Migration de 14 factory methods
+- **Phase 3** : Migration de 5 generators + 5 strategies
+- **Phase 4** : Suppression de 63 champs legacy de GalaxyParameters
+- **Phase 5** : Suppression de 20+ methodes de compatibilite
 
-**Fichier** : `clean-code-review-I3.md` (généré après merge PR #44)
-
----
-
-## Corrections Clean Code I3
-
-**Branche** : `feature/CC-I3-clean-code`
-**Objectif** : Corriger les violations identifiées dans `clean-code-review-I3.md`
-
-### Corrections planifiées
-
-| # | Violation | Fichier | Statut |
-|---|-----------|---------|--------|
-| CC-1 | V4.1/V4.3 — Supprimer console.log + uniformiser catchError | `sbgb.effects.ts` | ✅ Terminé (commit e3f18ef) |
-| CC-2 | V1.5/V1.6 — Subscription leaks → takeUntil(destroy$) | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
-| CC-3 | V1.3 — DRY extractLayersFromForm() → extractLayerConfig() | `sbgb-param.component.ts` | ✅ Terminé (commit 00e9e5a) |
-| CC-4 | V7.2/V7.4 — DRY Java : toLayerConfig() + updateWithNewNote() + createNewRender() | `ImagesService.java` | ✅ Terminé (commit 365f3ab) |
-| CC-5 | V1.7 — Extraire SbgbComparisonService | `sbgb-param.component.ts` | ✅ Terminé (commit e99f2af) |
-
-**Statut final CC-I3 : ✅ Terminé — 5 corrections, 5 commits, 22 tests ajoutés (17 frontend + 5 service). Mergé via PR #45.**
-
----
-
-### Décisions techniques prises
-
-- **`HttpErrorHandlerService`** : service `providedIn: 'root'` avec chaîne de fallback `error?.error?.message || error?.message || error?.statusText || 'An unknown error occurred'`. Couvre les erreurs HTTP Spring (champ `error.message`), les erreurs réseau Angular (`message`) et les statuts HTTP bruts (`statusText`).
-- **`takeUntil(destroy$)`** : `Subject<void>` complété dans `ngOnDestroy()`. Remplace 5 variables `Subscription` et les unsubscriptions manuelles. Couvre toutes les souscriptions du constructeur ET de `ngOnInit`.
-- **`extractLayerConfig(index, name)`** : helper privé capturant l'index via closure sur `_myForm.get(layer${index}_${field})`. Réduit `extractLayersFromForm()` de 39 à 5 lignes.
-- **`SbgbComparisonService`** : service injectable décomposant `isModified()` en `structuresEqual()` et `colorsEqual()`. Chaque champ numérique wrappé dans `Number()` pour gérer les types string issus du formulaire.
-- **Tests directs sans TestBed** : tous les nouveaux tests instancient les classes directement (`new SbgbComparisonService()`, `new HttpErrorHandlerService()`, `new SbgbEffects(..., new HttpErrorHandlerService())`) pour contourner le problème préexistant `TestBed.initTestEnvironment()`.
-
----
-
-### Problèmes rencontrés
-
-- **`ImageRequestCmd.LayerConfig` inexistant** : la méthode extraite `toLayerConfig()` utilisait initialement `ImageRequestCmd.LayerConfig` — type inexistant. Le type correct est `ImageRequestCmd.LayerCmd`. Corrigé à la compilation.
-- **Agent de surveillance Bash restreint** : l'agent background de mise à jour du journal n'avait pas accès aux outils d'édition de fichiers (uniquement Bash). Contourné en appliquant les modifications directement depuis le contexte principal.
-
----
-
-## Incrément 4 — Bibliothèque hiérarchique
-
-**Statut** : ⏳ À démarrer (CC-I3 mergé via PR #45)
-
----
-
-## Incrément 5 — Cache serveur (performance)
-
-**Statut** : ⏸ En attente (démarre après I4)
-
----
-
-## Légende
-- ✅ Terminé
-- 🔄 En cours
-- ⏳ À faire (dans l'incrément courant)
-- ⏸ En attente
-- ❌ Bloqué
+#### ✅ 6. Simplification GalaxyService + Renaming + Validation
+- Creation de `GalaxyImageDuplicationHandler`
+- Ajout de `GalaxyImageBuilder` inner class dans `GalaxyImage`
+- Renommage : `GalaxyImageCalculator` → `GalaxyImageRenderer`, `buildImage()` → `renderPixels()`
+- Creation de `GalaxyParametersValidator`
