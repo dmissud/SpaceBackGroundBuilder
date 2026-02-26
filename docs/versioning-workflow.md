@@ -1,260 +1,132 @@
-# Workflow de Gestion de Version
+# Workflow de Versioning Automatisé
 
-## Vue d'ensemble
+Ce projet utilise un workflow GitFlow simplifié et automatisé par GitHub Actions (`bump-version.yml`). Ce système gère
+l'incrémentation des versions (Maven & npm), la création de tags et la synchronisation entre les branches `master` et
+`develop`.
 
-Le projet utilise un système de versioning automatique basé sur **Semantic Versioning** (MAJOR.MINOR.PATCH) avec GitHub Actions.
+## 🚀 Fonctionnement général
 
-## Branches
+Le cycle de versioning est déclenché par la fermeture et la fusion (**merge**) d'une Pull Request (PR) vers les branches
+`develop` ou `master`.
 
-- **`develop`** : branche de développement (défaut)
-- **`master`** : branche de production stable
-- **`feature/*`** : branches de fonctionnalités
-- **`fix/*`** : branches de corrections
-- **`release/*`** : branches de release temporaires
+### 1. Stratégie de montée de version (Bump Type)
 
-## Règles de Bump
+Le type de montée de version (`major`, `minor`, `patch`) est déterminé selon l'ordre de priorité suivant :
 
-Le workflow `.github/workflows/bump-version.yml` s'exécute automatiquement lors de la **fermeture d'une Pull Request mergée** :
+1. **Labels GitHub (Priorité Haute)** : Si vous ajoutez un label à la Pull Request avant de la merger. Le workflow est
+   aligné sur les labels standards de GitHub :
+    * **Major** : Label `major` ou `breaking`.
+    * **Minor** : Label `minor`, `enhancement` ou `feature`.
+    * **Patch** : Label `patch`, `bug` ou `fix`.
+2. **Branches de Fix** : Si le nom de la branche source commence par `fix/`, le système applique un `patch` par défaut.
+3. **Défaut (Fallback)** :
+    * Merge vers `develop` → `minor` (ex: 1.1.0 → 1.2.0)
+    * Merge vers `master` → `minor` (ex: 1.1.0 → 1.2.0)
 
-| Type de merge | Source → Target | Bump | Exemple |
-|---------------|-----------------|------|---------|
-| **MAJOR** | `release/*` → `master` | +1.0.0 | 0.6.0 → 1.0.0 |
-| **MINOR** | `feature/*` → `develop` | +0.1.0 | 1.0.0 → 1.1.0 |
-| **PATCH** | `fix/*` → `develop` | +0.0.1 | 1.1.0 → 1.1.1 |
+### 2. Synchronisation automatique (Back-merge)
 
-### Logique du workflow
+Lorsqu'une PR est fusionnée sur `master` (mise en production) :
+
+1. La version est incrémentée sur `master`.
+2. Un commit de version et un tag sont créés sur `master`.
+3. **Automatique** : Les modifications de `master` sont immédiatement fusionnées dans `develop` pour garantir que les
+   deux branches partagent le même numéro de version officiel et les mêmes tags.
+
+---
+
+## 📖 Exemples concrets
+
+### Scénario A : Ajout d'une nouvelle fonctionnalité sur `develop`
+
+* **Action** : Vous créez une branche `feature/nouvelle-galerie`, vous travaillez et ouvrez une PR vers `develop`.
+* **Cas 1 (Pas de label)** : Merge de la PR → Passage de `1.1.0` à **`1.2.0`**.
+* **Cas 2 (Label `patch`)** : Si c'est un petit ajout cosmétique → Passage de `1.1.0` à **`1.1.1`**.
+
+### Scénario B : Correction d'un bug urgent sur `develop`
+
+* **Action** : Création d'une branche `fix/bug-affichage`, PR vers `develop`.
+* **Résultat** : Merge de la PR → Détection automatique du préfixe `fix/` → Passage de `1.1.1` à **`1.1.2`**.
+
+### Scénario C : Mise en production (Release)
+
+* **Situation actuelle** : `develop` est en `1.2.0`, `master` est en `1.1.0`.
+* **Action** : PR de `develop` vers `master`.
+* **Merge** : Passage de `master` à **`1.2.0`** (ou `1.3.0` selon les changements).
+* **Back-merge** : `develop` reçoit les changements de `master`, elle passe également en **`1.2.0`**.
+
+---
+
+## 🛠️ Guide d'utilisation pour Daniel
+
+### Au quotidien (Développement)
+
+1. Travaillez sur vos branches `feature/*` ou `fix/*`.
+2. Ouvrez une PR vers `develop`.
+3. **Posez un label** (ex: `bug` pour un patch, `enhancement` pour une mineure) si vous voulez contrôler précisément la
+   version.
+4. Fusionnez la PR.
+
+### Pour une Release
+
+1. Ouvrez une PR de `develop` vers `master`.
+2. Si c'est une version majeure (changement cassant), ajoutez le label `breaking` ou `major`.
+3. Fusionnez la PR.
+4. Vérifiez que le backend et le frontend affichent bien la nouvelle version (grâce à l'Actuator).
+
+## ⌨️ Commandes Git types
+
+### 1. Ajouter une fonctionnalité (Feature)
 
 ```bash
-if [[ "$SOURCE" == fix/* ]]; then
-  # PATCH bump
-elif [[ "$TARGET" == "master" ]]; then
-  # MAJOR bump (indépendamment de la source)
-else
-  # MINOR bump (tout le reste vers develop)
-fi
-```
-
-## Flux de Release (MAJOR bump)
-
-### 1. Créer une branche release depuis master
-
-```bash
-git checkout master
-git pull
-git checkout -b release/v1.0.0
-git merge develop --no-ff -m "chore: prepare release v1.0.0"
-git push -u origin release/v1.0.0
-```
-
-### 2. Créer une PR vers master
-
-```bash
-gh pr create \
-  --base master \
-  --head release/v1.0.0 \
-  --title "Release v1.0.0" \
-  --body "Merge develop into master for MAJOR release"
-```
-
-### 3. Merger la PR
-
-Lorsque la PR est mergée :
-1. GitHub Actions détecte le merge vers `master`
-2. Le workflow `bump-version.yml` s'exécute
-3. Le script `scripts/bump-version.sh major` :
-   - Bump `VERSION` file (0.6.0 → 1.0.0)
-   - Bump tous les `pom.xml` Maven
-   - Bump `sbgb-gui/package.json` Angular
-   - Crée un commit `chore(version): bump to 1.0.0 [skip ci]`
-   - Crée un tag `v1.0.0`
-   - Push vers `master`
-
-### 4. Sync master → develop
-
-**IMPORTANT** : Après le bump sur master, synchroniser develop :
-
-```bash
+# Se mettre sur develop et récupérer le dernier état
 git checkout develop
-git pull
-git merge master --no-ff -m "chore: sync master v1.0.0 into develop"
-git push
-```
+git pull origin develop
 
-## Flux de Développement (MINOR bump)
+# Créer une branche feature
+git checkout -b feature/nom-de-ma-feature
 
-### 1. Créer une feature branch depuis develop
-
-```bash
-git checkout develop
-git pull
-git checkout -b feature/my-awesome-feature
-# ... développement ...
-git commit -m "feat: add awesome feature"
-git push -u origin feature/my-awesome-feature
-```
-
-### 2. Créer une PR vers develop
-
-```bash
-gh pr create \
-  --base develop \
-  --head feature/my-awesome-feature \
-  --title "Add awesome feature"
-```
-
-### 3. Merger la PR
-
-Lorsque la PR est mergée :
-1. Workflow `bump-version.yml` détecte le merge vers `develop`
-2. Bump MINOR : 1.0.0 → 1.1.0
-3. Commit + tag automatiques sur `develop`
-
-## Flux de Correction (PATCH bump)
-
-### 1. Créer une fix branch depuis develop
-
-```bash
-git checkout develop
-git pull
-git checkout -b fix/critical-bug
-# ... correction ...
-git commit -m "fix: resolve critical bug"
-git push -u origin fix/critical-bug
-```
-
-### 2. Créer une PR vers develop
-
-```bash
-gh pr create \
-  --base develop \
-  --head fix/critical-bug \
-  --title "Fix critical bug"
-```
-
-### 3. Merger la PR
-
-Lorsque la PR est mergée :
-1. Workflow détecte `fix/*` pattern
-2. Bump PATCH : 1.1.0 → 1.1.1
-3. Commit + tag automatiques sur `develop`
-
-## Hotfix sur master (cas exceptionnel)
-
-Si un hotfix doit être appliqué directement sur master :
-
-```bash
-# 1. Créer fix branch depuis master
-git checkout master
-git pull
-git checkout -b fix/hotfix-prod
-# ... correction ...
-git commit -m "fix: hotfix production issue"
-git push -u origin fix/hotfix-prod
-
-# 2. PR vers master (bump MAJOR car target=master)
-gh pr create --base master --head fix/hotfix-prod
-
-# 3. Après merge, sync vers develop
-git checkout develop
-git merge master
-git push
-```
-
-⚠️ **Attention** : Un merge vers `master` déclenche TOUJOURS un bump MAJOR, même pour un hotfix. Si vous voulez un PATCH bump, mergez d'abord dans `develop`, puis faites une release vers `master`.
-
-## État Actuel du Projet
-
-- **`develop`** : v0.6.0
-- **`master`** : v0.3.0 (stale)
-- **PR #43** : `release/v1.0.0` → `master` (en attente)
-
-### Pourquoi master est-il resté à 0.3.0 ?
-
-Le PR #39 (merge `develop` → `master`) a été créé **avant** que le workflow `bump-version.yml` n'existe sur `master`. GitHub Actions ne peut déclencher un workflow que s'il existe sur la branche de base **avant** le merge.
-
-Maintenant que le workflow est sur `master`, tous les futurs merges fonctionneront correctement.
-
-## Commandes Utiles
-
-```bash
-# Voir la version actuelle
-cat VERSION
-
-# Voir les tags récents
-git tag --sort=-v:refname | head -10
-
-# Bump manuel (sans PR)
-./scripts/bump-version.sh [major|minor|patch]
-git push && git push --tags
-
-# Vérifier les workflows GitHub
-gh run list --workflow=bump-version.yml
-
-# Voir les PRs mergées récentes
-gh pr list --state merged --limit 10
-```
-
-## Troubleshooting
-
-### Le workflow ne se déclenche pas
-
-1. Vérifier que le workflow existe sur la branche **de base** (target) avant le merge
-2. Vérifier que le secret `BUMP_VERSION_TOKEN` existe dans les Settings GitHub
-3. Vérifier les logs : `gh run list --workflow=bump-version.yml`
-
-### Versions désynchronisées entre master et develop
-
-Après un bump sur `master`, toujours merger `master` → `develop` :
-
-```bash
-git checkout develop
-git merge master
-git push
-```
-
-### Conflit lors du merge master → develop
-
-Si conflit sur `VERSION`, `pom.xml`, ou `package.json` :
-
-```bash
-# Garder la version de master (la plus récente)
-git checkout --theirs VERSION pom.xml sbgb-gui/package.json
+# Faire vos commits (format Angular)
 git add .
-git commit
+git commit -m "feat: description de ma feature"
+
+# Publier la branche
+git push -u origin feature/nom-de-ma-feature
 ```
 
-## Bonnes Pratiques
+*Ensuite, rendez-vous sur GitHub pour ouvrir la Pull Request vers **develop**.*
 
-1. ✅ Toujours créer des PRs (pas de push direct sur `develop` ou `master`)
-2. ✅ Utiliser les préfixes `feature/`, `fix/`, `release/` pour les branches
-3. ✅ Suivre le format Angular pour les commits : `feat:`, `fix:`, `chore:`, `refactor:`, etc.
-4. ✅ Après un merge vers `master`, synchroniser immédiatement `develop`
-5. ✅ Vérifier que le workflow s'est bien exécuté après le merge d'une PR
-6. ❌ Ne jamais bumper manuellement sauf en cas de problème avec le workflow
-7. ❌ Ne pas créer de tags manuellement (le workflow s'en charge)
+### 2. Corriger un bug (Fix)
 
-## Exemple de Timeline
-
+```bash
+# Créer une branche fix (le workflow choisira 'patch' automatiquement)
+git checkout -b fix/nom-du-bug develop
+git add .
+git commit -m "fix: description du fix"
+git push -u origin fix/nom-du-bug
 ```
-0.6.0 (develop)
-  ↓
-feature/foo → develop (PR merge)
-  ↓
-0.7.0 (develop) [workflow: MINOR bump]
-  ↓
-feature/bar → develop (PR merge)
-  ↓
-0.8.0 (develop) [workflow: MINOR bump]
-  ↓
-release/v1.0.0 → master (PR merge)
-  ↓
-1.0.0 (master) [workflow: MAJOR bump]
-  ↓
-master → develop (manual merge)
-  ↓
-1.0.0 (develop) [synced]
-  ↓
-feature/baz → develop (PR merge)
-  ↓
-1.1.0 (develop) [workflow: MINOR bump]
+
+### 3. Préparer une mise en production (Release)
+
+1. Sur GitHub, ouvrez une Pull Request de la branche **develop** vers la branche **master**.
+2. Ajoutez éventuellement le label `major` si nécessaire.
+3. Fusionnez la PR. Le back-merge vers `develop` sera automatique.
+
+### 4. Synchroniser votre machine locale
+
+Après une fusion sur GitHub (car le serveur a créé de nouveaux commits et tags) :
+
+```bash
+# Mettre à jour develop
+git checkout develop
+git pull origin develop --tags
+
+# Mettre à jour master
+git checkout master
+git pull origin master --tags
 ```
+
+## 🔍 Traçabilité (Actuator)
+
+Grâce à l'intégration de `git-commit-id-maven-plugin`, chaque build affiche dans le frontend :
+`v1.2.0 (master@a1b2c3d)`
+Cela vous permet de savoir exactement quel commit est déployé, quelle que soit la branche.
