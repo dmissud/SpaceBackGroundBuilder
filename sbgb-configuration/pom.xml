@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.dbs.sbgb</groupId>
         <artifactId>SpaceBackGroundBuilder</artifactId>
-        <version>1.3.1</version>
+        <version>1.3.2</version>
     </parent>
 
     <artifactId>sbgb-configuration</artifactId>
