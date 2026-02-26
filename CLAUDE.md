@@ -100,6 +100,11 @@ Découpe le travail en itération fonctionnelle cohérente.
 - Versioning piloté par **Labels GitHub** (`major`/`breaking`, `minor`/`enhancement`, `patch`/`bug`)
 - Commit format Angular (`feat:`, `fix:`, `chore:`, `test:`, `refactor:`)
 - Push sur `master` déclenche une synchronisation automatique vers `develop`
+- **Attribution des commits** : TOUJOURS commiter au nom de Daniel en forçant l'auteur :
+  ```
+  git commit --author="Daniel Missud <daniel@missud.eu>" -m "..."
+  ```
+  Ne jamais laisser un commit avec l'identité de Claude comme auteur.
 
 ---
 
