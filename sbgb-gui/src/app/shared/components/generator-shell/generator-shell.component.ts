@@ -21,6 +21,7 @@ export class GeneratorShellComponent {
   @ContentChild('paramContent') paramContent!: TemplateRef<any>;
   @ContentChild('actionBarContent') actionBarContent!: TemplateRef<any>;
   @ContentChild('imageContent') imageContent!: TemplateRef<any>;
+  @ContentChild('rendersContent') rendersContent!: TemplateRef<any>;
   @ContentChild('libraryContent') libraryContent!: TemplateRef<any>;
 
   switchToGenerator(): void {

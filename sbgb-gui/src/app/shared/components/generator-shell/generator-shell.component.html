@@ -14,6 +14,11 @@
 
           <!-- Image Component -->
           <ng-container *ngTemplateOutlet="imageContent"></ng-container>
+
+          <!-- Renders strip (saved renders for current base) -->
+          @if (rendersContent) {
+            <ng-container *ngTemplateOutlet="rendersContent"></ng-container>
+          }
         </div>
       </div>
     </div>

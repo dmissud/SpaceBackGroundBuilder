@@ -56,6 +56,20 @@ export class SbgbEffects {
     )
   );
 
+  reloadAfterSave$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesSaveSuccess),
+      map(() => SbgbPageActions.loadSbgbs())
+    )
+  );
+
+  reloadRendersAfterDelete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesDeleteRenderSuccess),
+      map(() => SbgbPageActions.loadSbgbs())
+    )
+  );
+
   loadRendersForBase$ = createEffect(() =>
     this.actions$.pipe(
       ofType(SbgbPageActions.loadRendersForBase),
