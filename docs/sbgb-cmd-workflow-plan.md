@@ -43,15 +43,15 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 
 | # | Nom | Backend | Frontend | Risque |
 |---|-----|---------|----------|--------|
-| I1 | Fondations DB + sauvegarde par notation | ✅ | minimal | Moyen |
-| I2 | Layout générateur : accordéon + notation | — | ✅ | Faible |
-| I3 | Séparation Base / Cosmétique + dialogue | partiel | ✅ | Moyen |
+| I1 | Fondations DB + sauvegarde par notation | ✅ | ✅ | Moyen |
+| I2 | Layout générateur : accordéon + notation | ✅ | ✅ | Faible |
+| I3 | Séparation Base / Cosmétique + dialogue | ✅ | ✅ | Moyen |
 | I4 | Bibliothèque hiérarchique | ✅ | ✅ | Faible |
 | I5 | Cache serveur (performance) | ✅ | — | Faible |
 
 ---
 
-## Incrément 1 — Fondations : nouveau modèle de données + sauvegarde par notation
+## Incrément 1 — Fondations : nouveau modèle de données + sauvegarde par notation ✅
 
 **Objectif** : Remplacer la table `noise_image` par les deux nouvelles tables et brancher la sauvegarde sur la notation.
 
@@ -97,7 +97,7 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 
 ---
 
-## Incrément 2 — Layout générateur : accordéon + notation à côté de l'aperçu
+## Incrément 2 — Layout générateur : accordéon + notation à côté de l'aperçu ✅
 
 **Objectif** : Refonte visuelle du panneau générateur sans toucher au backend. L'UX correspond à la maquette 8.1.
 
@@ -127,7 +127,7 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 
 ---
 
-## Incrément 3 — Séparation Base / Cosmétique + dialogue de choix
+## Incrément 3 — Séparation Base / Cosmétique + dialogue de choix ✅
 
 **Objectif** : Le formulaire reflète explicitement la distinction Structurant / Cosmétique, et le système détecte les changements structurants pour proposer le dialogue.
 
