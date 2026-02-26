@@ -5,7 +5,6 @@ metadata:
   namespace: sbgb
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: public
   tls:
@@ -16,17 +15,10 @@ spec:
     - host: bree
       http:
         paths:
-          - path: /sbgb(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /sbgb/
+            pathType: Prefix
             backend:
               service:
                 name: sbgb-frontend
                 port:
                   number: 80
-          - path: /sbgb/api(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: sbgb-backend
-                port:
-                  number: 8080
