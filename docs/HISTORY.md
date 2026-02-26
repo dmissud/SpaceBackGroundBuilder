@@ -2,6 +2,45 @@
 
 Ce document compile l'historique du projet, incluant le journal de réalisation des nouvelles fonctionnalités et le suivi des refactorings Clean Code.
 
+---
+
+## Fix — Routing K8s Nginx (2026-02-26)
+
+**Branche** : `fix/k8s-nginx-routing`
+**PR** : #51
+**Statut** : ✅ Terminé
+
+### Problème
+
+La version Kubernetes ne fonctionnait pas (404 sur l'API, retour HTML au lieu de JSON) alors que Docker Compose fonctionnait correctement. Trois causes cumulées :
+
+1. **`rewrite-target: /$2`** dans l'Ingress transformait `/sbgb/api/images` en `/api/images`, qui arrivait sur le Nginx frontend sans proxy configuré
+2. **ConfigMap Nginx minimaliste** — aucun `proxy_pass` vers le backend, toutes les requêtes retournaient `index.html`
+3. **Ordre des paths Ingress** — la règle générique `/sbgb(/|$)(.*)` capturait tout avant `/sbgb/api(/|$)(.*)`
+
+### Solution
+
+- Suppression du `rewrite-target` dans l'Ingress (base + Helm)
+- Ingress simplifié : une seule règle `Prefix /sbgb/` → frontend
+- ConfigMap remplacée par une config nginx complète alignée sur le `nginx.conf` Docker Compose
+- Le Nginx du pod frontend proxy `/sbgb/api/` → `sbgb-backend:8080/api/`
+
+### Flux après fix
+
+```
+Browser → Ingress (Prefix /sbgb/) → Frontend Nginx Pod
+                                       ├── /sbgb/api/* → proxy_pass → sbgb-backend:8080/api/*
+                                       └── /sbgb/*     → Angular SPA (try_files)
+```
+
+### Fichiers modifiés
+
+- `k8s/sbgb/base/ingress.yaml`
+- `k8s/sbgb/base/frontend.yaml`
+- `k8s/helm/sbgb/templates/ingress.yaml`
+
+---
+
 ## 1. Journal de Réalisation — Nouveau Flux de Travail Ciel Étoilé
 
 ### Références
