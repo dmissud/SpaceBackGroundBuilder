@@ -14,6 +14,8 @@ import {NoiseBaseStructureDto, NoiseCosmeticRenderDto} from '../sbgb.model';
 })
 export class SbgbHistoryListComponent {
 
+  readonly starValues = [1, 2, 3, 4, 5];
+
   @Input() bases: NoiseBaseStructureDto[] = [];
   @Input() rendersByBaseId: Record<string, NoiseCosmeticRenderDto[]> = {};
 
@@ -23,10 +25,6 @@ export class SbgbHistoryListComponent {
 
   get visibleBases(): NoiseBaseStructureDto[] {
     return this.bases.filter(base => this.hasRenders(base.id));
-  }
-
-  starsFor(note: number): number[] {
-    return [1, 2, 3, 4, 5];
   }
 
   isFilled(star: number, note: number): boolean {

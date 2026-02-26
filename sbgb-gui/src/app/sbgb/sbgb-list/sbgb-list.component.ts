@@ -1,9 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, DestroyRef} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Store} from '@ngrx/store';
 import {selectBases, selectRenders} from '../state/sbgb.selectors';
 import {SbgbPageActions} from '../state/sbgb.actions';
-import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from '../sbgb.model';
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto} from '../sbgb.model';
 import {SbgbHistoryListComponent} from '../sbgb-history-list/sbgb-history-list.component';
+import {groupRendersByBaseId, toSbgbFromRender} from './sbgb-render.mapper';
 
 @Component({
   selector: 'app-sbgb-list',
@@ -24,14 +26,14 @@ export class SbgbListComponent implements OnInit {
   bases: NoiseBaseStructureDto[] = [];
   rendersByBaseId: Record<string, NoiseCosmeticRenderDto[]> = {};
 
-  constructor(private store: Store) {
-    this.store.select(selectBases).subscribe(bases => {
-      this.bases = bases;
-    });
+  constructor(private store: Store, private destroyRef: DestroyRef) {
+    this.store.select(selectBases)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(bases => { this.bases = bases; });
 
-    this.store.select(selectRenders).subscribe(renders => {
-      this.rendersByBaseId = this.groupByBaseId(renders);
-    });
+    this.store.select(selectRenders)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(renders => { this.rendersByBaseId = groupRendersByBaseId(renders); });
   }
 
   ngOnInit(): void {
@@ -50,44 +52,8 @@ export class SbgbListComponent implements OnInit {
     const base = this.bases.find(b => b.id === render.baseStructureId);
     if (!base) return;
 
-    const sbgb = this.toSbgbFromRender(base, render);
+    const sbgb = toSbgbFromRender(base, render);
     this.store.dispatch(SbgbPageActions.selectSbgb({sbgb}));
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
-  }
-
-  private groupByBaseId(renders: NoiseCosmeticRenderDto[]): Record<string, NoiseCosmeticRenderDto[]> {
-    return renders.reduce((acc, render) => {
-      const baseId = render.baseStructureId;
-      return {...acc, [baseId]: [...(acc[baseId] ?? []), render]};
-    }, {} as Record<string, NoiseCosmeticRenderDto[]>);
-  }
-
-  private toSbgbFromRender(base: NoiseBaseStructureDto, render: NoiseCosmeticRenderDto): Sbgb {
-    return {
-      id: base.id,
-      description: base.description,
-      note: render.note,
-      imageStructure: {
-        width: base.width,
-        height: base.height,
-        seed: base.seed,
-        octaves: base.octaves,
-        persistence: base.persistence,
-        lacunarity: base.lacunarity,
-        scale: base.scale,
-        noiseType: base.noiseType,
-        preset: 'CUSTOM',
-        useMultiLayer: base.useMultiLayer
-      },
-      imageColor: {
-        back: render.back,
-        middle: render.middle,
-        fore: render.fore,
-        backThreshold: render.backThreshold,
-        middleThreshold: render.middleThreshold,
-        interpolationType: render.interpolationType,
-        transparentBackground: render.transparentBackground
-      }
-    };
   }
 }
