@@ -25,7 +25,8 @@ class GalaxyGeneratorFactoryTest {
                 new VoronoiGeneratorStrategy(),
                 new EllipticalGeneratorStrategy(),
                 new RingGeneratorStrategy(),
-                new IrregularGeneratorStrategy()
+                new IrregularGeneratorStrategy(),
+                new LenticularGeneratorStrategy()
         );
         factory = new GalaxyGeneratorFactory(strategies);
         noiseGenerator = mock(PerlinGenerator.class);
@@ -91,6 +92,19 @@ class GalaxyGeneratorFactoryTest {
 
         // When
         GalaxyIntensityCalculator calculator = factory.create(GalaxyType.IRREGULAR, context);
+
+        // Then
+        assertThat(calculator).isNotNull();
+    }
+
+    @Test
+    void shouldCreateLenticularGenerator() {
+        // Given
+        GalaxyParameters params = GalaxyParameters.createDefaultLenticular();
+        GalaxyGenerationContext context = createContext(params);
+
+        // When
+        GalaxyIntensityCalculator calculator = factory.create(GalaxyType.LENTICULAR, context);
 
         // Then
         assertThat(calculator).isNotNull();
