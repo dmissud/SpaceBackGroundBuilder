@@ -37,6 +37,7 @@ public class GalaxyParameters {
     SpiralStructureParameters spiralParameters;
     VoronoiClusterParameters voronoiParameters;
     EllipticalShapeParameters ellipticalParameters;
+    LenticularShapeParameters lenticularParameters;
     RingStructureParameters ringParameters;
     IrregularStructureParameters irregularParameters;
 
@@ -293,6 +294,22 @@ public class GalaxyParameters {
                 .sersicIndex(1.5)
                 .axisRatio(0.25)
                 .orientationAngle(90.0)
+                .build())
+            .build();
+    }
+
+    public static GalaxyParameters createDefaultLenticular() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.LENTICULAR)
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.05)
+                .galaxyRadius(1500.0)
+                .build())
+            .lenticularParameters(LenticularShapeParameters.builder()
+                .sersicIndex(2.5)
+                .axisRatio(0.6)
+                .orientationAngle(0.0)
+                .diskContribution(0.4)
                 .build())
             .build();
     }
