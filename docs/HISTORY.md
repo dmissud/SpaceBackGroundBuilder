@@ -134,6 +134,30 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
+### Incrément 4 — Bibliothèque hiérarchique
+
+**Objectif** : Nouveau composant `sbgb-history-list` affichant Modèles de Base et leurs Rendus en accordéon hiérarchique.
+**Branche** : `feature/I4-history-library`
+**Statut** : ✅ Terminé
+
+#### Étapes TDD
+
+| # | Cycle | Périmètre | Statut | Commit |
+|---|-------|-----------|--------|--------|
+| 4.1 | RED-GREEN | SbgbHistoryListComponent : accordéon, visibleBases, rendersFor, events | ✅ | `1ea64c6` |
+| 4.2 | RED-GREEN | SbgbListComponent : intégration NgRx store + history-list | ✅ | `6674880` |
+| 4.3 | REFACTOR | Extract mapper SRP, takeUntilDestroyed, starValues constant | ✅ | `58cb402` |
+
+#### Composants créés/modifiés
+- `sbgb-history-list.component.ts/html/scss` — nouveau composant accordéon hiérarchique (Bases → Rendus)
+- `sbgb-list.component.ts` — refactorisé pour déléguer à sbgb-history-list et au store NgRx
+- `sbgb-render.mapper.ts` — extraction SRP du mapping Base+Render → Sbgb
+
+#### Tests
+- 20 tests unitaires (`sbgb-history-list.component.spec`, `sbgb-list.component.spec`, `sbgb-render.mapper.spec`)
+
+---
+
 ## 2. Plan d'amélioration Clean Code (Historique)
 
 ### Refactorings terminés
