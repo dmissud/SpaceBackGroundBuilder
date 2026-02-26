@@ -30,7 +30,7 @@ RUN sed -i '/<module>sbgb-gui<\/module>/d' pom.xml && \
     sed -i '/<module>sbgb-coverage<\/module>/d' pom.xml
 
 # Build all modules and install to local Maven repo
-RUN mvn clean install -DskipTests -Dgit-commit-id.skip=true && \
+RUN mvn clean install -DskipTests && \
     echo "=== Listing JAR files ===" && \
     ls -lh /app/sbgb-configuration/target/*.jar
 
