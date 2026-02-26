@@ -4,7 +4,9 @@ import { SbgbParamComponent } from "../sbgb-param/sbgb-param.component";
 import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
 import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
 import { Store } from "@ngrx/store";
-import { selectImageBuild, selectImageIsBuilding, selectCurrentSbgb } from "../state/sbgb.selectors";
+import { selectImageBuild, selectImageIsBuilding, selectCurrentSbgb, selectRenders } from "../state/sbgb.selectors";
+import { NoiseCosmeticRenderDto } from "../sbgb.model";
+import { SbgbPageActions } from "../state/sbgb.actions";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
@@ -35,6 +37,7 @@ export class SbgbShellComponent implements AfterViewInit {
 
   hasBuiltImage = this.store.selectSignal(selectImageBuild);
   isGenerating = this.store.selectSignal(selectImageIsBuilding);
+  renders = this.store.selectSignal(selectRenders);
 
   constructor(private store: Store, private cdr: ChangeDetectorRef, private destroyRef: DestroyRef) { }
 
@@ -87,6 +90,10 @@ export class SbgbShellComponent implements AfterViewInit {
 
   onNoteSelected(note: number): void {
     this.paramComponent?.onNoteSelected(note);
+  }
+
+  onDeleteRender(renderId: string): void {
+    this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
   }
 
   getSummary(): string | null {
