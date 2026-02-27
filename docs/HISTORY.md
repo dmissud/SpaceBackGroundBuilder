@@ -158,6 +158,53 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
+### Correctifs & Améliorations UX post-I4 — Bande de vignettes & Visualisation
+
+**Branche** : `feature/I4-history-library` (suite)
+**Statut** : ✅ Terminé
+
+#### Correctifs bande de vignettes
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 1 | Ajout des styles CSS manquants pour la bande de vignettes (`renders-strip`, `render-card`, `render-thumbnail`, `render-stars`) | `b6f2997` |
+| 2 | Passage du panneau preview de `sticky` à scrollable pour afficher la bande | `b6f2997` |
+| 3 | Déplacement de la bande de vignettes au-dessus du bouton "Générer aperçu" | `3e03354` |
+| 4 | Réduction des étoiles à 12px pour qu'elles tiennent dans la carte | `6d1a1bb` |
+
+#### Sélection de vignette
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 5 | Surbrillance de la vignette correspondant à l'image affichée (`selectedRenderId` dans le store NgRx) | `5b40a83` |
+| 6 | Clic sur une vignette → charge ses cosmétiques dans le formulaire | `0aab7a0` |
+| 7 | Dispatch `selectRender` depuis la bibliothèque lors du chargement d'un rendu | `3e1ab6c` |
+| 8 | Conservation de la sélection après génération ; effacement uniquement sur modification manuelle | `243d0a8` |
+| 9 | Auto-sélection au démarrage si les paramètres par défaut correspondent à une base existante | `f0ed382` |
+
+#### Feedback visuel génération disponible
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 10 | Point orange pulsant dans le titre de la bande quand la génération est disponible | `75aec91` |
+| 11 | Fond pulsant sur le titre de l'accordéon des paramètres quand la génération est disponible | `608feb8` + `81862ed` |
+
+#### Visualisation image
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 12 | Toggle taille réelle / ajusté à la fenêtre sur l'aperçu image | `73b4f87` |
+| 13 | Mode plein écran (respect du mode fit ou taille réelle) via API Fullscreen | `fc280e4` |
+| 14 | Boutons de contrôle toujours visibles en haut à droite (hors zone scrollable) | `b3f0ba9` |
+
+#### Décisions techniques
+- **`selectedRenderId` dans le store** : source de vérité unique pour la surbrillance, mise à jour par `selectRender`, `imagesSaveSuccess`, `clearSelectedRender`.
+- **`cosmeticForm.valueChanges` + `{emitEvent: false}`** : permet de distinguer un chargement programmatique (pas de clear) d'une modification manuelle (clear de la sélection).
+- **`pendingAutoSelectBaseId`** : flag local dans `sbgb-param` pour relier le chargement des bases au chargement des rendus lors de l'auto-sélection au démarrage.
+- **Wrapper externe `image-wrapper`** : les boutons de contrôle sont positionnés sur le wrapper (hors du conteneur scrollable), restent visibles quel que soit le scroll. L'API Fullscreen est appelée sur ce wrapper.
+
+---
+
 ## 2. Plan d'amélioration Clean Code (Historique)
 
 ### Refactorings terminés
