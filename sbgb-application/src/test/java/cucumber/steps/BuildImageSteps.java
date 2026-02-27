@@ -18,7 +18,8 @@ public class BuildImageSteps {
 
     private final NoiseBaseStructureRepositoryStub baseRepo = new NoiseBaseStructureRepositoryStub();
     private final NoiseCosmeticRenderRepositoryStub renderRepo = new NoiseCosmeticRenderRepositoryStub();
-    private final ImagesService imagesService = new ImagesService(baseRepo, renderRepo);
+    private final NoiseGridComputationPortStub noiseGridPort = new NoiseGridComputationPortStub();
+    private final ImagesService imagesService = new ImagesService(baseRepo, renderRepo, noiseGridPort);
 
     private byte[] builtImage;
     private NoiseCosmeticRender savedRender;

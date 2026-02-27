@@ -21,7 +21,8 @@ class FindNoiseCosmeticRendersUseCaseTest {
     void setUp() {
         imagesService = new ImagesService(
                 new InMemoryNoiseBaseStructureRepository(),
-                new InMemoryNoiseCosmeticRenderRepository());
+                new InMemoryNoiseCosmeticRenderRepository(),
+                new cucumber.steps.NoiseGridComputationPortStub());
     }
 
     @Test

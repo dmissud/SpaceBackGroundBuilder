@@ -28,7 +28,7 @@ class RateNoiseCosmeticRenderUseCaseTest {
         renderDb = new ArrayList<>();
         baseRepo = new InMemoryNoiseBaseStructureRepository(baseDb);
         renderRepo = new InMemoryNoiseCosmeticRenderRepository(renderDb);
-        imagesService = new ImagesService(baseRepo, renderRepo);
+        imagesService = new ImagesService(baseRepo, renderRepo, new cucumber.steps.NoiseGridComputationPortStub());
     }
 
     @Test
