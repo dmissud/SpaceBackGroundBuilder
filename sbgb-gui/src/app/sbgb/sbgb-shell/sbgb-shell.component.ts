@@ -1,16 +1,18 @@
-import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SbgbParamComponent } from "../sbgb-param/sbgb-param.component";
 import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
 import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
 import { Store } from "@ngrx/store";
-import { selectImageBuild, selectImageIsBuilding } from "../state/sbgb.selectors";
+import { selectImageBuild, selectImageIsBuilding, selectCurrentSbgb, selectRenders, selectSelectedRenderId } from "../state/sbgb.selectors";
+import { NoiseCosmeticRenderDto, Sbgb } from "../sbgb.model";
+import { SbgbPageActions } from "../state/sbgb.actions";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
-
-import { Sbgb } from "../sbgb.model";
+import { filter, skip } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sbgb-shell',
@@ -30,15 +32,22 @@ import { Sbgb } from "../sbgb.model";
 export class SbgbShellComponent implements AfterViewInit {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(SbgbParamComponent) paramComponent!: SbgbParamComponent;
-  @ViewChild(SbgbListComponent) listComponent!: SbgbListComponent;
 
   hasBuiltImage = this.store.selectSignal(selectImageBuild);
   isGenerating = this.store.selectSignal(selectImageIsBuilding);
+  renders = this.store.selectSignal(selectRenders);
+  selectedRenderId = this.store.selectSignal(selectSelectedRenderId);
 
-  constructor(private store: Store, private cdr: ChangeDetectorRef) { }
+  constructor(private store: Store, private cdr: ChangeDetectorRef, private destroyRef: DestroyRef) { }
 
   ngAfterViewInit() {
     this.cdr.detectChanges();
+
+    this.store.select(selectCurrentSbgb).pipe(
+      skip(1),
+      filter((sbgb): sbgb is Sbgb => sbgb !== null),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.shell.switchToGenerator());
   }
 
   get actionBarButtons(): ActionBarButton[] {
@@ -70,6 +79,10 @@ export class SbgbShellComponent implements AfterViewInit {
     return this.paramComponent?.starValues || [1, 2, 3, 4, 5];
   }
 
+  canBuild(): boolean {
+    return this.paramComponent?.canBuild() || false;
+  }
+
   canRate(): boolean {
     return this.paramComponent?.canRate() || false;
   }
@@ -82,25 +95,18 @@ export class SbgbShellComponent implements AfterViewInit {
     this.paramComponent?.onNoteSelected(note);
   }
 
+  onSelectRender(render: NoiseCosmeticRenderDto): void {
+    this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
+    this.paramComponent.loadRenderCosmetics(render);
+  }
+
+  onDeleteRender(renderId: string): void {
+    this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
+  }
+
   getSummary(): string | null {
     const param = this.paramComponent;
     return this.hasBuiltImage() && param ? param.getParametersSummary() : null;
   }
 
-  onViewRequested(sbgb: Sbgb) {
-    if (this.paramComponent && this.paramComponent.hasUnsavedChanges()) {
-      if (confirm('Vous avez des modifications non enregistrées. Voulez-vous vraiment charger un autre ciel étoilé ?')) {
-        this.loadAndSwitch(sbgb);
-      }
-    } else {
-      this.loadAndSwitch(sbgb);
-    }
-  }
-
-  private loadAndSwitch(sbgb: Sbgb) {
-    if (this.listComponent) {
-      this.listComponent.confirmView(sbgb);
-    }
-    this.shell.switchToGenerator();
-  }
 }

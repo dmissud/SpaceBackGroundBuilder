@@ -4,8 +4,8 @@ import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage, selectRenders} from "../state/sbgb.selectors";
-import {Subject, takeUntil} from "rxjs";
+import {selectBases, selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage, selectRenders} from "../state/sbgb.selectors";
+import {Subject, takeUntil, filter, take} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
 import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
@@ -15,7 +15,7 @@ import {MatIcon} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialog} from "@angular/material/dialog";
 import {SbgbStructuralChangeDialogComponent, StructuralChangeChoice} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
-import {NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 import {SbgbComparisonService} from "../sbgb-comparison.service";
 
 @Component({
@@ -72,6 +72,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   protected isBuilt: boolean = false;
   loadedSbgbId: string | null = null;
   currentNote: number = 0;
+  private pendingAutoSelectBaseId: string | null = null;
   readonly starValues = [1, 2, 3, 4, 5];
 
   constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions, private dialog: MatDialog, private sbgbComparison: SbgbComparisonService) {
@@ -134,6 +135,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
     this._myForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isModifiedSinceBuild = true;
+    });
+
+    this.cosmeticForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.store.dispatch(SbgbPageActions.clearSelectedRender());
     });
 
     this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
@@ -247,6 +252,19 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
     this.store.select(selectRenders).pipe(takeUntil(this.destroy$)).subscribe((renders: NoiseCosmeticRenderDto[]) => {
       this.renders = renders;
+      this.autoSelectBestRenderIfPending(renders);
+    });
+
+    this.store.select(selectBases).pipe(
+      filter(bases => bases.length > 0),
+      take(1),
+      takeUntil(this.destroy$)
+    ).subscribe(bases => {
+      const matchingBase = this.findBaseMatchingDefaultParams(bases);
+      if (matchingBase) {
+        this.pendingAutoSelectBaseId = matchingBase.id;
+        this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: matchingBase.id}));
+      }
     });
 
     this.baseFormSnapshot = this.baseForm.value;
@@ -351,6 +369,21 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   loadRendersForBaseId(baseId: string): void {
     this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
+  }
+
+  loadRenderCosmetics(render: NoiseCosmeticRenderDto): void {
+    this.cosmeticForm.patchValue({
+      [SbgbParamComponent.BACKGROUND_COLOR]: render.back,
+      [SbgbParamComponent.MIDDLE_COLOR]: render.middle,
+      [SbgbParamComponent.FOREGROUND_COLOR]: render.fore,
+      [SbgbParamComponent.BACK_THRESHOLD]: render.backThreshold,
+      [SbgbParamComponent.MIDDLE_THRESHOLD]: render.middleThreshold,
+      [SbgbParamComponent.INTERPOLATION_TYPE]: render.interpolationType,
+      [SbgbParamComponent.TRANSPARENT_BACKGROUND]: render.transparentBackground,
+    }, {emitEvent: false});
+    this.currentNote = render.note;
+    this.isModifiedSinceBuild = true;
+    this.isBuilt = false;
   }
 
   describeBase(): string {
@@ -566,6 +599,32 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       this.extractLayerConfig('1', 'nebula'),
       this.extractLayerConfig('2', 'stars')
     ];
+  }
+
+  private findBaseMatchingDefaultParams(bases: NoiseBaseStructureDto[]): NoiseBaseStructureDto | undefined {
+    const f = this.baseForm.value;
+    return bases.find(b =>
+      b.width === Number(f.width) &&
+      b.height === Number(f.height) &&
+      b.seed === Number(f.seed) &&
+      b.octaves === Number(f.octaves) &&
+      b.persistence === Number(f.persistence) &&
+      b.lacunarity === Number(f.lacunarity) &&
+      b.scale === Number(f.scale) &&
+      b.noiseType === f.noiseType &&
+      b.useMultiLayer === f.useMultiLayer
+    );
+  }
+
+  private autoSelectBestRenderIfPending(renders: NoiseCosmeticRenderDto[]): void {
+    if (!this.pendingAutoSelectBaseId) return;
+    if (renders.length === 0) return;
+    if (renders[0].baseStructureId !== this.pendingAutoSelectBaseId) return;
+
+    const bestRender = [...renders].sort((a, b) => b.note - a.note)[0];
+    this.pendingAutoSelectBaseId = null;
+    this.store.dispatch(SbgbPageActions.selectRender({renderId: bestRender.id}));
+    this.loadRenderCosmetics(bestRender);
   }
 
   private extractLayerConfig(index: string, name: string) {

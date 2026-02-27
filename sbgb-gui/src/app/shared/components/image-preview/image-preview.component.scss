@@ -1,6 +1,8 @@
-// Image container
-.image-container {
+.image-wrapper {
   position: relative;
+}
+
+.image-container {
   background: #1a1a1a;
   border-radius: 8px;
   border: 1px solid #333;
@@ -9,6 +11,12 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+
+  &.real-size {
+    overflow: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
 }
 
 .preview-image {
@@ -19,8 +27,51 @@
   display: block;
   border-radius: 4px;
 
+  .real-size & {
+    max-width: none;
+    max-height: none;
+  }
+
   @media (max-width: 1200px) {
     max-height: 600px;
+  }
+}
+
+.image-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+
+  button {
+    background: rgba(0, 0, 0, 0.5);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+
+    mat-icon {
+      color: white;
+    }
+  }
+}
+
+// Plein écran : le wrapper remplit tout l'écran
+.image-wrapper:fullscreen {
+  background: #1a1a1a;
+
+  .image-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+
+    &:not(.real-size) .preview-image {
+      max-width: 100vw;
+      max-height: 100vh;
+    }
   }
 }
 

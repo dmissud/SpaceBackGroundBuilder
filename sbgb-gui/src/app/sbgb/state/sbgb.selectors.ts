@@ -37,3 +37,8 @@ export const selectRenders = createSelector(
   selectSbgbState,
   (sbgbState) => sbgbState.renders
 );
+
+export const selectSelectedRenderId = createSelector(
+  selectSbgbState,
+  (sbgbState) => sbgbState.selectedRenderId
+);
