@@ -55,5 +55,6 @@ export class SbgbListComponent implements OnInit {
     const sbgb = toSbgbFromRender(base, render);
     this.store.dispatch(SbgbPageActions.selectSbgb({sbgb}));
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
+    this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
   }
 }
