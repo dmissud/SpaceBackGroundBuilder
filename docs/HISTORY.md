@@ -205,6 +205,45 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 
 ---
 
+### Refactoring Clean Code post-I4
+
+**Branche** : `refactor/I4-clean-code`
+**Statut** : ✅ Terminé
+
+#### P1 — Quick wins (nommage, constantes, JSDoc)
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R1 | Renommage `_myForm` → `sbgbForm` | P1 |
+| R2 | Renommage `f` → `formValues` dans `describeBase/describeCosmetic` | P1 |
+| R3 | Renommage `realSize` → `isRealSize` dans `image-preview` | P1 |
+| R4-R6 | Création `sbgb.constants.ts` : `STAR_RATING_VALUES`, `PresetName` enum, `INFO_MESSAGES` | P1 |
+| R7 | JSDoc sur toutes les méthodes publiques (shell, param, list, history-list, image-preview, generator-shell) | P1 |
+| R8 | Guard `containerRef?.` dans `toggleFullscreen()` | P1 |
+
+#### P2 — DRY & méthodes longues
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R9 | Extraction `loadFormValuesFromSbgb(sbgb)` — fusionne les 2 blocs `patchValue` dupliqués | `b9826fb` |
+| R10-R11 | Découpage de `ngOnInit` en 7 sous-méthodes : `setupThresholdSync`, `setupInfoMessageListener`, `setupSbgbLoader`, `setupErrorMessageListener`, `setupSaveResultListener`, `setupRendersLoader`, `setupBaseAutoSelect` | `b9826fb` |
+| R12 | Subscriptions de `sbgb-list` déplacées du constructeur vers `ngOnInit` | `b9826fb` |
+
+#### P3 — SOLID & découplage store
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R16 | Nouvelle action `applyRenderCosmetics({render})` — supprime l'appel direct `paramComponent.loadRenderCosmetics` depuis `sbgb-shell` | `a7b95f8` |
+| — | `loadRenderCosmetics` devient `private` dans `sbgb-param` ; réagit via `setupRenderCosmeticsLoader()` (Actions ofType) | `a7b95f8` |
+| — | Correction spec `sbgb-param` : `_myForm` → `baseForm`/`cosmeticForm` | `a7b95f8` |
+
+#### Décisions techniques
+- **R13 abandonné** : factory selector `createSbgbSelector` — les sélecteurs sont déjà optimaux sous forme explicite, une factory ajouterait de l'opacité sans valeur.
+- **R14-R15 abandonnés** : extractions `SbgbFormExtractionService` / `SbgbPresetService` — nécessiteraient de passer `FormGroup` en paramètre, plus de complexité que de valeur (YAGNI).
+- **R17 abandonné** : fusion des 3 dispatches de `onRenderSelected` — orchestration correcte, complexification non justifiée.
+
+---
+
 ## 2. Plan d'amélioration Clean Code (Historique)
 
 ### Refactorings terminés
