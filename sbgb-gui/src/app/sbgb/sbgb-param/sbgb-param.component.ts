@@ -142,131 +142,16 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       this.store.dispatch(SbgbPageActions.clearSelectedRender());
     });
 
-    this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
-      (backThreshold) => {
-        const middleThreshold = this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.value;
-        if (backThreshold >= middleThreshold) {
-          this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.setValue(backThreshold + 0.01);
-        }
-      }
-    );
-    this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
-      (middleThreshold) => {
-        const backThreshold = this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.value;
-        if (backThreshold >= middleThreshold) {
-          this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.setValue(middleThreshold - 0.01);
-        }
-      }
-    );
+    this.setupThresholdSync();
   }
 
   ngOnInit() {
-    this.store.select(selectInfoMessage).pipe(takeUntil(this.destroy$)).subscribe((message: string) => {
-      console.log(message);
-      if (message && message.trim() !== "") {
-        if (message === INFO_MESSAGES.IMAGE_GENERATED) {
-          this.isBuilt = true;
-          this.isModifiedSinceBuild = false;
-          this.builtSbgb = this.getSbgbFromForm();
-          if (!this.loadedSbgbId) {
-            this.currentNote = 0;
-          }
-        }
-        this._snackBar.open(message, 'Close', { // Utilisation du message reçu en tant que texte pour le Snackbar
-          duration: 3000,
-          verticalPosition: 'top'
-        });
-        this.store.dispatch(SbgbPageActions.information({message: '', build: false}));
-      }
-    });
-    this.store.select(selectCurrentSbgb).pipe(takeUntil(this.destroy$)).subscribe((sbgb: Sbgb | null) => {
-      if (sbgb && sbgb.id) {
-        // Ne charger que si c'est une nouvelle image différente de celle déjà chargée
-        // (pour éviter d'écraser loadedFromDbSbgb lors des builds)
-        const isDifferentImage = !this.loadedFromDbSbgb || this.loadedFromDbSbgb.id !== sbgb.id;
-
-        if (isDifferentImage) {
-          this.loadedFromDbSbgb = sbgb;
-          this.loadedSbgbId = sbgb.id ?? null;
-          this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: sbgb.id!}));
-          this.currentNote = sbgb.note ?? 0;
-          this.isBuilt = false;
-          this.builtSbgb = null;
-          // Ne pas marquer comme modifié lors du chargement depuis la BDD
-          // Le flag sera géré par les modifications du formulaire et le succès du build
-          this.baseForm.patchValue({
-            [SbgbParamComponent.CONTROL_WIDTH]: sbgb.imageStructure.width,
-            [SbgbParamComponent.CONTROL_HEIGHT]: sbgb.imageStructure.height,
-            [SbgbParamComponent.CONTROL_SEED]: sbgb.imageStructure.seed,
-            [SbgbParamComponent.CONTROL_OCTAVES]: sbgb.imageStructure.octaves,
-            [SbgbParamComponent.CONTROL_PERSISTENCE]: sbgb.imageStructure.persistence,
-            [SbgbParamComponent.CONTROL_LACUNARITY]: sbgb.imageStructure.lacunarity,
-            [SbgbParamComponent.CONTROL_SCALE]: sbgb.imageStructure.scale,
-            [SbgbParamComponent.CONTROL_NOISE_TYPE]: sbgb.imageStructure.noiseType || 'FBM',
-            [SbgbParamComponent.CONTROL_PRESET]: sbgb.imageStructure.preset,
-            [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: sbgb.imageStructure.useMultiLayer,
-            [SbgbParamComponent.NAME]: sbgb.name || ''
-          }, {emitEvent: false});
-          this.cosmeticForm.patchValue({
-            [SbgbParamComponent.BACKGROUND_COLOR]: sbgb.imageColor.back,
-            [SbgbParamComponent.MIDDLE_COLOR]: sbgb.imageColor.middle,
-            [SbgbParamComponent.FOREGROUND_COLOR]: sbgb.imageColor.fore,
-            [SbgbParamComponent.BACK_THRESHOLD]: sbgb.imageColor.backThreshold,
-            [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
-            [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
-            [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
-          }, {emitEvent: false});
-          // S'assurer que le flag reste à true jusqu'au build automatique
-          this.isModifiedSinceBuild = true;
-        }
-      }
-    });
-    this.store.select(selectErrorMessage).pipe(takeUntil(this.destroy$)).subscribe((message: string) => {
-      if (message && message.trim() !== "") {
-        this._snackBar.open(message, 'Close', {
-          duration: 5000,
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
-
-    this.actions$.pipe(
-      ofType(ImageApiActions.imagesSaveSuccess, ImageApiActions.imagesSaveFail),
-      takeUntil(this.destroy$)
-    ).subscribe((action) => {
-      if (action.type === ImageApiActions.imagesSaveSuccess.type) {
-        this._snackBar.open(INFO_MESSAGES.RENDER_SAVED, 'OK', {
-          duration: 3000,
-          verticalPosition: 'top'
-        });
-      } else if (action.type === ImageApiActions.imagesSaveFail.type) {
-        const {message} = action as ReturnType<typeof ImageApiActions.imagesSaveFail>;
-        console.error('Erreur lors de la sauvegarde:', message);
-        this._snackBar.open(`${INFO_MESSAGES.SAVE_ERROR_PREFIX}${message}`, 'Fermer', {
-          duration: 5000,
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
-
-    this.store.select(selectRenders).pipe(takeUntil(this.destroy$)).subscribe((renders: NoiseCosmeticRenderDto[]) => {
-      this.renders = renders;
-      this.autoSelectBestRenderIfPending(renders);
-    });
-
-    this.store.select(selectBases).pipe(
-      filter(bases => bases.length > 0),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(bases => {
-      const matchingBase = this.findBaseMatchingDefaultParams(bases);
-      if (matchingBase) {
-        this.pendingAutoSelectBaseId = matchingBase.id;
-        this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: matchingBase.id}));
-      }
-    });
+    this.setupInfoMessageListener();
+    this.setupSbgbLoader();
+    this.setupErrorMessageListener();
+    this.setupSaveResultListener();
+    this.setupRendersLoader();
+    this.setupBaseAutoSelect();
 
     this.baseFormSnapshot = this.baseForm.value;
     this.baseForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(newValue => {
@@ -362,6 +247,128 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       };
       this.store.dispatch(SbgbPageActions.rateSbgb({sbgb: sbgbWithRenderCosmetic, note: render.note}));
     });
+  }
+
+  private setupThresholdSync(): void {
+    this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
+      (backThreshold) => {
+        const middleThreshold = this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.value;
+        if (backThreshold >= middleThreshold) {
+          this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.setValue(backThreshold + 0.01);
+        }
+      }
+    );
+    this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
+      (middleThreshold) => {
+        const backThreshold = this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.value;
+        if (backThreshold >= middleThreshold) {
+          this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.setValue(middleThreshold - 0.01);
+        }
+      }
+    );
+  }
+
+  private setupInfoMessageListener(): void {
+    this.store.select(selectInfoMessage).pipe(takeUntil(this.destroy$)).subscribe((message: string) => {
+      if (!message || message.trim() === '') return;
+      if (message === INFO_MESSAGES.IMAGE_GENERATED) {
+        this.isBuilt = true;
+        this.isModifiedSinceBuild = false;
+        this.builtSbgb = this.getSbgbFromForm();
+        if (!this.loadedSbgbId) {
+          this.currentNote = 0;
+        }
+      }
+      this._snackBar.open(message, 'Close', {duration: 3000, verticalPosition: 'top'});
+      this.store.dispatch(SbgbPageActions.information({message: '', build: false}));
+    });
+  }
+
+  private setupSbgbLoader(): void {
+    this.store.select(selectCurrentSbgb).pipe(takeUntil(this.destroy$)).subscribe((sbgb: Sbgb | null) => {
+      if (!sbgb?.id) return;
+      const isDifferentSbgb = !this.loadedFromDbSbgb || this.loadedFromDbSbgb.id !== sbgb.id;
+      if (isDifferentSbgb) {
+        this.loadedFromDbSbgb = sbgb;
+        this.loadedSbgbId = sbgb.id ?? null;
+        this.isBuilt = false;
+        this.builtSbgb = null;
+        this.currentNote = sbgb.note ?? 0;
+        this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: sbgb.id!}));
+        this.loadFormValuesFromSbgb(sbgb);
+        this.isModifiedSinceBuild = true;
+      }
+    });
+  }
+
+  private setupErrorMessageListener(): void {
+    this.store.select(selectErrorMessage).pipe(takeUntil(this.destroy$)).subscribe((message: string) => {
+      if (message && message.trim() !== '') {
+        this._snackBar.open(message, 'Close', {duration: 5000, verticalPosition: 'top', panelClass: ['error-snackbar']});
+      }
+    });
+  }
+
+  private setupSaveResultListener(): void {
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesSaveSuccess, ImageApiActions.imagesSaveFail),
+      takeUntil(this.destroy$)
+    ).subscribe((action) => {
+      if (action.type === ImageApiActions.imagesSaveSuccess.type) {
+        this._snackBar.open(INFO_MESSAGES.RENDER_SAVED, 'OK', {duration: 3000, verticalPosition: 'top'});
+      } else {
+        const {message} = action as ReturnType<typeof ImageApiActions.imagesSaveFail>;
+        this._snackBar.open(`${INFO_MESSAGES.SAVE_ERROR_PREFIX}${message}`, 'Fermer', {
+          duration: 5000, verticalPosition: 'top', panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  private setupRendersLoader(): void {
+    this.store.select(selectRenders).pipe(takeUntil(this.destroy$)).subscribe((renders: NoiseCosmeticRenderDto[]) => {
+      this.renders = renders;
+      this.autoSelectBestRenderIfPending(renders);
+    });
+  }
+
+  private setupBaseAutoSelect(): void {
+    this.store.select(selectBases).pipe(
+      filter(bases => bases.length > 0),
+      take(1),
+      takeUntil(this.destroy$)
+    ).subscribe(bases => {
+      const matchingBase = this.findBaseMatchingDefaultParams(bases);
+      if (matchingBase) {
+        this.pendingAutoSelectBaseId = matchingBase.id;
+        this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId: matchingBase.id}));
+      }
+    });
+  }
+
+  private loadFormValuesFromSbgb(sbgb: Sbgb): void {
+    this.baseForm.patchValue({
+      [SbgbParamComponent.CONTROL_WIDTH]: sbgb.imageStructure.width,
+      [SbgbParamComponent.CONTROL_HEIGHT]: sbgb.imageStructure.height,
+      [SbgbParamComponent.CONTROL_SEED]: sbgb.imageStructure.seed,
+      [SbgbParamComponent.CONTROL_OCTAVES]: sbgb.imageStructure.octaves,
+      [SbgbParamComponent.CONTROL_PERSISTENCE]: sbgb.imageStructure.persistence,
+      [SbgbParamComponent.CONTROL_LACUNARITY]: sbgb.imageStructure.lacunarity,
+      [SbgbParamComponent.CONTROL_SCALE]: sbgb.imageStructure.scale,
+      [SbgbParamComponent.CONTROL_NOISE_TYPE]: sbgb.imageStructure.noiseType || 'FBM',
+      [SbgbParamComponent.CONTROL_PRESET]: sbgb.imageStructure.preset,
+      [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: sbgb.imageStructure.useMultiLayer,
+      [SbgbParamComponent.NAME]: sbgb.name || ''
+    }, {emitEvent: false});
+    this.cosmeticForm.patchValue({
+      [SbgbParamComponent.BACKGROUND_COLOR]: sbgb.imageColor.back,
+      [SbgbParamComponent.MIDDLE_COLOR]: sbgb.imageColor.middle,
+      [SbgbParamComponent.FOREGROUND_COLOR]: sbgb.imageColor.fore,
+      [SbgbParamComponent.BACK_THRESHOLD]: sbgb.imageColor.backThreshold,
+      [SbgbParamComponent.MIDDLE_THRESHOLD]: sbgb.imageColor.middleThreshold,
+      [SbgbParamComponent.INTERPOLATION_TYPE]: sbgb.imageColor.interpolationType,
+      [SbgbParamComponent.TRANSPARENT_BACKGROUND]: sbgb.imageColor.transparentBackground || false,
+    }, {emitEvent: false});
   }
 
   deleteRenderById(renderId: string): void {

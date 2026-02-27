@@ -26,18 +26,16 @@ export class SbgbListComponent implements OnInit {
   bases: NoiseBaseStructureDto[] = [];
   rendersByBaseId: Record<string, NoiseCosmeticRenderDto[]> = {};
 
-  constructor(private store: Store, private destroyRef: DestroyRef) {
-    this.store.select(selectBases)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(bases => { this.bases = bases; });
-
-    this.store.select(selectRenders)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(renders => { this.rendersByBaseId = groupRendersByBaseId(renders); });
-  }
+  constructor(private store: Store, private destroyRef: DestroyRef) {}
 
   ngOnInit(): void {
     this.store.dispatch(SbgbPageActions.loadSbgbs());
+    this.store.select(selectBases)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(bases => { this.bases = bases; });
+    this.store.select(selectRenders)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(renders => { this.rendersByBaseId = groupRendersByBaseId(renders); });
   }
 
   /** Charge les rendus d'une base lors du déploiement de son accordéon. */
