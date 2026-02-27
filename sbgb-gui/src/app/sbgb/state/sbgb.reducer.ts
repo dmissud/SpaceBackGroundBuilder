@@ -46,7 +46,11 @@ export const sbgbsFeature = createFeature({
       (state, {sbgb, build}) => ({
         ...state,
         sbgb: sbgb,
-        building: build,
+        building: build
+      })),
+    on(SbgbPageActions.clearSelectedRender,
+      (state) => ({
+        ...state,
         selectedRenderId: null
       })),
     on(ImageApiActions.imagesLoadSuccess,

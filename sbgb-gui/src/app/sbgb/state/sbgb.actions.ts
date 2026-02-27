@@ -11,7 +11,8 @@ export const SbgbPageActions = createActionGroup({
     'Information': props<{ message: string, build: boolean }>(),
     'Load Renders For Base': props<{ baseId: string }>(),
     'Delete Render': props<{ renderId: string }>(),
-    'Select Render': props<{ renderId: string }>()
+    'Select Render': props<{ renderId: string }>(),
+    'Clear Selected Render': emptyProps()
   }
 });
 

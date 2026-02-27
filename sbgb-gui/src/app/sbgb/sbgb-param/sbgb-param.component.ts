@@ -136,6 +136,10 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       this.isModifiedSinceBuild = true;
     });
 
+    this.cosmeticForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.store.dispatch(SbgbPageActions.clearSelectedRender());
+    });
+
     this.cosmeticForm.get(SbgbParamComponent.BACK_THRESHOLD)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(
       (backThreshold) => {
         const middleThreshold = this.cosmeticForm.get(SbgbParamComponent.MIDDLE_THRESHOLD)?.value;
