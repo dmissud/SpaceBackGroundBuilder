@@ -26,28 +26,29 @@ export class SbgbListComponent implements OnInit {
   bases: NoiseBaseStructureDto[] = [];
   rendersByBaseId: Record<string, NoiseCosmeticRenderDto[]> = {};
 
-  constructor(private store: Store, private destroyRef: DestroyRef) {
+  constructor(private store: Store, private destroyRef: DestroyRef) {}
+
+  ngOnInit(): void {
+    this.store.dispatch(SbgbPageActions.loadSbgbs());
     this.store.select(selectBases)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(bases => { this.bases = bases; });
-
     this.store.select(selectRenders)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(renders => { this.rendersByBaseId = groupRendersByBaseId(renders); });
   }
 
-  ngOnInit(): void {
-    this.store.dispatch(SbgbPageActions.loadSbgbs());
-  }
-
+  /** Charge les rendus d'une base lors du déploiement de son accordéon. */
   onLoadRendersForBase(baseId: string): void {
     this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
+  /** Supprime un rendu et met à jour la bibliothèque. */
   onDeleteRender(renderId: string): void {
     this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
   }
 
+  /** Charge un rendu dans le générateur et bascule sur l'onglet Générateur. */
   onRenderSelected(render: NoiseCosmeticRenderDto): void {
     const base = this.bases.find(b => b.id === render.baseStructureId);
     if (!base) return;

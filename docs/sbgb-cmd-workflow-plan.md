@@ -231,44 +231,44 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 
 ### Plan de remédiation
 
-#### Priorité 1 — Quick wins (nommage + constantes + JSDoc)
+#### ✅ Priorité 1 — Quick wins (nommage + constantes + JSDoc) — TERMINÉ
 
-| # | Action | Fichiers impactés |
-|---|--------|-------------------|
-| R1 | Renommer `_myForm` → `sbgbForm` | `sbgb-param.component.ts` + template |
-| R2 | Renommer `f` → `formValues` dans `describeBase()` et `describeCosmetic()` | `sbgb-param.component.ts` |
-| R3 | Renommer `realSize` → `isRealSize` | `image-preview.component.ts` + template |
-| R4 | Créer `STAR_RATING_VALUES` constant partagée (supprimer les 3 copies) | nouveau `sbgb.constants.ts` |
-| R5 | Créer `PRESET_NAMES` enum | `sbgb-param.component.ts` |
-| R6 | Créer `INFO_MESSAGES` constants | `sbgb.reducer.ts`, `sbgb-param.component.ts` |
-| R7 | Ajouter JSDoc sur toutes les méthodes publiques | tous les fichiers |
-| R8 | Ajouter guard `containerRef` dans `toggleFullscreen()` | `image-preview.component.ts` |
+| # | Action | Statut |
+|---|--------|--------|
+| R1 | Renommer `_myForm` → `sbgbForm` | ✅ |
+| R2 | Renommer `f` → `formValues` dans `describeBase()` et `describeCosmetic()` | ✅ |
+| R3 | Renommer `realSize` → `isRealSize` | ✅ |
+| R4 | Créer `STAR_RATING_VALUES` constant partagée | ✅ `sbgb.constants.ts` |
+| R5 | Créer `PRESET_NAMES` enum (`PresetName`) | ✅ `sbgb.constants.ts` |
+| R6 | Créer `INFO_MESSAGES` constants | ✅ `sbgb.constants.ts` |
+| R7 | JSDoc sur toutes les méthodes publiques | ✅ |
+| R8 | Guard `containerRef?.` dans `toggleFullscreen()` | ✅ |
 
-#### Priorité 2 — DRY & méthodes longues
+#### ✅ Priorité 2 — DRY & méthodes longues — TERMINÉ (commit `b9826fb`)
 
-| # | Action | Fichiers impactés |
-|---|--------|-------------------|
-| R9 | Extraire `loadFormValuesFromSbgb(sbgb)` — fusionne les 3 `patchValue` duplicats | `sbgb-param.component.ts` |
-| R10 | Extraire `setupThresholdSync()` — fusionne les 2 subscriptions threshold | `sbgb-param.component.ts` |
-| R11 | Découper `ngOnInit` en sous-méthodes : `setupInfoMessages()`, `setupSbgbLoader()`, `setupRendersLoader()`, `setupBaseAutoSelect()` | `sbgb-param.component.ts` |
-| R12 | Déplacer les subscriptions du constructeur de `sbgb-list` vers `ngOnInit` | `sbgb-list.component.ts` |
-| R13 | Créer factory selector `createSbgbSelector(key)` pour dédupliquer les 8 selecteurs | `sbgb.selectors.ts` |
+| # | Action | Statut |
+|---|--------|--------|
+| R9 | Extraction `loadFormValuesFromSbgb(sbgb)` — fusionne les 2 blocs `patchValue` | ✅ |
+| R10 | Extraction `setupThresholdSync()` | ✅ |
+| R11 | Découpage `ngOnInit` en 7 sous-méthodes setup | ✅ |
+| R12 | Subscriptions `sbgb-list` déplacées du constructeur vers `ngOnInit` | ✅ |
+| R13 | Factory selector `createSbgbSelector(key)` | ❌ abandonné — sélecteurs déjà optimaux, factory ajouterait de l'opacité |
 
-#### Priorité 3 — SOLID (SRP / DIP)
+#### ✅ Priorité 3 — SOLID (SRP / DIP) — TERMINÉ (commit `a7b95f8`)
 
-| # | Action | Fichiers impactés |
-|---|--------|-------------------|
-| R14 | Extraire `SbgbFormExtractionService` : `getSbgbFromForm()`, `extractLayerConfig()`, `extractImageFormValues()` | nouveau service |
-| R15 | Extraire `SbgbPresetService` : `applySbgbPreset()` | nouveau service |
-| R16 | Remplacer l'appel direct `paramComponent.loadRenderCosmetics(render)` dans `sbgb-shell` par une action NgRx `LoadRenderCosmetics` + effet | `sbgb-shell.component.ts`, `sbgb.actions.ts`, `sbgb.effects.ts` |
-| R17 | Fusionner les 3 dispatches de `onRenderSelected` en une action composite `SelectAndLoadRender` | `sbgb-list.component.ts`, `sbgb.actions.ts` |
+| # | Action | Statut |
+|---|--------|--------|
+| R14 | Extraction `SbgbFormExtractionService` | ❌ abandonné — passer `FormGroup` en paramètre crée plus de complexité (YAGNI) |
+| R15 | Extraction `SbgbPresetService` | ❌ abandonné — même raison |
+| R16 | Remplacer appel direct `paramComponent.loadRenderCosmetics` par action NgRx `applyRenderCosmetics` | ✅ |
+| R17 | Fusionner les 3 dispatches de `onRenderSelected` | ❌ abandonné — orchestration correcte, pas de duplication réelle |
 
-### Ordre d'exécution suggéré
+### Résultat
 
 ```
-Priorité 1 (quick wins)  →  commit "refactor: clean code quick wins post-I4"
-Priorité 2 (DRY)         →  commit "refactor: reduce duplication and split ngOnInit"
-Priorité 3 (SOLID)       →  commit "refactor: extract services and remove direct component coupling"
+P1 (quick wins)  →  commité dans refactor/I4-clean-code
+P2 (DRY)         →  commit b9826fb
+P3 (SOLID)       →  commit a7b95f8
 ```
 
 ---

@@ -1,4 +1,5 @@
 import {createFeature, createReducer, on} from '@ngrx/store';
+import {INFO_MESSAGES} from "../sbgb.constants";
 import {ImageApiActions, SbgbPageActions} from './sbgb.actions';
 import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 
@@ -33,7 +34,7 @@ export const sbgbsFeature = createFeature({
         ...state,
         image: image,
         building: build,
-        infoMessage: 'Image generated successfully'
+        infoMessage: INFO_MESSAGES.IMAGE_GENERATED
       })
     ),
     on(SbgbPageActions.information,
@@ -62,7 +63,7 @@ export const sbgbsFeature = createFeature({
       (state, {render}) => ({
         ...state,
         selectedRenderId: render.id,
-        infoMessage: 'Ciel étoilé sauvegardé avec succès'
+        infoMessage: INFO_MESSAGES.RENDER_SAVED
       })),
     on(SbgbPageActions.selectSbgb,
       (state, {sbgb}) => ({

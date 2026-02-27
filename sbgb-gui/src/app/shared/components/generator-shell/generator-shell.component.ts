@@ -18,12 +18,13 @@ export class GeneratorShellComponent {
 
   @ViewChild(MatTabGroup) tabGroup!: MatTabGroup;
 
-  @ContentChild('paramContent') paramContent!: TemplateRef<any>;
-  @ContentChild('actionBarContent') actionBarContent!: TemplateRef<any>;
-  @ContentChild('imageContent') imageContent!: TemplateRef<any>;
-  @ContentChild('rendersContent') rendersContent!: TemplateRef<any>;
-  @ContentChild('libraryContent') libraryContent!: TemplateRef<any>;
+  @ContentChild('paramContent') paramContent!: TemplateRef<unknown>;
+  @ContentChild('actionBarContent') actionBarContent!: TemplateRef<unknown>;
+  @ContentChild('imageContent') imageContent!: TemplateRef<unknown>;
+  @ContentChild('rendersContent') rendersContent!: TemplateRef<unknown>;
+  @ContentChild('libraryContent') libraryContent!: TemplateRef<unknown>;
 
+  /** Navigue programmatiquement vers l'onglet Générateur (ex. : après sélection depuis la bibliothèque). */
   switchToGenerator(): void {
     this.tabGroup.selectedIndex = 0;
   }
