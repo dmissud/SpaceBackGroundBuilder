@@ -3,9 +3,11 @@ package org.dbs.sbgb.domain.service;
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
 import org.dbs.sbgb.domain.model.*;
+import org.dbs.sbgb.domain.model.NormalizedNoiseGrid;
 import org.dbs.sbgb.port.in.*;
 import org.dbs.sbgb.port.out.NoiseBaseStructureRepository;
 import org.dbs.sbgb.port.out.NoiseCosmeticRenderRepository;
+import org.dbs.sbgb.port.out.NoiseGridComputationPort;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -24,6 +26,7 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
 
     private final NoiseBaseStructureRepository baseStructureRepository;
     private final NoiseCosmeticRenderRepository cosmeticRenderRepository;
+    private final NoiseGridComputationPort noiseGridComputationPort;
 
     @Override
     public byte[] buildNoiseImage(ImageRequestCmd cmd) throws IOException {
@@ -181,42 +184,33 @@ public class ImagesService implements BuildNoiseImageUseCase, RateNoiseCosmeticR
 
     private BufferedImage generateImage(ImageRequestCmd cmd) {
         DefaultNoiseColorCalculator colorCalculator = createColorCalculator(cmd.getColorCmd());
+        int configHash = computeConfigHash(cmd.getSizeCmd());
+
         if (cmd.getSizeCmd().isUseMultiLayer()) {
-            return buildMultiLayerImage(cmd.getSizeCmd(), colorCalculator);
+            return buildMultiLayerImageFromCache(configHash, cmd.getSizeCmd(), colorCalculator);
         }
-        return buildSingleLayerImage(cmd.getSizeCmd(), colorCalculator);
+        return buildSingleLayerImageFromCache(configHash, cmd.getSizeCmd(), colorCalculator);
     }
 
-    private BufferedImage buildSingleLayerImage(ImageRequestCmd.SizeCmd sizeCmd, DefaultNoiseColorCalculator colorCalculator) {
-        return new NoiseImageCalculator.Builder()
-                .withHeight(sizeCmd.getHeight())
-                .withWidth(sizeCmd.getWidth())
-                .withOctaves(sizeCmd.getOctaves())
-                .withPersistence(sizeCmd.getPersistence())
-                .withLacunarity(sizeCmd.getLacunarity())
-                .withScale(sizeCmd.getScale())
-                .withNoiseType(NoiseType.valueOf(sizeCmd.getNoiseType()))
-                .withNoiseColorCalculator(colorCalculator)
-                .build()
-                .create(sizeCmd.getSeed());
+    private BufferedImage buildSingleLayerImageFromCache(int configHash, ImageRequestCmd.SizeCmd sizeCmd,
+                                                         DefaultNoiseColorCalculator colorCalculator) {
+        NormalizedNoiseGrid grid = noiseGridComputationPort.computeSingleLayerGrid(configHash, sizeCmd);
+        return grid.renderWithColors(colorCalculator);
     }
 
-    private BufferedImage buildMultiLayerImage(ImageRequestCmd.SizeCmd sizeCmd, DefaultNoiseColorCalculator colorCalculator) {
-        MultiLayerNoiseImageCalculator.Builder builder = new MultiLayerNoiseImageCalculator.Builder()
-                .withHeight(sizeCmd.getHeight())
-                .withWidth(sizeCmd.getWidth())
-                .withNoiseColorCalculator(colorCalculator);
+    private BufferedImage buildMultiLayerImageFromCache(int configHash, ImageRequestCmd.SizeCmd sizeCmd,
+                                                        DefaultNoiseColorCalculator colorCalculator) {
+        List<NormalizedNoiseGrid> grids = noiseGridComputationPort.computeMultiLayerGrids(configHash, sizeCmd);
+        List<LayerConfig> layerConfigs = resolveLayerConfigs(sizeCmd);
+        return new MultiLayerRenderer(sizeCmd.getWidth(), sizeCmd.getHeight(), colorCalculator)
+                .renderLayers(grids, layerConfigs);
+    }
 
+    private List<LayerConfig> resolveLayerConfigs(ImageRequestCmd.SizeCmd sizeCmd) {
         if (sizeCmd.getLayers() != null && !sizeCmd.getLayers().isEmpty()) {
-            List<LayerConfig> customLayers = sizeCmd.getLayers().stream()
-                    .map(this::toLayerConfig)
-                    .toList();
-            builder.withLayers(customLayers);
-        } else {
-            builder.withPreset(ImagePreset.valueOf(sizeCmd.getPreset()));
+            return sizeCmd.getLayers().stream().map(this::toLayerConfig).toList();
         }
-
-        return builder.build().create(sizeCmd.getSeed());
+        return ImagePreset.valueOf(sizeCmd.getPreset()).getDefaultLayers();
     }
 
     private DefaultNoiseColorCalculator createColorCalculator(ImageRequestCmd.ColorCmd colorCmd) {
