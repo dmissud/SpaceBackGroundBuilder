@@ -9,16 +9,16 @@
       <!-- RIGHT PANEL: Image Preview (sticky) -->
       <div class="preview-panel">
         <div class="preview-sticky">
+          <!-- Renders strip (saved renders for current base) -->
+          @if (rendersContent) {
+            <ng-container *ngTemplateOutlet="rendersContent"></ng-container>
+          }
+
           <!-- Action Bar -->
           <ng-container *ngTemplateOutlet="actionBarContent"></ng-container>
 
           <!-- Image Component -->
           <ng-container *ngTemplateOutlet="imageContent"></ng-container>
-
-          <!-- Renders strip (saved renders for current base) -->
-          @if (rendersContent) {
-            <ng-container *ngTemplateOutlet="rendersContent"></ng-container>
-          }
         </div>
       </div>
     </div>
