@@ -6,6 +6,7 @@ export interface SbgbState {
   sbgb: Sbgb | null;
   bases: NoiseBaseStructureDto[];
   renders: NoiseCosmeticRenderDto[];
+  selectedRenderId: string | null;
   image: string | ArrayBuffer | null;
   building: boolean;
   infoMessage: string,
@@ -16,6 +17,7 @@ export const initialState: SbgbState = {
   sbgb: null,
   bases: [],
   renders: [],
+  selectedRenderId: null,
   image: null,
   building: false,
   infoMessage: '',
@@ -44,7 +46,8 @@ export const sbgbsFeature = createFeature({
       (state, {sbgb, build}) => ({
         ...state,
         sbgb: sbgb,
-        building: build
+        building: build,
+        selectedRenderId: null
       })),
     on(ImageApiActions.imagesLoadSuccess,
       (state, {bases}) => ({
@@ -52,8 +55,9 @@ export const sbgbsFeature = createFeature({
         bases: bases
       })),
     on(ImageApiActions.imagesSaveSuccess,
-      (state) => ({
+      (state, {render}) => ({
         ...state,
+        selectedRenderId: render.id,
         infoMessage: 'Ciel étoilé sauvegardé avec succès'
       })),
     on(SbgbPageActions.selectSbgb,

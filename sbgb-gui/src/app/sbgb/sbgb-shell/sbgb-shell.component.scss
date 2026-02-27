@@ -48,11 +48,18 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 2px solid rgba(0,0,0,0.15);
   border-radius: 6px;
   padding: 6px;
   background: rgba(0,0,0,0.02);
   width: 90px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &.selected {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25);
+    background: rgba(63, 81, 181, 0.05);
+  }
 }
 
 .render-thumbnail {
