@@ -1,12 +1,23 @@
-<div #container class="image-container" [class.real-size]="realSize" [class.fullscreen]="isFullscreen">
-  @if (isGenerating) {
-    <div class="loading-state">
-      <mat-spinner diameter="80"></mat-spinner>
-    </div>
-  } @else if (imageUrl) {
-    <img [src]="imageUrl"
-      [alt]="altText"
-      class="preview-image">
+<div #container class="image-wrapper">
+  <div class="image-container" [class.real-size]="realSize">
+    @if (isGenerating) {
+      <div class="loading-state">
+        <mat-spinner diameter="80"></mat-spinner>
+      </div>
+    } @else if (imageUrl) {
+      <img [src]="imageUrl"
+        [alt]="altText"
+        class="preview-image">
+    } @else {
+      <div class="empty-state">
+        <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
+        <p>{{ emptyMessage }}</p>
+        <p>{{ emptyHint }}</p>
+      </div>
+    }
+  </div>
+
+  @if (imageUrl && !isGenerating) {
     <div class="image-controls">
       <button mat-icon-button
               (click)="toggleRealSize()"
@@ -18,12 +29,6 @@
               [matTooltip]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'">
         <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
       </button>
-    </div>
-  } @else {
-    <div class="empty-state">
-      <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
-      <p>{{ emptyMessage }}</p>
-      <p>{{ emptyHint }}</p>
     </div>
   }
 </div>
