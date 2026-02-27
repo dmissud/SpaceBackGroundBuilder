@@ -30,15 +30,24 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,caches,loggers,env,threaddump,heapdump,scheduledtasks
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
+    caches:
+      enabled: true
   info:
     env:
       enabled: true
     git:
-      mode: full # Permet d'avoir le SHA complet et les détails du commit
+      mode: full
+
+spring.boot.admin:
+  context-path: /admin
+  client:
+    url: http://localhost:${server.port}
+    instance:
+      service-base-url: http://localhost:${server.port}
 info:
   app:
     name: SpaceBackGroundBuilder
