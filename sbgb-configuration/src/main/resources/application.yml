@@ -45,7 +45,7 @@ management:
 spring.boot.admin:
   context-path: /admin
   client:
-    url: http://localhost:${server.port}
+    url: http://localhost:${server.port}/admin
     instance:
       service-base-url: http://localhost:${server.port}
 info:
