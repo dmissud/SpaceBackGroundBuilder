@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {catchError, concatMap, from, map, mergeMap, of} from "rxjs";
+import {catchError, concatMap, filter, from, map, mergeMap, of} from "rxjs";
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {ImageApiActions, SbgbPageActions} from "./sbgb.actions";
 import {Router} from "@angular/router";
@@ -53,6 +53,35 @@ export class SbgbEffects {
           catchError((error) => of(ImageApiActions.imagesSaveFail({message: this.errorHandler.extractMessage(error)})))
         )
       )
+    )
+  );
+
+  reloadAfterSave$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesSaveSuccess),
+      map(() => SbgbPageActions.loadSbgbs())
+    )
+  );
+
+  reloadRendersAfterSave$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesSaveSuccess),
+      map(({render}) => SbgbPageActions.loadRendersForBase({baseId: render.baseStructureId}))
+    )
+  );
+
+  reloadRendersAfterDelete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ImageApiActions.imagesDeleteRenderSuccess),
+      map(() => SbgbPageActions.loadSbgbs())
+    )
+  );
+
+  loadRendersOnSelect$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(SbgbPageActions.selectSbgb),
+      filter(({sbgb}) => !!sbgb.id),
+      map(({sbgb}) => SbgbPageActions.loadRendersForBase({baseId: sbgb.id!}))
     )
   );
 

@@ -25,7 +25,8 @@ class FindAndDeleteNoiseCosmeticRenderUseCaseTest {
         renderDb = new ArrayList<>();
         imagesService = new ImagesService(
                 new InMemoryNoiseBaseStructureRepository(baseDb),
-                new InMemoryNoiseCosmeticRenderRepository(renderDb));
+                new InMemoryNoiseCosmeticRenderRepository(renderDb),
+                new cucumber.steps.NoiseGridComputationPortStub());
     }
 
     @Test

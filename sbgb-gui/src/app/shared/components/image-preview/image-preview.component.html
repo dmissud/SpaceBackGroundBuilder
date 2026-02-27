@@ -1,17 +1,34 @@
-<div class="image-container">
-  @if (isGenerating) {
-    <div class="loading-state">
-      <mat-spinner diameter="80"></mat-spinner>
-    </div>
-  } @else if (imageUrl) {
-    <img [src]="imageUrl"
-      [alt]="altText"
-      class="preview-image">
-  } @else {
-    <div class="empty-state">
-      <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
-      <p>{{ emptyMessage }}</p>
-      <p>{{ emptyHint }}</p>
+<div #container class="image-wrapper">
+  <div class="image-container" [class.is-real-size]="isRealSize">
+    @if (isGenerating) {
+      <div class="loading-state">
+        <mat-spinner diameter="80"></mat-spinner>
+      </div>
+    } @else if (imageUrl) {
+      <img [src]="imageUrl"
+        [alt]="altText"
+        class="preview-image">
+    } @else {
+      <div class="empty-state">
+        <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
+        <p>{{ emptyMessage }}</p>
+        <p>{{ emptyHint }}</p>
+      </div>
+    }
+  </div>
+
+  @if (imageUrl && !isGenerating) {
+    <div class="image-controls">
+      <button mat-icon-button
+              (click)="toggleRealSize()"
+              [matTooltip]="isRealSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
+        <mat-icon>{{ isRealSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
+      </button>
+      <button mat-icon-button
+              (click)="toggleFullscreen()"
+              [matTooltip]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'">
+        <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
     </div>
   }
 </div>

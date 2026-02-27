@@ -191,7 +191,7 @@ describe('SbgbParamComponent', () => {
       const fakeLink = { href: '', download: '', click: clickSpy } as any;
       jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
-      component['_myForm'].patchValue({ name: 'my-stars' }, { emitEvent: false });
+      component['baseForm'].patchValue({ name: 'my-stars' }, { emitEvent: false });
 
       component.downloadImage();
 
@@ -209,7 +209,7 @@ describe('SbgbParamComponent', () => {
       const fakeLink = { href: '', download: '', click: clickSpy } as any;
       jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
 
-      component['_myForm'].patchValue({ name: '' }, { emitEvent: false });
+      component['baseForm'].patchValue({ name: '' }, { emitEvent: false });
 
       component.downloadImage();
 
@@ -229,14 +229,14 @@ describe('SbgbParamComponent', () => {
 
   describe('describeBase', () => {
     it('should return base description from form values', () => {
-      component['_myForm'].patchValue({ width: 1920, height: 1080, seed: 42, octaves: 3, noiseType: 'FBM' });
+      component['baseForm'].patchValue({ width: 1920, height: 1080, seed: 42, octaves: 3, noiseType: 'FBM' });
       expect(component.describeBase()).toBe('FBM 3oct — 1920×1080 — seed 42');
     });
   });
 
   describe('describeCosmetic', () => {
     it('should return opaque cosmetic description from form values', () => {
-      component['_myForm'].patchValue({
+      component['cosmeticForm'].patchValue({
         backgroundColor: '#6b2d8b', middleColor: '#ff9500', foregroundColor: '#ffffff',
         backThreshold: 0.3, middleThreshold: 0.7, interpolationType: 'LINEAR', transparentBackground: false
       });
@@ -244,7 +244,7 @@ describe('SbgbParamComponent', () => {
     });
 
     it('should indicate transparent background in cosmetic description', () => {
-      component['_myForm'].patchValue({ transparentBackground: true, backThreshold: 0.3, middleThreshold: 0.7, interpolationType: 'LINEAR' });
+      component['cosmeticForm'].patchValue({ transparentBackground: true, backThreshold: 0.3, middleThreshold: 0.7, interpolationType: 'LINEAR' });
       expect(component.describeCosmetic()).toContain('transparent');
     });
   });

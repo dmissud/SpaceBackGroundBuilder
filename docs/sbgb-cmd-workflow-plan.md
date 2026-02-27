@@ -184,6 +184,93 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 - Clic sur un Rendu → générateur chargé avec les bons paramètres.
 - Suppression du dernier Rendu → Base disparaît.
 
+### Statut I4
+✅ Fonctionnel — en attente du refactoring Clean Code (voir section ci-dessous)
+
+---
+
+## Refactoring Clean Code post-I4 — Frontend Angular
+
+**Branche** : `refactor/I4-clean-code` (à créer depuis `feature/I4-history-library`)
+**Statut** : 🔲 À faire
+
+### État des lieux — violations identifiées
+
+#### 🔴 Critique
+
+| # | Fichier | Violation | Détail |
+|---|---------|-----------|--------|
+| C1 | `sbgb-param.component.ts` | SRP | ~660 lignes, 8+ responsabilités : formulaires, state, validation, presets, comparaison, extraction, dialogue, notation |
+| C2 | `sbgb-param.component.ts` | Méthodes trop longues | `ngOnInit` : 135 lignes, `getSbgbFromForm` : 56 lignes, `applySbgbPreset` : 41 lignes |
+
+#### 🟠 Haute
+
+| # | Fichier | Violation | Détail |
+|---|---------|-----------|--------|
+| H1 | Tous les fichiers | JSDoc absent | Aucune méthode publique documentée dans les 10 fichiers du périmètre |
+| H2 | `sbgb-param.component.ts` | DRY | `patchValue` dupliqué 3× ; thresholds sync dupliqué 2× |
+| H3 | `sbgb-param.component.ts` | Constructeur surchargé | 5 paramètres injectés ; logique de formulaire dans le constructeur |
+| H4 | `sbgb-shell.component.ts` | DIP | Appels directs `paramComponent.loadRenderCosmetics()` au lieu de passer par le store |
+| H5 | `sbgb-shell.component.ts` | DRY | 4 getters identiques (`canBuild`, `canRate`, `getRatingTooltip`, `getSummary`) qui délèguent tous à `paramComponent?.method() \|\| fallback` |
+| H6 | `sbgb-list.component.ts` | Subscriptions dans le constructeur | 2 subscriptions `store.select()` dans le constructeur au lieu de `ngOnInit` |
+
+#### 🟡 Moyenne
+
+| # | Fichier | Violation | Détail |
+|---|---------|-----------|--------|
+| M1 | `sbgb-param.component.ts` | Nommage | `_myForm` (préfixe `_`, nom vague), `f` dans `describeBase()` et `describeCosmetic()` |
+| M2 | `sbgb-param.component.ts` | Magic strings | `'Image generated successfully'`, noms de presets en dur (`'DEEP_SPACE'`, `'STARFIELD'`…) |
+| M3 | `image-preview.component.ts` | Nommage | `realSize` (booléen sans verbe) → devrait être `isRealSize` |
+| M4 | `image-preview.component.ts` | Guard manquant | `containerRef.nativeElement.requestFullscreen()` sans vérification de `containerRef` |
+| M5 | `sbgb-history-list.component.ts` | DRY | `starValues = [1,2,3,4,5]` dupliqué dans 3 composants |
+| M6 | `generator-shell.component.ts` | Typage faible | `TemplateRef<any>` → devrait être `TemplateRef<unknown>` |
+| M7 | `sbgb.reducer.ts` | Magic strings | Messages info/error en dur dans le reducer |
+| M8 | `sbgb.selectors.ts` | DRY | 8 selecteurs avec le même pattern répété |
+| M9 | `sbgb-list.component.ts` | Architecture | 3 dispatches en cascade dans `onRenderSelected` → logique métier dans le composant |
+| M10 | `sbgb-render.mapper.ts` | Magic string | `preset: 'CUSTOM'` codé en dur sans constante |
+
+### Plan de remédiation
+
+#### ✅ Priorité 1 — Quick wins (nommage + constantes + JSDoc) — TERMINÉ
+
+| # | Action | Statut |
+|---|--------|--------|
+| R1 | Renommer `_myForm` → `sbgbForm` | ✅ |
+| R2 | Renommer `f` → `formValues` dans `describeBase()` et `describeCosmetic()` | ✅ |
+| R3 | Renommer `realSize` → `isRealSize` | ✅ |
+| R4 | Créer `STAR_RATING_VALUES` constant partagée | ✅ `sbgb.constants.ts` |
+| R5 | Créer `PRESET_NAMES` enum (`PresetName`) | ✅ `sbgb.constants.ts` |
+| R6 | Créer `INFO_MESSAGES` constants | ✅ `sbgb.constants.ts` |
+| R7 | JSDoc sur toutes les méthodes publiques | ✅ |
+| R8 | Guard `containerRef?.` dans `toggleFullscreen()` | ✅ |
+
+#### ✅ Priorité 2 — DRY & méthodes longues — TERMINÉ (commit `b9826fb`)
+
+| # | Action | Statut |
+|---|--------|--------|
+| R9 | Extraction `loadFormValuesFromSbgb(sbgb)` — fusionne les 2 blocs `patchValue` | ✅ |
+| R10 | Extraction `setupThresholdSync()` | ✅ |
+| R11 | Découpage `ngOnInit` en 7 sous-méthodes setup | ✅ |
+| R12 | Subscriptions `sbgb-list` déplacées du constructeur vers `ngOnInit` | ✅ |
+| R13 | Factory selector `createSbgbSelector(key)` | ❌ abandonné — sélecteurs déjà optimaux, factory ajouterait de l'opacité |
+
+#### ✅ Priorité 3 — SOLID (SRP / DIP) — TERMINÉ (commit `a7b95f8`)
+
+| # | Action | Statut |
+|---|--------|--------|
+| R14 | Extraction `SbgbFormExtractionService` | ❌ abandonné — passer `FormGroup` en paramètre crée plus de complexité (YAGNI) |
+| R15 | Extraction `SbgbPresetService` | ❌ abandonné — même raison |
+| R16 | Remplacer appel direct `paramComponent.loadRenderCosmetics` par action NgRx `applyRenderCosmetics` | ✅ |
+| R17 | Fusionner les 3 dispatches de `onRenderSelected` | ❌ abandonné — orchestration correcte, pas de duplication réelle |
+
+### Résultat
+
+```
+P1 (quick wins)  →  commité dans refactor/I4-clean-code
+P2 (DRY)         →  commit b9826fb
+P3 (SOLID)       →  commit a7b95f8
+```
+
 ---
 
 ## Incrément 5 — Cache serveur (performance)

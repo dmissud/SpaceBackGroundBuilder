@@ -42,12 +42,17 @@
 
   <!-- Renders strip content -->
   <ng-template #rendersContent>
-    @if (paramComponent && paramComponent.renders.length) {
+    @if (renders().length) {
       <div class="renders-strip">
-        <span class="renders-strip-title">🗂️ Rendus sauvegardés — Modèle de Base courant</span>
+        <span class="renders-strip-title">
+          🗂️ Rendus sauvegardés — Modèle de Base courant
+          @if (canBuild()) {
+            <span class="pending-dot" matTooltip="Paramètres modifiés — génération disponible"></span>
+          }
+        </span>
         <div class="renders-list">
-          @for (render of paramComponent!.renders; track render.id) {
-            <div class="render-card">
+          @for (render of renders(); track render.id) {
+            <div class="render-card" [class.selected]="render.id === selectedRenderId()" (click)="onSelectRender(render)">
               @if (render.thumbnail) {
                 <img class="render-thumbnail"
                      [src]="'data:image/png;base64,' + render.thumbnail"
@@ -61,7 +66,7 @@
                   </mat-icon>
                 }
               </div>
-              <button mat-icon-button (click)="paramComponent!.deleteRenderById(render.id)"
+              <button mat-icon-button (click)="onDeleteRender(render.id); $event.stopPropagation()"
                       matTooltip="Supprimer ce rendu" class="delete-render-btn">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -74,7 +79,7 @@
 
   <!-- Library content -->
   <ng-template #libraryContent>
-    <app-sbgb-list (viewRequested)="onViewRequested($event)"></app-sbgb-list>
+    <app-sbgb-list></app-sbgb-list>
   </ng-template>
 
 </app-generator-shell>

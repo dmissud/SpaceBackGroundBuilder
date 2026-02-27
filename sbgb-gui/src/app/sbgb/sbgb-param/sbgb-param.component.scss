@@ -17,6 +17,18 @@
   gap: 4px;
   font-size: 0.85em;
   color: rgba(0,0,0,0.7);
+  transition: color 0.3s;
+
+  &.pending {
+    animation: pulse-bg 1.4s ease-in-out infinite;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+}
+
+@keyframes pulse-bg {
+  0%, 100% { background-color: transparent; }
+  50%       { background-color: rgba(245, 159, 0, 0.25); }
 }
 
 .base-description, .cosmetic-description {

@@ -41,6 +41,15 @@ public class PerlinGenerator {
         return normalizeNoiseValue(scaleNoiseValue(x, y));
     }
 
+    /** Calcule le pipeline de bruit, normalise et retourne la grille normalisée cacheable. */
+    public NormalizedNoiseGrid computeAndNormalize(long seed, int width, int height, int octaves,
+                                                   double persistence, double lacunarity, double scale,
+                                                   NoiseType noiseType) {
+        createNoisePipeline(seed, width, height, octaves, persistence, lacunarity, scale, noiseType);
+        performNormalization();
+        return new NormalizedNoiseGrid(noisePipeline, minVal, maxVal, width, height);
+    }
+
     public void performNormalization() {
         normalizeMinimumAndMaximumValues();
         log.info("Normalized({}, {})", this.minVal, this.maxVal);

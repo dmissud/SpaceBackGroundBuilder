@@ -2,6 +2,45 @@
 
 Ce document compile l'historique du projet, incluant le journal de réalisation des nouvelles fonctionnalités et le suivi des refactorings Clean Code.
 
+---
+
+## Fix — Routing K8s Nginx (2026-02-26)
+
+**Branche** : `fix/k8s-nginx-routing`
+**PR** : #51
+**Statut** : ✅ Terminé
+
+### Problème
+
+La version Kubernetes ne fonctionnait pas (404 sur l'API, retour HTML au lieu de JSON) alors que Docker Compose fonctionnait correctement. Trois causes cumulées :
+
+1. **`rewrite-target: /$2`** dans l'Ingress transformait `/sbgb/api/images` en `/api/images`, qui arrivait sur le Nginx frontend sans proxy configuré
+2. **ConfigMap Nginx minimaliste** — aucun `proxy_pass` vers le backend, toutes les requêtes retournaient `index.html`
+3. **Ordre des paths Ingress** — la règle générique `/sbgb(/|$)(.*)` capturait tout avant `/sbgb/api(/|$)(.*)`
+
+### Solution
+
+- Suppression du `rewrite-target` dans l'Ingress (base + Helm)
+- Ingress simplifié : une seule règle `Prefix /sbgb/` → frontend
+- ConfigMap remplacée par une config nginx complète alignée sur le `nginx.conf` Docker Compose
+- Le Nginx du pod frontend proxy `/sbgb/api/` → `sbgb-backend:8080/api/`
+
+### Flux après fix
+
+```
+Browser → Ingress (Prefix /sbgb/) → Frontend Nginx Pod
+                                       ├── /sbgb/api/* → proxy_pass → sbgb-backend:8080/api/*
+                                       └── /sbgb/*     → Angular SPA (try_files)
+```
+
+### Fichiers modifiés
+
+- `k8s/sbgb/base/ingress.yaml`
+- `k8s/sbgb/base/frontend.yaml`
+- `k8s/helm/sbgb/templates/ingress.yaml`
+
+---
+
 ## 1. Journal de Réalisation — Nouveau Flux de Travail Ciel Étoilé
 
 ### Références
@@ -92,6 +131,116 @@ Brancher la sauvegarde sur la notation. Supprimer `CreateNoiseImageUseCase` et `
 - **Option B** : dispatch `rateSbgb` pour chaque rendu avec les params de base courants + cosmétiques du rendu. Utilise le find-or-create backend pour créer la nouvelle base et les rendus associés.
 - **`thumbnail` dans `NoiseCosmeticRenderDTO`** : ajouté pour permettre l'affichage des vignettes dans la bande de rendus sauvegardés (`GET /images/bases/{id}/renders`). Le mapper MapStruct le mappe automatiquement depuis le domaine.
 - **`thumbnail` TypeScript** : `byte[]` Java est sérialisé par Jackson en base64 String → type `string | null` dans le modèle TS. Utilisé directement dans `[src]="'data:image/png;base64,' + render.thumbnail"`.
+
+---
+
+### Incrément 4 — Bibliothèque hiérarchique
+
+**Objectif** : Nouveau composant `sbgb-history-list` affichant Modèles de Base et leurs Rendus en accordéon hiérarchique.
+**Branche** : `feature/I4-history-library`
+**Statut** : ✅ Terminé
+
+#### Étapes TDD
+
+| # | Cycle | Périmètre | Statut | Commit |
+|---|-------|-----------|--------|--------|
+| 4.1 | RED-GREEN | SbgbHistoryListComponent : accordéon, visibleBases, rendersFor, events | ✅ | `1ea64c6` |
+| 4.2 | RED-GREEN | SbgbListComponent : intégration NgRx store + history-list | ✅ | `6674880` |
+| 4.3 | REFACTOR | Extract mapper SRP, takeUntilDestroyed, starValues constant | ✅ | `58cb402` |
+
+#### Composants créés/modifiés
+- `sbgb-history-list.component.ts/html/scss` — nouveau composant accordéon hiérarchique (Bases → Rendus)
+- `sbgb-list.component.ts` — refactorisé pour déléguer à sbgb-history-list et au store NgRx
+- `sbgb-render.mapper.ts` — extraction SRP du mapping Base+Render → Sbgb
+
+#### Tests
+- 20 tests unitaires (`sbgb-history-list.component.spec`, `sbgb-list.component.spec`, `sbgb-render.mapper.spec`)
+
+---
+
+### Correctifs & Améliorations UX post-I4 — Bande de vignettes & Visualisation
+
+**Branche** : `feature/I4-history-library` (suite)
+**Statut** : ✅ Terminé
+
+#### Correctifs bande de vignettes
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 1 | Ajout des styles CSS manquants pour la bande de vignettes (`renders-strip`, `render-card`, `render-thumbnail`, `render-stars`) | `b6f2997` |
+| 2 | Passage du panneau preview de `sticky` à scrollable pour afficher la bande | `b6f2997` |
+| 3 | Déplacement de la bande de vignettes au-dessus du bouton "Générer aperçu" | `3e03354` |
+| 4 | Réduction des étoiles à 12px pour qu'elles tiennent dans la carte | `6d1a1bb` |
+
+#### Sélection de vignette
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 5 | Surbrillance de la vignette correspondant à l'image affichée (`selectedRenderId` dans le store NgRx) | `5b40a83` |
+| 6 | Clic sur une vignette → charge ses cosmétiques dans le formulaire | `0aab7a0` |
+| 7 | Dispatch `selectRender` depuis la bibliothèque lors du chargement d'un rendu | `3e1ab6c` |
+| 8 | Conservation de la sélection après génération ; effacement uniquement sur modification manuelle | `243d0a8` |
+| 9 | Auto-sélection au démarrage si les paramètres par défaut correspondent à une base existante | `f0ed382` |
+
+#### Feedback visuel génération disponible
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 10 | Point orange pulsant dans le titre de la bande quand la génération est disponible | `75aec91` |
+| 11 | Fond pulsant sur le titre de l'accordéon des paramètres quand la génération est disponible | `608feb8` + `81862ed` |
+
+#### Visualisation image
+
+| # | Description | Commit |
+|---|-------------|--------|
+| 12 | Toggle taille réelle / ajusté à la fenêtre sur l'aperçu image | `73b4f87` |
+| 13 | Mode plein écran (respect du mode fit ou taille réelle) via API Fullscreen | `fc280e4` |
+| 14 | Boutons de contrôle toujours visibles en haut à droite (hors zone scrollable) | `b3f0ba9` |
+
+#### Décisions techniques
+- **`selectedRenderId` dans le store** : source de vérité unique pour la surbrillance, mise à jour par `selectRender`, `imagesSaveSuccess`, `clearSelectedRender`.
+- **`cosmeticForm.valueChanges` + `{emitEvent: false}`** : permet de distinguer un chargement programmatique (pas de clear) d'une modification manuelle (clear de la sélection).
+- **`pendingAutoSelectBaseId`** : flag local dans `sbgb-param` pour relier le chargement des bases au chargement des rendus lors de l'auto-sélection au démarrage.
+- **Wrapper externe `image-wrapper`** : les boutons de contrôle sont positionnés sur le wrapper (hors du conteneur scrollable), restent visibles quel que soit le scroll. L'API Fullscreen est appelée sur ce wrapper.
+
+---
+
+### Refactoring Clean Code post-I4
+
+**Branche** : `refactor/I4-clean-code`
+**Statut** : ✅ Terminé
+
+#### P1 — Quick wins (nommage, constantes, JSDoc)
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R1 | Renommage `_myForm` → `sbgbForm` | P1 |
+| R2 | Renommage `f` → `formValues` dans `describeBase/describeCosmetic` | P1 |
+| R3 | Renommage `realSize` → `isRealSize` dans `image-preview` | P1 |
+| R4-R6 | Création `sbgb.constants.ts` : `STAR_RATING_VALUES`, `PresetName` enum, `INFO_MESSAGES` | P1 |
+| R7 | JSDoc sur toutes les méthodes publiques (shell, param, list, history-list, image-preview, generator-shell) | P1 |
+| R8 | Guard `containerRef?.` dans `toggleFullscreen()` | P1 |
+
+#### P2 — DRY & méthodes longues
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R9 | Extraction `loadFormValuesFromSbgb(sbgb)` — fusionne les 2 blocs `patchValue` dupliqués | `b9826fb` |
+| R10-R11 | Découpage de `ngOnInit` en 7 sous-méthodes : `setupThresholdSync`, `setupInfoMessageListener`, `setupSbgbLoader`, `setupErrorMessageListener`, `setupSaveResultListener`, `setupRendersLoader`, `setupBaseAutoSelect` | `b9826fb` |
+| R12 | Subscriptions de `sbgb-list` déplacées du constructeur vers `ngOnInit` | `b9826fb` |
+
+#### P3 — SOLID & découplage store
+
+| # | Description | Commit |
+|---|-------------|--------|
+| R16 | Nouvelle action `applyRenderCosmetics({render})` — supprime l'appel direct `paramComponent.loadRenderCosmetics` depuis `sbgb-shell` | `a7b95f8` |
+| — | `loadRenderCosmetics` devient `private` dans `sbgb-param` ; réagit via `setupRenderCosmeticsLoader()` (Actions ofType) | `a7b95f8` |
+| — | Correction spec `sbgb-param` : `_myForm` → `baseForm`/`cosmeticForm` | `a7b95f8` |
+
+#### Décisions techniques
+- **R13 abandonné** : factory selector `createSbgbSelector` — les sélecteurs sont déjà optimaux sous forme explicite, une factory ajouterait de l'opacité sans valeur.
+- **R14-R15 abandonnés** : extractions `SbgbFormExtractionService` / `SbgbPresetService` — nécessiteraient de passer `FormGroup` en paramètre, plus de complexité que de valeur (YAGNI).
+- **R17 abandonné** : fusion des 3 dispatches de `onRenderSelected` — orchestration correcte, complexification non justifiée.
 
 ---
 

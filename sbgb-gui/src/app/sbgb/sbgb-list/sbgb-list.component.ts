@@ -1,96 +1,61 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {selectBases} from "../state/sbgb.selectors";
-import {SbgbPageActions} from "../state/sbgb.actions";
-import {NoiseBaseStructureDto, Sbgb} from "../sbgb.model";
-import {map} from "rxjs/operators";
-import {LibraryItem, LibraryListComponent} from "../../shared/components/library-list/library-list.component";
+import {Component, OnInit, DestroyRef} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Store} from '@ngrx/store';
+import {selectBases, selectRenders} from '../state/sbgb.selectors';
+import {SbgbPageActions} from '../state/sbgb.actions';
+import {NoiseBaseStructureDto, NoiseCosmeticRenderDto} from '../sbgb.model';
+import {SbgbHistoryListComponent} from '../sbgb-history-list/sbgb-history-list.component';
+import {groupRendersByBaseId, toSbgbFromRender} from './sbgb-render.mapper';
 
 @Component({
-    selector: 'app-sbgb-list',
-    standalone: true,
-    imports: [LibraryListComponent],
-    template: `
-      <app-library-list
-        title="Ciels étoilés enregistrés"
-        [items]="libraryItems"
-        [isLoading]="false"
-        emptyMessage="Aucun ciel étoilé enregistré. Créez votre premier ciel étoilé !"
-        [showRefreshButton]="false"
-        [showNameColumn]="false"
-        (viewRequested)="onViewRequested($event)">
-      </app-library-list>
-    `,
-    styles: ``
+  selector: 'app-sbgb-list',
+  standalone: true,
+  imports: [SbgbHistoryListComponent],
+  template: `
+    <app-sbgb-history-list
+      [bases]="bases"
+      [rendersByBaseId]="rendersByBaseId"
+      (loadRendersRequested)="onLoadRendersForBase($event)"
+      (deleteRenderRequested)="onDeleteRender($event)"
+      (renderSelected)="onRenderSelected($event)">
+    </app-sbgb-history-list>
+  `
 })
 export class SbgbListComponent implements OnInit {
 
   bases: NoiseBaseStructureDto[] = [];
-  libraryItems: LibraryItem[] = [];
+  rendersByBaseId: Record<string, NoiseCosmeticRenderDto[]> = {};
 
-  @Output() viewRequested = new EventEmitter<Sbgb>();
-
-  constructor(private store: Store) {
-    this.store.select(selectBases).pipe(
-      map(bases => bases.map(b => ({
-        id: b.id,
-        name: '',
-        description: b.description || '',
-        width: b.width,
-        height: b.height,
-        seed: b.seed,
-        note: b.maxNote ?? 0
-      })))
-    ).subscribe(items => {
-      this.libraryItems = items;
-    });
-
-    this.store.select(selectBases).subscribe(bases => {
-      this.bases = bases;
-    });
-  }
+  constructor(private store: Store, private destroyRef: DestroyRef) {}
 
   ngOnInit(): void {
     this.store.dispatch(SbgbPageActions.loadSbgbs());
+    this.store.select(selectBases)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(bases => { this.bases = bases; });
+    this.store.select(selectRenders)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(renders => { this.rendersByBaseId = groupRendersByBaseId(renders); });
   }
 
-  onViewRequested(item: LibraryItem): void {
-    const base = this.bases.find(b => b.id === item.id);
-    if (base) {
-      this.viewRequested.emit(this.toSbgb(base));
-    }
+  /** Charge les rendus d'une base lors du déploiement de son accordéon. */
+  onLoadRendersForBase(baseId: string): void {
+    this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
-  public confirmView(sbgb: Sbgb): void {
+  /** Supprime un rendu et met à jour la bibliothèque. */
+  onDeleteRender(renderId: string): void {
+    this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
+  }
+
+  /** Charge un rendu dans le générateur et bascule sur l'onglet Générateur. */
+  onRenderSelected(render: NoiseCosmeticRenderDto): void {
+    const base = this.bases.find(b => b.id === render.baseStructureId);
+    if (!base) return;
+
+    const sbgb = toSbgbFromRender(base, render);
     this.store.dispatch(SbgbPageActions.selectSbgb({sbgb}));
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
-  }
-
-  private toSbgb(base: NoiseBaseStructureDto): Sbgb {
-    return {
-      id: base.id,
-      description: base.description,
-      note: base.maxNote,
-      imageStructure: {
-        width: base.width,
-        height: base.height,
-        seed: base.seed,
-        octaves: base.octaves,
-        persistence: base.persistence,
-        lacunarity: base.lacunarity,
-        scale: base.scale,
-        noiseType: base.noiseType,
-        preset: 'CUSTOM',
-        useMultiLayer: base.useMultiLayer
-      },
-      imageColor: {
-        back: '#000000',
-        middle: '#FFA500',
-        fore: '#FFFFFF',
-        backThreshold: 0.7,
-        middleThreshold: 0.75,
-        interpolationType: 'LINEAR'
-      }
-    };
+    this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
   }
 }

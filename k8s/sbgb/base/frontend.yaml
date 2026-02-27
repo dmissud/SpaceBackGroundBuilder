@@ -13,13 +13,49 @@ data:
         index index.html;
         absolute_redirect off;
 
-        location / {
-            try_files $uri $uri/ /index.html;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
         }
 
-        error_page   500 502 503 504  /50x.html;
+        location = / {
+            return 301 /sbgb/;
+        }
+
+        location /sbgb/api/ {
+            proxy_pass http://sbgb-backend:8080/api/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+            proxy_connect_timeout 300s;
+            proxy_send_timeout 300s;
+            proxy_read_timeout 300s;
+        }
+
+        location /sbgb/ {
+            try_files $uri $uri/ /sbgb/index.html;
+        }
+
+        location = /sbgb/index.html {
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Pragma "no-cache";
+            add_header Expires 0;
+        }
+
+        error_page 404 /sbgb/index.html;
+        error_page 500 502 503 504 /50x.html;
         location = /50x.html {
-            root   /usr/share/nginx/html;
+            root /usr/share/nginx/html;
         }
     }
 ---
