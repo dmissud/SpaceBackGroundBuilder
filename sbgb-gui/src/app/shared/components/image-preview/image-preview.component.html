@@ -1,4 +1,4 @@
-<div class="image-container" [class.real-size]="realSize">
+<div #container class="image-container" [class.real-size]="realSize" [class.fullscreen]="isFullscreen">
   @if (isGenerating) {
     <div class="loading-state">
       <mat-spinner diameter="80"></mat-spinner>
@@ -7,11 +7,18 @@
     <img [src]="imageUrl"
       [alt]="altText"
       class="preview-image">
-    <button mat-icon-button class="size-toggle-btn"
-            (click)="toggleRealSize()"
-            [matTooltip]="realSize ? 'Réduire (ajuster à la fenêtre)' : 'Taille réelle (1:1)'">
-      <mat-icon>{{ realSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
-    </button>
+    <div class="image-controls">
+      <button mat-icon-button
+              (click)="toggleRealSize()"
+              [matTooltip]="realSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
+        <mat-icon>{{ realSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
+      </button>
+      <button mat-icon-button
+              (click)="toggleFullscreen()"
+              [matTooltip]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'">
+        <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+    </div>
   } @else {
     <div class="empty-state">
       <mat-spinner diameter="80" style="opacity: 0.3;"></mat-spinner>
