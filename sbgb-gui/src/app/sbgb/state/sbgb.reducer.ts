@@ -74,6 +74,11 @@ export const sbgbsFeature = createFeature({
       (state, {renderId}) => ({
         ...state,
         renders: state.renders.filter(r => r.id !== renderId)
+      })),
+    on(SbgbPageActions.selectRender,
+      (state, {renderId}) => ({
+        ...state,
+        selectedRenderId: renderId
       }))
   )
 });

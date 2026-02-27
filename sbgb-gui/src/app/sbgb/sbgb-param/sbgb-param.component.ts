@@ -353,6 +353,21 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
+  loadRenderCosmetics(render: NoiseCosmeticRenderDto): void {
+    this.cosmeticForm.patchValue({
+      [SbgbParamComponent.BACKGROUND_COLOR]: render.back,
+      [SbgbParamComponent.MIDDLE_COLOR]: render.middle,
+      [SbgbParamComponent.FOREGROUND_COLOR]: render.fore,
+      [SbgbParamComponent.BACK_THRESHOLD]: render.backThreshold,
+      [SbgbParamComponent.MIDDLE_THRESHOLD]: render.middleThreshold,
+      [SbgbParamComponent.INTERPOLATION_TYPE]: render.interpolationType,
+      [SbgbParamComponent.TRANSPARENT_BACKGROUND]: render.transparentBackground,
+    }, {emitEvent: false});
+    this.currentNote = render.note;
+    this.isModifiedSinceBuild = true;
+    this.isBuilt = false;
+  }
+
   describeBase(): string {
     const f = this.baseForm.value;
     return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;

@@ -47,7 +47,7 @@
         <span class="renders-strip-title">🗂️ Rendus sauvegardés — Modèle de Base courant</span>
         <div class="renders-list">
           @for (render of renders(); track render.id) {
-            <div class="render-card" [class.selected]="render.id === selectedRenderId()">
+            <div class="render-card" [class.selected]="render.id === selectedRenderId()" (click)="onSelectRender(render)">
               @if (render.thumbnail) {
                 <img class="render-thumbnail"
                      [src]="'data:image/png;base64,' + render.thumbnail"
@@ -61,7 +61,7 @@
                   </mat-icon>
                 }
               </div>
-              <button mat-icon-button (click)="onDeleteRender(render.id)"
+              <button mat-icon-button (click)="onDeleteRender(render.id); $event.stopPropagation()"
                       matTooltip="Supprimer ce rendu" class="delete-render-btn">
                 <mat-icon>delete</mat-icon>
               </button>

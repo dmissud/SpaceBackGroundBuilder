@@ -5,7 +5,7 @@ import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
 import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
 import { Store } from "@ngrx/store";
 import { selectImageBuild, selectImageIsBuilding, selectCurrentSbgb, selectRenders, selectSelectedRenderId } from "../state/sbgb.selectors";
-import { NoiseCosmeticRenderDto } from "../sbgb.model";
+import { NoiseCosmeticRenderDto, Sbgb } from "../sbgb.model";
 import { SbgbPageActions } from "../state/sbgb.actions";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
@@ -13,8 +13,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { filter, skip } from 'rxjs/operators';
-
-import { Sbgb } from "../sbgb.model";
 
 @Component({
   selector: 'app-sbgb-shell',
@@ -91,6 +89,11 @@ export class SbgbShellComponent implements AfterViewInit {
 
   onNoteSelected(note: number): void {
     this.paramComponent?.onNoteSelected(note);
+  }
+
+  onSelectRender(render: NoiseCosmeticRenderDto): void {
+    this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
+    this.paramComponent.loadRenderCosmetics(render);
   }
 
   onDeleteRender(renderId: string): void {
