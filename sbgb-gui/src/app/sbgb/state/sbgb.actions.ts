@@ -12,7 +12,8 @@ export const SbgbPageActions = createActionGroup({
     'Load Renders For Base': props<{ baseId: string }>(),
     'Delete Render': props<{ renderId: string }>(),
     'Select Render': props<{ renderId: string }>(),
-    'Clear Selected Render': emptyProps()
+    'Clear Selected Render': emptyProps(),
+    'Apply Render Cosmetics': props<{ render: NoiseCosmeticRenderDto }>()
   }
 });
 

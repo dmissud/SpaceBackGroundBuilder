@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit, ChangeDetectorRef, OnInit, DestroyRef } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SbgbParamComponent } from "../sbgb-param/sbgb-param.component";
 import { SbgbImageComponent } from "../sbgb-image/sbgb-image.component";
@@ -78,7 +78,7 @@ export class SbgbShellComponent implements AfterViewInit {
     return this.paramComponent?.currentNote || 0;
   }
 
-  get starValues(): number[] {
+  get starValues(): readonly number[] {
     return this.paramComponent?.starValues || STAR_RATING_VALUES;
   }
 
@@ -102,10 +102,10 @@ export class SbgbShellComponent implements AfterViewInit {
     this.paramComponent?.onNoteSelected(note);
   }
 
-  /** Charge les cosmétiques d'un rendu sélectionné et met à jour la sélection dans le store. */
+  /** Sélectionne un rendu et demande au composant paramètre de charger ses cosmétiques via le store. */
   onSelectRender(render: NoiseCosmeticRenderDto): void {
     this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
-    this.paramComponent.loadRenderCosmetics(render);
+    this.store.dispatch(SbgbPageActions.applyRenderCosmetics({render}));
   }
 
   /** Supprime un rendu via le store NgRx. */

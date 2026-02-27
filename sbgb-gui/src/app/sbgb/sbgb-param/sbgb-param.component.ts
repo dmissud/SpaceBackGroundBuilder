@@ -152,6 +152,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.setupSaveResultListener();
     this.setupRendersLoader();
     this.setupBaseAutoSelect();
+    this.setupRenderCosmeticsLoader();
 
     this.baseFormSnapshot = this.baseForm.value;
     this.baseForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(newValue => {
@@ -332,6 +333,13 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     });
   }
 
+  private setupRenderCosmeticsLoader(): void {
+    this.actions$.pipe(
+      ofType(SbgbPageActions.applyRenderCosmetics),
+      takeUntil(this.destroy$)
+    ).subscribe(({render}) => this.loadRenderCosmetics(render));
+  }
+
   private setupBaseAutoSelect(): void {
     this.store.select(selectBases).pipe(
       filter(bases => bases.length > 0),
@@ -379,7 +387,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
-  loadRenderCosmetics(render: NoiseCosmeticRenderDto): void {
+  private loadRenderCosmetics(render: NoiseCosmeticRenderDto): void {
     this.cosmeticForm.patchValue({
       [SbgbParamComponent.BACKGROUND_COLOR]: render.back,
       [SbgbParamComponent.MIDDLE_COLOR]: render.middle,
