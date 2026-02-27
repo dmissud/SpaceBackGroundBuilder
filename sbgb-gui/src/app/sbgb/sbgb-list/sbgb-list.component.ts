@@ -40,14 +40,17 @@ export class SbgbListComponent implements OnInit {
     this.store.dispatch(SbgbPageActions.loadSbgbs());
   }
 
+  /** Charge les rendus d'une base lors du déploiement de son accordéon. */
   onLoadRendersForBase(baseId: string): void {
     this.store.dispatch(SbgbPageActions.loadRendersForBase({baseId}));
   }
 
+  /** Supprime un rendu et met à jour la bibliothèque. */
   onDeleteRender(renderId: string): void {
     this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
   }
 
+  /** Charge un rendu dans le générateur et bascule sur l'onglet Générateur. */
   onRenderSelected(render: NoiseCosmeticRenderDto): void {
     const base = this.bases.find(b => b.id === render.baseStructureId);
     if (!base) return;

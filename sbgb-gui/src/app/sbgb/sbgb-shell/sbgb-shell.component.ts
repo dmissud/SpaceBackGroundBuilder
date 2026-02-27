@@ -6,6 +6,7 @@ import { SbgbListComponent } from "../sbgb-list/sbgb-list.component";
 import { Store } from "@ngrx/store";
 import { selectImageBuild, selectImageIsBuilding, selectCurrentSbgb, selectRenders, selectSelectedRenderId } from "../state/sbgb.selectors";
 import { NoiseCosmeticRenderDto, Sbgb } from "../sbgb.model";
+import { STAR_RATING_VALUES } from "../sbgb.constants";
 import { SbgbPageActions } from "../state/sbgb.actions";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
@@ -40,6 +41,7 @@ export class SbgbShellComponent implements AfterViewInit {
 
   constructor(private store: Store, private cdr: ChangeDetectorRef, private destroyRef: DestroyRef) { }
 
+  /** Bascule automatiquement sur l'onglet Générateur quand un Sbgb est sélectionné depuis la bibliothèque. */
   ngAfterViewInit() {
     this.cdr.detectChanges();
 
@@ -50,6 +52,7 @@ export class SbgbShellComponent implements AfterViewInit {
     ).subscribe(() => this.shell.switchToGenerator());
   }
 
+  /** Construit les boutons de la barre d'actions en déléguant les états et actions au composant paramètre. */
   get actionBarButtons(): ActionBarButton[] {
     const param = this.paramComponent;
     if (!param) return [];
@@ -76,30 +79,36 @@ export class SbgbShellComponent implements AfterViewInit {
   }
 
   get starValues(): number[] {
-    return this.paramComponent?.starValues || [1, 2, 3, 4, 5];
+    return this.paramComponent?.starValues || STAR_RATING_VALUES;
   }
 
+  /** Indique si une génération peut être lancée (paramètres valides et modifiés depuis le dernier build). */
   canBuild(): boolean {
     return this.paramComponent?.canBuild() || false;
   }
 
+  /** Indique si la notation est disponible (image générée et non modifiée depuis). */
   canRate(): boolean {
     return this.paramComponent?.canRate() || false;
   }
 
+  /** Retourne le tooltip contextuel pour le composant de notation. */
   getRatingTooltip(): string {
     return this.paramComponent?.getRatingTooltip() || '';
   }
 
+  /** Délègue la sélection d'une note au composant paramètre. */
   onNoteSelected(note: number): void {
     this.paramComponent?.onNoteSelected(note);
   }
 
+  /** Charge les cosmétiques d'un rendu sélectionné et met à jour la sélection dans le store. */
   onSelectRender(render: NoiseCosmeticRenderDto): void {
     this.store.dispatch(SbgbPageActions.selectRender({renderId: render.id}));
     this.paramComponent.loadRenderCosmetics(render);
   }
 
+  /** Supprime un rendu via le store NgRx. */
   onDeleteRender(renderId: string): void {
     this.store.dispatch(SbgbPageActions.deleteRender({renderId}));
   }

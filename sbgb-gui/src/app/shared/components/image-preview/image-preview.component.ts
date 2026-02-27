@@ -20,23 +20,26 @@ export class ImagePreviewComponent {
 
   @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
 
-  realSize = false;
+  isRealSize = false;
   isFullscreen = false;
 
+  /** Synchronise l'état interne avec l'événement natif fullscreenchange du navigateur. */
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
     this.isFullscreen = !!document.fullscreenElement;
   }
 
+  /** Bascule entre l'affichage ajusté à la fenêtre et la taille réelle (1:1 pixel). */
   toggleRealSize(): void {
-    this.realSize = !this.realSize;
+    this.isRealSize = !this.isRealSize;
   }
 
+  /** Bascule le mode plein écran. Respecte l'état isRealSize (scroll ou fit). */
   toggleFullscreen(): void {
     if (this.isFullscreen) {
       document.exitFullscreen();
     } else {
-      this.containerRef.nativeElement.requestFullscreen();
+      this.containerRef?.nativeElement.requestFullscreen();
     }
   }
 }

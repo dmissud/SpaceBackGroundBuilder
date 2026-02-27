@@ -17,6 +17,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {SbgbStructuralChangeDialogComponent, StructuralChangeChoice} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
 import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 import {SbgbComparisonService} from "../sbgb-comparison.service";
+import {INFO_MESSAGES, PresetName, STAR_RATING_VALUES} from "../sbgb.constants";
 
 @Component({
   selector: 'app-sbgb-param',
@@ -64,7 +65,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   baseForm: FormGroup;
   cosmeticForm: FormGroup;
-  protected _myForm: FormGroup;
+  protected sbgbForm: FormGroup;
   private baseFormSnapshot: any = null;
   private loadedFromDbSbgb: Sbgb | null = null;
   private builtSbgb: Sbgb | null = null;
@@ -73,7 +74,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   loadedSbgbId: string | null = null;
   currentNote: number = 0;
   private pendingAutoSelectBaseId: string | null = null;
-  readonly starValues = [1, 2, 3, 4, 5];
+  readonly starValues = STAR_RATING_VALUES;
 
   constructor(private _snackBar: MatSnackBar, private store: Store, private actions$: Actions, private dialog: MatDialog, private sbgbComparison: SbgbComparisonService) {
     this.baseForm = new FormGroup({
@@ -85,7 +86,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.CONTROL_LACUNARITY]: new FormControl(2.0),
       [SbgbParamComponent.CONTROL_SCALE]: new FormControl(100.0),
       [SbgbParamComponent.CONTROL_NOISE_TYPE]: new FormControl('FBM'),
-      [SbgbParamComponent.CONTROL_PRESET]: new FormControl('CUSTOM'),
+      [SbgbParamComponent.CONTROL_PRESET]: new FormControl(PresetName.CUSTOM),
       [SbgbParamComponent.CONTROL_USE_MULTI_LAYER]: new FormControl(false),
       [SbgbParamComponent.CONTROL_ADVANCED_MODE]: new FormControl(false),
       layer0_enabled: new FormControl(true),
@@ -128,12 +129,12 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       [SbgbParamComponent.TRANSPARENT_BACKGROUND]: new FormControl(false),
     });
 
-    this._myForm = new FormGroup({
+    this.sbgbForm = new FormGroup({
       base: this.baseForm,
       cosmetic: this.cosmeticForm
     });
 
-    this._myForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.sbgbForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.isModifiedSinceBuild = true;
     });
 
@@ -163,7 +164,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.store.select(selectInfoMessage).pipe(takeUntil(this.destroy$)).subscribe((message: string) => {
       console.log(message);
       if (message && message.trim() !== "") {
-        if (message === 'Image generated successfully') {
+        if (message === INFO_MESSAGES.IMAGE_GENERATED) {
           this.isBuilt = true;
           this.isModifiedSinceBuild = false;
           this.builtSbgb = this.getSbgbFromForm();
@@ -235,14 +236,14 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe((action) => {
       if (action.type === ImageApiActions.imagesSaveSuccess.type) {
-        this._snackBar.open('Ciel étoilé sauvegardé avec succès', 'OK', {
+        this._snackBar.open(INFO_MESSAGES.RENDER_SAVED, 'OK', {
           duration: 3000,
           verticalPosition: 'top'
         });
       } else if (action.type === ImageApiActions.imagesSaveFail.type) {
         const {message} = action as ReturnType<typeof ImageApiActions.imagesSaveFail>;
         console.error('Erreur lors de la sauvegarde:', message);
-        this._snackBar.open(`Erreur lors de la sauvegarde: ${message}`, 'Fermer', {
+        this._snackBar.open(`${INFO_MESSAGES.SAVE_ERROR_PREFIX}${message}`, 'Fermer', {
           duration: 5000,
           verticalPosition: 'top',
           panelClass: ['error-snackbar']
@@ -290,7 +291,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     });
 
     this.baseForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(preset => {
-      if (preset && preset !== 'CUSTOM') {
+      if (preset && preset !== PresetName.CUSTOM) {
         this.applySbgbPreset(preset);
       }
     });
@@ -298,7 +299,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
   private applySbgbPreset(preset: string) {
     switch (preset) {
-      case 'DEEP_SPACE':
+      case PresetName.DEEP_SPACE:
         this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 6,
           [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.5,
@@ -313,7 +314,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
           [SbgbParamComponent.FOREGROUND_COLOR]: '#0a0a25',
         });
         break;
-      case 'STARFIELD':
+      case PresetName.STARFIELD:
         this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 2,
           [SbgbParamComponent.CONTROL_SCALE]: 10,
@@ -326,7 +327,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
           [SbgbParamComponent.BACKGROUND_COLOR]: '#000000',
         });
         break;
-      case 'NEBULA_DENSE':
+      case PresetName.NEBULA_DENSE:
         this.baseForm.patchValue({
           [SbgbParamComponent.CONTROL_OCTAVES]: 8,
           [SbgbParamComponent.CONTROL_PERSISTENCE]: 0.7,
@@ -387,14 +388,14 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   describeBase(): string {
-    const f = this.baseForm.value;
-    return `${f.noiseType} ${f.octaves}oct — ${f.width}×${f.height} — seed ${f.seed}`;
+    const formValues = this.baseForm.value;
+    return `${formValues.noiseType} ${formValues.octaves}oct — ${formValues.width}×${formValues.height} — seed ${formValues.seed}`;
   }
 
   describeCosmetic(): string {
-    const f = this.cosmeticForm.value;
-    const transparency = f.transparentBackground ? 'transparent' : 'opaque';
-    return `${f.backgroundColor} → ${f.middleColor} → ${f.foregroundColor}, seuils ${Number(f.backThreshold).toFixed(2)}/${Number(f.middleThreshold).toFixed(2)}, ${transparency}`;
+    const formValues = this.cosmeticForm.value;
+    const transparency = formValues.transparentBackground ? 'transparent' : 'opaque';
+    return `${formValues.backgroundColor} → ${formValues.middleColor} → ${formValues.foregroundColor}, seuils ${Number(formValues.backThreshold).toFixed(2)}/${Number(formValues.middleThreshold).toFixed(2)}, ${transparency}`;
   }
 
   getParametersSummary(): string {
@@ -406,11 +407,11 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     const seed = form.seed || 0;
     const interpolation = form.interpolationType || 'LINEAR';
     const useMultiLayer = form.useMultiLayer || false;
-    const preset = form.preset || 'CUSTOM';
+    const preset = form.preset || PresetName.CUSTOM;
 
     let summary = `${noiseType} noise with ${octaves} octaves`;
 
-    if (useMultiLayer && preset !== 'CUSTOM') {
+    if (useMultiLayer && preset !== PresetName.CUSTOM) {
       summary += `, ${preset} preset`;
     } else if (useMultiLayer) {
       summary += `, multi-layer enabled`;
@@ -628,7 +629,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   private extractLayerConfig(index: string, name: string) {
-    const p = (field: string) => this._myForm.get(`layer${index}_${field}`)?.value;
+    const p = (field: string) => this.sbgbForm.get(`layer${index}_${field}`)?.value;
     return {
       name,
       enabled: p('enabled'),

@@ -1,5 +1,5 @@
 <div #container class="image-wrapper">
-  <div class="image-container" [class.real-size]="realSize">
+  <div class="image-container" [class.real-size]="isRealSize">
     @if (isGenerating) {
       <div class="loading-state">
         <mat-spinner diameter="80"></mat-spinner>
@@ -21,8 +21,8 @@
     <div class="image-controls">
       <button mat-icon-button
               (click)="toggleRealSize()"
-              [matTooltip]="realSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
-        <mat-icon>{{ realSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
+              [matTooltip]="isRealSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
+        <mat-icon>{{ isRealSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
       </button>
       <button mat-icon-button
               (click)="toggleFullscreen()"
