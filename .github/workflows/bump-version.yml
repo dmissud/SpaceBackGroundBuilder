@@ -39,7 +39,7 @@ jobs:
             TYPE="major"
           elif echo "$LABELS" | grep -iqE "minor|enhancement"; then
             TYPE="minor"
-          elif echo "$LABELS" | grep -iqE "patch|bug|fix|documentation"; then
+          elif echo "$LABELS" | grep -iqE "patch|bug|fix|documentation|refactor"; then
             TYPE="patch"
           else
             # 2. Logique de repli affinée (Recommandation 2)
@@ -47,6 +47,8 @@ jobs:
             TARGET="${{ github.event.pull_request.base.ref }}"
             if [[ "$SOURCE" == fix/* ]]; then
               TYPE="patch"
+            elif [[ "$TARGET" == "master" ]]; then
+              TYPE="minor" # Un merge sur master est par défaut une mineure
             elif [[ "$TARGET" == "master" ]]; then
               TYPE="minor" # Un merge sur master est par défaut une mineure
             else
