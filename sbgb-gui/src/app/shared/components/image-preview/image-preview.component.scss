@@ -9,6 +9,12 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+
+  &.real-size {
+    overflow: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
 }
 
 .preview-image {
@@ -19,8 +25,29 @@
   display: block;
   border-radius: 4px;
 
+  .real-size & {
+    max-width: none;
+    max-height: none;
+  }
+
   @media (max-width: 1200px) {
     max-height: 600px;
+  }
+}
+
+.size-toggle-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  mat-icon {
+    color: white;
   }
 }
 
