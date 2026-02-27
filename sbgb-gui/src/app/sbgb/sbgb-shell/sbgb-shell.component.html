@@ -44,7 +44,12 @@
   <ng-template #rendersContent>
     @if (renders().length) {
       <div class="renders-strip">
-        <span class="renders-strip-title">🗂️ Rendus sauvegardés — Modèle de Base courant</span>
+        <span class="renders-strip-title">
+          🗂️ Rendus sauvegardés — Modèle de Base courant
+          @if (canBuild()) {
+            <span class="pending-dot" matTooltip="Paramètres modifiés — génération disponible"></span>
+          }
+        </span>
         <div class="renders-list">
           @for (render of renders(); track render.id) {
             <div class="render-card" [class.selected]="render.id === selectedRenderId()" (click)="onSelectRender(render)">

@@ -79,6 +79,10 @@ export class SbgbShellComponent implements AfterViewInit {
     return this.paramComponent?.starValues || [1, 2, 3, 4, 5];
   }
 
+  canBuild(): boolean {
+    return this.paramComponent?.canBuild() || false;
+  }
+
   canRate(): boolean {
     return this.paramComponent?.canRate() || false;
   }
