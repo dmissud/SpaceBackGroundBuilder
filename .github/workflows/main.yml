@@ -116,6 +116,14 @@ jobs:
       - name: Deploy landing page
         run: microk8s kubectl apply -f k8s/landing/landing.yaml
 
+      - name: Propagate TLS secret to target namespace
+        run: |
+          if ! microk8s kubectl get secret sbgb-tls-secret -n ${{ env.HELM_NAMESPACE }} &>/dev/null; then
+            microk8s kubectl get secret sbgb-tls-secret -n sbgb-landing -o json \
+              | jq 'del(.metadata.namespace,.metadata.resourceVersion,.metadata.uid,.metadata.creationTimestamp)' \
+              | microk8s kubectl apply -n ${{ env.HELM_NAMESPACE }} -f -
+          fi
+
       - name: Deploy with Helm
         run: |
           microk8s helm3 upgrade --install ${{ env.HELM_RELEASE }} ./k8s/helm/sbgb \
