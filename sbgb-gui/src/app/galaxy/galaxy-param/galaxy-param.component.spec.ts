@@ -19,8 +19,11 @@ describe('GalaxyParamComponent', () => {
     snackBar = { open: jest.fn() } as any;
     galaxyService = {
       buildGalaxy: jest.fn(),
-      createGalaxy: jest.fn(),
-      getAllGalaxies: jest.fn()
+      rateGalaxy: jest.fn(),
+      getAllBases: jest.fn(),
+      getState: jest.fn().mockReturnValue(null),
+      saveState: jest.fn(),
+      galaxySaved$: { next: jest.fn(), pipe: jest.fn() }
     } as any;
 
     await TestBed.configureTestingModule({
