@@ -88,7 +88,7 @@ public class ImageResource {
     @DeleteMapping(value = "/images/renders/{id}")
     @Operation(description = "Delete a cosmetic render — also deletes base if it has no more renders")
     @LogExecutionTime
-    public ResponseEntity<Void> deleteRender(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteRender(@PathVariable("id") UUID id) {
         deleteNoiseCosmeticRenderUseCase.deleteRender(id);
         return ResponseEntity.noContent().build();
     }

@@ -56,7 +56,8 @@
               @if (render.thumbnail) {
                 <img class="render-thumbnail"
                      [src]="'data:image/png;base64,' + render.thumbnail"
-                     [alt]="render.description" />
+                     [alt]="render.description"
+                     [matTooltip]="render.description" />
               }
               <div class="render-stars">
                 @for (star of [1,2,3,4,5]; track star) {
