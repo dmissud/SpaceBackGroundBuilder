@@ -2,10 +2,10 @@
 
 namespace: sbgb
 
-# PostgreSQL configuration
+# PostgreSQL configuration (disabled by default, uses shared postgres in infra namespace)
 postgresql:
-  enabled: true
-  host: "" # Leave empty if enabled is true, otherwise provide external host
+  enabled: false
+  host: postgres-shared.infra.svc.cluster.local
   database: sbgb
   user: sbgb_user
   password: sbgb_password
@@ -26,11 +26,13 @@ frontend:
   image: ghcr.io/dmissud/spacebackgroundbuilder/frontend:latest
   replicas: 1
   servicePort: 80
+  baseHref: /sbgb/
+  apiUrl: /sbgb/api
 
 # Ingress configuration
 ingress:
   enabled: true
-  host: sbgb.example.com
+  host: bree
   tls:
     enabled: true
     secretName: sbgb-tls-secret

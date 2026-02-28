@@ -1,0 +1,21 @@
+# Values for production environment (namespace: sbgb-prod)
+
+namespace: sbgb-prod
+
+postgresql:
+  database: sbgb_prod
+  user: sbgb_prod_user
+  password: sbgb_prod_password
+
+backend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/backend:latest
+  springProfile: prod
+
+frontend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/frontend:latest
+  baseHref: /sbgb/prod/
+  apiUrl: /sbgb/prod/api
+
+ingress:
+  host: bree
+  basePath: /sbgb/prod

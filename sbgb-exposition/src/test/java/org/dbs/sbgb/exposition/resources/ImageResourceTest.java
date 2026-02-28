@@ -16,7 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -66,5 +68,15 @@ class ImageResourceTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void shouldDeleteRenderAndReturn204() throws Exception {
+        UUID renderId = UUID.randomUUID();
+
+        mockMvc.perform(delete("/images/renders/{id}", renderId))
+                .andExpect(status().isNoContent());
+
+        verify(deleteNoiseCosmeticRenderUseCase).deleteRender(renderId);
     }
 }

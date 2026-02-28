@@ -5,20 +5,60 @@ metadata:
   labels:
     {{- include "sbgb.labels" . | nindent 4 }}
 data:
-  default.conf: |
-    server {
-        listen       80;
-        listen  [::]:80;
-        server_name  localhost;
-        root /usr/share/nginx/html;
-        index index.html;
-        absolute_redirect off;
-        location / {
-            try_files $uri $uri/ /index.html;
-        }
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   /usr/share/nginx/html;
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        sendfile on;
+        keepalive_timeout 65;
+        gzip on;
+        gzip_vary on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
+
+        server {
+            listen 80;
+            server_name localhost;
+
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+
+            location {{ .Values.ingress.basePath }}/api/ {
+                proxy_pass http://{{ include "sbgb.fullname" . }}-backend:{{ .Values.backend.servicePort }}/;
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 300s;
+                proxy_send_timeout 300s;
+                proxy_read_timeout 300s;
+            }
+
+            location = {{ .Values.ingress.basePath }}/index.html {
+                alias /usr/share/nginx/html/sbgb/index.html;
+                add_header Cache-Control "no-cache, no-store, must-revalidate";
+                add_header Pragma "no-cache";
+                add_header Expires 0;
+            }
+
+            location {{ .Values.ingress.basePath }}/ {
+                alias /usr/share/nginx/html/sbgb/;
+                try_files $uri $uri/ {{ .Values.ingress.basePath }}/index.html;
+            }
+
+            error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+                root /usr/share/nginx/html;
+            }
         }
     }
 ---
@@ -45,10 +85,15 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.frontend.servicePort }}
+          env:
+            - name: BASE_HREF
+              value: {{ .Values.frontend.baseHref | quote }}
+            - name: API_URL
+              value: {{ .Values.frontend.apiUrl | quote }}
           volumeMounts:
             - name: nginx-config
-              mountPath: /etc/nginx/conf.d/default.conf
-              subPath: default.conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
           livenessProbe:
             httpGet:
               path: /health
