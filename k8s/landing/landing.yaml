@@ -73,3 +73,29 @@ spec:
                 name: sbgb-landing
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sbgb-root-redirect
+  namespace: sbgb-landing
+  annotations:
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://bree/sbgb/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - bree
+      secretName: sbgb-tls-secret
+  rules:
+    - host: bree
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: sbgb-landing
+                port:
+                  number: 80
