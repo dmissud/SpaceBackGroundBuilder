@@ -13,10 +13,15 @@ data:
     #!/bin/bash
     set -e
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-        CREATE DATABASE sbgb;
-        CREATE USER sbgb_user WITH PASSWORD 'sbgb_password';
-        GRANT ALL PRIVILEGES ON DATABASE sbgb TO sbgb_user;
-        ALTER DATABASE sbgb OWNER TO sbgb_user;
+        CREATE DATABASE sbgb_dev;
+        CREATE USER sbgb_dev_user WITH PASSWORD 'sbgb_dev_password';
+        GRANT ALL PRIVILEGES ON DATABASE sbgb_dev TO sbgb_dev_user;
+        ALTER DATABASE sbgb_dev OWNER TO sbgb_dev_user;
+
+        CREATE DATABASE sbgb_prod;
+        CREATE USER sbgb_prod_user WITH PASSWORD 'sbgb_prod_password';
+        GRANT ALL PRIVILEGES ON DATABASE sbgb_prod TO sbgb_prod_user;
+        ALTER DATABASE sbgb_prod OWNER TO sbgb_prod_user;
     EOSQL
 ---
 apiVersion: v1
