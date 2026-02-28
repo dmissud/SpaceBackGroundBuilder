@@ -49,4 +49,14 @@ describe('Sbgb Reducer', () => {
       expect(result.renders).toEqual([]);
     });
   });
+
+  describe('imagesDeleteRenderFail', () => {
+    it('should set errorMessage in state', () => {
+      const action = ImageApiActions.imagesDeleteRenderFail({message: 'Server error'});
+
+      const result = sbgbsFeature.reducer(initialState, action);
+
+      expect(result.errorMessage).toBe('Server error');
+    });
+  });
 });

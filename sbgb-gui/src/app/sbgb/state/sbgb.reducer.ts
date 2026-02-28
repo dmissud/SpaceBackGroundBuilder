@@ -80,6 +80,11 @@ export const sbgbsFeature = createFeature({
         ...state,
         renders: state.renders.filter(r => r.id !== renderId)
       })),
+    on(ImageApiActions.imagesDeleteRenderFail,
+      (state, {message}) => ({
+        ...state,
+        errorMessage: message
+      })),
     on(SbgbPageActions.selectRender,
       (state, {renderId}) => ({
         ...state,
