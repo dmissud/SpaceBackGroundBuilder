@@ -1,0 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: radial-gradient(ellipse at center, #0d0d2b 0%, #000008 70%);
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  color: #e0e0e0;
+}

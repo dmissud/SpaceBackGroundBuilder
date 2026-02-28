@@ -80,6 +80,17 @@ jobs:
             ghcr.io/${{ env.REPO_LOWER }}/frontend:${{ env.IMAGE_TAG }}
             ghcr.io/${{ env.REPO_LOWER }}/frontend:${{ github.sha }}
 
+      - name: Build and push Landing image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.landing
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ env.REPO_LOWER }}/landing:latest
+            ghcr.io/${{ env.REPO_LOWER }}/landing:${{ github.sha }}
+
   deploy-bree:
     needs: docker-build-push
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
@@ -101,6 +112,9 @@ jobs:
 
       - name: Apply infrastructure (PostgreSQL)
         run: microk8s kubectl apply -f k8s/infra/postgres-shared.yaml
+
+      - name: Deploy landing page
+        run: microk8s kubectl apply -f k8s/landing/landing.yaml
 
       - name: Deploy with Helm
         run: |

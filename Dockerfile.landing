@@ -1,0 +1,22 @@
+FROM --platform=linux/amd64 node:20-alpine AS build
+
+WORKDIR /app
+
+COPY sbgb-landing/package*.json ./
+RUN npm ci
+
+COPY sbgb-landing/ .
+RUN npm run build:prod
+
+FROM nginx:1.25-alpine
+
+COPY --from=build /app/dist/sbgb-landing/browser /usr/share/nginx/html/sbgb
+
+COPY sbgb-landing/nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
