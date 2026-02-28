@@ -1,0 +1,21 @@
+# Values for development environment (namespace: sbgb-dev)
+
+namespace: sbgb-dev
+
+postgresql:
+  database: sbgb_dev
+  user: sbgb_dev_user
+  password: sbgb_dev_password
+
+backend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/backend:develop
+  springProfile: dev
+
+frontend:
+  image: ghcr.io/dmissud/spacebackgroundbuilder/frontend:develop
+  baseHref: /sbgb/dev/
+  apiUrl: /sbgb/dev/api
+
+ingress:
+  host: bree
+  basePath: /sbgb/dev
