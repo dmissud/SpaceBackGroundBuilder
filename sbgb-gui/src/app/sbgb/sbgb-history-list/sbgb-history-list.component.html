@@ -24,13 +24,15 @@
 
         <div class="renders-grid">
           @for (render of rendersFor(base.id); track render.id) {
-            <div class="render-card" (click)="onRenderSelected(render)" matTooltip="{{ render.description }}">
+            <div class="render-card" (click)="onRenderSelected(render)">
               @if (render.thumbnail) {
                 <img class="render-thumbnail"
                      [src]="'data:image/png;base64,' + render.thumbnail"
-                     [alt]="render.description" />
+                     [alt]="render.description"
+                     [matTooltip]="render.description" />
               } @else {
-                <div class="render-thumbnail placeholder">
+                <div class="render-thumbnail placeholder"
+                     [matTooltip]="render.description">
                   <mat-icon>image</mat-icon>
                 </div>
               }
