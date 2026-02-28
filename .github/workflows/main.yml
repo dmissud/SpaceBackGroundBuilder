@@ -132,6 +132,15 @@ jobs:
             -f ${{ env.HELM_VALUES }} \
             --wait --timeout=5m
 
+      - name: Rollout restart to pull latest image
+        run: |
+          microk8s kubectl rollout restart deployment \
+            ${{ env.HELM_RELEASE }}-backend \
+            ${{ env.HELM_RELEASE }}-frontend \
+            -n ${{ env.HELM_NAMESPACE }}
+          microk8s kubectl rollout status deployment/${{ env.HELM_RELEASE }}-backend \
+            -n ${{ env.HELM_NAMESPACE }} --timeout=3m
+
   deploy-pi8:
     needs: docker-build-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
