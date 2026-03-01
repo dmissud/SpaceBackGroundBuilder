@@ -59,6 +59,9 @@ class GalaxyResourceTest {
     private ReapplyGalaxyCosmeticsUseCase reapplyUseCase;
 
     @MockitoBean
+    private ResolveGalaxyBaseUseCase resolveBaseUseCase;
+
+    @MockitoBean
     private GalaxyBaseStructureDTOMapper baseMapper;
 
     @MockitoBean
