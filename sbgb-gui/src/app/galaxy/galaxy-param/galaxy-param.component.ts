@@ -126,12 +126,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           outerColor: render.outerColor,
           spaceBackgroundColor: render.spaceBackgroundColor
         }
-      });
+      }, { emitEvent: false });
       this.currentNote = render.note;
-      // Ne pas appeler generateGalaxy() ici pour éviter des boucles et des appels inutiles,
-      // car le rendu est déjà sélectionné et l'image est affichée via le store/shell si besoin,
-      // ou on veut juste voir les paramètres. En fait, le shell affiche l'image du render si on veut,
-      // mais ici on veut surtout que le générateur affiche l'aperçu correspondant.
+      this.isModifiedSinceBuild = false;
       this.generateGalaxy();
     });
 
@@ -223,10 +220,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
     this.galaxyForm.valueChanges.subscribe(() => {
       this.isModifiedSinceBuild = true;
-      if (this.isStructuralChange()) {
-        this.store.dispatch(GalaxyPageActions.clearSelectedRender());
-        this.currentNote = 0;
-      }
+      this.store.dispatch(GalaxyPageActions.clearSelectedRender());
+      this.currentNote = 0;
     });
 
     // Sync predefined palette selection to individual colors
@@ -240,7 +235,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
             armColor: colors.arms,
             outerColor: colors.outer
           }
-        }, { emitEvent: false });
+        });
       }
     });
 
@@ -254,7 +249,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
             colorParameters: {
               colorPalette: 'CUSTOM'
             }
-          }, { emitEvent: false });
+          });
         }
       });
     });
