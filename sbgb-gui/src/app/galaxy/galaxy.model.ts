@@ -70,6 +70,7 @@ export interface ColorParameters {
 }
 
 export interface GalaxyRequestCmd {
+  id?: string;
   description: string;
   note: number;
   width: number;
@@ -114,6 +115,28 @@ export interface GalaxyBaseStructureDto {
   microLayerScale: number;
   microLayerWeight: number;
   structureParams: string;
+  // Spiral
+  numberOfArms?: number;
+  armWidth?: number;
+  armRotation?: number;
+  darkLaneOpacity?: number;
+  // Voronoi
+  clusterCount?: number;
+  clusterSize?: number;
+  clusterConcentration?: number;
+  // Elliptical
+  sersicIndex?: number;
+  axisRatio?: number;
+  orientationAngle?: number;
+  // Ring
+  ringRadius?: number;
+  ringWidth?: number;
+  ringIntensity?: number;
+  coreToRingRatio?: number;
+  // Irregular
+  irregularity?: number;
+  irregularClumpCount?: number;
+  irregularClumpSize?: number;
 }
 
 export interface GalaxyCosmeticRenderDto {
