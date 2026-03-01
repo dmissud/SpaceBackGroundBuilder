@@ -3,6 +3,7 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatIcon} from "@angular/material/icon";
 import {MatTooltip} from "@angular/material/tooltip";
+import {MatDialog} from "@angular/material/dialog";
 import {Store} from "@ngrx/store";
 import {Actions, ofType} from "@ngrx/effects";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
@@ -19,7 +20,10 @@ import {IrregularStructureSectionComponent} from "./sections/irregular-structure
 import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
 import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
 import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
-import {ColorsSectionComponent} from "./sections/colors-section.component";
+import {GalaxyStructuralChangeChoice, GalaxyStructuralChangeDialogComponent} from "../galaxy-structural-change-dialog/galaxy-structural-change-dialog.component";
+import {selectCurrentBaseRenders} from "../state/galaxy.reducer";
+import {filter, map, switchMap, take} from "rxjs";
+import {NgxSpinnerService, NgxSpinnerModule} from "ngx-spinner";
 
 
 @Component({
@@ -38,7 +42,8 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
     CoreRadiusSectionComponent,
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
-    ColorsSectionComponent
+    ColorsSectionComponent,
+    NgxSpinnerModule
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
@@ -91,7 +96,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     private readonly snackBar: MatSnackBar,
     private readonly fb: FormBuilder,
     private readonly store: Store,
-    private readonly actions$: Actions
+    private readonly actions$: Actions,
+    private readonly dialog: MatDialog,
+    private readonly spinner: NgxSpinnerService
   ) {
     const destroyRef = inject(DestroyRef);
     this.actions$.pipe(
@@ -339,6 +346,37 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.builtGalaxyParams && this.isStructuralChange()) {
+      this.store.select(selectCurrentBaseRenders).pipe(
+        take(1)
+      ).subscribe(renders => {
+        if (renders && renders.length > 0) {
+          const dialogRef = this.dialog.open(GalaxyStructuralChangeDialogComponent, {
+            data: { rendersCount: renders.length },
+            width: '450px',
+            disableClose: true
+          });
+
+          dialogRef.afterClosed().subscribe(choice => {
+            if (choice === GalaxyStructuralChangeChoice.CLEAR) {
+              this.executeBuildAfterClear(renders[0].baseId);
+            } else if (choice === GalaxyStructuralChangeChoice.REAPPLY) {
+              this.executeReapply(renders[0].baseId);
+            } else if (choice === GalaxyStructuralChangeChoice.CANCEL) {
+              // Restaurer les paramètres précédents
+              this.galaxyForm.patchValue(this.builtGalaxyParams!);
+            }
+          });
+        } else {
+          this.executeBuild();
+        }
+      });
+    } else {
+      this.executeBuild();
+    }
+  }
+
+  private executeBuild(): void {
     this.isGenerating = true;
     this.generatedImageUrl = null;
     const request: GalaxyRequestCmd = this.galaxyForm.value;
@@ -362,6 +400,32 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         console.error('Error generating galaxy:', error);
         this.snackBar.open('Error generating galaxy', 'Close', { duration: 3000 });
         this.isGenerating = false;
+      }
+    });
+  }
+
+  private executeBuildAfterClear(baseId: string): void {
+    this.galaxyService.deleteRendersByBase(baseId).subscribe(() => {
+      this.store.dispatch(GalaxyPageActions.loadBases());
+      this.executeBuild();
+    });
+  }
+
+  private executeReapply(baseId: string): void {
+    this.spinner.show();
+    const request = this.galaxyForm.value;
+    this.galaxyService.reapplyCosmetics(baseId, request).subscribe({
+      next: () => {
+        this.spinner.hide();
+        this.snackBar.open('Rendus recalculés avec succès', 'OK', { duration: 3000 });
+        this.executeBuild();
+        this.store.dispatch(GalaxyPageActions.loadBases());
+        this.store.dispatch(GalaxyPageActions.loadRendersForBase({ baseId: 'RELOAD' }));
+      },
+      error: (error) => {
+        this.spinner.hide();
+        console.error('Error reapplying cosmetics:', error);
+        this.snackBar.open('Erreur lors du recalcul des rendus', 'Fermer', { duration: 3000 });
       }
     });
   }
