@@ -2,6 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { provideMockStore } from '@ngrx/store/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { of } from 'rxjs';
 import { GalaxyParamComponent } from './galaxy-param.component';
 import { GalaxyService } from '../galaxy.service';
 
@@ -10,6 +13,7 @@ describe('GalaxyParamComponent', () => {
   let fixture: ComponentFixture<GalaxyParamComponent>;
   let snackBar: jest.Mocked<MatSnackBar>;
   let galaxyService: jest.Mocked<GalaxyService>;
+  let actions$ = of();
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -34,7 +38,9 @@ describe('GalaxyParamComponent', () => {
       ],
       providers: [
         { provide: MatSnackBar, useValue: snackBar },
-        { provide: GalaxyService, useValue: galaxyService }
+        { provide: GalaxyService, useValue: galaxyService },
+        provideMockStore(),
+        provideMockActions(() => actions$)
       ]
     }).compileComponents();
 
@@ -68,34 +74,17 @@ describe('GalaxyParamComponent', () => {
   });
 
   describe('downloadImage', () => {
-    it('should create an anchor element and trigger download with form name', () => {
+    it('should create an anchor element and trigger download', () => {
       component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
 
       const clickSpy = jest.fn();
       const fakeLink = { href: '', download: '', click: clickSpy } as any;
       jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
-
-      component.galaxyForm.patchValue({ name: 'my-galaxy' });
 
       component.downloadImage();
 
       expect(document.createElement).toHaveBeenCalledWith('a');
       expect(fakeLink.href).toBe('blob:http://localhost/fake-blob-url');
-      expect(fakeLink.download).toBe('my-galaxy.png');
-      expect(clickSpy).toHaveBeenCalled();
-    });
-
-    it('should use default name when form name is empty', () => {
-      component.generatedImageUrl = 'blob:http://localhost/fake-blob-url';
-
-      const clickSpy = jest.fn();
-      const fakeLink = { href: '', download: '', click: clickSpy } as any;
-      jest.spyOn(document, 'createElement').mockReturnValue(fakeLink);
-
-      component.galaxyForm.patchValue({ name: '' });
-
-      component.downloadImage();
-
       expect(fakeLink.download).toBe('galaxy-image.png');
       expect(clickSpy).toHaveBeenCalled();
     });

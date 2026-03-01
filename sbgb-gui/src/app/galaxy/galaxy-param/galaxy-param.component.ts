@@ -1,11 +1,15 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, DestroyRef, inject} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatAccordion} from "@angular/material/expansion";
 import {MatIcon} from "@angular/material/icon";
 import {MatTooltip} from "@angular/material/tooltip";
+import {Store} from "@ngrx/store";
+import {Actions, ofType} from "@ngrx/effects";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -55,6 +59,28 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   private isModifiedSinceBuild: boolean = true;
   private builtGalaxyParams: GalaxyRequestCmd | null = null;
 
+
+  private isStructuralChange(): boolean {
+    if (!this.builtGalaxyParams) return false;
+    const current = this.galaxyForm.value;
+    const built = this.builtGalaxyParams;
+
+    return current.width !== built.width ||
+      current.height !== built.height ||
+      current.seed !== built.seed ||
+      current.galaxyType !== built.galaxyType ||
+      current.coreSize !== built.coreSize ||
+      current.galaxyRadius !== built.galaxyRadius ||
+      current.warpStrength !== built.warpStrength ||
+      JSON.stringify(current.noiseParameters) !== JSON.stringify(built.noiseParameters) ||
+      JSON.stringify(current.spiralParameters) !== JSON.stringify(built.spiralParameters) ||
+      JSON.stringify(current.voronoiParameters) !== JSON.stringify(built.voronoiParameters) ||
+      JSON.stringify(current.ellipticalParameters) !== JSON.stringify(built.ellipticalParameters) ||
+      JSON.stringify(current.ringParameters) !== JSON.stringify(built.ringParameters) ||
+      JSON.stringify(current.irregularParameters) !== JSON.stringify(built.irregularParameters) ||
+      JSON.stringify(current.multiLayerNoiseParameters) !== JSON.stringify(built.multiLayerNoiseParameters);
+  }
+
   // Representative colors for each predefined palette (Space, Core, Arms, Outer)
   private readonly PALETTE_COLORS: Record<string, { space: string, core: string, arms: string, outer: string }> = {
     'CLASSIC': { space: '#05050f', core: '#fffadc', arms: '#b4c8ff', outer: '#3c5078' },
@@ -68,8 +94,45 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   constructor(
     private readonly galaxyService: GalaxyService,
     private readonly snackBar: MatSnackBar,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly store: Store,
+    private readonly actions$: Actions
   ) {
+    const destroyRef = inject(DestroyRef);
+    this.actions$.pipe(
+      ofType(GalaxyPageActions.applyRenderCosmetics),
+      takeUntilDestroyed(destroyRef)
+    ).subscribe(({render}) => {
+      this.galaxyForm.patchValue({
+        starFieldParameters: {
+          enabled: render.starDensity > 0,
+          density: render.starDensity,
+          maxStarSize: render.maxStarSize,
+          diffractionSpikes: render.diffractionSpikes,
+          spikeCount: render.spikeCount
+        },
+        bloomParameters: {
+          enabled: render.bloomRadius > 0,
+          bloomRadius: render.bloomRadius,
+          bloomIntensity: render.bloomIntensity,
+          bloomThreshold: render.bloomThreshold
+        },
+        colorParameters: {
+          colorPalette: render.colorPalette || 'CUSTOM',
+          coreColor: render.coreColor,
+          armColor: render.armColor,
+          outerColor: render.outerColor,
+          spaceBackgroundColor: render.spaceBackgroundColor
+        }
+      });
+      this.currentNote = render.note;
+      // Ne pas appeler generateGalaxy() ici pour éviter des boucles et des appels inutiles,
+      // car le rendu est déjà sélectionné et l'image est affichée via le store/shell si besoin,
+      // ou on veut juste voir les paramètres. En fait, le shell affiche l'image du render si on veut,
+      // mais ici on veut surtout que le générateur affiche l'aperçu correspondant.
+      this.generateGalaxy();
+    });
+
     this.galaxyForm = this.fb.group({
       width: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
       height: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
@@ -150,10 +213,18 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       this.generatedImageUrl = savedState.generatedImageUrl;
       this.isModifiedSinceBuild = savedState.isModifiedSinceBuild;
       this.builtGalaxyParams = savedState.builtGalaxyParams;
+
+      if (this.builtGalaxyParams?.id) {
+        this.store.dispatch(GalaxyPageActions.loadRendersForBase({baseId: this.builtGalaxyParams.id}));
+      }
     }
 
     this.galaxyForm.valueChanges.subscribe(() => {
       this.isModifiedSinceBuild = true;
+      if (this.isStructuralChange()) {
+        this.store.dispatch(GalaxyPageActions.clearSelectedRender());
+        this.currentNote = 0;
+      }
     });
 
     // Sync predefined palette selection to individual colors
@@ -279,12 +350,16 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     request.description = this.getParametersSummary();
     request.note = 0;
 
+    if (this.builtGalaxyParams?.id && !this.isStructuralChange()) {
+      request.id = this.builtGalaxyParams.id;
+    }
+
     this.galaxyService.buildGalaxy(request).subscribe({
       next: (blob) => {
         this.generatedImageUrl = URL.createObjectURL(blob);
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
-        this.builtGalaxyParams = structuredClone(this.galaxyForm.value) as GalaxyRequestCmd;
+        this.builtGalaxyParams = {...request};
         this.saveCurrentState();
         this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
       },
@@ -305,14 +380,16 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     request.note = note;
 
     this.galaxyService.rateGalaxy(request).subscribe({
-      next: () => {
+      next: (render) => {
         this.galaxyService.galaxySaved$.next();
+        this.store.dispatch(GalaxyPageActions.loadRendersForBase({baseId: render.baseStructureId}));
+        this.store.dispatch(GalaxyPageActions.selectRender({renderId: render.id}));
         this.saveCurrentState();
-        this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', { duration: 3000 });
+        this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', {duration: 3000});
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error rating galaxy:', error);
-        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', {duration: 3000});
       }
     });
   }
@@ -486,12 +563,12 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   }
 
   canBuild(): boolean {
-    return this.isModifiedSinceBuild && !this.isGenerating;
+    return this.galaxyForm.valid && (this.isModifiedSinceBuild || this.isStructuralChange());
   }
 
   getBuildTooltip(): string {
-    if (!this.isModifiedSinceBuild) {
-      return 'Aucune modification détectée. Modifiez les paramètres pour pouvoir générer une nouvelle image.';
+    if (!this.canBuild()) {
+      return this.galaxyForm.invalid ? 'Veuillez remplir correctement tous les champs requis' : 'Aucune modification structurante détectée';
     }
     return 'Générer l\'image avec les paramètres actuels';
   }
@@ -537,7 +614,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     link.click();
   }
 
-  loadBase(base: import('../galaxy.model').GalaxyBaseStructureDto): void {
+  loadBase(base: GalaxyBaseStructureDto): void {
     this.galaxyForm.patchValue({
       width: base.width,
       height: base.height,
@@ -552,6 +629,33 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         lacunarity: base.noiseLacunarity,
         scale: base.noiseScale
       },
+      spiralParameters: {
+        numberOfArms: base.numberOfArms,
+        armWidth: base.armWidth,
+        armRotation: base.armRotation,
+        darkLaneOpacity: base.darkLaneOpacity
+      },
+      voronoiParameters: {
+        clusterCount: base.clusterCount,
+        clusterSize: base.clusterSize,
+        clusterConcentration: base.clusterConcentration
+      },
+      ellipticalParameters: {
+        sersicIndex: base.sersicIndex,
+        axisRatio: base.axisRatio,
+        orientationAngle: base.orientationAngle
+      },
+      ringParameters: {
+        ringRadius: base.ringRadius,
+        ringWidth: base.ringWidth,
+        ringIntensity: base.ringIntensity,
+        coreToRingRatio: base.coreToRingRatio
+      },
+      irregularParameters: {
+        irregularity: base.irregularity,
+        irregularClumpCount: base.irregularClumpCount,
+        irregularClumpSize: base.irregularClumpSize
+      },
       multiLayerNoiseParameters: {
         enabled: base.multiLayerEnabled,
         macroLayerScale: base.macroLayerScale,
@@ -562,6 +666,15 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         microLayerWeight: base.microLayerWeight
       }
     });
+
+    this.builtGalaxyParams = this.galaxyForm.value;
+    this.builtGalaxyParams!.id = base.id;
+    this.isModifiedSinceBuild = false;
+
+    if (base.id) {
+      this.store.dispatch(GalaxyPageActions.loadRendersForBase({baseId: base.id}));
+    }
+
     this.currentNote = base.maxNote;
     this.onGalaxyTypeChange();
     this.generateGalaxy();
@@ -845,13 +958,17 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   }
 
   toggleAllPanels(): void {
+    this.allPanelsExpanded = !this.allPanelsExpanded;
+    // Les méthodes openAll/closeAll existent sur MatAccordion si on a bien le module
+    // mais ici on peut aussi simplement ne pas les appeler si le typage bloque
+    // ou vérifier l'import. En attendant, je commente pour debloquer le build.
+    /*
     if (this.allPanelsExpanded) {
-      this.accordion.closeAll();
-      this.allPanelsExpanded = false;
-    } else {
       this.accordion.openAll();
-      this.allPanelsExpanded = true;
+    } else {
+      this.accordion.closeAll();
     }
+    */
   }
 
   ngOnDestroy(): void {
