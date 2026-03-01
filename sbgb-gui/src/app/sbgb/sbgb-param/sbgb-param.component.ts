@@ -4,8 +4,15 @@ import {MatInput} from "@angular/material/input";
 import {MatSlider, MatSliderThumb} from "@angular/material/slider";
 
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {selectBases, selectCurrentSbgb, selectErrorMessage, selectImageBuild, selectInfoMessage, selectRenders} from "../state/sbgb.selectors";
-import {Subject, takeUntil, filter, take} from "rxjs";
+import {
+  selectBases,
+  selectCurrentSbgb,
+  selectErrorMessage,
+  selectImageBuild,
+  selectInfoMessage,
+  selectRenders
+} from "../state/sbgb.selectors";
+import {filter, Subject, take, takeUntil} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
 import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
@@ -14,7 +21,10 @@ import {MatTooltip} from "@angular/material/tooltip";
 import {MatIcon} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatDialog} from "@angular/material/dialog";
-import {SbgbStructuralChangeDialogComponent, StructuralChangeChoice} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
+import {
+  SbgbStructuralChangeDialogComponent,
+  StructuralChangeChoice
+} from "../sbgb-structural-change-dialog/sbgb-structural-change-dialog.component";
 import {NoiseBaseStructureDto, NoiseCosmeticRenderDto, Sbgb} from "../sbgb.model";
 import {SbgbComparisonService} from "../sbgb-comparison.service";
 import {INFO_MESSAGES, PresetName, STAR_RATING_VALUES} from "../sbgb.constants";
@@ -67,6 +77,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   cosmeticForm: FormGroup;
   protected sbgbForm: FormGroup;
   private baseFormSnapshot: any = null;
+  private builtBaseFormSnapshot: any = null;
   private loadedFromDbSbgb: Sbgb | null = null;
   private builtSbgb: Sbgb | null = null;
   protected isModifiedSinceBuild: boolean = true;
@@ -156,24 +167,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
 
     this.baseFormSnapshot = this.baseForm.value;
     this.baseForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(newValue => {
-      if (this.renders.length > 0) {
-        const snapshot = this.baseFormSnapshot;
-        this.baseFormSnapshot = newValue;
-        this.dialog.open(SbgbStructuralChangeDialogComponent, {
-          data: {rendersCount: this.renders.length}
-        }).afterClosed().subscribe((choice: StructuralChangeChoice | undefined) => {
-          if (choice === StructuralChangeChoice.CLEAR) {
-            this.renders.forEach(r => this.store.dispatch(SbgbPageActions.deleteRender({renderId: r.id})));
-          } else if (choice === StructuralChangeChoice.REAPPLY) {
-            this.reapplyRendersWithNewBase();
-          } else {
-            this.baseFormSnapshot = snapshot;
-            this.baseForm.patchValue(snapshot, {emitEvent: false});
-          }
-        });
-      } else {
-        this.baseFormSnapshot = newValue;
-      }
+      this.baseFormSnapshot = newValue;
     });
 
     this.baseForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(preset => {
@@ -276,6 +270,7 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
         this.isBuilt = true;
         this.isModifiedSinceBuild = false;
         this.builtSbgb = this.getSbgbFromForm();
+        this.builtBaseFormSnapshot = this.baseForm.value;
         if (!this.loadedSbgbId) {
           this.currentNote = 0;
         }
@@ -440,6 +435,30 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
   }
 
   computeImage() {
+    const hasStructuralChange = this.builtBaseFormSnapshot !== null &&
+      JSON.stringify(this.baseForm.value) !== JSON.stringify(this.builtBaseFormSnapshot);
+
+    if (this.renders.length > 0 && hasStructuralChange) {
+      this.dialog.open(SbgbStructuralChangeDialogComponent, {
+        data: {rendersCount: this.renders.length}
+      }).afterClosed().subscribe((choice: StructuralChangeChoice | undefined) => {
+        if (choice === StructuralChangeChoice.NEW_BASE) {
+          this.store.dispatch(SbgbPageActions.clearRenders());
+          this.dispatchBuild();
+        } else if (choice === StructuralChangeChoice.CLEAR) {
+          this.renders.forEach(r => this.store.dispatch(SbgbPageActions.deleteRender({renderId: r.id})));
+          this.dispatchBuild();
+        } else if (choice === StructuralChangeChoice.REAPPLY) {
+          this.reapplyRendersWithNewBase();
+          this.dispatchBuild();
+        }
+      });
+    } else {
+      this.dispatchBuild();
+    }
+  }
+
+  private dispatchBuild(): void {
     const sbgb = this.getSbgbFromForm();
     this.store.dispatch(SbgbPageActions.buildSbgb({sbgb, build: true}));
   }
