@@ -113,7 +113,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                     .galaxyRadius(newBase.galaxyRadius())
                     .warpStrength(newBase.warpStrength())
                     .noiseParameters(new NoiseParameters(newBase.noiseOctaves(), newBase.noisePersistence(), newBase.noiseLacunarity(), newBase.noiseScale()))
-                    .multiLayerNoiseParameters(new MultiLayerNoiseParameters(newBase.multiLayerNoiseEnabled(), newBase.macroLayerScale(), newBase.macroLayerWeight(), newBase.mesoLayerScale(), newBase.mesoLayerWeight(), newBase.microLayerScale(), newBase.microLayerWeight()))
+                    .multiLayerNoiseParameters(new MultiLayerNoiseParameters(newBase.multiLayerEnabled(), newBase.macroLayerScale(), newBase.macroLayerWeight(), newBase.mesoLayerScale(), newBase.mesoLayerWeight(), newBase.microLayerScale(), newBase.microLayerWeight()))
                     // On récupère les paramètres de structure sérialisés (attention, ici on suppose qu'ils n'ont pas changé de format)
                     // En fait, on utilise newBaseParams pour les paramètres de structure car ils sont fournis dans la commande
                     .spiralParameters(newBaseParams.getSpiralParameters())
