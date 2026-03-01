@@ -38,6 +38,12 @@ public class GalaxyBaseStructurePersistenceAdapter implements GalaxyBaseStructur
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<GalaxyBaseStructure> findById(UUID id) {
+        return jpaRepository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
     @Transactional
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);

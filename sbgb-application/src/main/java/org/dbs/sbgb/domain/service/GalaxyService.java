@@ -22,7 +22,8 @@ import java.util.UUID;
 @UseCase
 @RequiredArgsConstructor
 public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeticRenderUseCase,
-        FindGalaxyBaseStructuresUseCase, FindGalaxyCosmeticRendersUseCase, DeleteGalaxyCosmeticRenderUseCase {
+        FindGalaxyBaseStructuresUseCase, FindGalaxyCosmeticRendersUseCase, DeleteGalaxyCosmeticRenderUseCase,
+        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase {
 
     private final GalaxyBaseStructureRepository baseStructureRepository;
     private final GalaxyCosmeticRenderRepository cosmeticRenderRepository;
@@ -79,6 +80,76 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
             int maxNote = remaining.stream().mapToInt(GalaxyCosmeticRender::note).max().orElse(0);
             baseStructureRepository.updateMaxNote(baseId, maxNote);
         }
+    }
+
+    @Override
+    public void deleteRendersByBase(UUID baseId) {
+        List<GalaxyCosmeticRender> renders = cosmeticRenderRepository.findAllByBaseStructureId(baseId);
+        renders.forEach(r -> cosmeticRenderRepository.deleteById(r.id()));
+        baseStructureRepository.deleteById(baseId);
+    }
+
+    @Override
+    public List<GalaxyCosmeticRender> reapplyCosmetics(UUID baseId, GalaxyRequestCmd newBaseParams) throws IOException {
+        GalaxyBaseStructure oldBase = baseStructureRepository.findById(baseId)
+                .orElseThrow(() -> new IllegalArgumentException("Base not found: " + baseId));
+
+        List<GalaxyCosmeticRender> existingRenders = cosmeticRenderRepository.findAllByBaseStructureId(baseId);
+
+        // Supprimer l'ancienne base et ses rendus (ils vont être recréés avec le nouveau configHash)
+        deleteRendersByBase(baseId);
+
+        // Créer la nouvelle base
+        GalaxyBaseStructure newBase = findOrCreateBase(newBaseParams);
+
+        // Recréer chaque rendu avec les nouveaux paramètres de base mais les anciennes cosmétiques
+        for (GalaxyCosmeticRender oldRender : existingRenders) {
+            GalaxyRequestCmd reapplyCmd = GalaxyRequestCmd.builder()
+                    .width(newBase.width())
+                    .height(newBase.height())
+                    .seed(newBase.seed())
+                    .galaxyType(newBase.galaxyType())
+                    .coreSize(newBase.coreSize())
+                    .galaxyRadius(newBase.galaxyRadius())
+                    .warpStrength(newBase.warpStrength())
+                    .noiseParameters(new NoiseParameters(newBase.noiseOctaves(), newBase.noisePersistence(), newBase.noiseLacunarity(), newBase.noiseScale()))
+                    .multiLayerNoiseParameters(new MultiLayerNoiseParameters(newBase.multiLayerNoiseEnabled(), newBase.macroLayerScale(), newBase.macroLayerWeight(), newBase.mesoLayerScale(), newBase.mesoLayerWeight(), newBase.microLayerScale(), newBase.microLayerWeight()))
+                    // On récupère les paramètres de structure sérialisés (attention, ici on suppose qu'ils n'ont pas changé de format)
+                    // En fait, on utilise newBaseParams pour les paramètres de structure car ils sont fournis dans la commande
+                    .spiralParameters(newBaseParams.getSpiralParameters())
+                    .voronoiParameters(newBaseParams.getVoronoiParameters())
+                    .ellipticalParameters(newBaseParams.getEllipticalParameters())
+                    .ringParameters(newBaseParams.getRingParameters())
+                    .irregularParameters(newBaseParams.getIrregularParameters())
+                    // Cosmétiques de l'ancien rendu
+                    .note(oldRender.note())
+                    .colorParameters(ColorParameters.builder()
+                            .colorPalette(oldRender.colorPalette())
+                            .spaceBackgroundColor(oldRender.spaceBackgroundColor())
+                            .coreColor(oldRender.coreColor())
+                            .armColor(oldRender.armColor())
+                            .outerColor(oldRender.outerColor())
+                            .build())
+                    .bloomParameters(BloomParameters.builder()
+                            .enabled(oldRender.bloomEnabled())
+                            .bloomRadius((int) oldRender.bloomRadius())
+                            .bloomIntensity(oldRender.bloomIntensity())
+                            .bloomThreshold(oldRender.bloomThreshold())
+                            .build())
+                    .starFieldParameters(StarFieldParameters.builder()
+                            .enabled(oldRender.starFieldEnabled())
+                            .density(oldRender.starDensity())
+                            .maxStarSize((int) oldRender.maxStarSize())
+                            .diffractionSpikes(oldRender.diffractionSpikes())
+                            .spikeCount(oldRender.spikeCount())
+                            .build())
+                    .build();
+
+            // Créer le nouveau rendu (le thumbnail sera recalculé avec la nouvelle structure)
+            rate(reapplyCmd);
+        }
+
+        return findRendersByBaseId(newBase.id());
     }
 
     private void validateNote(int note) {

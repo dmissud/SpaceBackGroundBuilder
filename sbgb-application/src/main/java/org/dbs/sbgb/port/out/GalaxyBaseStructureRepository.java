@@ -13,6 +13,8 @@ public interface GalaxyBaseStructureRepository {
 
     Optional<GalaxyBaseStructure> findByConfigHash(int hash);
 
+    Optional<GalaxyBaseStructure> findById(UUID id);
+
     void deleteById(UUID id);
 
     GalaxyBaseStructure updateMaxNote(UUID id, int maxNote);
