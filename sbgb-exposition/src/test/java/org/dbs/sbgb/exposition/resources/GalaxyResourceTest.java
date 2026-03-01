@@ -7,12 +7,7 @@ import org.dbs.sbgb.exposition.resources.dto.GalaxyBaseStructureDTO;
 import org.dbs.sbgb.exposition.resources.dto.GalaxyCosmeticRenderDTO;
 import org.dbs.sbgb.exposition.resources.mapper.GalaxyBaseStructureDTOMapper;
 import org.dbs.sbgb.exposition.resources.mapper.GalaxyCosmeticRenderDTOMapper;
-import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
-import org.dbs.sbgb.port.in.DeleteGalaxyCosmeticRenderUseCase;
-import org.dbs.sbgb.port.in.FindGalaxyBaseStructuresUseCase;
-import org.dbs.sbgb.port.in.FindGalaxyCosmeticRendersUseCase;
-import org.dbs.sbgb.port.in.GalaxyRequestCmd;
-import org.dbs.sbgb.port.in.RateGalaxyCosmeticRenderUseCase;
+import org.dbs.sbgb.port.in.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +51,12 @@ class GalaxyResourceTest {
 
     @MockitoBean
     private DeleteGalaxyCosmeticRenderUseCase deleteRenderUseCase;
+
+    @MockitoBean
+    private DeleteRendersByBaseUseCase deleteRendersByBaseUseCase;
+
+    @MockitoBean
+    private ReapplyGalaxyCosmeticsUseCase reapplyUseCase;
 
     @MockitoBean
     private GalaxyBaseStructureDTOMapper baseMapper;
