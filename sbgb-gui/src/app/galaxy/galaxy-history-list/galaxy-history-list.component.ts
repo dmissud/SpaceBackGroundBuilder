@@ -45,7 +45,10 @@ export class GalaxyHistoryListComponent implements OnInit, OnDestroy {
 
     this.galaxyService.galaxySaved$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadBases());
+        .subscribe(() => {
+          this.rendersByBase.clear();
+          this.loadBases();
+        });
   }
 
   ngOnDestroy(): void {

@@ -30,8 +30,16 @@ mat-expansion-panel {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
 
+  ::ng-deep .mat-expansion-panel-header {
+    background: rgba(40, 40, 60, 0.85) !important;
+  }
+
+  ::ng-deep .mat-expansion-panel-header:hover {
+    background: rgba(60, 60, 90, 0.9) !important;
+  }
+
   mat-panel-title {
-    color: #fff;
+    color: #e0e0e0;
     font-weight: 500;
   }
 

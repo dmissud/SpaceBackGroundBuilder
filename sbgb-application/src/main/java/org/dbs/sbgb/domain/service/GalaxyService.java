@@ -2,15 +2,13 @@ package org.dbs.sbgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
-import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
-import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
-import org.dbs.sbgb.domain.model.*;
 import org.dbs.sbgb.domain.model.GalaxyBaseStructure;
 import org.dbs.sbgb.domain.model.GalaxyCosmeticRender;
-import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 import org.dbs.sbgb.port.in.*;
 import org.dbs.sbgb.port.out.GalaxyBaseStructureRepository;
 import org.dbs.sbgb.port.out.GalaxyCosmeticRenderRepository;
+import org.dbs.sbgb.port.out.GalaxyImageComputationPort;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -23,16 +21,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeticRenderUseCase,
         FindGalaxyBaseStructuresUseCase, FindGalaxyCosmeticRendersUseCase, DeleteGalaxyCosmeticRenderUseCase,
-        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase {
+        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase, ResolveGalaxyBaseUseCase {
 
     private final GalaxyBaseStructureRepository baseStructureRepository;
     private final GalaxyCosmeticRenderRepository cosmeticRenderRepository;
-    private final GalaxyStructureMapper galaxyStructureMapper;
-    private final GalaxyGeneratorFactory galaxyGeneratorFactory;
-    private final NoiseGeneratorFactory noiseGeneratorFactory;
-    private final StarFieldApplicator starFieldApplicator;
-    private final BloomApplicator bloomApplicator;
     private final ImageSerializer imageSerializer;
+    private final GalaxyImageComputationPort galaxyImageComputationPort;
 
     @Override
     public byte[] buildGalaxyImage(GalaxyRequestCmd cmd) throws IOException {
@@ -41,6 +35,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
     }
 
     @Override
+    @CacheEvict(value = "galaxyImage", allEntries = true)
     public GalaxyCosmeticRender rate(GalaxyRequestCmd cmd) throws IOException {
         validateNote(cmd.getNote());
 
@@ -231,6 +226,12 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
         baseStructureRepository.updateMaxNote(baseId, maxNote);
     }
 
+    @Override
+    public Optional<GalaxyBaseStructure> resolveBase(GalaxyRequestCmd cmd) {
+        int configHash = computeConfigHash(cmd);
+        return baseStructureRepository.findByConfigHash(configHash);
+    }
+
     private int computeConfigHash(GalaxyRequestCmd cmd) {
         return buildBaseStructure(cmd, 0).configHash();
     }
@@ -251,6 +252,12 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
         NoiseParameters noise = cmd.getNoiseParameters();
         String structureParams = serializeStructureParams(cmd);
 
+        SpiralParameters spiral = cmd.getSpiralParameters();
+        VoronoiParameters voronoi = cmd.getVoronoiParameters();
+        EllipticalParameters elliptical = cmd.getEllipticalParameters();
+        RingParameters ring = cmd.getRingParameters();
+        IrregularParameters irregular = cmd.getIrregularParameters();
+
         GalaxyBaseStructure template = new GalaxyBaseStructure(null, null, 0,
                 cmd.getWidth(), cmd.getHeight(), cmd.getSeed(), cmd.getGalaxyType(),
                 cmd.getCoreSize() != null ? cmd.getCoreSize() : 0.05,
@@ -259,7 +266,24 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                 noise.octaves(), noise.persistence(), noise.lacunarity(), noise.scale(),
                 ml.enabled(), ml.macroLayerScale(), ml.macroLayerWeight(),
                 ml.mesoLayerScale(), ml.mesoLayerWeight(), ml.microLayerScale(), ml.microLayerWeight(),
-                structureParams);
+                structureParams,
+                spiral != null ? spiral.numberOfArms() : null,
+                spiral != null ? spiral.armWidth() : null,
+                spiral != null ? spiral.armRotation() : null,
+                spiral != null ? spiral.darkLaneOpacity() : null,
+                voronoi != null ? voronoi.clusterCount() : null,
+                voronoi != null ? voronoi.clusterSize() : null,
+                voronoi != null ? voronoi.clusterConcentration() : null,
+                elliptical != null ? elliptical.sersicIndex() : null,
+                elliptical != null ? elliptical.axisRatio() : null,
+                elliptical != null ? elliptical.orientationAngle() : null,
+                ring != null ? ring.ringRadius() : null,
+                ring != null ? ring.ringWidth() : null,
+                ring != null ? ring.ringIntensity() : null,
+                ring != null ? ring.coreToRingRatio() : null,
+                irregular != null ? irregular.irregularity() : null,
+                irregular != null ? irregular.irregularClumpCount() : null,
+                irregular != null ? irregular.irregularClumpSize() : null);
 
         return new GalaxyBaseStructure(UUID.randomUUID(), template.generateDescription(), 0,
                 cmd.getWidth(), cmd.getHeight(), cmd.getSeed(), cmd.getGalaxyType(),
@@ -269,7 +293,24 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                 noise.octaves(), noise.persistence(), noise.lacunarity(), noise.scale(),
                 ml.enabled(), ml.macroLayerScale(), ml.macroLayerWeight(),
                 ml.mesoLayerScale(), ml.mesoLayerWeight(), ml.microLayerScale(), ml.microLayerWeight(),
-                structureParams);
+                structureParams,
+                spiral != null ? spiral.numberOfArms() : null,
+                spiral != null ? spiral.armWidth() : null,
+                spiral != null ? spiral.armRotation() : null,
+                spiral != null ? spiral.darkLaneOpacity() : null,
+                voronoi != null ? voronoi.clusterCount() : null,
+                voronoi != null ? voronoi.clusterSize() : null,
+                voronoi != null ? voronoi.clusterConcentration() : null,
+                elliptical != null ? elliptical.sersicIndex() : null,
+                elliptical != null ? elliptical.axisRatio() : null,
+                elliptical != null ? elliptical.orientationAngle() : null,
+                ring != null ? ring.ringRadius() : null,
+                ring != null ? ring.ringWidth() : null,
+                ring != null ? ring.ringIntensity() : null,
+                ring != null ? ring.coreToRingRatio() : null,
+                irregular != null ? irregular.irregularity() : null,
+                irregular != null ? irregular.irregularClumpCount() : null,
+                irregular != null ? irregular.irregularClumpSize() : null);
     }
 
     private String serializeStructureParams(GalaxyRequestCmd cmd) {
@@ -285,20 +326,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
     }
 
     private BufferedImage generateGalaxyBufferedImage(GalaxyRequestCmd cmd) {
-        GalaxyParameters parameters = galaxyStructureMapper.toGalaxyParameters(cmd);
-        GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
-
-        GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
-                .withWidth(cmd.getWidth())
-                .withHeight(cmd.getHeight())
-                .withParameters(parameters)
-                .withColorCalculator(colorCalculator)
-                .withGeneratorFactory(galaxyGeneratorFactory)
-                .withNoiseGeneratorFactory(noiseGeneratorFactory)
-                .withStarFieldApplicator(starFieldApplicator)
-                .withBloomApplicator(bloomApplicator)
-                .build();
-
-        return renderer.create(cmd.getSeed());
+        int configHash = computeConfigHash(cmd);
+        return galaxyImageComputationPort.computeImage(configHash, cmd);
     }
 }

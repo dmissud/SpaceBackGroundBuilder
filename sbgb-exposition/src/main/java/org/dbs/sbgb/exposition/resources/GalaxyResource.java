@@ -11,14 +11,7 @@ import org.dbs.sbgb.exposition.resources.dto.GalaxyBaseStructureDTO;
 import org.dbs.sbgb.exposition.resources.dto.GalaxyCosmeticRenderDTO;
 import org.dbs.sbgb.exposition.resources.mapper.GalaxyBaseStructureDTOMapper;
 import org.dbs.sbgb.exposition.resources.mapper.GalaxyCosmeticRenderDTOMapper;
-import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
-import org.dbs.sbgb.port.in.DeleteGalaxyCosmeticRenderUseCase;
-import org.dbs.sbgb.port.in.DeleteRendersByBaseUseCase;
-import org.dbs.sbgb.port.in.FindGalaxyBaseStructuresUseCase;
-import org.dbs.sbgb.port.in.FindGalaxyCosmeticRendersUseCase;
-import org.dbs.sbgb.port.in.GalaxyRequestCmd;
-import org.dbs.sbgb.port.in.RateGalaxyCosmeticRenderUseCase;
-import org.dbs.sbgb.port.in.ReapplyGalaxyCosmeticsUseCase;
+import org.dbs.sbgb.port.in.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +35,7 @@ public class GalaxyResource {
     private final DeleteGalaxyCosmeticRenderUseCase deleteRenderUseCase;
     private final DeleteRendersByBaseUseCase deleteRendersByBaseUseCase;
     private final ReapplyGalaxyCosmeticsUseCase reapplyUseCase;
+    private final ResolveGalaxyBaseUseCase resolveBaseUseCase;
     private final GalaxyBaseStructureDTOMapper baseMapper;
     private final GalaxyCosmeticRenderDTOMapper renderMapper;
 
@@ -99,6 +93,15 @@ public class GalaxyResource {
     public ResponseEntity<Void> deleteRendersByBase(@PathVariable("id") UUID id) {
         deleteRendersByBaseUseCase.deleteRendersByBase(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/bases/resolve", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Find an existing galaxy base structure matching the given parameters (by config hash)")
+    @LogExecutionTime
+    public ResponseEntity<GalaxyBaseStructureDTO> resolveBase(@Valid @RequestBody GalaxyRequestCmd cmd) {
+        return resolveBaseUseCase.resolveBase(cmd)
+                .map(base -> ResponseEntity.ok(baseMapper.toDTO(base)))
+                .orElse(ResponseEntity.noContent().build());
     }
 
     @PostMapping(value = "/bases/{id}/reapply", produces = MediaType.APPLICATION_JSON_VALUE)

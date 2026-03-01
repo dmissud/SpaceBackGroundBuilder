@@ -139,7 +139,12 @@ class GalaxyResourceTest {
         return new GalaxyBaseStructure(id, "Spirale — 500x500, seed 42", 3,
                 500, 500, 42L, "SPIRAL", 0.1, 200.0, 0.0,
                 4, 0.5, 2.0, 100.0, false,
-                1.0, 0.5, 0.5, 0.3, 0.1, 0.2, "{}");
+                1.0, 0.5, 0.5, 0.3, 0.1, 0.2, "{}",
+                2, 80.0, 4.0, 0.0,
+                null, null, null,
+                null, null, null,
+                null, null, null, null,
+                null, null, null);
     }
 
     private GalaxyBaseStructureDTO buildBaseDTO(UUID id) {

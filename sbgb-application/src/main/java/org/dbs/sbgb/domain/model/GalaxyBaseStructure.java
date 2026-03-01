@@ -25,7 +25,29 @@ public record GalaxyBaseStructure(
         double mesoLayerWeight,
         double microLayerScale,
         double microLayerWeight,
-        String structureParams
+        String structureParams,
+        // Spiral
+        Integer numberOfArms,
+        Double armWidth,
+        Double armRotation,
+        Double darkLaneOpacity,
+        // Voronoi
+        Integer clusterCount,
+        Double clusterSize,
+        Double clusterConcentration,
+        // Elliptical
+        Double sersicIndex,
+        Double axisRatio,
+        Double orientationAngle,
+        // Ring
+        Double ringRadius,
+        Double ringWidth,
+        Double ringIntensity,
+        Double coreToRingRatio,
+        // Irregular
+        Double irregularity,
+        Integer irregularClumpCount,
+        Double irregularClumpSize
 ) {
     public int configHash() {
         return Objects.hash(width, height, seed, galaxyType, coreSize, galaxyRadius, warpStrength,

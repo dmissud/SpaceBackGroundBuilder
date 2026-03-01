@@ -1,60 +1,64 @@
-@if (visibleBases.length === 0) {
-  <div class="empty-state">
-    <mat-icon>inbox</mat-icon>
-    <p>Aucun ciel étoilé enregistré.</p>
-  </div>
-} @else {
-  <mat-accordion multi>
-    @for (base of visibleBases; track base.id) {
-      <mat-expansion-panel (opened)="onBaseExpanded(base.id)">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span class="base-description">{{ base.description }}</span>
-          </mat-panel-title>
-          <mat-panel-description>
-            <span class="base-max-note">
-              @for (star of starValues; track star) {
-                <mat-icon class="star-icon" [class.filled]="isFilled(star, base.maxNote)">
-                  {{ isFilled(star, base.maxNote) ? 'star' : 'star_border' }}
-                </mat-icon>
-              }
-            </span>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
+<div class="history-container">
+  <h2>Bibliothèque des ciels étoilés</h2>
 
-        <div class="renders-grid">
-          @for (render of rendersFor(base.id); track render.id) {
-            <div class="render-card" (click)="onRenderSelected(render)">
-              @if (render.thumbnail) {
-                <img class="render-thumbnail"
-                     [src]="'data:image/png;base64,' + render.thumbnail"
-                     [alt]="render.description"
-                     [matTooltip]="render.description" />
-              } @else {
-                <div class="render-thumbnail placeholder"
-                     [matTooltip]="render.description">
-                  <mat-icon>image</mat-icon>
-                </div>
-              }
-              <div class="render-footer">
-                <span class="render-note">
-                  @for (star of starValues; track star) {
-                    <mat-icon class="star-icon small" [class.filled]="isFilled(star, render.note)">
-                      {{ isFilled(star, render.note) ? 'star' : 'star_border' }}
-                    </mat-icon>
-                  }
-                </span>
-                <button mat-icon-button
-                        (click)="onDeleteRender(render.id); $event.stopPropagation()"
-                        matTooltip="Supprimer ce rendu"
-                        class="delete-btn">
-                  <mat-icon>delete</mat-icon>
-                </button>
+  @if (visibleBases.length === 0) {
+    <div class="empty-message">
+      Aucun ciel étoilé enregistré. Créez votre premier ciel étoilé !
+    </div>
+  } @else {
+    <mat-accordion multi="false">
+      @for (base of visibleBases; track base.id) {
+        <mat-expansion-panel (opened)="onBaseExpanded(base.id)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ base.description }}
+            </mat-panel-title>
+            <mat-panel-description>
+              <div class="stars">
+                @for (star of starValues; track star) {
+                  <mat-icon [style.color]="isFilled(star, base.maxNote) ? '#ffd740' : 'rgba(255,255,255,0.3)'"
+                            style="font-size:1.2rem;width:1.2rem;height:1.2rem">
+                    {{ isFilled(star, base.maxNote) ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
               </div>
-            </div>
-          }
-        </div>
-      </mat-expansion-panel>
-    }
-  </mat-accordion>
-}
+              @if (base.noiseType) {
+                <span class="type-badge">{{ base.noiseType }}</span>
+              }
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="renders-grid">
+            @for (render of rendersFor(base.id); track render.id) {
+              <div class="render-card"
+                   (click)="onRenderSelected(render)"
+                   [matTooltip]="render.description">
+                @if (render.thumbnail) {
+                  <img [src]="'data:image/png;base64,' + render.thumbnail" [alt]="render.description">
+                }
+                <div class="render-overlay">
+                  <div class="render-note">
+                    <mat-icon inline>star</mat-icon>
+                    {{ render.note }}
+                  </div>
+                  <button mat-icon-button color="warn"
+                          (click)="onDeleteRender(render.id); $event.stopPropagation()"
+                          matTooltip="Supprimer ce rendu">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <mat-action-row>
+            <button mat-button color="primary" (click)="onLoadBestRender(base.id)">
+              <mat-icon>edit</mat-icon>
+              Charger dans le générateur
+            </button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>

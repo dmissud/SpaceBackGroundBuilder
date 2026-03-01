@@ -23,6 +23,12 @@ export const galaxiesFeature = createFeature({
         ...state,
         selectedRenderId: null
       })),
+    on(GalaxyPageActions.clearRenders,
+      (state) => ({
+        ...state,
+        renders: [],
+        selectedRenderId: null
+      })),
     on(GalaxyApiActions.rendersLoadSuccess,
       (state, {renders}) => ({
         ...state,

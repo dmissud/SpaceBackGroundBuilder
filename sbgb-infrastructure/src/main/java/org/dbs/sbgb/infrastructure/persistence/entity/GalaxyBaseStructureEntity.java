@@ -81,4 +81,60 @@ public class GalaxyBaseStructureEntity {
 
     @Column(name = "config_hash", nullable = false, unique = true)
     private int configHash;
+
+    // Spiral
+    @Column(name = "number_of_arms")
+    private Integer numberOfArms;
+
+    @Column(name = "arm_width")
+    private Double armWidth;
+
+    @Column(name = "arm_rotation")
+    private Double armRotation;
+
+    @Column(name = "dark_lane_opacity")
+    private Double darkLaneOpacity;
+
+    // Voronoi
+    @Column(name = "cluster_count")
+    private Integer clusterCount;
+
+    @Column(name = "cluster_size")
+    private Double clusterSize;
+
+    @Column(name = "cluster_concentration")
+    private Double clusterConcentration;
+
+    // Elliptical
+    @Column(name = "sersic_index")
+    private Double sersicIndex;
+
+    @Column(name = "axis_ratio")
+    private Double axisRatio;
+
+    @Column(name = "orientation_angle")
+    private Double orientationAngle;
+
+    // Ring
+    @Column(name = "ring_radius")
+    private Double ringRadius;
+
+    @Column(name = "ring_width")
+    private Double ringWidth;
+
+    @Column(name = "ring_intensity")
+    private Double ringIntensity;
+
+    @Column(name = "core_to_ring_ratio")
+    private Double coreToRingRatio;
+
+    // Irregular
+    @Column(name = "irregularity")
+    private Double irregularity;
+
+    @Column(name = "irregular_clump_count")
+    private Integer irregularClumpCount;
+
+    @Column(name = "irregular_clump_size")
+    private Double irregularClumpSize;
 }

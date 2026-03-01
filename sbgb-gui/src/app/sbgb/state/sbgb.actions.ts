@@ -13,6 +13,7 @@ export const SbgbPageActions = createActionGroup({
     'Delete Render': props<{ renderId: string }>(),
     'Select Render': props<{ renderId: string }>(),
     'Clear Selected Render': emptyProps(),
+    'Clear Renders': emptyProps(),
     'Apply Render Cosmetics': props<{ render: NoiseCosmeticRenderDto }>()
   }
 });

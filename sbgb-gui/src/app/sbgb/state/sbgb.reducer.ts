@@ -54,6 +54,12 @@ export const sbgbsFeature = createFeature({
         ...state,
         selectedRenderId: null
       })),
+    on(SbgbPageActions.clearRenders,
+      (state) => ({
+        ...state,
+        renders: [],
+        selectedRenderId: null
+      })),
     on(ImageApiActions.imagesLoadSuccess,
       (state, {bases}) => ({
         ...state,
