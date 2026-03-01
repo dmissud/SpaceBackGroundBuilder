@@ -1,9 +1,9 @@
 import {Component, Inject, Optional} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
-import {MatDialogModule} from '@angular/material/dialog';
 
 export enum GalaxyStructuralChangeChoice {
+  NEW_BASE = 'NEW_BASE',
   CLEAR = 'CLEAR',
   REAPPLY = 'REAPPLY',
   CANCEL = 'CANCEL'
