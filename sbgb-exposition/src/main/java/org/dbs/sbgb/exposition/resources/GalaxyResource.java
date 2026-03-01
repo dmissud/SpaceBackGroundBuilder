@@ -13,10 +13,12 @@ import org.dbs.sbgb.exposition.resources.mapper.GalaxyBaseStructureDTOMapper;
 import org.dbs.sbgb.exposition.resources.mapper.GalaxyCosmeticRenderDTOMapper;
 import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
 import org.dbs.sbgb.port.in.DeleteGalaxyCosmeticRenderUseCase;
+import org.dbs.sbgb.port.in.DeleteRendersByBaseUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyBaseStructuresUseCase;
 import org.dbs.sbgb.port.in.FindGalaxyCosmeticRendersUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
 import org.dbs.sbgb.port.in.RateGalaxyCosmeticRenderUseCase;
+import org.dbs.sbgb.port.in.ReapplyGalaxyCosmeticsUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +40,8 @@ public class GalaxyResource {
     private final FindGalaxyBaseStructuresUseCase findBasesUseCase;
     private final FindGalaxyCosmeticRendersUseCase findRendersUseCase;
     private final DeleteGalaxyCosmeticRenderUseCase deleteRenderUseCase;
+    private final DeleteRendersByBaseUseCase deleteRendersByBaseUseCase;
+    private final ReapplyGalaxyCosmeticsUseCase reapplyUseCase;
     private final GalaxyBaseStructureDTOMapper baseMapper;
     private final GalaxyCosmeticRenderDTOMapper renderMapper;
 
@@ -87,5 +91,26 @@ public class GalaxyResource {
     public ResponseEntity<Void> deleteRender(@PathVariable("id") UUID id) {
         deleteRenderUseCase.deleteRender(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/bases/{id}/renders")
+    @Operation(description = "Delete all cosmetic renders for a base and the base itself")
+    @LogExecutionTime
+    public ResponseEntity<Void> deleteRendersByBase(@PathVariable("id") UUID id) {
+        deleteRendersByBaseUseCase.deleteRendersByBase(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/bases/{id}/reapply", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(description = "Reapply cosmetics to all renders of a base after structural change")
+    @LogExecutionTime
+    public ResponseEntity<List<GalaxyCosmeticRenderDTO>> reapplyCosmetics(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody GalaxyRequestCmd cmd) throws IOException {
+        return ResponseEntity.ok(
+                reapplyUseCase.reapplyCosmetics(id, cmd).stream()
+                        .map(renderMapper::toDTO)
+                        .toList()
+        );
     }
 }

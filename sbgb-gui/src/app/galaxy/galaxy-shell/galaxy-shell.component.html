@@ -39,6 +39,44 @@
     </app-galaxy-image>
   </ng-template>
 
+  <!-- Renders strip content -->
+  <ng-template #rendersContent>
+    @if (renders().length) {
+      <div class="renders-strip">
+        <span class="renders-strip-title">
+          🗂️ Rendus sauvegardés — Modèle de Base courant
+          @if (canBuild()) {
+            <span class="pending-dot" matTooltip="Paramètres modifiés — génération disponible"></span>
+          }
+        </span>
+        <div class="renders-list">
+          @for (render of renders(); track render.id) {
+            <div class="render-card" [class.selected]="render.id === selectedRenderId()" (click)="onSelectRender(render)">
+              @if (render.thumbnail) {
+                <img class="render-thumbnail"
+                     [src]="'data:image/png;base64,' + render.thumbnail"
+                     [alt]="render.description"
+                     [matTooltip]="render.description" />
+              }
+              <div class="render-stars">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <mat-icon [style.color]="star <= render.note ? '#f59f00' : 'rgba(0,0,0,0.35)'"
+                            style="font-size:14px">
+                    {{ star <= render.note ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+              </div>
+              <button mat-icon-button (click)="onDeleteRender(render.id); $event.stopPropagation()"
+                      matTooltip="Supprimer ce rendu" class="delete-render-btn">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </ng-template>
+
   <!-- Library content -->
   <ng-template #libraryContent>
     <app-galaxy-list (viewRequested)="onViewRequested($event)"></app-galaxy-list>

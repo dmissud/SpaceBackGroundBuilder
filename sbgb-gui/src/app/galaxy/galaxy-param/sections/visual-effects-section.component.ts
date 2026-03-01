@@ -27,7 +27,7 @@ import { MatSelect, MatOption } from '@angular/material/select';
     MatOption
   ],
   template: `
-    <mat-expansion-panel [formGroup]="formGroup">
+    <mat-expansion-panel [expanded]="expanded" [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>auto_awesome</mat-icon>
@@ -177,6 +177,7 @@ import { MatSelect, MatOption } from '@angular/material/select';
   styles: ``
 })
 export class VisualEffectsSectionComponent {
+  @Input() expanded: boolean = false;
   @Input() formGroup!: FormGroup;
   @Input() onRandomizeWarping!: () => void;
   @Input() onRandomizeMultiLayerNoise!: () => void;

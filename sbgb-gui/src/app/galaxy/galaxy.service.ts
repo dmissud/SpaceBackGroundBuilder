@@ -45,4 +45,20 @@ export class GalaxyService {
   rateGalaxy(request: GalaxyRequestCmd): Observable<GalaxyCosmeticRenderDto> {
     return this.http.post<GalaxyCosmeticRenderDto>(`${this.galaxyApiUrl}/renders/rate`, request);
   }
+
+  getRendersForBase(baseId: string): Observable<GalaxyCosmeticRenderDto[]> {
+    return this.http.get<GalaxyCosmeticRenderDto[]>(`${this.galaxyApiUrl}/bases/${baseId}/renders`);
+  }
+
+  deleteRender(renderId: string): Observable<void> {
+    return this.http.delete<void>(`${this.galaxyApiUrl}/renders/${renderId}`);
+  }
+
+  deleteRendersByBase(baseId: string): Observable<void> {
+    return this.http.delete<void>(`${this.galaxyApiUrl}/bases/${baseId}/renders`);
+  }
+
+  reapplyCosmetics(baseId: string, request: GalaxyRequestCmd): Observable<GalaxyCosmeticRenderDto[]> {
+    return this.http.post<GalaxyCosmeticRenderDto[]>(`${this.galaxyApiUrl}/bases/${baseId}/reapply`, request);
+  }
 }

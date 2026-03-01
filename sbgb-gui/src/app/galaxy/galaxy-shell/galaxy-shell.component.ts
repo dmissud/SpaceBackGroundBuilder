@@ -2,12 +2,15 @@ import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
 import { GalaxyListComponent } from "../galaxy-list/galaxy-list.component";
 import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
-import { GalaxyBaseStructureDto } from "../galaxy.model";
+import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { Store } from "@ngrx/store";
+import { selectRenders, selectSelectedRenderId } from "../state/galaxy.selectors";
+import { GalaxyPageActions } from "../state/galaxy.actions";
 
 @Component({
   selector: 'app-galaxy-shell',
@@ -28,7 +31,10 @@ export class GalaxyShellComponent implements AfterViewInit {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(GalaxyParamComponent) paramComponent!: GalaxyParamComponent;
 
-  constructor(private cdr: ChangeDetectorRef) { }
+  renders = this.store.selectSignal(selectRenders);
+  selectedRenderId = this.store.selectSignal(selectSelectedRenderId);
+
+  constructor(private store: Store, private cdr: ChangeDetectorRef) { }
 
   ngAfterViewInit() {
     this.cdr.detectChanges();
@@ -64,6 +70,15 @@ export class GalaxyShellComponent implements AfterViewInit {
     }
   }
 
+  onSelectRender(render: GalaxyCosmeticRenderDto): void {
+    this.store.dispatch(GalaxyPageActions.selectRender({renderId: render.id}));
+    this.store.dispatch(GalaxyPageActions.applyRenderCosmetics({render}));
+  }
+
+  onDeleteRender(renderId: string): void {
+    this.store.dispatch(GalaxyPageActions.deleteRender({renderId}));
+  }
+
   get actionBarButtons(): ActionBarButton[] {
     const param = this.paramComponent;
     if (!param) return [];
@@ -83,6 +98,10 @@ export class GalaxyShellComponent implements AfterViewInit {
         action: () => param.downloadImage()
       }
     ];
+  }
+
+  canBuild(): boolean {
+    return this.paramComponent?.canBuild() || false;
   }
 
   getSummary(): string | null {

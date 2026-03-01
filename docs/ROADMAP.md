@@ -145,23 +145,26 @@ sauvegarde uniquement par notation.
 - Frontend : `rateGalaxy()` remplace `createGalaxy()` + `updateNote()`, liste affiche les bases
 
 ## I2 — Renders strip dans le panneau générateur
-**Statut : À FAIRE**
+**Statut : TERMINÉ** (commit `62a3f0d`, branche `feature/galaxy-I2-renders-strip-gui`)
 
 Afficher les rendus sauvegardés pour la base courante directement dans `galaxy-shell`.
 
 - `galaxy-shell.component.html` : bande de vignettes (`#rendersContent`) — même pattern que `sbgb-shell`
 - NgRx galaxy : actions `loadRendersForBase`, `deleteRender`, `selectRender`, `applyRenderCosmetics`
 - Clic vignette → recharge paramètres cosmétiques dans `galaxy-param` + affiche l'image
+- Synchronisation `currentNote` et `isModifiedSinceBuild` avec le store
+- Rechargement automatique de la bande après notation (`rateGalaxy`)
 
 ## I3 — Détection changement structurant + dialogue
-**Statut : À FAIRE**
+**Statut : TERMINÉ** (commit `a9e1b2c`, branche `feature/galaxy-I3-structural-change`)
 
 Alerter l'utilisateur quand il modifie des paramètres structurants alors que des rendus existent.
 
-- Séparation explicite `baseForm` / `cosmeticForm` dans `galaxy-param.component.ts`
-- `MatDialog` de choix : **Vider** (DELETE tous les rendus) / **Ré-appliquer** (recalcul POST /galaxy/build)
+- Séparation explicite `baseForm` / `cosmeticForm` dans `galaxy-param.component.ts` (via `isStructuralChange`)
+- `MatDialog` de choix : **Vider** (DELETE tous les rendus) / **Ré-appliquer** (recalcul POST /galaxy/bases/{id}/reapply)
   / **Annuler** (restaurer snapshot formulaire)
-- Indicateur visuel changement structurant dans le template
+- Indicateur visuel changement structurant dans le template (via `isStructuralChange` et snackbar)
+- Verrouillage de l'UI pendant le recalcul massif (ngx-spinner)
 
 ## I4 — Bibliothèque hiérarchique
 **Statut : À FAIRE**
