@@ -167,7 +167,7 @@ Alerter l'utilisateur quand il modifie des paramètres structurants alors que de
 - Verrouillage de l'UI pendant le recalcul massif (ngx-spinner)
 
 ## I4 — Bibliothèque hiérarchique
-**Statut : À FAIRE**
+**Statut : TERMINÉ** (commit `7b8d9e2`, branche `feature/galaxy-I4-history-list`)
 
 Nouveau composant `galaxy-history-list` remplaçant `galaxy-list` (tableau plat).
 
