@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, Subject} from 'rxjs';
+import {map, Observable, Subject} from 'rxjs';
 import {GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, GalaxyPersistedState, GalaxyRequestCmd} from './galaxy.model';
 import {ApiService} from '../common/api.service';
 
@@ -56,6 +56,12 @@ export class GalaxyService {
 
   deleteRendersByBase(baseId: string): Observable<void> {
     return this.http.delete<void>(`${this.galaxyApiUrl}/bases/${baseId}/renders`);
+  }
+
+  resolveBase(request: GalaxyRequestCmd): Observable<GalaxyBaseStructureDto | null> {
+    return this.http.post<GalaxyBaseStructureDto>(`${this.galaxyApiUrl}/bases/resolve`, request, {observe: 'response'}).pipe(
+      map(response => response.status === 204 ? null : response.body)
+    );
   }
 
   reapplyCosmetics(baseId: string, request: GalaxyRequestCmd): Observable<GalaxyCosmeticRenderDto[]> {
