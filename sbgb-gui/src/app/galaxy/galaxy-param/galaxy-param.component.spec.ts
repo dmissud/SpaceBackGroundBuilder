@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { Store } from '@ngrx/store';
 import { provideMockStore } from '@ngrx/store/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { of } from 'rxjs';
@@ -13,6 +15,7 @@ describe('GalaxyParamComponent', () => {
   let fixture: ComponentFixture<GalaxyParamComponent>;
   let snackBar: jest.Mocked<MatSnackBar>;
   let galaxyService: jest.Mocked<GalaxyService>;
+  let dialog: jest.Mocked<MatDialog>;
   let actions$ = of();
 
   afterEach(() => {
@@ -21,6 +24,7 @@ describe('GalaxyParamComponent', () => {
 
   beforeEach(async () => {
     snackBar = { open: jest.fn() } as any;
+    dialog = { open: jest.fn() } as any;
     galaxyService = {
       buildGalaxy: jest.fn(),
       rateGalaxy: jest.fn(),
@@ -38,7 +42,9 @@ describe('GalaxyParamComponent', () => {
       ],
       providers: [
         { provide: MatSnackBar, useValue: snackBar },
+        { provide: MatDialog, useValue: dialog },
         { provide: GalaxyService, useValue: galaxyService },
+        FormBuilder,
         provideMockStore(),
         provideMockActions(() => actions$)
       ]
