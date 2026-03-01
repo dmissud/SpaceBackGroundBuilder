@@ -26,7 +26,7 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } fr
     MatIconButton
   ],
   template: `
-    <mat-expansion-panel [expanded]="true" [formGroup]="formGroup">
+    <mat-expansion-panel [expanded]="expanded" [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>info</mat-icon>
@@ -79,6 +79,7 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } fr
 })
 export class BasicInfoSectionComponent {
   @Input() formGroup!: FormGroup;
+  @Input() expanded: boolean = true;
   @Input() onGalaxyTypeChange!: () => void;
   @Input() onRandomizeSeed!: () => void;
 }

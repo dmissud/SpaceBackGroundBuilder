@@ -18,7 +18,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
     ReactiveFormsModule
   ],
   template: `
-    <mat-expansion-panel [formGroup]="formGroup">
+    <mat-expansion-panel [expanded]="expanded" [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>tune</mat-icon>
@@ -104,6 +104,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 })
 export class PresetsSectionComponent {
   @Input() formGroup!: FormGroup;
+  @Input() expanded: boolean = false;
   @Input() onLoadPreset!: (preset: string) => void;
   @Input() onRandomizeStructure!: () => void;
   @Input() onRandomizeColors!: () => void;

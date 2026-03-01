@@ -24,3 +24,9 @@ h3 {
 mat-form-field {
   min-width: 200px;
 }
+
+.galaxy-params-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

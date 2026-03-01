@@ -7,11 +7,11 @@
 </div>
 
 <form [formGroup]="galaxyForm">
-  <mat-accordion multi>
+  <div class="galaxy-params-accordion">
 
     <!-- 1. BASIC INFORMATION -->
     <app-basic-info-section [formGroup]="galaxyForm" [onRandomizeSeed]="randomizeSeed.bind(this)"
-      [onGalaxyTypeChange]="onGalaxyTypeChange.bind(this)">
+      [onGalaxyTypeChange]="onGalaxyTypeChange.bind(this)" [expanded]="allPanelsExpanded">
     </app-basic-info-section>
 
     <!-- 2. PRESETS & RANDOMIZATION -->
@@ -19,58 +19,58 @@
                          [onRandomizeStructure]="randomizeStructure.bind(this)"
                          [onRandomizeColors]="randomizeCustomColors.bind(this)"
                          [onRandomizeStarField]="randomizeStarField.bind(this)"
-                         [onRandomizeAll]="randomizeAll.bind(this)">
+                         [onRandomizeAll]="randomizeAll.bind(this)" [expanded]="allPanelsExpanded">
     </app-presets-section>
 
     <!-- 3. TYPE-SPECIFIC STRUCTURE -->
     @if (galaxyForm.controls['galaxyType'].value === 'SPIRAL') {
     <app-spiral-structure-section [formGroup]="$any(galaxyForm.get('spiralParameters'))"
-      [onRandomize]="randomizeSpiral.bind(this)">
+      [onRandomize]="randomizeSpiral.bind(this)" [expanded]="allPanelsExpanded">
     </app-spiral-structure-section>
     }
 
     @if (galaxyForm.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
     <app-voronoi-structure-section [formGroup]="$any(galaxyForm.get('voronoiParameters'))"
-      [onRandomize]="randomizeVoronoi.bind(this)">
+      [onRandomize]="randomizeVoronoi.bind(this)" [expanded]="allPanelsExpanded">
     </app-voronoi-structure-section>
     }
 
     @if (galaxyForm.controls['galaxyType'].value === 'ELLIPTICAL') {
     <app-elliptical-structure-section [formGroup]="$any(galaxyForm.get('ellipticalParameters'))"
-      [onRandomize]="randomizeElliptical.bind(this)">
+      [onRandomize]="randomizeElliptical.bind(this)" [expanded]="allPanelsExpanded">
     </app-elliptical-structure-section>
     }
 
     @if (galaxyForm.controls['galaxyType'].value === 'RING') {
     <app-ring-structure-section [formGroup]="$any(galaxyForm.get('ringParameters'))"
-      [onRandomize]="randomizeRing.bind(this)">
+      [onRandomize]="randomizeRing.bind(this)" [expanded]="allPanelsExpanded">
     </app-ring-structure-section>
     }
 
     @if (galaxyForm.controls['galaxyType'].value === 'IRREGULAR') {
     <app-irregular-structure-section [formGroup]="$any(galaxyForm.get('irregularParameters'))"
-      [onRandomize]="randomizeIrregular.bind(this)">
+      [onRandomize]="randomizeIrregular.bind(this)" [expanded]="allPanelsExpanded">
     </app-irregular-structure-section>
     }
 
     <!-- 4. CORE PARAMETERS -->
-    <app-core-radius-section [formGroup]="galaxyForm" [onRandomize]="randomizeCore.bind(this)">
+    <app-core-radius-section [formGroup]="galaxyForm" [onRandomize]="randomizeCore.bind(this)" [expanded]="allPanelsExpanded">
     </app-core-radius-section>
 
     <!-- 5. NOISE TEXTURE -->
     <app-noise-texture-section [formGroup]="$any(galaxyForm.get('noiseParameters'))"
-      [onRandomize]="randomizeNoise.bind(this)">
+      [onRandomize]="randomizeNoise.bind(this)" [expanded]="allPanelsExpanded">
     </app-noise-texture-section>
 
     <!-- 6. VISUAL EFFECTS -->
     <app-visual-effects-section [formGroup]="galaxyForm" [onRandomizeWarping]="randomizeWarping.bind(this)"
       [onRandomizeMultiLayerNoise]="randomizeMultiLayerNoise.bind(this)"
-      [onRandomizeStarField]="randomizeStarField.bind(this)">
+      [onRandomizeStarField]="randomizeStarField.bind(this)" [expanded]="allPanelsExpanded">
     </app-visual-effects-section>
 
     <!-- 7. COLORS -->
-    <app-colors-section [formGroup]="galaxyForm" [onRandomizeCustomColors]="randomizeCustomColors.bind(this)">
+    <app-colors-section [formGroup]="galaxyForm" [onRandomizeCustomColors]="randomizeCustomColors.bind(this)" [expanded]="allPanelsExpanded">
     </app-colors-section>
 
-  </mat-accordion>
+  </div>
 </form>

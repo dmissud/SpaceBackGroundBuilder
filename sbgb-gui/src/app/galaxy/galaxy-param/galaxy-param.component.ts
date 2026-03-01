@@ -1,7 +1,6 @@
-import {Component, OnDestroy, OnInit, ViewChild, DestroyRef, inject} from '@angular/core';
+import {Component, OnDestroy, OnInit, DestroyRef, inject} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatAccordion} from "@angular/material/expansion";
 import {MatIcon} from "@angular/material/icon";
 import {MatTooltip} from "@angular/material/tooltip";
 import {Store} from "@ngrx/store";
@@ -27,8 +26,6 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
   selector: 'app-galaxy-param',
   imports: [
     ReactiveFormsModule,
-    MatAccordion,
-    MatAccordion,
     MatIcon,
     MatTooltip,
     BasicInfoSectionComponent,
@@ -47,8 +44,6 @@ import {ColorsSectionComponent} from "./sections/colors-section.component";
   styleUrl: './galaxy-param.component.scss'
 })
 export class GalaxyParamComponent implements OnInit, OnDestroy {
-
-  @ViewChild(MatAccordion) accordion!: MatAccordion;
 
   galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
@@ -959,16 +954,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   toggleAllPanels(): void {
     this.allPanelsExpanded = !this.allPanelsExpanded;
-    // Les méthodes openAll/closeAll existent sur MatAccordion si on a bien le module
-    // mais ici on peut aussi simplement ne pas les appeler si le typage bloque
-    // ou vérifier l'import. En attendant, je commente pour debloquer le build.
-    /*
-    if (this.allPanelsExpanded) {
-      this.accordion.openAll();
-    } else {
-      this.accordion.closeAll();
-    }
-    */
   }
 
   ngOnDestroy(): void {
