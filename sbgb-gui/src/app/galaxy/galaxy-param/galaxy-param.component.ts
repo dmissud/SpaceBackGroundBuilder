@@ -399,7 +399,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   private executeBuildAfterClear(baseId: string): void {
     this.galaxyService.deleteRendersByBase(baseId).subscribe(() => {
-      this.store.dispatch(GalaxyPageActions.loadBases());
       this.executeBuild();
     });
   }
@@ -410,7 +409,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       next: (renders) => {
         this.snackBar.open('Rendus recalculés avec succès', 'OK', { duration: 3000 });
         this.executeBuild();
-        this.store.dispatch(GalaxyPageActions.loadBases());
         if (renders.length > 0) {
           this.store.dispatch(GalaxyPageActions.loadRendersForBase({ baseId: renders[0].baseStructureId }));
         }

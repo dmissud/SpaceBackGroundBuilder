@@ -8,8 +8,7 @@ export const GalaxyPageActions = createActionGroup({
     'Delete Render': props<{ renderId: string }>(),
     'Select Render': props<{ renderId: string }>(),
     'Clear Selected Render': emptyProps(),
-    'Apply Render Cosmetics': props<{ render: GalaxyCosmeticRenderDto }>(),
-    'Load Bases': emptyProps()
+    'Apply Render Cosmetics': props<{ render: GalaxyCosmeticRenderDto }>()
   }
 });
 
