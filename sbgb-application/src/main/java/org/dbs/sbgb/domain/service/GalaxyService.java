@@ -2,7 +2,8 @@ package org.dbs.sbgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
-import org.dbs.sbgb.domain.model.*;
+import org.dbs.sbgb.domain.model.GalaxyBaseStructure;
+import org.dbs.sbgb.domain.model.GalaxyCosmeticRender;
 import org.dbs.sbgb.port.in.*;
 import org.dbs.sbgb.port.out.GalaxyBaseStructureRepository;
 import org.dbs.sbgb.port.out.GalaxyCosmeticRenderRepository;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeticRenderUseCase,
         FindGalaxyBaseStructuresUseCase, FindGalaxyCosmeticRendersUseCase, DeleteGalaxyCosmeticRenderUseCase,
-        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase {
+        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase, ResolveGalaxyBaseUseCase {
 
     private final GalaxyBaseStructureRepository baseStructureRepository;
     private final GalaxyCosmeticRenderRepository cosmeticRenderRepository;
@@ -223,6 +224,12 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
         int maxNote = cosmeticRenderRepository.findAllByBaseStructureId(baseId).stream()
                 .mapToInt(GalaxyCosmeticRender::note).max().orElse(0);
         baseStructureRepository.updateMaxNote(baseId, maxNote);
+    }
+
+    @Override
+    public Optional<GalaxyBaseStructure> resolveBase(GalaxyRequestCmd cmd) {
+        int configHash = computeConfigHash(cmd);
+        return baseStructureRepository.findByConfigHash(configHash);
     }
 
     private int computeConfigHash(GalaxyRequestCmd cmd) {
