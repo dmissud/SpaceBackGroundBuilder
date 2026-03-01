@@ -1,6 +1,7 @@
 import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
 import { GalaxyHistoryListComponent } from "../galaxy-history-list/galaxy-history-list.component";
+import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
 import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";

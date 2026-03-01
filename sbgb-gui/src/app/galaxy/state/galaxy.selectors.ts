@@ -8,6 +8,11 @@ export const selectRenders = createSelector(
   (galaxyState) => galaxyState.renders
 );
 
+export const selectCurrentBaseRenders = createSelector(
+  selectRenders,
+  (renders) => renders
+);
+
 export const selectSelectedRenderId = createSelector(
   selectGalaxyState,
   (galaxyState) => galaxyState.selectedRenderId
