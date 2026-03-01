@@ -54,6 +54,14 @@ export class SbgbHistoryListComponent {
     this.renderSelected.emit(render);
   }
 
+  /** Émet le meilleur rendu de la base pour le charger dans le générateur. */
+  onLoadBestRender(baseId: string): void {
+    const renders = this.rendersFor(baseId);
+    if (renders.length === 0) return;
+    const best = renders.reduce((a, b) => a.note >= b.note ? a : b);
+    this.renderSelected.emit(best);
+  }
+
   private hasRenders(baseId: string | undefined): boolean {
     if (!baseId) return false;
     const renders = this.rendersByBaseId[baseId];
