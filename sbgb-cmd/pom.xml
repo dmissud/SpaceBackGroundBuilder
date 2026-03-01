@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.dbs.sbgb</groupId>
             <artifactId>sbgb-application</artifactId>
-            <version>1.7.0</version>
+            <version>1.8.0</version>
         </dependency>
 
         <dependency>
