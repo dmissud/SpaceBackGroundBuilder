@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, DestroyRef, inject} from '@angular/core';
+import {Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatIcon} from "@angular/material/icon";
@@ -9,7 +9,7 @@ import {Actions, ofType} from "@ngrx/effects";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyCosmeticRenderDto, GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -22,9 +22,12 @@ import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.com
 import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
 import {CosmeticEffectsSectionComponent} from "./sections/cosmetic-effects-section.component";
 import {ColorsSectionComponent} from "./sections/colors-section.component";
-import {GalaxyStructuralChangeChoice, GalaxyStructuralChangeDialogComponent} from "../galaxy-structural-change-dialog/galaxy-structural-change-dialog.component";
+import {
+  GalaxyStructuralChangeChoice,
+  GalaxyStructuralChangeDialogComponent
+} from "../galaxy-structural-change-dialog/galaxy-structural-change-dialog.component";
 import {selectCurrentBaseRenders} from "../state/galaxy.selectors";
-import {filter, map, switchMap, take} from "rxjs";
+import {take} from "rxjs";
 
 
 @Component({
@@ -401,6 +404,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   private executeBuildAfterClear(baseId: string): void {
     this.galaxyService.deleteRendersByBase(baseId).subscribe(() => {
+      this.store.dispatch(GalaxyPageActions.clearRenders());
       this.executeBuild();
     });
   }
