@@ -9,7 +9,7 @@ import {Actions, ofType} from "@ngrx/effects";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyCosmeticRenderDto, GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -20,14 +20,15 @@ import {IrregularStructureSectionComponent} from "./sections/irregular-structure
 import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
 import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
 import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {ColorsSectionComponent} from "./sections/colors-section.component";
 import {GalaxyStructuralChangeChoice, GalaxyStructuralChangeDialogComponent} from "../galaxy-structural-change-dialog/galaxy-structural-change-dialog.component";
-import {selectCurrentBaseRenders} from "../state/galaxy.reducer";
+import {selectCurrentBaseRenders} from "../state/galaxy.selectors";
 import {filter, map, switchMap, take} from "rxjs";
-import {NgxSpinnerService, NgxSpinnerModule} from "ngx-spinner";
 
 
 @Component({
   selector: 'app-galaxy-param',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatIcon,
@@ -42,8 +43,7 @@ import {NgxSpinnerService, NgxSpinnerModule} from "ngx-spinner";
     CoreRadiusSectionComponent,
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
-    ColorsSectionComponent,
-    NgxSpinnerModule
+    ColorsSectionComponent
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
@@ -58,7 +58,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   readonly starValues = [1, 2, 3, 4, 5];
   private isModifiedSinceBuild: boolean = true;
   private builtGalaxyParams: GalaxyRequestCmd | null = null;
-
 
   private isStructuralChange(): boolean {
     if (!this.builtGalaxyParams) return false;
@@ -97,8 +96,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly store: Store,
     private readonly actions$: Actions,
-    private readonly dialog: MatDialog,
-    private readonly spinner: NgxSpinnerService
+    private readonly dialog: MatDialog
   ) {
     const destroyRef = inject(DestroyRef);
     this.actions$.pipe(
@@ -344,7 +342,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     if (this.builtGalaxyParams && this.isStructuralChange()) {
       this.store.select(selectCurrentBaseRenders).pipe(
         take(1)
-      ).subscribe(renders => {
+      ).subscribe((renders: any) => {
         if (renders && renders.length > 0) {
           const dialogRef = this.dialog.open(GalaxyStructuralChangeDialogComponent, {
             data: { rendersCount: renders.length },
@@ -352,11 +350,11 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
             disableClose: true
           });
 
-          dialogRef.afterClosed().subscribe(choice => {
+          dialogRef.afterClosed().subscribe((choice: GalaxyStructuralChangeChoice) => {
             if (choice === GalaxyStructuralChangeChoice.CLEAR) {
-              this.executeBuildAfterClear(renders[0].baseId);
+              this.executeBuildAfterClear(renders[0].baseStructureId);
             } else if (choice === GalaxyStructuralChangeChoice.REAPPLY) {
-              this.executeReapply(renders[0].baseId);
+              this.executeReapply(renders[0].baseStructureId);
             } else if (choice === GalaxyStructuralChangeChoice.CANCEL) {
               // Restaurer les paramètres précédents
               this.galaxyForm.patchValue(this.builtGalaxyParams!);
@@ -407,18 +405,15 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   }
 
   private executeReapply(baseId: string): void {
-    this.spinner.show();
     const request = this.galaxyForm.value;
     this.galaxyService.reapplyCosmetics(baseId, request).subscribe({
       next: () => {
-        this.spinner.hide();
         this.snackBar.open('Rendus recalculés avec succès', 'OK', { duration: 3000 });
         this.executeBuild();
         this.store.dispatch(GalaxyPageActions.loadBases());
         this.store.dispatch(GalaxyPageActions.loadRendersForBase({ baseId: 'RELOAD' }));
       },
       error: (error) => {
-        this.spinner.hide();
         console.error('Error reapplying cosmetics:', error);
         this.snackBar.open('Erreur lors du recalcul des rendus', 'Fermer', { duration: 3000 });
       }

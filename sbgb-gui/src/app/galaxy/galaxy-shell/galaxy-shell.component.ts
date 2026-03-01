@@ -1,6 +1,6 @@
 import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
-import { GalaxyListComponent } from "../galaxy-list/galaxy-list.component";
+import { GalaxyHistoryListComponent } from "../galaxy-history-list/galaxy-history-list.component";
 import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
 import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
@@ -17,7 +17,7 @@ import { GalaxyPageActions } from "../state/galaxy.actions";
   imports: [
     GeneratorShellComponent,
     GalaxyParamComponent,
-    GalaxyListComponent,
+    GalaxyHistoryListComponent,
     GalaxyImageComponent,
     ActionBarComponent,
     MatIconModule,
@@ -73,6 +73,15 @@ export class GalaxyShellComponent implements AfterViewInit {
   onSelectRender(render: GalaxyCosmeticRenderDto): void {
     this.store.dispatch(GalaxyPageActions.selectRender({renderId: render.id}));
     this.store.dispatch(GalaxyPageActions.applyRenderCosmetics({render}));
+  }
+
+  onHistoryRenderSelected(event: {base: GalaxyBaseStructureDto, render: GalaxyCosmeticRenderDto}): void {
+    if (this.paramComponent) {
+      this.paramComponent.loadBase(event.base);
+      this.store.dispatch(GalaxyPageActions.loadRendersForBase({baseId: event.base.id}));
+    }
+    this.onSelectRender(event.render);
+    this.shell.switchToGenerator();
   }
 
   onDeleteRender(renderId: string): void {

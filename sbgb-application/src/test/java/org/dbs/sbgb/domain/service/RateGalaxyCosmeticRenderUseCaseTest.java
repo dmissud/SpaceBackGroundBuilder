@@ -180,6 +180,11 @@ class RateGalaxyCosmeticRenderUseCaseTest {
         }
 
         @Override
+        public Optional<GalaxyBaseStructure> findById(UUID id) {
+            return db.stream().filter(b -> b.id().equals(id)).findFirst();
+        }
+
+        @Override
         public Optional<GalaxyBaseStructure> findByConfigHash(int hash) {
             return db.stream().filter(b -> b.configHash() == hash).findFirst();
         }

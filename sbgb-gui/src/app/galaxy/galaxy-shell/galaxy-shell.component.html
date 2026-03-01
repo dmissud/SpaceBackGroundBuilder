@@ -79,7 +79,10 @@
 
   <!-- Library content -->
   <ng-template #libraryContent>
-    <app-galaxy-list (viewRequested)="onViewRequested($event)"></app-galaxy-list>
+    <app-galaxy-history-list
+      (viewRequested)="onViewRequested($event)"
+      (renderSelected)="onHistoryRenderSelected($event)">
+    </app-galaxy-history-list>
   </ng-template>
 
 </app-generator-shell>

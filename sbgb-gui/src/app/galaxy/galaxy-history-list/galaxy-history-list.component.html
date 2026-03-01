@@ -1,0 +1,59 @@
+<div class="history-container">
+  <h2>Bibliothèque des galaxies</h2>
+
+  <div *ngIf="loadingBases" class="spinner-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loadingBases && bases.length === 0" class="empty-message">
+    Aucune galaxie enregistrée. Créez votre première galaxie !
+  </div>
+
+  <mat-accordion multi="false" *ngIf="bases.length > 0">
+    <mat-expansion-panel *ngFor="let base of bases" (opened)="onPanelOpened(base)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ base.description }}
+        </mat-panel-title>
+        <mat-panel-description>
+          <div class="stars">
+            <mat-icon *ngFor="let star of getStarValue(base.maxNote)"
+                      [color]="star === 1 ? 'accent' : ''">
+              {{ star === 1 ? 'star' : 'star_border' }}
+            </mat-icon>
+          </div>
+          <span class="type-badge">{{ base.galaxyType }}</span>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="renders-grid">
+        <div *ngIf="loadingRenders.has(base.id)" class="spinner-container">
+          <mat-spinner diameter="30"></mat-spinner>
+        </div>
+
+        <ng-container *ngIf="!loadingRenders.has(base.id)">
+          <div *ngFor="let render of rendersByBase.get(base.id)"
+               class="render-card"
+               (click)="onSelectRender(base, render)"
+               [matTooltip]="render.description">
+            <img [src]="render.thumbnail" [alt]="render.description">
+            <div class="render-overlay">
+              <div class="render-note">
+                <mat-icon inline>star</mat-icon> {{ render.note }}
+              </div>
+              <button mat-icon-button color="warn" (click)="onDeleteRender($event, base.id, render.id)" matTooltip="Supprimer ce rendu">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <mat-action-row>
+        <button mat-button color="primary" (click)="onSelectBase(base)">
+          <mat-icon>edit</mat-icon> Charger dans le générateur
+        </button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
