@@ -145,13 +145,15 @@ sauvegarde uniquement par notation.
 - Frontend : `rateGalaxy()` remplace `createGalaxy()` + `updateNote()`, liste affiche les bases
 
 ## I2 — Renders strip dans le panneau générateur
-**Statut : À FAIRE**
+**Statut : TERMINÉ** (commit `62a3f0d`, branche `feature/galaxy-I2-renders-strip-gui`)
 
 Afficher les rendus sauvegardés pour la base courante directement dans `galaxy-shell`.
 
 - `galaxy-shell.component.html` : bande de vignettes (`#rendersContent`) — même pattern que `sbgb-shell`
 - NgRx galaxy : actions `loadRendersForBase`, `deleteRender`, `selectRender`, `applyRenderCosmetics`
 - Clic vignette → recharge paramètres cosmétiques dans `galaxy-param` + affiche l'image
+- Synchronisation `currentNote` et `isModifiedSinceBuild` avec le store
+- Rechargement automatique de la bande après notation (`rateGalaxy`)
 
 ## I3 — Détection changement structurant + dialogue
 **Statut : À FAIRE**
