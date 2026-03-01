@@ -69,64 +69,101 @@ export interface ColorParameters {
   outerColor?: string;
 }
 
-export interface GalaxyImageDTO {
+export interface GalaxyRequestCmd {
+  id?: string;
+  description: string;
+  note: number;
+  width: number;
+  height: number;
+  seed: number;
+  galaxyType?: string;
+  coreSize: number;
+  galaxyRadius: number;
+  warpStrength: number;
+  noiseParameters: NoiseParameters;
+  spiralParameters?: SpiralParameters;
+  voronoiParameters?: VoronoiParameters;
+  ellipticalParameters?: EllipticalParameters;
+  ringParameters?: RingParameters;
+  irregularParameters?: IrregularParameters;
+  starFieldParameters: StarFieldParameters;
+  multiLayerNoiseParameters: MultiLayerNoiseParameters;
+  bloomParameters: BloomParameters;
+  colorParameters: ColorParameters;
+}
+
+export interface GalaxyBaseStructureDto {
   id: string;
   description: string;
-  note: number;
-  galaxyStructure: GalaxyStructureDTO;
-}
-
-export interface NoteUpdateCmd {
-  note: number;
-}
-
-export interface GalaxyStructureDTO {
+  maxNote: number;
   width: number;
   height: number;
   seed: number;
-  galaxyType?: string;
+  galaxyType: string;
   coreSize: number;
   galaxyRadius: number;
   warpStrength: number;
-  noiseParameters: NoiseParameters;
-  spiralParameters?: SpiralParameters;
-  voronoiParameters?: VoronoiParameters;
-  ellipticalParameters?: EllipticalParameters;
-  ringParameters?: RingParameters;
-  irregularParameters?: IrregularParameters;
-  starFieldParameters: StarFieldParameters;
-  multiLayerNoiseParameters: MultiLayerNoiseParameters;
-  bloomParameters: BloomParameters;
-  colorParameters: ColorParameters;
+  noiseOctaves: number;
+  noisePersistence: number;
+  noiseLacunarity: number;
+  noiseScale: number;
+  multiLayerEnabled: boolean;
+  macroLayerScale: number;
+  macroLayerWeight: number;
+  mesoLayerScale: number;
+  mesoLayerWeight: number;
+  microLayerScale: number;
+  microLayerWeight: number;
+  structureParams: string;
+  // Spiral
+  numberOfArms?: number;
+  armWidth?: number;
+  armRotation?: number;
+  darkLaneOpacity?: number;
+  // Voronoi
+  clusterCount?: number;
+  clusterSize?: number;
+  clusterConcentration?: number;
+  // Elliptical
+  sersicIndex?: number;
+  axisRatio?: number;
+  orientationAngle?: number;
+  // Ring
+  ringRadius?: number;
+  ringWidth?: number;
+  ringIntensity?: number;
+  coreToRingRatio?: number;
+  // Irregular
+  irregularity?: number;
+  irregularClumpCount?: number;
+  irregularClumpSize?: number;
 }
 
-export interface GalaxyRequestCmd {
+export interface GalaxyCosmeticRenderDto {
+  id: string;
+  baseStructureId: string;
   description: string;
   note: number;
-  width: number;
-  height: number;
-  seed: number;
-  galaxyType?: string;
-  coreSize: number;
-  galaxyRadius: number;
-  warpStrength: number;
-  noiseParameters: NoiseParameters;
-  spiralParameters?: SpiralParameters;
-  voronoiParameters?: VoronoiParameters;
-  ellipticalParameters?: EllipticalParameters;
-  ringParameters?: RingParameters;
-  irregularParameters?: IrregularParameters;
-  starFieldParameters: StarFieldParameters;
-  multiLayerNoiseParameters: MultiLayerNoiseParameters;
-  bloomParameters: BloomParameters;
-  colorParameters: ColorParameters;
+  thumbnail: string;
+  colorPalette: string;
+  spaceBackgroundColor: string;
+  coreColor: string;
+  armColor: string;
+  outerColor: string;
+  bloomEnabled: boolean;
+  bloomRadius: number;
+  bloomIntensity: number;
+  bloomThreshold: number;
+  starFieldEnabled: boolean;
+  starDensity: number;
+  maxStarSize: number;
+  diffractionSpikes: boolean;
+  spikeCount: number;
 }
 
 export interface GalaxyPersistedState {
   formValue: any;
   generatedImageUrl: string | null;
-  loadedGalaxyId: string | null;
-  currentNote: number;
   isModifiedSinceBuild: boolean;
   builtGalaxyParams: GalaxyRequestCmd | null;
 }

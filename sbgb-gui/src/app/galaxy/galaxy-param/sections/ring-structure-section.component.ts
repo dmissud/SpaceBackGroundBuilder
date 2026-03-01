@@ -24,7 +24,7 @@ import { MatButton } from '@angular/material/button';
     MatButton
   ],
   template: `
-    <mat-expansion-panel [formGroup]="formGroup">
+    <mat-expansion-panel [expanded]="expanded" [formGroup]="formGroup">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>album</mat-icon>
@@ -63,6 +63,7 @@ import { MatButton } from '@angular/material/button';
   styles: ``
 })
 export class RingStructureSectionComponent {
+  @Input() expanded: boolean = false;
   @Input() formGroup!: FormGroup;
   @Input() onRandomize!: () => void;
 }

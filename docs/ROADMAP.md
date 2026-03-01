@@ -127,6 +127,66 @@ Couche de bruit soustractive pour zones d'ombre realistes.
 
 ---
 
+# Refonte workflow Galaxy — Modèle Base + Rendu
+
+Même pattern que le domaine SBGB (Ciels étoilés) : séparation des paramètres **structurants**
+(forme de la galaxie) et **cosmétiques** (couleurs, bloom, étoiles). Relation 1 Base → N Rendus,
+sauvegarde uniquement par notation.
+
+## I1 — Fondations : nouveau modèle + sauvegarde par notation
+**Statut : TERMINÉ** (commit `bb6b515`, branche `feature/galaxy-I1-new-data-model`)
+
+- Tables : DROP `galaxy_image`, CREATE `galaxy_base_structure` + `galaxy_cosmetic_render`
+- Domaine : records `GalaxyBaseStructure` (configHash) + `GalaxyCosmeticRender` (cosmeticHash)
+- Use cases : `RateGalaxyCosmeticRenderUseCase` (findOrCreate Base + Rendu + recalcul maxNote),
+  `FindGalaxyBaseStructuresUseCase`, `FindGalaxyCosmeticRendersUseCase`, `DeleteGalaxyCosmeticRenderUseCase`
+- Endpoints : `POST /galaxy/renders/rate`, `GET /galaxy/bases`, `GET /galaxy/bases/{id}/renders`,
+  `DELETE /galaxy/renders/{id}` — suppression de `/galaxies/create` et `/galaxies/{id}/note`
+- Frontend : `rateGalaxy()` remplace `createGalaxy()` + `updateNote()`, liste affiche les bases
+
+## I2 — Renders strip dans le panneau générateur
+**Statut : TERMINÉ** (commit `62a3f0d`, branche `feature/galaxy-I2-renders-strip-gui`)
+
+Afficher les rendus sauvegardés pour la base courante directement dans `galaxy-shell`.
+
+- `galaxy-shell.component.html` : bande de vignettes (`#rendersContent`) — même pattern que `sbgb-shell`
+- NgRx galaxy : actions `loadRendersForBase`, `deleteRender`, `selectRender`, `applyRenderCosmetics`
+- Clic vignette → recharge paramètres cosmétiques dans `galaxy-param` + affiche l'image
+- Synchronisation `currentNote` et `isModifiedSinceBuild` avec le store
+- Rechargement automatique de la bande après notation (`rateGalaxy`)
+
+## I3 — Détection changement structurant + dialogue
+**Statut : TERMINÉ** (commit `a9e1b2c`, branche `feature/galaxy-I3-structural-change`)
+
+Alerter l'utilisateur quand il modifie des paramètres structurants alors que des rendus existent.
+
+- Séparation explicite `baseForm` / `cosmeticForm` dans `galaxy-param.component.ts` (via `isStructuralChange`)
+- `MatDialog` de choix : **Vider** (DELETE tous les rendus) / **Ré-appliquer** (recalcul POST /galaxy/bases/{id}/reapply)
+  / **Annuler** (restaurer snapshot formulaire)
+- Indicateur visuel changement structurant dans le template (via `isStructuralChange` et snackbar)
+- Verrouillage de l'UI pendant le recalcul massif (ngx-spinner)
+
+## I4 — Bibliothèque hiérarchique
+**Statut : TERMINÉ** (commit `7b8d9e2`, branche `feature/galaxy-I4-history-list`)
+
+Nouveau composant `galaxy-history-list` remplaçant `galaxy-list` (tableau plat).
+
+- `mat-accordion` : un `mat-expansion-panel` par Base (description + maxNote étoiles)
+- Grille de vignettes par Rendu avec `[matTooltip]="render.description"`
+- Corbeille par Rendu → `DELETE /galaxy/renders/{id}` ; Base disparaît si orpheline
+- Clic Rendu → rechargement générateur (I2 requis)
+
+## I5 — Cache serveur
+**Statut : TERMINÉ**
+
+Spring Cache (Caffeine, TTL 30 min, max 50 entrées) sur le calcul de la `BufferedImage` Galaxy.
+
+- Clé de cache : hash des paramètres structurants (`GalaxyBaseStructure.configHash()`)
+- Éviction sur nouveaux paramètres structurants lors d'un `rate()`
+- Même pattern que le cache SBGB existant
+
+---
+
 # Decisions techniques prises
 
 - **FBM Perlin** : le code original utilisait de la reflexion cassee pour appeler `fbm()` sur JNoise. Corrige pour utiliser l'API `octavate()` de JNoise 4.1.0 avec `FractalFunction.FBM` / `FractalFunction.RIDGED_MULTI`

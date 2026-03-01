@@ -3,3 +3,100 @@
   align-items: center;
   gap: 2px;
 }
+
+.renders-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.renders-strip-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85em;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+}
+
+.pending-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #f59f00;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
+
+.renders-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.render-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.02);
+  width: 90px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &.selected {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.25);
+    background: rgba(63, 81, 181, 0.05);
+  }
+}
+
+.render-thumbnail {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.render-stars {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  width: 100%;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+  }
+}
+
+.delete-render-btn {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+}

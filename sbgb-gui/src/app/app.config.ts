@@ -9,15 +9,18 @@ import {provideRouterStore, routerReducer} from "@ngrx/router-store";
 import {provideEffects} from "@ngrx/effects";
 import {provideStoreDevtools} from "@ngrx/store-devtools";
 import {environment} from "../environments/environment";
+import {galaxiesFeature} from "./galaxy/state/galaxy.reducer";
+import {GalaxyEffects} from "./galaxy/state/galaxy.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
     provideStore({
       router: routerReducer,
+      [galaxiesFeature.name]: galaxiesFeature.reducer
     }),
     provideRouterStore(),
-    provideEffects(),
+    provideEffects([GalaxyEffects]),
     provideStoreDevtools({
       maxAge: 25,
       logOnly: environment.production

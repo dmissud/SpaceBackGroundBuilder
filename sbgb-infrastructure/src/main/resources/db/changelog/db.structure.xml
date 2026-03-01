@@ -26,4 +26,6 @@
     <include file="/db/changelog/2026/02/22-01-remove-name-add-note-constraint.xml"/>
     <include file="/db/changelog/2026/02/22-02-add-note-constraint-noise-image.xml"/>
     <include file="/db/changelog/2026/02/24-01-rework-noise-model.xml"/>
+    <include file="/db/changelog/2026/02/28-01-rework-galaxy-model.xml"/>
+    <include file="/db/changelog/2026/03/01-01-add-galaxy-structure-params-columns.xml"/>
 </databaseChangeLog>

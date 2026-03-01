@@ -47,7 +47,7 @@ La `description` d'une Base et d'un Rendu est **générée automatiquement par l
 | I2 | Layout générateur : accordéon + notation | ✅ | ✅ | Faible |
 | I3 | Séparation Base / Cosmétique + dialogue | ✅ | ✅ | Moyen |
 | I4 | Bibliothèque hiérarchique | ✅ | ✅ | Faible |
-| I5 | Cache serveur (performance) | ✅ | — | Faible |
+| I5 | Cache serveur (performance) | ✅ | ✅ | Faible |
 
 ---
 

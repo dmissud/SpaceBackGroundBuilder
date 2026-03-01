@@ -26,8 +26,15 @@ public class CacheConfig {
                         .expireAfterWrite(30, TimeUnit.MINUTES)
                         .maximumSize(50)
                         .build());
+
+        CaffeineCache galaxyImageCache = new CaffeineCache("galaxyImage",
+                Caffeine.newBuilder()
+                        .expireAfterWrite(30, TimeUnit.MINUTES)
+                        .maximumSize(50)
+                        .build());
+
         SimpleCacheManager manager = new SimpleCacheManager();
-        manager.setCaches(List.of(noiseGridCache));
+        manager.setCaches(List.of(noiseGridCache, galaxyImageCache));
         return manager;
     }
 }

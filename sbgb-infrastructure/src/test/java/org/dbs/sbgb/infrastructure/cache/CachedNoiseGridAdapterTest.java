@@ -2,21 +2,23 @@ package org.dbs.sbgb.infrastructure.cache;
 
 import org.dbs.sbgb.domain.model.NormalizedNoiseGrid;
 import org.dbs.sbgb.port.in.ImageRequestCmd;
+import org.dbs.sbgb.port.out.NoiseGridComputationPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = CacheTestConfig.class)
 class CachedNoiseGridAdapterTest {
 
     @Autowired
-    private CachedNoiseGridAdapter adapter;
+    private NoiseGridComputationPort adapter;
 
     @Autowired
     private CacheManager cacheManager;
