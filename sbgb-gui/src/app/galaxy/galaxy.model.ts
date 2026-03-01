@@ -69,37 +69,6 @@ export interface ColorParameters {
   outerColor?: string;
 }
 
-export interface GalaxyImageDTO {
-  id: string;
-  description: string;
-  note: number;
-  galaxyStructure: GalaxyStructureDTO;
-}
-
-export interface NoteUpdateCmd {
-  note: number;
-}
-
-export interface GalaxyStructureDTO {
-  width: number;
-  height: number;
-  seed: number;
-  galaxyType?: string;
-  coreSize: number;
-  galaxyRadius: number;
-  warpStrength: number;
-  noiseParameters: NoiseParameters;
-  spiralParameters?: SpiralParameters;
-  voronoiParameters?: VoronoiParameters;
-  ellipticalParameters?: EllipticalParameters;
-  ringParameters?: RingParameters;
-  irregularParameters?: IrregularParameters;
-  starFieldParameters: StarFieldParameters;
-  multiLayerNoiseParameters: MultiLayerNoiseParameters;
-  bloomParameters: BloomParameters;
-  colorParameters: ColorParameters;
-}
-
 export interface GalaxyRequestCmd {
   description: string;
   note: number;
@@ -122,11 +91,56 @@ export interface GalaxyRequestCmd {
   colorParameters: ColorParameters;
 }
 
+export interface GalaxyBaseStructureDto {
+  id: string;
+  description: string;
+  maxNote: number;
+  width: number;
+  height: number;
+  seed: number;
+  galaxyType: string;
+  coreSize: number;
+  galaxyRadius: number;
+  warpStrength: number;
+  noiseOctaves: number;
+  noisePersistence: number;
+  noiseLacunarity: number;
+  noiseScale: number;
+  multiLayerEnabled: boolean;
+  macroLayerScale: number;
+  macroLayerWeight: number;
+  mesoLayerScale: number;
+  mesoLayerWeight: number;
+  microLayerScale: number;
+  microLayerWeight: number;
+  structureParams: string;
+}
+
+export interface GalaxyCosmeticRenderDto {
+  id: string;
+  baseStructureId: string;
+  description: string;
+  note: number;
+  thumbnail: string;
+  colorPalette: string;
+  spaceBackgroundColor: string;
+  coreColor: string;
+  armColor: string;
+  outerColor: string;
+  bloomEnabled: boolean;
+  bloomRadius: number;
+  bloomIntensity: number;
+  bloomThreshold: number;
+  starFieldEnabled: boolean;
+  starDensity: number;
+  maxStarSize: number;
+  diffractionSpikes: boolean;
+  spikeCount: number;
+}
+
 export interface GalaxyPersistedState {
   formValue: any;
   generatedImageUrl: string | null;
-  loadedGalaxyId: string | null;
-  currentNote: number;
   isModifiedSinceBuild: boolean;
   builtGalaxyParams: GalaxyRequestCmd | null;
 }

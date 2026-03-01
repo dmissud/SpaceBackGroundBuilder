@@ -1,20 +1,24 @@
 package org.dbs.sbgb.exposition.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dbs.sbgb.domain.model.GalaxyImage;
-import org.dbs.sbgb.exposition.resources.dto.GalaxyImageDTO;
-import org.dbs.sbgb.exposition.resources.mapper.MapperGalaxyImage;
+import org.dbs.sbgb.domain.model.GalaxyBaseStructure;
+import org.dbs.sbgb.domain.model.GalaxyCosmeticRender;
+import org.dbs.sbgb.exposition.resources.dto.GalaxyBaseStructureDTO;
+import org.dbs.sbgb.exposition.resources.dto.GalaxyCosmeticRenderDTO;
+import org.dbs.sbgb.exposition.resources.mapper.GalaxyBaseStructureDTOMapper;
+import org.dbs.sbgb.exposition.resources.mapper.GalaxyCosmeticRenderDTOMapper;
 import org.dbs.sbgb.port.in.BuildGalaxyImageUseCase;
-import org.dbs.sbgb.port.in.CreateGalaxyImageUseCase;
-import org.dbs.sbgb.port.in.FindGalaxyImagesUseCase;
+import org.dbs.sbgb.port.in.DeleteGalaxyCosmeticRenderUseCase;
+import org.dbs.sbgb.port.in.FindGalaxyBaseStructuresUseCase;
+import org.dbs.sbgb.port.in.FindGalaxyCosmeticRendersUseCase;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
-import org.dbs.sbgb.port.in.UpdateGalaxyNoteUseCase;
+import org.dbs.sbgb.port.in.RateGalaxyCosmeticRenderUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,11 +26,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -43,110 +46,120 @@ class GalaxyResourceTest {
     private BuildGalaxyImageUseCase buildGalaxyImageUseCase;
 
     @MockitoBean
-    private CreateGalaxyImageUseCase createGalaxyImageUseCase;
+    private RateGalaxyCosmeticRenderUseCase rateUseCase;
 
     @MockitoBean
-    private FindGalaxyImagesUseCase findGalaxyImagesUseCase;
+    private FindGalaxyBaseStructuresUseCase findBasesUseCase;
 
     @MockitoBean
-    private UpdateGalaxyNoteUseCase updateGalaxyNoteUseCase;
+    private FindGalaxyCosmeticRendersUseCase findRendersUseCase;
 
     @MockitoBean
-    private MapperGalaxyImage mapperGalaxyImage;
+    private DeleteGalaxyCosmeticRenderUseCase deleteRenderUseCase;
 
-    @Test
-    void shouldReturnAllGalaxyImages() throws Exception {
-        UUID id = UUID.randomUUID();
-        GalaxyImage image = GalaxyImage.builder()
-                .id(id)
-                .description("A spiral galaxy")
-                .note(3)
-                .build();
+    @MockitoBean
+    private GalaxyBaseStructureDTOMapper baseMapper;
 
-        GalaxyImageDTO dto = new GalaxyImageDTO();
-        dto.setId(id);
-        dto.setDescription("A spiral galaxy");
-        dto.setNote(3);
-
-        when(findGalaxyImagesUseCase.findAllGalaxyImages()).thenReturn(List.of(image));
-        when(mapperGalaxyImage.toDTO(image)).thenReturn(dto);
-
-        mockMvc.perform(get("/galaxies").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].description").value("A spiral galaxy"))
-                .andExpect(jsonPath("$[0].id").value(id.toString()));
-    }
+    @MockitoBean
+    private GalaxyCosmeticRenderDTOMapper renderMapper;
 
     @Test
     void shouldBuildGalaxyImage() throws Exception {
-        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
-                .width(500)
-                .height(500)
-                .build();
+        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder().width(500).height(500).build();
+        when(buildGalaxyImageUseCase.buildGalaxyImage(any())).thenReturn(new byte[]{1, 2, 3});
 
-        when(buildGalaxyImageUseCase.buildGalaxyImage(any(GalaxyRequestCmd.class)))
-                .thenReturn(new byte[] { 1, 2, 3 });
-
-        mockMvc.perform(post("/galaxies/build")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cmd)))
+        mockMvc.perform(post("/galaxy/build")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cmd)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.IMAGE_PNG))
-                .andExpect(content().bytes(new byte[] { 1, 2, 3 }));
+                .andExpect(content().bytes(new byte[]{1, 2, 3}));
     }
 
     @Test
-    void shouldCreateGalaxyImage() throws Exception {
-        UUID id = UUID.randomUUID();
-        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
-                .width(500)
-                .height(500)
-                .note(4)
-                .build();
+    void shouldRateRenderAndReturn201() throws Exception {
+        UUID renderId = UUID.randomUUID();
+        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder().width(500).height(500).note(3).build();
+        GalaxyCosmeticRender render = buildRender(renderId);
+        GalaxyCosmeticRenderDTO dto = buildRenderDTO(renderId);
 
-        GalaxyImage image = GalaxyImage.builder()
-                .id(id)
-                .description("SPIRAL galaxy, 500x500px, CLASSIC palette, seed 0")
-                .note(4)
-                .build();
+        when(rateUseCase.rate(any())).thenReturn(render);
+        when(renderMapper.toDTO(render)).thenReturn(dto);
 
-        GalaxyImageDTO dto = new GalaxyImageDTO();
-        dto.setId(id);
-        dto.setNote(4);
+        mockMvc.perform(post("/galaxy/renders/rate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cmd)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(renderId.toString()))
+                .andExpect(jsonPath("$.note").value(3));
+    }
 
-        when(createGalaxyImageUseCase.createGalaxyImage(any(GalaxyRequestCmd.class))).thenReturn(image);
-        when(mapperGalaxyImage.toDTO(image)).thenReturn(dto);
+    @Test
+    void shouldReturnAllBases() throws Exception {
+        UUID baseId = UUID.randomUUID();
+        GalaxyBaseStructure base = buildBase(baseId);
+        GalaxyBaseStructureDTO dto = buildBaseDTO(baseId);
 
-        mockMvc.perform(post("/galaxies/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cmd)))
+        when(findBasesUseCase.findAllSortedByMaxNoteDesc()).thenReturn(List.of(base));
+        when(baseMapper.toDTO(base)).thenReturn(dto);
+
+        mockMvc.perform(get("/galaxy/bases").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.note").value(4))
-                .andExpect(jsonPath("$.id").value(id.toString()));
+                .andExpect(jsonPath("$[0].id").value(baseId.toString()))
+                .andExpect(jsonPath("$[0].description").value("Spirale — 500x500, seed 42"));
     }
 
     @Test
-    void shouldUpdateNote() throws Exception {
-        UUID id = UUID.randomUUID();
+    void shouldReturnRendersForBase() throws Exception {
+        UUID baseId = UUID.randomUUID();
+        UUID renderId = UUID.randomUUID();
+        GalaxyCosmeticRender render = buildRender(renderId);
+        GalaxyCosmeticRenderDTO dto = buildRenderDTO(renderId);
 
-        mockMvc.perform(patch("/galaxies/{id}/note", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"note\": 4}"))
+        when(findRendersUseCase.findRendersByBaseId(baseId)).thenReturn(List.of(render));
+        when(renderMapper.toDTO(render)).thenReturn(dto);
+
+        mockMvc.perform(get("/galaxy/bases/{id}/renders", baseId).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(renderId.toString()));
+    }
+
+    @Test
+    void shouldDeleteRenderAndReturn204() throws Exception {
+        UUID renderId = UUID.randomUUID();
+
+        mockMvc.perform(delete("/galaxy/renders/{id}", renderId))
                 .andExpect(status().isNoContent());
 
-        verify(updateGalaxyNoteUseCase).updateNote(id, 4);
+        verify(deleteRenderUseCase).deleteRender(eq(renderId));
     }
 
-    @Test
-    void shouldReturnBadRequestWhenInvalidWidth() throws Exception {
-        GalaxyRequestCmd invalidCmd = GalaxyRequestCmd.builder()
-                .width(10) // Invalid width (min 100)
-                .height(500)
-                .build();
+    private GalaxyBaseStructure buildBase(UUID id) {
+        return new GalaxyBaseStructure(id, "Spirale — 500x500, seed 42", 3,
+                500, 500, 42L, "SPIRAL", 0.1, 200.0, 0.0,
+                4, 0.5, 2.0, 100.0, false,
+                1.0, 0.5, 0.5, 0.3, 0.1, 0.2, "{}");
+    }
 
-        mockMvc.perform(post("/galaxies/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidCmd)))
-                .andExpect(status().isBadRequest());
+    private GalaxyBaseStructureDTO buildBaseDTO(UUID id) {
+        GalaxyBaseStructureDTO dto = new GalaxyBaseStructureDTO();
+        dto.setId(id);
+        dto.setDescription("Spirale — 500x500, seed 42");
+        dto.setMaxNote(3);
+        return dto;
+    }
+
+    private GalaxyCosmeticRender buildRender(UUID id) {
+        return new GalaxyCosmeticRender(id, UUID.randomUUID(), "Classique", 3, new byte[0],
+                "CLASSIC", "#000000", "#ffffff", "#aaaaaa", "#555555",
+                false, 0.0, 0.0, 0.0,
+                false, 0.0, 1.0, false, 0);
+    }
+
+    private GalaxyCosmeticRenderDTO buildRenderDTO(UUID id) {
+        GalaxyCosmeticRenderDTO dto = new GalaxyCosmeticRenderDTO();
+        dto.setId(id);
+        dto.setNote(3);
+        return dto;
     }
 }

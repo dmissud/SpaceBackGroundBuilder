@@ -5,7 +5,7 @@ import {MatAccordion} from "@angular/material/expansion";
 import {MatIcon} from "@angular/material/icon";
 import {MatTooltip} from "@angular/material/tooltip";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyImageDTO, GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyRequestCmd} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -49,7 +49,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
   isGenerating = false;
-  loadedGalaxyId: string | null = null;
   currentNote: number = 0;
   allPanelsExpanded = false;
   readonly starValues = [1, 2, 3, 4, 5];
@@ -149,8 +148,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     if (savedState) {
       this.galaxyForm.patchValue(savedState.formValue, {emitEvent: false});
       this.generatedImageUrl = savedState.generatedImageUrl;
-      this.loadedGalaxyId = savedState.loadedGalaxyId;
-      this.currentNote = savedState.currentNote;
       this.isModifiedSinceBuild = savedState.isModifiedSinceBuild;
       this.builtGalaxyParams = savedState.builtGalaxyParams;
     }
@@ -287,7 +284,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         this.generatedImageUrl = URL.createObjectURL(blob);
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
-        this.loadedGalaxyId = null;
         this.builtGalaxyParams = structuredClone(this.galaxyForm.value) as GalaxyRequestCmd;
         this.saveCurrentState();
         this.snackBar.open('Galaxy generated successfully!', 'Close', { duration: 3000 });
@@ -304,38 +300,21 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     if (note < 1) return;
 
     this.currentNote = note;
+    const request: GalaxyRequestCmd = this.galaxyForm.value;
+    request.description = this.getParametersSummary();
+    request.note = note;
 
-    if (this.loadedGalaxyId && !this.isModifiedSinceBuild) {
-      this.galaxyService.updateNote(this.loadedGalaxyId, note).subscribe({
-        next: () => {
-          this.galaxyService.galaxySaved$.next();
-          this.saveCurrentState();
-          this.snackBar.open(`Note ${note}/5 enregistrée`, 'Fermer', { duration: 3000 });
-        },
-        error: (error) => {
-          console.error('Error updating note:', error);
-          this.snackBar.open('Erreur lors de la mise à jour de la note', 'Fermer', { duration: 3000 });
-        }
-      });
-    } else {
-      const request: GalaxyRequestCmd = this.galaxyForm.value;
-      request.description = this.getParametersSummary();
-      request.note = note;
-
-      this.galaxyService.createGalaxy(request).subscribe({
-        next: (galaxy) => {
-          this.loadedGalaxyId = galaxy.id;
-          this.isModifiedSinceBuild = false;
-          this.galaxyService.galaxySaved$.next();
-          this.saveCurrentState();
-          this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', { duration: 3000 });
-        },
-        error: (error) => {
-          console.error('Error saving galaxy:', error);
-          this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
-        }
-      });
-    }
+    this.galaxyService.rateGalaxy(request).subscribe({
+      next: () => {
+        this.galaxyService.galaxySaved$.next();
+        this.saveCurrentState();
+        this.snackBar.open(`Galaxie sauvegardée avec la note ${note}/5`, 'Fermer', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error rating galaxy:', error);
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+      }
+    });
   }
 
   randomizeSeed(): void {
@@ -558,33 +537,32 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     link.click();
   }
 
-  loadGalaxy(galaxy: GalaxyImageDTO): void {
-    const s = galaxy.galaxyStructure;
-    const galaxyType = s.galaxyType || 'SPIRAL';
-
+  loadBase(base: import('../galaxy.model').GalaxyBaseStructureDto): void {
     this.galaxyForm.patchValue({
-      description: galaxy.description,
-      width: s.width,
-      height: s.height,
-      seed: s.seed,
-      galaxyType: galaxyType,
-      coreSize: s.coreSize,
-      galaxyRadius: s.galaxyRadius,
-      warpStrength: s.warpStrength,
-      noiseParameters: s.noiseParameters,
-      spiralParameters: s.spiralParameters,
-      voronoiParameters: s.voronoiParameters,
-      ellipticalParameters: s.ellipticalParameters,
-      ringParameters: s.ringParameters,
-      irregularParameters: s.irregularParameters,
-      starFieldParameters: s.starFieldParameters,
-      multiLayerNoiseParameters: s.multiLayerNoiseParameters,
-      bloomParameters: s.bloomParameters,
-      colorParameters: s.colorParameters
+      width: base.width,
+      height: base.height,
+      seed: base.seed,
+      galaxyType: base.galaxyType,
+      coreSize: base.coreSize,
+      galaxyRadius: base.galaxyRadius,
+      warpStrength: base.warpStrength,
+      noiseParameters: {
+        octaves: base.noiseOctaves,
+        persistence: base.noisePersistence,
+        lacunarity: base.noiseLacunarity,
+        scale: base.noiseScale
+      },
+      multiLayerNoiseParameters: {
+        enabled: base.multiLayerEnabled,
+        macroLayerScale: base.macroLayerScale,
+        macroLayerWeight: base.macroLayerWeight,
+        mesoLayerScale: base.mesoLayerScale,
+        mesoLayerWeight: base.mesoLayerWeight,
+        microLayerScale: base.microLayerScale,
+        microLayerWeight: base.microLayerWeight
+      }
     });
-
-    this.loadedGalaxyId = galaxy.id;
-    this.currentNote = galaxy.note;
+    this.currentNote = base.maxNote;
     this.onGalaxyTypeChange();
     this.generateGalaxy();
   }
@@ -884,8 +862,6 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     this.galaxyService.saveState({
       formValue: this.galaxyForm.getRawValue(),
       generatedImageUrl: this.generatedImageUrl,
-      loadedGalaxyId: this.loadedGalaxyId,
-      currentNote: this.currentNote,
       isModifiedSinceBuild: this.isModifiedSinceBuild,
       builtGalaxyParams: this.builtGalaxyParams
     });

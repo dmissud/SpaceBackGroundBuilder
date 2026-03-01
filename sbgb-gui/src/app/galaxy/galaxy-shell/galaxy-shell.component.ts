@@ -2,7 +2,7 @@ import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
 import { GalaxyListComponent } from "../galaxy-list/galaxy-list.component";
 import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
-import { GalaxyImageDTO } from "../galaxy.model";
+import { GalaxyBaseStructureDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
@@ -90,9 +90,9 @@ export class GalaxyShellComponent implements AfterViewInit {
     return param && param.generatedImageUrl ? param.getParametersSummary() : null;
   }
 
-  onViewRequested(galaxy: GalaxyImageDTO): void {
+  onViewRequested(base: GalaxyBaseStructureDto): void {
     if (this.paramComponent) {
-      this.paramComponent.loadGalaxy(galaxy);
+      this.paramComponent.loadBase(base);
     }
     this.shell.switchToGenerator();
   }

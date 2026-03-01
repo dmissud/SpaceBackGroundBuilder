@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
-import {GalaxyImageDTO, GalaxyPersistedState, GalaxyRequestCmd} from './galaxy.model';
+import {GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, GalaxyPersistedState, GalaxyRequestCmd} from './galaxy.model';
 import {ApiService} from '../common/api.service';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class GalaxyService {
     private http: HttpClient,
     private apiService: ApiService
   ) {
-    this.galaxyApiUrl = `${this.apiService.appUrl}/galaxies`;
+    this.galaxyApiUrl = `${this.apiService.appUrl}/galaxy`;
   }
 
   saveState(state: GalaxyPersistedState): void {
@@ -32,8 +32,8 @@ export class GalaxyService {
     this.persistedState = null;
   }
 
-  getAllGalaxies(): Observable<GalaxyImageDTO[]> {
-    return this.http.get<GalaxyImageDTO[]>(this.galaxyApiUrl);
+  getAllBases(): Observable<GalaxyBaseStructureDto[]> {
+    return this.http.get<GalaxyBaseStructureDto[]>(`${this.galaxyApiUrl}/bases`);
   }
 
   buildGalaxy(request: GalaxyRequestCmd): Observable<Blob> {
@@ -42,11 +42,7 @@ export class GalaxyService {
     });
   }
 
-  createGalaxy(request: GalaxyRequestCmd): Observable<GalaxyImageDTO> {
-    return this.http.post<GalaxyImageDTO>(`${this.galaxyApiUrl}/create`, request);
-  }
-
-  updateNote(id: string, note: number): Observable<void> {
-    return this.http.patch<void>(`${this.galaxyApiUrl}/${id}/note`, { note });
+  rateGalaxy(request: GalaxyRequestCmd): Observable<GalaxyCosmeticRenderDto> {
+    return this.http.post<GalaxyCosmeticRenderDto>(`${this.galaxyApiUrl}/renders/rate`, request);
   }
 }

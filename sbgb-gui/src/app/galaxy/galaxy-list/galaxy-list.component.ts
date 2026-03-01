@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Subject, takeUntil} from "rxjs";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyImageDTO} from "../galaxy.model";
+import {GalaxyBaseStructureDto} from "../galaxy.model";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LibraryItem, LibraryListComponent} from "../../shared/components/library-list/library-list.component";
 
@@ -19,18 +19,18 @@ import {LibraryItem, LibraryListComponent} from "../../shared/components/library
         [showRefreshButton]="true"
         [showNameColumn]="false"
         (viewRequested)="onViewRequested($event)"
-        (refreshRequested)="loadGalaxies()">
+        (refreshRequested)="loadBases()">
       </app-library-list>
     `,
   styles: ``
 })
 export class GalaxyListComponent implements OnInit {
 
-  galaxies: GalaxyImageDTO[] = [];
+  bases: GalaxyBaseStructureDto[] = [];
   libraryItems: LibraryItem[] = [];
   isLoading = false;
 
-  @Output() viewRequested = new EventEmitter<GalaxyImageDTO>();
+  @Output() viewRequested = new EventEmitter<GalaxyBaseStructureDto>();
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -40,11 +40,11 @@ export class GalaxyListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadGalaxies();
+    this.loadBases();
 
     this.galaxyService.galaxySaved$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadGalaxies());
+      .subscribe(() => this.loadBases());
   }
 
   ngOnDestroy(): void {
@@ -52,24 +52,24 @@ export class GalaxyListComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadGalaxies(): void {
+  loadBases(): void {
     this.isLoading = true;
-    this.galaxyService.getAllGalaxies().subscribe({
-      next: (galaxies) => {
-        this.galaxies = galaxies;
-        this.libraryItems = galaxies.map(g => ({
-          id: g.id,
+    this.galaxyService.getAllBases().subscribe({
+      next: (bases) => {
+        this.bases = bases;
+        this.libraryItems = bases.map(b => ({
+          id: b.id,
           name: '',
-          description: g.description,
-          width: g.galaxyStructure.width,
-          height: g.galaxyStructure.height,
-          seed: g.galaxyStructure.seed,
-          note: g.note ?? 0
+          description: b.description,
+          width: b.width,
+          height: b.height,
+          seed: b.seed,
+          note: b.maxNote ?? 0
         }));
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading galaxies:', error);
+        console.error('Error loading galaxy bases:', error);
         this.snackBar.open('Erreur lors du chargement des galaxies', 'Fermer', {duration: 3000});
         this.isLoading = false;
       }
@@ -77,9 +77,9 @@ export class GalaxyListComponent implements OnInit {
   }
 
   onViewRequested(item: LibraryItem): void {
-    const galaxy = this.galaxies.find(g => g.id === item.id);
-    if (galaxy) {
-      this.viewRequested.emit(galaxy);
+    const base = this.bases.find(b => b.id === item.id);
+    if (base) {
+      this.viewRequested.emit(base);
     }
   }
 }
