@@ -20,6 +20,7 @@ import {IrregularStructureSectionComponent} from "./sections/irregular-structure
 import {CoreRadiusSectionComponent} from "./sections/core-radius-section.component";
 import {NoiseTextureSectionComponent} from "./sections/noise-texture-section.component";
 import {VisualEffectsSectionComponent} from "./sections/visual-effects-section.component";
+import {CosmeticEffectsSectionComponent} from "./sections/cosmetic-effects-section.component";
 import {ColorsSectionComponent} from "./sections/colors-section.component";
 import {GalaxyStructuralChangeChoice, GalaxyStructuralChangeDialogComponent} from "../galaxy-structural-change-dialog/galaxy-structural-change-dialog.component";
 import {selectCurrentBaseRenders} from "../state/galaxy.selectors";
@@ -43,6 +44,7 @@ import {filter, map, switchMap, take} from "rxjs";
     CoreRadiusSectionComponent,
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
+    CosmeticEffectsSectionComponent,
     ColorsSectionComponent
   ],
   templateUrl: './galaxy-param.component.html',

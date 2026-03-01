@@ -10,6 +10,13 @@
 <form [formGroup]="galaxyForm">
   <div class="galaxy-params-accordion">
 
+    <!-- ── STRUCTURE DE BASE ────────────────────────────────────────── -->
+    <div class="group-header structural">
+      <mat-icon>architecture</mat-icon>
+      Structure de base
+      <span class="group-hint">Modifie le rendu de toutes les variantes existantes</span>
+    </div>
+
     <!-- 1. BASIC INFORMATION -->
     <app-basic-info-section [formGroup]="galaxyForm" [onRandomizeSeed]="randomizeSeed.bind(this)"
       [onGalaxyTypeChange]="onGalaxyTypeChange.bind(this)" [expanded]="allPanelsExpanded">
@@ -63,13 +70,24 @@
       [onRandomize]="randomizeNoise.bind(this)" [expanded]="allPanelsExpanded">
     </app-noise-texture-section>
 
-    <!-- 6. VISUAL EFFECTS -->
+    <!-- 6. STRUCTURAL VISUAL EFFECTS (warping + multi-layer noise) -->
     <app-visual-effects-section [formGroup]="galaxyForm" [onRandomizeWarping]="randomizeWarping.bind(this)"
-      [onRandomizeMultiLayerNoise]="randomizeMultiLayerNoise.bind(this)"
-      [onRandomizeStarField]="randomizeStarField.bind(this)" [expanded]="allPanelsExpanded">
+      [onRandomizeMultiLayerNoise]="randomizeMultiLayerNoise.bind(this)" [expanded]="allPanelsExpanded">
     </app-visual-effects-section>
 
-    <!-- 7. COLORS -->
+    <!-- ── COSMÉTIQUES ──────────────────────────────────────────────── -->
+    <div class="group-header cosmetic">
+      <mat-icon>palette</mat-icon>
+      Cosmétiques
+      <span class="group-hint">Chaque variante peut avoir ses propres réglages</span>
+    </div>
+
+    <!-- 7. COSMETIC EFFECTS (stars + bloom) -->
+    <app-cosmetic-effects-section [formGroup]="galaxyForm"
+      [onRandomizeStarField]="randomizeStarField.bind(this)" [expanded]="allPanelsExpanded">
+    </app-cosmetic-effects-section>
+
+    <!-- 8. COLORS -->
     <app-colors-section [formGroup]="galaxyForm" [onRandomizeCustomColors]="randomizeCustomColors.bind(this)" [expanded]="allPanelsExpanded">
     </app-colors-section>
 

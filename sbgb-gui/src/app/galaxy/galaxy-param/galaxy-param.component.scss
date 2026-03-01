@@ -30,3 +30,50 @@ mat-form-field {
   flex-direction: column;
   gap: 8px;
 }
+
+// ── Group headers ──────────────────────────────────────────────────────────
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  .group-hint {
+    font-weight: 400;
+    font-size: 0.85em;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 0.75;
+    margin-left: 4px;
+
+    &::before {
+      content: '— ';
+    }
+  }
+
+  &.structural {
+    background: rgba(63, 81, 181, 0.08);
+    border-left: 4px solid #3f51b5;
+    color: #3f51b5;
+  }
+
+  &.cosmetic {
+    background: rgba(156, 39, 176, 0.08);
+    border-left: 4px solid #9c27b0;
+    color: #9c27b0;
+  }
+}
