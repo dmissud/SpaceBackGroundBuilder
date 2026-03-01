@@ -103,6 +103,17 @@ class RateGalaxyCosmeticRenderUseCaseTest {
                 .hasMessageContaining("Note must be between 1 and 5");
     }
 
+    @Test
+    void shouldStoreSpiralParamsInBase() throws IOException {
+        galaxyService.rate(buildCmd(3));
+
+        GalaxyBaseStructure savedBase = baseDb.get(0);
+        assertThat(savedBase.numberOfArms()).isEqualTo(2);
+        assertThat(savedBase.armWidth()).isEqualTo(80.0);
+        assertThat(savedBase.armRotation()).isEqualTo(4.0);
+        assertThat(savedBase.darkLaneOpacity()).isEqualTo(0.0);
+    }
+
     private GalaxyRequestCmd buildCmd(int note) {
         return buildCmd("#CLASSIC", note);
     }
@@ -167,7 +178,12 @@ class RateGalaxyCosmeticRenderUseCaseTest {
                     e.warpStrength(), e.noiseOctaves(), e.noisePersistence(), e.noiseLacunarity(), e.noiseScale(),
                     e.multiLayerEnabled(), e.macroLayerScale(), e.macroLayerWeight(),
                     e.mesoLayerScale(), e.mesoLayerWeight(), e.microLayerScale(), e.microLayerWeight(),
-                    e.structureParams());
+                    e.structureParams(),
+                    e.numberOfArms(), e.armWidth(), e.armRotation(), e.darkLaneOpacity(),
+                    e.clusterCount(), e.clusterSize(), e.clusterConcentration(),
+                    e.sersicIndex(), e.axisRatio(), e.orientationAngle(),
+                    e.ringRadius(), e.ringWidth(), e.ringIntensity(), e.coreToRingRatio(),
+                    e.irregularity(), e.irregularClumpCount(), e.irregularClumpSize());
             db.removeIf(b -> b.id().equals(id));
             db.add(updated);
             return updated;

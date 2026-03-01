@@ -245,6 +245,12 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
         NoiseParameters noise = cmd.getNoiseParameters();
         String structureParams = serializeStructureParams(cmd);
 
+        SpiralParameters spiral = cmd.getSpiralParameters();
+        VoronoiParameters voronoi = cmd.getVoronoiParameters();
+        EllipticalParameters elliptical = cmd.getEllipticalParameters();
+        RingParameters ring = cmd.getRingParameters();
+        IrregularParameters irregular = cmd.getIrregularParameters();
+
         GalaxyBaseStructure template = new GalaxyBaseStructure(null, null, 0,
                 cmd.getWidth(), cmd.getHeight(), cmd.getSeed(), cmd.getGalaxyType(),
                 cmd.getCoreSize() != null ? cmd.getCoreSize() : 0.05,
@@ -253,7 +259,24 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                 noise.octaves(), noise.persistence(), noise.lacunarity(), noise.scale(),
                 ml.enabled(), ml.macroLayerScale(), ml.macroLayerWeight(),
                 ml.mesoLayerScale(), ml.mesoLayerWeight(), ml.microLayerScale(), ml.microLayerWeight(),
-                structureParams);
+                structureParams,
+                spiral != null ? spiral.numberOfArms() : null,
+                spiral != null ? spiral.armWidth() : null,
+                spiral != null ? spiral.armRotation() : null,
+                spiral != null ? spiral.darkLaneOpacity() : null,
+                voronoi != null ? voronoi.clusterCount() : null,
+                voronoi != null ? voronoi.clusterSize() : null,
+                voronoi != null ? voronoi.clusterConcentration() : null,
+                elliptical != null ? elliptical.sersicIndex() : null,
+                elliptical != null ? elliptical.axisRatio() : null,
+                elliptical != null ? elliptical.orientationAngle() : null,
+                ring != null ? ring.ringRadius() : null,
+                ring != null ? ring.ringWidth() : null,
+                ring != null ? ring.ringIntensity() : null,
+                ring != null ? ring.coreToRingRatio() : null,
+                irregular != null ? irregular.irregularity() : null,
+                irregular != null ? irregular.irregularClumpCount() : null,
+                irregular != null ? irregular.irregularClumpSize() : null);
 
         return new GalaxyBaseStructure(UUID.randomUUID(), template.generateDescription(), 0,
                 cmd.getWidth(), cmd.getHeight(), cmd.getSeed(), cmd.getGalaxyType(),
@@ -263,7 +286,24 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                 noise.octaves(), noise.persistence(), noise.lacunarity(), noise.scale(),
                 ml.enabled(), ml.macroLayerScale(), ml.macroLayerWeight(),
                 ml.mesoLayerScale(), ml.mesoLayerWeight(), ml.microLayerScale(), ml.microLayerWeight(),
-                structureParams);
+                structureParams,
+                spiral != null ? spiral.numberOfArms() : null,
+                spiral != null ? spiral.armWidth() : null,
+                spiral != null ? spiral.armRotation() : null,
+                spiral != null ? spiral.darkLaneOpacity() : null,
+                voronoi != null ? voronoi.clusterCount() : null,
+                voronoi != null ? voronoi.clusterSize() : null,
+                voronoi != null ? voronoi.clusterConcentration() : null,
+                elliptical != null ? elliptical.sersicIndex() : null,
+                elliptical != null ? elliptical.axisRatio() : null,
+                elliptical != null ? elliptical.orientationAngle() : null,
+                ring != null ? ring.ringRadius() : null,
+                ring != null ? ring.ringWidth() : null,
+                ring != null ? ring.ringIntensity() : null,
+                ring != null ? ring.coreToRingRatio() : null,
+                irregular != null ? irregular.irregularity() : null,
+                irregular != null ? irregular.irregularClumpCount() : null,
+                irregular != null ? irregular.irregularClumpSize() : null);
     }
 
     private String serializeStructureParams(GalaxyRequestCmd cmd) {

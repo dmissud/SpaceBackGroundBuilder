@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="2026-03-01-01-add-galaxy-structure-params-columns" author="sbgb">
+        <!-- Spiral -->
+        <addColumn tableName="galaxy_base_structure">
+            <column name="number_of_arms" type="INT"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="arm_width" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="arm_rotation" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="dark_lane_opacity" type="DOUBLE"/>
+        </addColumn>
+        <!-- Voronoi -->
+        <addColumn tableName="galaxy_base_structure">
+            <column name="cluster_count" type="INT"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="cluster_size" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="cluster_concentration" type="DOUBLE"/>
+        </addColumn>
+        <!-- Elliptical -->
+        <addColumn tableName="galaxy_base_structure">
+            <column name="sersic_index" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="axis_ratio" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="orientation_angle" type="DOUBLE"/>
+        </addColumn>
+        <!-- Ring -->
+        <addColumn tableName="galaxy_base_structure">
+            <column name="ring_radius" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="ring_width" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="ring_intensity" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="core_to_ring_ratio" type="DOUBLE"/>
+        </addColumn>
+        <!-- Irregular -->
+        <addColumn tableName="galaxy_base_structure">
+            <column name="irregularity" type="DOUBLE"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="irregular_clump_count" type="INT"/>
+        </addColumn>
+        <addColumn tableName="galaxy_base_structure">
+            <column name="irregular_clump_size" type="DOUBLE"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
