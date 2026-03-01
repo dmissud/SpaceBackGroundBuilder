@@ -31,7 +31,7 @@ public class CachedGalaxyImageAdapter implements GalaxyImageComputationPort {
     private final BloomApplicator bloomApplicator;
 
     @Override
-    @Cacheable(value = "galaxyImage", key = "#configHash")
+    @Cacheable(value = "galaxyImage", key = "#p0")
     public BufferedImage computeImage(int configHash, GalaxyRequestCmd cmd) {
         GalaxyParameters parameters = galaxyStructureMapper.toGalaxyParameters(cmd);
         GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
