@@ -2,15 +2,12 @@ package org.dbs.sbgb.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
-import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
-import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
 import org.dbs.sbgb.domain.model.*;
-import org.dbs.sbgb.domain.model.GalaxyBaseStructure;
-import org.dbs.sbgb.domain.model.GalaxyCosmeticRender;
-import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 import org.dbs.sbgb.port.in.*;
 import org.dbs.sbgb.port.out.GalaxyBaseStructureRepository;
 import org.dbs.sbgb.port.out.GalaxyCosmeticRenderRepository;
+import org.dbs.sbgb.port.out.GalaxyImageComputationPort;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -27,12 +24,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
 
     private final GalaxyBaseStructureRepository baseStructureRepository;
     private final GalaxyCosmeticRenderRepository cosmeticRenderRepository;
-    private final GalaxyStructureMapper galaxyStructureMapper;
-    private final GalaxyGeneratorFactory galaxyGeneratorFactory;
-    private final NoiseGeneratorFactory noiseGeneratorFactory;
-    private final StarFieldApplicator starFieldApplicator;
-    private final BloomApplicator bloomApplicator;
     private final ImageSerializer imageSerializer;
+    private final GalaxyImageComputationPort galaxyImageComputationPort;
 
     @Override
     public byte[] buildGalaxyImage(GalaxyRequestCmd cmd) throws IOException {
@@ -41,6 +34,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
     }
 
     @Override
+    @CacheEvict(value = "galaxyImage", allEntries = true)
     public GalaxyCosmeticRender rate(GalaxyRequestCmd cmd) throws IOException {
         validateNote(cmd.getNote());
 
@@ -285,20 +279,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
     }
 
     private BufferedImage generateGalaxyBufferedImage(GalaxyRequestCmd cmd) {
-        GalaxyParameters parameters = galaxyStructureMapper.toGalaxyParameters(cmd);
-        GalaxyColorCalculator colorCalculator = galaxyStructureMapper.createColorCalculator(cmd.getColorParameters());
-
-        GalaxyImageRenderer renderer = new GalaxyImageRenderer.Builder()
-                .withWidth(cmd.getWidth())
-                .withHeight(cmd.getHeight())
-                .withParameters(parameters)
-                .withColorCalculator(colorCalculator)
-                .withGeneratorFactory(galaxyGeneratorFactory)
-                .withNoiseGeneratorFactory(noiseGeneratorFactory)
-                .withStarFieldApplicator(starFieldApplicator)
-                .withBloomApplicator(bloomApplicator)
-                .build();
-
-        return renderer.create(cmd.getSeed());
+        int configHash = computeConfigHash(cmd);
+        return galaxyImageComputationPort.computeImage(configHash, cmd);
     }
 }

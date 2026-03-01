@@ -30,12 +30,8 @@ import static org.mockito.Mockito.*;
 
 class RateGalaxyCosmeticRenderUseCaseTest {
 
-    @Mock private GalaxyStructureMapper galaxyStructureMapper;
-    @Mock private GalaxyGeneratorFactory galaxyGeneratorFactory;
-    @Mock private org.dbs.sbgb.domain.factory.NoiseGeneratorFactory noiseGeneratorFactory;
-    @Mock private StarFieldApplicator starFieldApplicator;
-    @Mock private BloomApplicator bloomApplicator;
     @Mock private ImageSerializer imageSerializer;
+    @Mock private org.dbs.sbgb.port.out.GalaxyImageComputationPort galaxyImageComputationPort;
 
     private List<GalaxyBaseStructure> baseDb;
     private List<GalaxyCosmeticRender> renderDb;
@@ -52,11 +48,11 @@ class RateGalaxyCosmeticRenderUseCaseTest {
 
         galaxyService = new GalaxyService(
                 baseRepo, renderRepo,
-                galaxyStructureMapper, galaxyGeneratorFactory,
-                noiseGeneratorFactory, starFieldApplicator,
-                bloomApplicator, imageSerializer);
+                imageSerializer,
+                galaxyImageComputationPort);
 
-        mockRenderingPipeline();
+        when(galaxyImageComputationPort.computeImage(anyInt(), any())).thenReturn(new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB));
+        when(imageSerializer.toByteArray(any(BufferedImage.class))).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test
@@ -105,37 +101,6 @@ class RateGalaxyCosmeticRenderUseCaseTest {
         assertThatThrownBy(() -> galaxyService.rate(buildCmd(6)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Note must be between 1 and 5");
-    }
-
-    private void mockRenderingPipeline() throws IOException {
-        GalaxyParameters params = mock(GalaxyParameters.class);
-        when(params.getGalaxyType()).thenReturn(GalaxyType.SPIRAL);
-        when(params.getMultiLayerNoiseParameters()).thenReturn(
-                mock(org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters.class));
-        when(params.getDomainWarpParameters()).thenReturn(
-                mock(org.dbs.sbgb.domain.model.parameters.DomainWarpParameters.class));
-        when(params.getStarFieldParameters()).thenReturn(
-                mock(org.dbs.sbgb.domain.model.parameters.StarFieldParameters.class));
-        when(galaxyStructureMapper.toGalaxyParameters(any())).thenReturn(params);
-
-        GalaxyColorCalculator colorCalculator = mock(GalaxyColorCalculator.class);
-        when(colorCalculator.getSpaceBackgroundColor()).thenReturn(Color.BLACK);
-        when(colorCalculator.calculateGalaxyColor(anyDouble())).thenReturn(Color.WHITE);
-        when(galaxyStructureMapper.createColorCalculator(any())).thenReturn(colorCalculator);
-
-        PerlinGenerator noiseGen = mock(PerlinGenerator.class);
-        when(noiseGeneratorFactory.createNoiseGenerator(any(), anyLong(), anyInt(), anyInt(), any(), any()))
-                .thenReturn(noiseGen);
-
-        GalaxyIntensityCalculator intensityCalc = mock(GalaxyIntensityCalculator.class);
-        when(intensityCalc.calculateGalaxyIntensity(anyInt(), anyInt())).thenReturn(0.5);
-        when(galaxyGeneratorFactory.create(any(), any())).thenReturn(intensityCalc);
-
-        when(starFieldApplicator.applyIfEnabled(any(), any(), anyLong()))
-                .thenAnswer(inv -> inv.getArgument(0));
-        when(bloomApplicator.applyIfEnabled(any(), any())).thenAnswer(inv -> inv.getArgument(0));
-
-        when(imageSerializer.toByteArray(any(BufferedImage.class))).thenReturn(new byte[]{1, 2, 3});
     }
 
     private GalaxyRequestCmd buildCmd(int note) {
