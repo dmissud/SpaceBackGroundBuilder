@@ -1,5 +1,5 @@
 import {createActionGroup, emptyProps, props} from '@ngrx/store';
-import {GalaxyBaseStructureDto, GalaxyCosmeticRenderDto} from "../galaxy.model";
+import {GalaxyCosmeticRenderDto} from "../galaxy.model";
 
 export const GalaxyPageActions = createActionGroup({
   source: 'Galaxies Page',
@@ -8,6 +8,7 @@ export const GalaxyPageActions = createActionGroup({
     'Delete Render': props<{ renderId: string }>(),
     'Select Render': props<{ renderId: string }>(),
     'Clear Selected Render': emptyProps(),
+    'Clear Renders': emptyProps(),
     'Apply Render Cosmetics': props<{ render: GalaxyCosmeticRenderDto }>()
   }
 });
