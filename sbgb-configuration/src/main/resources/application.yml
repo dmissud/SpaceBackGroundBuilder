@@ -31,6 +31,10 @@ management:
     web:
       exposure:
         include: health,info,metrics,caches,loggers,env,threaddump,heapdump,scheduledtasks
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "GET,POST,OPTIONS"
+        allowed-headers: "*"
   endpoint:
     health:
       show-details: always
