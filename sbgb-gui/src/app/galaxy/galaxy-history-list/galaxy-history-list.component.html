@@ -36,7 +36,7 @@
                class="render-card"
                (click)="onSelectRender(base, render)"
                [matTooltip]="render.description">
-            <img [src]="render.thumbnail" [alt]="render.description">
+            <img [src]="'data:image/png;base64,' + render.thumbnail" [alt]="render.description">
             <div class="render-overlay">
               <div class="render-note">
                 <mat-icon inline>star</mat-icon> {{ render.note }}

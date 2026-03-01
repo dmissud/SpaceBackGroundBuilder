@@ -407,11 +407,13 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   private executeReapply(baseId: string): void {
     const request = this.galaxyForm.value;
     this.galaxyService.reapplyCosmetics(baseId, request).subscribe({
-      next: () => {
+      next: (renders) => {
         this.snackBar.open('Rendus recalculés avec succès', 'OK', { duration: 3000 });
         this.executeBuild();
         this.store.dispatch(GalaxyPageActions.loadBases());
-        this.store.dispatch(GalaxyPageActions.loadRendersForBase({ baseId: 'RELOAD' }));
+        if (renders.length > 0) {
+          this.store.dispatch(GalaxyPageActions.loadRendersForBase({ baseId: renders[0].baseStructureId }));
+        }
       },
       error: (error) => {
         console.error('Error reapplying cosmetics:', error);
