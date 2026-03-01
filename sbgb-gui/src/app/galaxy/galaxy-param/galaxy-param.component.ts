@@ -356,7 +356,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           });
 
           dialogRef.afterClosed().subscribe((choice: GalaxyStructuralChangeChoice) => {
-            if (choice === GalaxyStructuralChangeChoice.CLEAR) {
+            if (choice === GalaxyStructuralChangeChoice.NEW_BASE) {
+              this.executeNewBase();
+            } else if (choice === GalaxyStructuralChangeChoice.CLEAR) {
               this.executeBuildAfterClear(renders[0].baseStructureId);
             } else if (choice === GalaxyStructuralChangeChoice.REAPPLY) {
               this.executeReapply(renders[0].baseStructureId);
@@ -399,6 +401,33 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         this.snackBar.open('Error generating galaxy', 'Close', { duration: 3000 });
         this.isGenerating = false;
       }
+    });
+  }
+
+  private executeNewBase(): void {
+    this.store.dispatch(GalaxyPageActions.clearRenders());
+    this.generatedImageUrl = null;
+    this.currentNote = 0;
+
+    const request: GalaxyRequestCmd = this.galaxyForm.value;
+    request.description = this.getParametersSummary();
+    request.note = 0;
+
+    this.galaxyService.resolveBase(request).subscribe({
+      next: (existingBase) => {
+        if (existingBase) {
+          this.store.dispatch(GalaxyPageActions.loadRendersForBase({baseId: existingBase.id}));
+          this.galaxyService.getRendersForBase(existingBase.id).subscribe(renders => {
+            if (renders.length > 0) {
+              const best = renders.reduce((a, b) => a.note >= b.note ? a : b);
+              this.store.dispatch(GalaxyPageActions.selectRender({renderId: best.id}));
+              this.currentNote = best.note;
+            }
+          });
+        }
+        this.executeBuild();
+      },
+      error: () => this.executeBuild()
     });
   }
 
