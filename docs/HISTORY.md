@@ -4,6 +4,17 @@ Ce document compile l'historique du projet, incluant le journal de réalisation 
 
 ---
 
+## Feature — I5 : Cache serveur pour les images Galaxy (2026-03-01)
+
+**Branche** : `feature/I5-galaxy-server-cache`
+**Statut** : ✅ Terminé
+
+### Actions réalisées
+- **Port `GalaxyImageComputationPort`** : extraction de la logique lourde de rendu hors de `GalaxyService`.
+- **Adaptateur Caffeine `CachedGalaxyImageAdapter`** : `@Cacheable(value = "galaxyImage", key = "#configHash")`.
+- **Eviction de Cache** : Ajout de `@CacheEvict(value = "galaxyImage", allEntries = true)` lors de la notation si la base change.
+- **Configuration Caffeine** : mise à jour de `CacheConfig` pour inclure ce nouveau cache (TTL 30 min, max 50).
+
 ## Fix — Routing K8s Nginx (2026-02-26)
 
 **Branche** : `fix/k8s-nginx-routing`

@@ -177,7 +177,7 @@ Nouveau composant `galaxy-history-list` remplaçant `galaxy-list` (tableau plat)
 - Clic Rendu → rechargement générateur (I2 requis)
 
 ## I5 — Cache serveur
-**Statut : À FAIRE**
+**Statut : TERMINÉ**
 
 Spring Cache (Caffeine, TTL 30 min, max 50 entrées) sur le calcul de la `BufferedImage` Galaxy.
 
