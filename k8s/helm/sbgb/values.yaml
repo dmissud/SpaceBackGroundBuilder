@@ -32,7 +32,7 @@ frontend:
 # Ingress configuration
 ingress:
   enabled: true
-  host: bree
+  host: bree.local
   tls:
     enabled: true
     secretName: sbgb-tls-secret
