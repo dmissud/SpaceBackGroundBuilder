@@ -39,7 +39,7 @@
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>install</arguments>
+              <arguments>install --include=optional</arguments>
             </configuration>
           </execution>
 

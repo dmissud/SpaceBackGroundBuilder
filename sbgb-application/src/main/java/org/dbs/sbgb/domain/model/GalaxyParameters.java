@@ -460,4 +460,53 @@ public class GalaxyParameters {
                 .build())
             .build();
     }
+
+    /**
+     * Create parameters for a vibrant spiral galaxy with all visual effects enabled
+     */
+    public static GalaxyParameters createVibrantSpiral() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.SPIRAL)
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.06)
+                .galaxyRadius(1500.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(6)
+                .persistence(0.65)
+                .lacunarity(2.3)
+                .scale(170.0)
+                .build())
+            .domainWarpParameters(DomainWarpParameters.builder()
+                .warpStrength(150.0)
+                .build())
+            .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                .enabled(true)
+                .macroLayerScale(0.3)
+                .macroLayerWeight(0.4)
+                .mesoLayerScale(1.0)
+                .mesoLayerWeight(0.4)
+                .microLayerScale(3.0)
+                .microLayerWeight(0.2)
+                .build())
+            .starFieldParameters(StarFieldParameters.builder()
+                .enabled(true)
+                .starDensity(0.001)
+                .maxStarSize(6)
+                .diffractionSpikes(true)
+                .spikeCount(6)
+                .build())
+            .bloomParameters(BloomParameters.builder()
+                .enabled(true)
+                .bloomRadius(15)
+                .bloomIntensity(0.7)
+                .bloomThreshold(0.4)
+                .build())
+            .spiralParameters(SpiralStructureParameters.builder()
+                .numberOfArms(3)
+                .armWidth(90.0)
+                .armRotation(4.5)
+                .build())
+            .build();
+    }
 }
