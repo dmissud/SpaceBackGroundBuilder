@@ -140,6 +140,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       height: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
       seed: new FormControl<number | null>(Math.floor(Math.random() * 1000000)),
       galaxyType: new FormControl<string | null>('SPIRAL'),
+      preset: new FormControl<string | null>(null),
       coreSize: new FormControl<number | null>(0.05, [Validators.required]),
       galaxyRadius: new FormControl<number | null>(1500, [Validators.required]),
       warpStrength: new FormControl<number | null>(0, [Validators.min(0), Validators.max(300)]),
@@ -791,6 +792,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   };
 
   loadPreset(preset: string): void {
+    // Set the preset field for backend preset handling
+    this.galaxyForm.patchValue({ preset: preset });
+
     switch (preset) {
       case 'CLASSIC':
         this.galaxyForm.patchValue({
@@ -1036,6 +1040,49 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           irregularParameters: { irregularity: 0.8, irregularClumpCount: 12, irregularClumpSize: 60 },
           noiseParameters: { octaves: 5, persistence: 0.65, lacunarity: 2.2, scale: 200 },
           starFieldParameters: this.BEAUTIFUL_STARFIELD
+        });
+        break;
+      case 'DUSTY_SPIRAL':
+        this.galaxyForm.patchValue({
+          coreSize: 0.05,
+          galaxyRadius: 1500,
+          spiralParameters: { numberOfArms: 2, armWidth: 85, armRotation: 3.8, darkLaneOpacity: 0.6 },
+          noiseParameters: { octaves: 5, persistence: 0.55, lacunarity: 2.1, scale: 190 },
+          warpStrength: 25,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
+        });
+        break;
+      case 'VIBRANT_SPIRAL':
+        this.galaxyForm.patchValue({
+          galaxyType: 'SPIRAL',
+          coreSize: 0.06,
+          galaxyRadius: 1500,
+          warpStrength: 150,
+          noiseParameters: { octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 170 },
+          spiralParameters: { numberOfArms: 3, armWidth: 90, armRotation: 4.5, darkLaneOpacity: 0 },
+          starFieldParameters: {
+            enabled: true,
+            density: 0.001,
+            maxStarSize: 6,
+            diffractionSpikes: true,
+            spikeCount: 6
+          },
+          bloomParameters: {
+            enabled: true,
+            bloomRadius: 15,
+            bloomIntensity: 0.7,
+            bloomThreshold: 0.4
+          },
+          multiLayerNoiseParameters: {
+            enabled: true,
+            macroLayerScale: 0.3,
+            macroLayerWeight: 0.4,
+            mesoLayerScale: 1.0,
+            mesoLayerWeight: 0.4,
+            microLayerScale: 3.0,
+            microLayerWeight: 0.2
+          }
         });
         break;
     }

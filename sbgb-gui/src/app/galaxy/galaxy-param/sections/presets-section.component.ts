@@ -49,6 +49,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_FLOCCULENT')">Flocculent</button>
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_TIGHTLY_WOUND')">Tightly Wound</button>
           <button mat-raised-button (click)="onLoadPreset('DUSTY_SPIRAL')">Dusty Spiral</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('VIBRANT_SPIRAL')">Vibrant Spiral</button>
         </div>
       }
       @if (formGroup.controls['galaxyType'].value === 'VORONOI_CLUSTER') {

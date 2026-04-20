@@ -77,6 +77,7 @@ export interface GalaxyRequestCmd {
   height: number;
   seed: number;
   galaxyType?: string;
+  preset?: string;
   coreSize: number;
   galaxyRadius: number;
   warpStrength: number;
