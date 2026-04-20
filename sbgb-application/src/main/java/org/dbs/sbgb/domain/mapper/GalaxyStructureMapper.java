@@ -34,6 +34,12 @@ public class GalaxyStructureMapper {
         }
 
         public GalaxyParameters toGalaxyParameters(GalaxyRequestCmd cmd) {
+                // If preset is specified, use preset parameters
+                if (cmd.getPreset() != null && !cmd.getPreset().isBlank()) {
+                        return createParametersFromPreset(cmd.getPreset());
+                }
+
+                // Otherwise, build from individual parameters
                 GalaxyType galaxyType = parseGalaxyType(cmd.getGalaxyType());
 
                 return GalaxyParameters.builder()
@@ -263,7 +269,12 @@ public class GalaxyStructureMapper {
 
         private SpiralStructureParameters buildSpiralParameters(SpiralParameters spiral) {
                 if (spiral == null) {
-                        return null;
+                        return SpiralStructureParameters.builder()
+                                        .numberOfArms(GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                                        .armWidth(GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                                        .armRotation(GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                                        .darkLaneOpacity(0.0)
+                                        .build();
                 }
                 return SpiralStructureParameters.builder()
                                 .numberOfArms(defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS))
@@ -316,5 +327,51 @@ public class GalaxyStructureMapper {
                                 .clumpCount(irregular.irregularClumpCount())
                                 .clumpSize(irregular.irregularClumpSize())
                                 .build();
+        }
+
+        private GalaxyParameters createParametersFromPreset(String preset) {
+                switch (preset.toUpperCase()) {
+                        case "DEFAULT":
+                                return GalaxyParameters.createDefault();
+                        case "BARRED_SPIRAL":
+                                return GalaxyParameters.createBarredSpiral();
+                        case "MULTI_ARM":
+                                return GalaxyParameters.createMultiArm();
+                        case "VIBRANT_SPIRAL":
+                                return GalaxyParameters.createVibrantSpiral();
+                        case "DEFAULT_VORONOI":
+                                return GalaxyParameters.createDefaultVoronoi();
+                        case "DENSE_VORONOI":
+                                return GalaxyParameters.createDenseVoronoi();
+                        case "SPARSE_VORONOI":
+                                return GalaxyParameters.createSparseVoronoi();
+                        case "DEFAULT_ELLIPTICAL":
+                                return GalaxyParameters.createDefaultElliptical();
+                        case "ROUND_ELLIPTICAL":
+                                return GalaxyParameters.createRoundElliptical();
+                        case "FLAT_ELLIPTICAL":
+                                return GalaxyParameters.createFlatElliptical();
+                        case "GIANT_ELLIPTICAL":
+                                return GalaxyParameters.createGiantElliptical();
+                        case "LENTICULAR_ELLIPTICAL":
+                                return GalaxyParameters.createLenticularElliptical();
+                        case "DEFAULT_LENTICULAR":
+                                return GalaxyParameters.createDefaultLenticular();
+                        case "DEFAULT_RING":
+                                return GalaxyParameters.createDefaultRing();
+                        case "WIDE_RING":
+                                return GalaxyParameters.createWideRing();
+                        case "BRIGHT_RING":
+                                return GalaxyParameters.createBrightRing();
+                        case "DEFAULT_IRREGULAR":
+                                return GalaxyParameters.createDefaultIrregular();
+                        case "CHAOTIC_IRREGULAR":
+                                return GalaxyParameters.createChaoticIrregular();
+                        case "DWARF_IRREGULAR":
+                                return GalaxyParameters.createDwarfIrregular();
+                        default:
+                                log.warn("Unknown preset '{}', falling back to DEFAULT", preset);
+                                return GalaxyParameters.createDefault();
+                }
         }
 }

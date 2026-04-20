@@ -34,6 +34,12 @@ public class GalaxyRequestCmd {
     @Builder.Default
     private String galaxyType = "SPIRAL";
 
+    /**
+     * Preset name to use predefined parameters (e.g., "VIBRANT_SPIRAL", "DEFAULT", etc.)
+     * If specified, individual parameters are ignored and preset values are used.
+     */
+    private String preset;
+
     @DecimalMin("0.01")
     @DecimalMax("0.5")
     private Double coreSize;
