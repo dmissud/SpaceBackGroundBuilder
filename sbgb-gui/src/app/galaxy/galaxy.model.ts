@@ -91,6 +91,7 @@ export interface GalaxyRequestCmd {
   multiLayerNoiseParameters: MultiLayerNoiseParameters;
   bloomParameters: BloomParameters;
   colorParameters: ColorParameters;
+  densityWaveParameters?: DensityWaveParameters;
 }
 
 export interface GalaxyBaseStructureDto {

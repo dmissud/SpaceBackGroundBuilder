@@ -10,6 +10,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyBaseStructureDto, GalaxyRequestCmd, StarParticleDto} from "../galaxy.model";
+import {DensityWaveSectionComponent} from "./sections/density-wave-section.component";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -48,7 +49,8 @@ import {take} from "rxjs";
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
     CosmeticEffectsSectionComponent,
-    ColorsSectionComponent
+    ColorsSectionComponent,
+    DensityWaveSectionComponent
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
@@ -59,6 +61,10 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   generatedImageUrl: string | null = null;
   densityWaveParticles: StarParticleDto[] | null = null;
   densityWaveGalaxyRadius: number = 15000;
+
+  get isDensityWave(): boolean {
+    return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
+  }
   isGenerating = false;
   currentNote: number = 0;
   allPanelsExpanded = false;
@@ -207,6 +213,18 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         coreColor: new FormControl<string | null>('#FFFADC'),
         armColor: new FormControl<string | null>('#B4C8FF'),
         outerColor: new FormControl<string | null>('#3C5078')
+      }),
+      densityWaveParameters: this.fb.group({
+        galaxyRadius: new FormControl<number | null>(15000),
+        coreRadius: new FormControl<number | null>(3000),
+        starCount: new FormControl<number | null>(60000),
+        angleOffset: new FormControl<number | null>(0.025),
+        eccentricityInner: new FormControl<number | null>(0.85),
+        eccentricityOuter: new FormControl<number | null>(0.95),
+        pertN: new FormControl<number | null>(2),
+        pertAmp: new FormControl<number | null>(80),
+        baseTemp: new FormControl<number | null>(4000),
+        hasDarkMatter: new FormControl<boolean | null>(true)
       })
     });
   }
@@ -403,7 +421,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     this.galaxyService.getParticles(request).subscribe({
       next: (particles) => {
         this.densityWaveParticles = particles;
-        this.densityWaveGalaxyRadius = request.galaxyRadius || 15000;
+        this.densityWaveGalaxyRadius = request.densityWaveParameters?.galaxyRadius || 15000;
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
         this.builtGalaxyParams = {...request};
