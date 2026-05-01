@@ -64,6 +64,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   densityWavePertN: number = 0;
   densityWavePertAmp: number = 0;
   densityWaveDustSize: number = 70;
+  densityWaveRenderSize: number = 800;
 
   get isDensityWave(): boolean {
     return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
@@ -450,6 +451,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         this.densityWaveGalaxyRadius = request.densityWaveParameters?.galaxyRadius || 15000;
         this.densityWavePertN = request.densityWaveParameters?.pertN || 0;
         this.densityWavePertAmp = request.densityWaveParameters?.pertAmp || 0;
+        this.densityWaveRenderSize = request.width || 800;
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
         this.builtGalaxyParams = {...request};

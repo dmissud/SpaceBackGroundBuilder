@@ -202,11 +202,11 @@ const FRAGMENT_SHADER = `
   standalone: true,
   imports: [MatIconButton, MatIcon, MatTooltip],
   template: `
-    <div #container class="webgl-wrapper">
+    <div #container class="webgl-wrapper" [class.is-real-size]="isRealSize">
       <canvas #glCanvas
         [width]="size"
         [height]="size"
-        style="display:block; width:100%; height:100%; background:#000;">
+        style="display:block; background:#000;">
       </canvas>
       <div class="image-controls">
         <button mat-icon-button
@@ -223,19 +223,47 @@ const FRAGMENT_SHADER = `
     </div>
   `,
   styles: [`
-    :host { display: block; width: 100%; height: 100%; }
+    :host { display: block; width: 100%; }
     .webgl-wrapper {
       position: relative;
-      background: #000;
+      background: #1a1a1a;
       border-radius: 8px;
       border: 1px solid #333;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .webgl-wrapper canvas {
+      max-width: 100%;
+      max-height: calc(100vh - 280px);
+      width: auto;
+      height: auto;
+    }
+    .webgl-wrapper.is-real-size {
+      overflow: auto;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+    .webgl-wrapper.is-real-size canvas {
+      max-width: none;
+      max-height: none;
+      width: auto;
+      height: auto;
     }
     .webgl-wrapper:fullscreen {
       width: 100vw;
       height: 100vh;
       border-radius: 0;
       border: none;
+    }
+    .webgl-wrapper:fullscreen canvas {
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    .webgl-wrapper:fullscreen.is-real-size canvas {
+      max-width: none;
+      max-height: none;
     }
     .image-controls {
       position: absolute;
