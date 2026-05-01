@@ -2,7 +2,8 @@ import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
 import { GalaxyHistoryListComponent } from "../galaxy-history-list/galaxy-history-list.component";
 import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
-import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto } from "../galaxy.model";
+import { GalaxyWebglRendererComponent } from "../galaxy-webgl-renderer/galaxy-webgl-renderer.component";
+import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, StarParticleDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
@@ -19,6 +20,7 @@ import { GalaxyPageActions } from "../state/galaxy.actions";
     GalaxyParamComponent,
     GalaxyHistoryListComponent,
     GalaxyImageComponent,
+    GalaxyWebglRendererComponent,
     ActionBarComponent,
     MatIconModule,
     MatButtonModule,
@@ -46,6 +48,18 @@ export class GalaxyShellComponent implements AfterViewInit {
 
   get generatedImageUrl(): string | null {
     return this.paramComponent?.generatedImageUrl || null;
+  }
+
+  get densityWaveParticles(): StarParticleDto[] | null {
+    return this.paramComponent?.densityWaveParticles || null;
+  }
+
+  get densityWaveGalaxyRadius(): number {
+    return this.paramComponent?.densityWaveGalaxyRadius || 15000;
+  }
+
+  get isDensityWave(): boolean {
+    return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
   }
 
   get currentNote(): number {

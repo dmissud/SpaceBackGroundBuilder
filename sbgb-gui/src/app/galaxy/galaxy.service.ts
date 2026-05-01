@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {map, Observable, Subject} from 'rxjs';
-import {GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, GalaxyPersistedState, GalaxyRequestCmd} from './galaxy.model';
+import {GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, GalaxyPersistedState, GalaxyRequestCmd, StarParticleDto} from './galaxy.model';
 import {ApiService} from '../common/api.service';
 
 @Injectable({
@@ -34,6 +34,10 @@ export class GalaxyService {
 
   getAllBases(): Observable<GalaxyBaseStructureDto[]> {
     return this.http.get<GalaxyBaseStructureDto[]>(`${this.galaxyApiUrl}/bases`);
+  }
+
+  getParticles(request: GalaxyRequestCmd): Observable<StarParticleDto[]> {
+    return this.http.post<StarParticleDto[]>(`${this.galaxyApiUrl}/particles`, request);
   }
 
   buildGalaxy(request: GalaxyRequestCmd): Observable<Blob> {

@@ -168,3 +168,27 @@ export interface GalaxyPersistedState {
   isModifiedSinceBuild: boolean;
   builtGalaxyParams: GalaxyRequestCmd | null;
 }
+
+export interface StarParticleDto {
+  theta0: number;
+  velTheta: number;
+  tiltAngle: number;
+  semiMajorAxis: number;
+  semiMinorAxis: number;
+  temperature: number;
+  magnitude: number;
+  type: 'STAR' | 'DUST' | 'H2_OUTER' | 'H2_CORE';
+}
+
+export interface DensityWaveParameters {
+  galaxyRadius?: number;
+  coreRadius?: number;
+  angleOffset?: number;
+  eccentricityInner?: number;
+  eccentricityOuter?: number;
+  starCount?: number;
+  hasDarkMatter?: boolean;
+  pertN?: number;
+  pertAmp?: number;
+  baseTemp?: number;
+}

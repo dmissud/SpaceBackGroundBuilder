@@ -9,7 +9,7 @@ import {Actions, ofType} from "@ngrx/effects";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyBaseStructureDto, GalaxyRequestCmd, StarParticleDto} from "../galaxy.model";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -57,6 +57,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
+  densityWaveParticles: StarParticleDto[] | null = null;
+  densityWaveGalaxyRadius: number = 15000;
   isGenerating = false;
   currentNote: number = 0;
   allPanelsExpanded = false;
@@ -381,6 +383,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   private executeBuild(): void {
     this.isGenerating = true;
     this.generatedImageUrl = null;
+    this.densityWaveParticles = null;
     const request: GalaxyRequestCmd = this.galaxyForm.value;
     request.description = this.getParametersSummary();
     request.note = 0;
@@ -389,6 +392,33 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       request.id = this.builtGalaxyParams.id;
     }
 
+    if (this.galaxyForm.value.galaxyType === 'DENSITY_WAVE') {
+      this.executeDensityWaveBuild(request);
+    } else {
+      this.executeStandardBuild(request);
+    }
+  }
+
+  private executeDensityWaveBuild(request: GalaxyRequestCmd): void {
+    this.galaxyService.getParticles(request).subscribe({
+      next: (particles) => {
+        this.densityWaveParticles = particles;
+        this.densityWaveGalaxyRadius = request.galaxyRadius || 15000;
+        this.isGenerating = false;
+        this.isModifiedSinceBuild = false;
+        this.builtGalaxyParams = {...request};
+        this.saveCurrentState();
+        this.snackBar.open(`Galaxy generated — ${particles.length} particles`, 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error generating density wave galaxy:', error);
+        this.snackBar.open('Error generating galaxy', 'Close', { duration: 3000 });
+        this.isGenerating = false;
+      }
+    });
+  }
+
+  private executeStandardBuild(request: GalaxyRequestCmd): void {
     this.galaxyService.buildGalaxy(request).subscribe({
       next: (blob) => {
         this.generatedImageUrl = URL.createObjectURL(blob);

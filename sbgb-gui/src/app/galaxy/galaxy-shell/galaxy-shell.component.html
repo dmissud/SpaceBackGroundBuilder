@@ -33,10 +33,19 @@
 
   <!-- Image preview content -->
   <ng-template #imageContent>
-    <app-galaxy-image
-      [imageUrl]="generatedImageUrl"
-      [isGenerating]="isGenerating">
-    </app-galaxy-image>
+    @if (isDensityWave) {
+      <app-galaxy-webgl-renderer
+        [particles]="densityWaveParticles!"
+        [galaxyRadius]="densityWaveGalaxyRadius"
+        [size]="800"
+        style="display:block; width:100%; aspect-ratio:1;">
+      </app-galaxy-webgl-renderer>
+    } @else {
+      <app-galaxy-image
+        [imageUrl]="generatedImageUrl"
+        [isGenerating]="isGenerating">
+      </app-galaxy-image>
+    }
   </ng-template>
 
   <!-- Renders strip content -->
