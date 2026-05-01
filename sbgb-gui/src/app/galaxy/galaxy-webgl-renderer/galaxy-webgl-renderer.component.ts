@@ -202,12 +202,14 @@ const FRAGMENT_SHADER = `
   standalone: true,
   imports: [MatIconButton, MatIcon, MatTooltip],
   template: `
-    <div #container class="webgl-wrapper" [class.is-real-size]="isRealSize">
-      <canvas #glCanvas
-        [width]="size"
-        [height]="size"
-        style="display:block; background:#000;">
-      </canvas>
+    <div #container class="webgl-wrapper">
+      <div class="canvas-scroll" [class.is-real-size]="isRealSize">
+        <canvas #glCanvas
+          [width]="size"
+          [height]="size"
+          style="display:block; background:#000;">
+        </canvas>
+      </div>
       <div class="image-controls">
         <button mat-icon-button
                 (click)="toggleRealSize()"
@@ -229,23 +231,25 @@ const FRAGMENT_SHADER = `
       background: #1a1a1a;
       border-radius: 8px;
       border: 1px solid #333;
+    }
+    .canvas-scroll {
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .webgl-wrapper canvas {
+    .canvas-scroll canvas {
       max-width: 100%;
       max-height: calc(100vh - 280px);
       width: auto;
       height: auto;
     }
-    .webgl-wrapper.is-real-size {
+    .canvas-scroll.is-real-size {
       overflow: auto;
       align-items: flex-start;
       justify-content: flex-start;
     }
-    .webgl-wrapper.is-real-size canvas {
+    .canvas-scroll.is-real-size canvas {
       max-width: none;
       max-height: none;
       width: auto;
@@ -257,11 +261,15 @@ const FRAGMENT_SHADER = `
       border-radius: 0;
       border: none;
     }
-    .webgl-wrapper:fullscreen canvas {
+    .webgl-wrapper:fullscreen .canvas-scroll {
+      width: 100%;
+      height: 100%;
+    }
+    .webgl-wrapper:fullscreen .canvas-scroll canvas {
       max-width: 100vw;
       max-height: 100vh;
     }
-    .webgl-wrapper:fullscreen.is-real-size canvas {
+    .webgl-wrapper:fullscreen .canvas-scroll.is-real-size canvas {
       max-width: none;
       max-height: none;
     }
