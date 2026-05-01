@@ -98,6 +98,8 @@ const VERTEX_SHADER = `
   uniform float u_galaxyRadius;
   uniform float u_time;
   uniform float u_dustSize;
+  uniform float u_pertAmp;
+  uniform int u_pertN;
   uniform sampler2D u_colorLut;
 
   varying vec4 v_color;
@@ -120,6 +122,11 @@ const VERTEX_SHADER = `
     float sinTheta = sin(theta);
     float rx = a_semiMajor * cosTheta * cosT - a_semiMinor * sinTheta * sinT;
     float ry = a_semiMajor * cosTheta * sinT + a_semiMinor * sinTheta * cosT;
+
+    if (u_pertAmp > 0.0 && u_pertN > 0) {
+      rx += (a_semiMajor / u_pertAmp) * sin(theta * 2.0 * float(u_pertN));
+      ry += (a_semiMajor / u_pertAmp) * cos(theta * 2.0 * float(u_pertN));
+    }
 
     gl_Position = vec4(rx / u_galaxyRadius, ry / u_galaxyRadius, 0.0, 1.0);
 
@@ -205,6 +212,8 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   @Input() particles: StarParticleDto[] = [];
   @Input() galaxyRadius: number = 15000;
   @Input() dustSize: number = 70;
+  @Input() pertN: number = 0;
+  @Input() pertAmp: number = 0;
   @Input() size: number = 800;
 
   private gl: WebGLRenderingContext | null = null;
@@ -376,6 +385,8 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     gl.uniform1f(gl.getUniformLocation(program, 'u_galaxyRadius'), this.galaxyRadius);
     gl.uniform1f(gl.getUniformLocation(program, 'u_time'), 0.0);
     gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_pertN'), this.pertN);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.lutTexture);

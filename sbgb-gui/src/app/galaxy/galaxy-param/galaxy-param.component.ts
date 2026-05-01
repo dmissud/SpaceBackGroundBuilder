@@ -61,6 +61,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   generatedImageUrl: string | null = null;
   densityWaveParticles: StarParticleDto[] | null = null;
   densityWaveGalaxyRadius: number = 15000;
+  densityWavePertN: number = 0;
+  densityWavePertAmp: number = 0;
 
   get isDensityWave(): boolean {
     return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
@@ -422,6 +424,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       next: (particles) => {
         this.densityWaveParticles = particles;
         this.densityWaveGalaxyRadius = request.densityWaveParameters?.galaxyRadius || 15000;
+        this.densityWavePertN = request.densityWaveParameters?.pertN || 0;
+        this.densityWavePertAmp = request.densityWaveParameters?.pertAmp || 0;
         this.isGenerating = false;
         this.isModifiedSinceBuild = false;
         this.builtGalaxyParams = {...request};

@@ -58,6 +58,14 @@ export class GalaxyShellComponent implements AfterViewInit {
     return this.paramComponent?.densityWaveGalaxyRadius || 15000;
   }
 
+  get densityWavePertN(): number {
+    return this.paramComponent?.densityWavePertN || 0;
+  }
+
+  get densityWavePertAmp(): number {
+    return this.paramComponent?.densityWavePertAmp || 0;
+  }
+
   get isDensityWave(): boolean {
     return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
   }
