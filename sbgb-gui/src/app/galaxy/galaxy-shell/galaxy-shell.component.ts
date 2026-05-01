@@ -66,6 +66,10 @@ export class GalaxyShellComponent implements AfterViewInit {
     return this.paramComponent?.densityWavePertAmp || 0;
   }
 
+  get densityWaveDustSize(): number {
+    return this.paramComponent?.densityWaveDustSize || 70;
+  }
+
   get isDensityWave(): boolean {
     return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
   }

@@ -87,7 +87,15 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
       }
       @if (formGroup.controls['galaxyType'].value === 'DENSITY_WAVE') {
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DENSITY_WAVE')">Density Wave (défaut)</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_0')">Spirale classique</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_1')">Bras larges</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_2')">Symétrique</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_3')">Excentrique</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_4')">Perturbée</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_5')">Allongée</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_6')">Bulbe géant</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_7')">Petit cœur</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_8')">Standard +</button>
         </div>
       }
 

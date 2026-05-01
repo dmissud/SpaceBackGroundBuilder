@@ -63,6 +63,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   densityWaveGalaxyRadius: number = 15000;
   densityWavePertN: number = 0;
   densityWavePertAmp: number = 0;
+  densityWaveDustSize: number = 70;
 
   get isDensityWave(): boolean {
     return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
@@ -417,6 +418,29 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     } else {
       this.executeStandardBuild(request);
     }
+  }
+
+  private applyDensityWavePreset(
+    rad: number, coreRad: number, deltaAng: number,
+    ex1: number, ex2: number, numStars: number,
+    hasDarkMatter: boolean, pertN: number, pertAmp: number,
+    dustSize: number, baseTemp: number): void {
+    this.densityWaveDustSize = dustSize;
+    this.galaxyForm.patchValue({
+      galaxyType: 'DENSITY_WAVE',
+      densityWaveParameters: {
+        galaxyRadius: rad,
+        coreRadius: coreRad,
+        angleOffset: deltaAng,
+        eccentricityInner: ex1,
+        eccentricityOuter: ex2,
+        starCount: numStars,
+        hasDarkMatter,
+        pertN,
+        pertAmp,
+        baseTemp
+      }
+    });
   }
 
   private executeDensityWaveBuild(request: GalaxyRequestCmd): void {
@@ -1107,17 +1131,15 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         });
         break;
       case 'DENSITY_WAVE':
-        this.galaxyForm.patchValue({
-          galaxyType: 'DENSITY_WAVE',
-          preset: 'DENSITY_WAVE',
-          coreSize: 0.1,
-          galaxyRadius: 1500,
-          warpStrength: 0,
-          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 },
-          starFieldParameters: { enabled: false, density: 0, maxStarSize: 4, diffractionSpikes: false, spikeCount: 4 },
-          multiLayerNoiseParameters: { enabled: false }
-        });
-        break;
+      case 'DW_0': this.applyDensityWavePreset(13000, 4000, 0.0004, 0.85, 0.95, 40000, true, 2, 40, 70, 4000); break;
+      case 'DW_1': this.applyDensityWavePreset(16000, 4000, 0.0003, 0.80, 0.85, 40000, true, 0, 40, 58, 4500); break;
+      case 'DW_2': this.applyDensityWavePreset(13000, 4000, 0.00064, 0.90, 0.90, 40000, true, 0, 0, 75, 4100); break;
+      case 'DW_3': this.applyDensityWavePreset(13000, 4000, 0.0004, 1.35, 1.05, 40000, true, 0, 0, 70, 4500); break;
+      case 'DW_4': this.applyDensityWavePreset(13000, 4500, 0.0002, 0.65, 0.95, 40000, true, 3, 72, 80, 4000); break;
+      case 'DW_5': this.applyDensityWavePreset(15000, 4000, 0.0003, 1.45, 1.00, 40000, true, 0, 0, 80, 4500); break;
+      case 'DW_6': this.applyDensityWavePreset(14000, 12500, 0.0002, 0.65, 0.95, 40000, true, 3, 72, 85, 2200); break;
+      case 'DW_7': this.applyDensityWavePreset(13000, 1500, 0.0004, 1.10, 1.00, 40000, true, 1, 20, 80, 2800); break;
+      case 'DW_8': this.applyDensityWavePreset(13000, 4000, 0.0004, 0.85, 0.95, 40000, true, 1, 20, 80, 4500); break;
       case 'VIBRANT_SPIRAL':
         this.galaxyForm.patchValue({
           galaxyType: 'SPIRAL',
