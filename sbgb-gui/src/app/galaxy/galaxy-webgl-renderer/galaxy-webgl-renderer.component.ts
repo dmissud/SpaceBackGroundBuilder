@@ -1,12 +1,16 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   Input,
   OnChanges,
   OnDestroy,
   ViewChild,
   AfterViewInit
 } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
 import { StarParticleDto } from '../galaxy.model';
 
 // Temperature LUT from Galaxy-Renderer-Typescript/Helper.ts
@@ -196,18 +200,86 @@ const FRAGMENT_SHADER = `
 @Component({
   selector: 'app-galaxy-webgl-renderer',
   standalone: true,
+  imports: [MatIconButton, MatIcon, MatTooltip],
   template: `
-    <canvas #glCanvas
-      [width]="size"
-      [height]="size"
-      style="display:block; width:100%; height:100%; background:#000;">
-    </canvas>
+    <div #container class="webgl-wrapper">
+      <canvas #glCanvas
+        [width]="size"
+        [height]="size"
+        style="display:block; width:100%; height:100%; background:#000;">
+      </canvas>
+      <div class="image-controls">
+        <button mat-icon-button
+                (click)="toggleRealSize()"
+                [matTooltip]="isRealSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
+          <mat-icon>{{ isRealSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
+        </button>
+        <button mat-icon-button
+                (click)="toggleFullscreen()"
+                [matTooltip]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'">
+          <mat-icon>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+        </button>
+      </div>
+    </div>
   `,
-  styles: [`:host { display: block; width: 100%; height: 100%; }`]
+  styles: [`
+    :host { display: block; width: 100%; height: 100%; }
+    .webgl-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid #333;
+      overflow: hidden;
+    }
+    .webgl-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      border: none;
+    }
+    .image-controls {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      display: flex;
+      gap: 4px;
+    }
+    .image-controls button {
+      background: rgba(0,0,0,0.5);
+    }
+    .image-controls button:hover {
+      background: rgba(0,0,0,0.75);
+    }
+    .image-controls mat-icon {
+      color: white;
+    }
+  `]
 })
 export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('glCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
+
+  isRealSize = false;
+  isFullscreen = false;
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.isFullscreen = !!document.fullscreenElement;
+  }
+
+  toggleRealSize(): void {
+    this.isRealSize = !this.isRealSize;
+  }
+
+  toggleFullscreen(): void {
+    if (this.isFullscreen) {
+      document.exitFullscreen();
+    } else {
+      this.containerRef?.nativeElement.requestFullscreen();
+    }
+  }
 
   @Input() particles: StarParticleDto[] = [];
   @Input() galaxyRadius: number = 15000;
