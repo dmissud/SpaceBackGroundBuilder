@@ -11,6 +11,7 @@ import {
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 import { StarParticleDto } from '../galaxy.model';
 
 // Temperature LUT from Galaxy-Renderer-Typescript/Helper.ts
@@ -100,6 +101,7 @@ const VERTEX_SHADER = `
   attribute float a_type;
 
   uniform float u_galaxyRadius;
+  uniform float u_zoom;
   uniform float u_time;
   uniform float u_dustSize;
   uniform float u_pertAmp;
@@ -132,7 +134,7 @@ const VERTEX_SHADER = `
       ry += (a_semiMajor / u_pertAmp) * cos(theta * 2.0 * float(u_pertN));
     }
 
-    gl_Position = vec4(rx / u_galaxyRadius, ry / u_galaxyRadius, 0.0, 1.0);
+    gl_Position = vec4((rx / u_galaxyRadius) * u_zoom, (ry / u_galaxyRadius) * u_zoom, 0.0, 1.0);
 
     vec3 col = colorFromTemperature(a_temperature);
 
@@ -200,7 +202,7 @@ const FRAGMENT_SHADER = `
 @Component({
   selector: 'app-galaxy-webgl-renderer',
   standalone: true,
-  imports: [MatIconButton, MatIcon, MatTooltip],
+  imports: [MatIconButton, MatIcon, MatTooltip, FormsModule],
   template: `
     <div #container class="webgl-wrapper">
       <div class="canvas-scroll" [class.is-real-size]="isRealSize">
@@ -211,6 +213,14 @@ const FRAGMENT_SHADER = `
         </canvas>
       </div>
       <div class="image-controls">
+        <div class="zoom-control" matTooltip="Zoom">
+          <mat-icon style="color:white; font-size:18px; width:18px; height:18px; line-height:18px;">zoom_in</mat-icon>
+          <input type="range" min="0.2" max="3" step="0.05"
+                 [(ngModel)]="zoom"
+                 (input)="onZoomChange()"
+                 style="width:80px; cursor:pointer;">
+          <span style="color:white; font-size:12px; min-width:32px; text-align:right;">{{ (zoom * 100).toFixed(0) }}%</span>
+        </div>
         <button mat-icon-button
                 (click)="toggleRealSize()"
                 [matTooltip]="isRealSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
@@ -279,16 +289,23 @@ const FRAGMENT_SHADER = `
       right: 8px;
       z-index: 10;
       display: flex;
+      align-items: center;
       gap: 4px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 4px;
+      padding: 0 4px;
     }
     .image-controls button {
-      background: rgba(0,0,0,0.5);
-    }
-    .image-controls button:hover {
-      background: rgba(0,0,0,0.75);
+      background: transparent;
     }
     .image-controls mat-icon {
       color: white;
+    }
+    .zoom-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 4px;
     }
   `]
 })
@@ -299,6 +316,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
   isRealSize = false;
   isFullscreen = false;
+  zoom = 0.9;
 
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
@@ -314,6 +332,12 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
       document.exitFullscreen();
     } else {
       this.containerRef?.nativeElement.requestFullscreen();
+    }
+  }
+
+  onZoomChange(): void {
+    if (this.gl && this.program) {
+      this.uploadAndRender();
     }
   }
 
@@ -491,6 +515,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.uniform1f(gl.getUniformLocation(program, 'u_galaxyRadius'), this.galaxyRadius);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_zoom'), this.zoom);
     gl.uniform1f(gl.getUniformLocation(program, 'u_time'), 0.0);
     gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
     gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
