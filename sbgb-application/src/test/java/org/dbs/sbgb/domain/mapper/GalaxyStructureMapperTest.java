@@ -114,6 +114,7 @@ class GalaxyStructureMapperTest {
         assertThat(params.getDomainWarpParameters()).isNotNull();
         assertThat(params.getStarFieldParameters()).isNotNull();
         assertThat(params.getBloomParameters()).isNotNull();
+        assertThat(params.getNoiseTextureParameters()).isNotNull();
     }
 
     @Test

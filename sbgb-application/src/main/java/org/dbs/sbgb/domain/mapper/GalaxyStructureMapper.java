@@ -341,11 +341,18 @@ public class GalaxyStructureMapper {
                 return GalaxyParameters.builder()
                         .galaxyType(GalaxyType.DENSITY_WAVE)
                         .densityWaveParams(densityWaveParams)
+                        .noiseTextureParameters(defaultNoiseTexture())
                         .multiLayerNoiseParameters(disabledMultiLayerNoise())
                         .domainWarpParameters(DomainWarpParameters.builder().warpStrength(0.0).build())
                         .starFieldParameters(disabledStarField())
                         .bloomParameters(disabledBloom())
                         .build();
+        }
+
+        private NoiseTextureParameters defaultNoiseTexture() {
+                return NoiseTextureParameters.builder()
+                                .octaves(4).persistence(0.5).lacunarity(2.0).scale(200.0)
+                                .build();
         }
 
         private org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters disabledMultiLayerNoise() {
