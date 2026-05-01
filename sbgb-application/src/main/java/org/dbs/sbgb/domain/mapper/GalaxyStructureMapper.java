@@ -341,7 +341,34 @@ public class GalaxyStructureMapper {
                 return GalaxyParameters.builder()
                         .galaxyType(GalaxyType.DENSITY_WAVE)
                         .densityWaveParams(densityWaveParams)
+                        .multiLayerNoiseParameters(disabledMultiLayerNoise())
+                        .domainWarpParameters(DomainWarpParameters.builder().warpStrength(0.0).build())
+                        .starFieldParameters(disabledStarField())
+                        .bloomParameters(disabledBloom())
                         .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters disabledMultiLayerNoise() {
+                return org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters.builder()
+                                .enabled(false)
+                                .macroLayerScale(0).macroLayerWeight(0)
+                                .mesoLayerScale(0).mesoLayerWeight(0)
+                                .microLayerScale(0).microLayerWeight(0)
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.StarFieldParameters disabledStarField() {
+                return org.dbs.sbgb.domain.model.parameters.StarFieldParameters.builder()
+                                .enabled(false)
+                                .starDensity(0).maxStarSize(0).diffractionSpikes(false).spikeCount(0)
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.BloomParameters disabledBloom() {
+                return org.dbs.sbgb.domain.model.parameters.BloomParameters.builder()
+                                .enabled(false)
+                                .bloomRadius(0).bloomIntensity(0).bloomThreshold(0)
+                                .build();
         }
 
         private DensityWaveGalaxyParams toDensityWaveGalaxyParams(DensityWaveParameters p) {

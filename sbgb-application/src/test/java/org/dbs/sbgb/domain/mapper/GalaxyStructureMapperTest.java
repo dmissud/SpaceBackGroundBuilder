@@ -97,6 +97,26 @@ class GalaxyStructureMapperTest {
     }
 
     @Test
+    void toGalaxyParameters_withDensityWaveType_shouldHaveNonNullRequiredParameters() {
+        // Given
+        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
+                .galaxyType("DENSITY_WAVE")
+                .width(800)
+                .height(800)
+                .build();
+
+        // When
+        GalaxyParameters params = mapper.toGalaxyParameters(cmd);
+
+        // Then
+        assertThat(params.getMultiLayerNoiseParameters()).isNotNull();
+        assertThat(params.getMultiLayerNoiseParameters().isEnabled()).isFalse();
+        assertThat(params.getDomainWarpParameters()).isNotNull();
+        assertThat(params.getStarFieldParameters()).isNotNull();
+        assertThat(params.getBloomParameters()).isNotNull();
+    }
+
+    @Test
     void toGalaxyParameters_withoutPreset_shouldBuildFromIndividualParameters() {
         // Given
         GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
