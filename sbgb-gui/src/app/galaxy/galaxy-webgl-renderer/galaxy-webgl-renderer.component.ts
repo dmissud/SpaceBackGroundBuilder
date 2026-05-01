@@ -97,6 +97,7 @@ const VERTEX_SHADER = `
 
   uniform float u_galaxyRadius;
   uniform float u_time;
+  uniform float u_dustSize;
   uniform sampler2D u_colorLut;
 
   varying vec4 v_color;
@@ -125,13 +126,25 @@ const VERTEX_SHADER = `
     vec3 col = colorFromTemperature(a_temperature);
 
     if (a_type < 0.5) {
-      // STAR
+      // STAR (type 0)
       gl_PointSize = a_magnitude * 4.0;
       v_color = vec4(col * a_magnitude, 1.0);
-    } else {
-      // DUST / other
-      gl_PointSize = a_magnitude * 5.0;
+    } else if (a_type < 1.5) {
+      // DUST (type 1)
+      gl_PointSize = a_magnitude * 5.0 * u_dustSize;
       v_color = vec4(col * a_magnitude, 1.0);
+    } else if (a_type < 2.5) {
+      // FILAMENT (type 2)
+      gl_PointSize = a_magnitude * 2.0 * u_dustSize;
+      v_color = vec4(col * a_magnitude, 1.0);
+    } else if (a_type < 3.5) {
+      // H2_OUTER (type 3) — rougeâtre
+      gl_PointSize = a_magnitude * 2.0 * u_dustSize;
+      v_color = vec4(col * a_magnitude * vec3(2.0, 0.5, 0.5), 1.0);
+    } else {
+      // H2_CORE (type 4) — blanc pur
+      gl_PointSize = a_magnitude * u_dustSize * 0.5;
+      v_color = vec4(1.0, 1.0, 1.0, 1.0);
     }
 
     v_type = a_type;
@@ -147,16 +160,27 @@ const FRAGMENT_SHADER = `
   void main() {
     vec2 circCoord = 2.0 * gl_PointCoord - 1.0;
     float dist = length(circCoord);
+    float alpha;
 
     if (v_type < 0.5) {
-      // STAR
-      float alpha = 1.0 - dist;
+      // STAR (type 0)
+      alpha = 1.0 - dist;
       if (alpha < 0.01) discard;
       gl_FragColor = vec4(v_color.rgb, alpha);
+    } else if (v_type < 1.5) {
+      // DUST (type 1)
+      alpha = 0.05 * (1.0 - dist);
+      if (alpha < 0.003) discard;
+      gl_FragColor = vec4(v_color.rgb, alpha);
+    } else if (v_type < 2.5) {
+      // FILAMENT (type 2)
+      alpha = 0.07 * (1.0 - dist);
+      if (alpha < 0.003) discard;
+      gl_FragColor = vec4(v_color.rgb, alpha);
     } else {
-      // DUST
-      float alpha = 0.05 * (1.0 - dist);
-      if (alpha < 0.005) discard;
+      // H2_OUTER / H2_CORE (type 3 & 4)
+      alpha = 1.0 - dist;
+      if (alpha < 0.01) discard;
       gl_FragColor = vec4(v_color.rgb, alpha);
     }
   }
@@ -180,6 +204,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
   @Input() particles: StarParticleDto[] = [];
   @Input() galaxyRadius: number = 15000;
+  @Input() dustSize: number = 70;
   @Input() size: number = 800;
 
   private gl: WebGLRenderingContext | null = null;
@@ -293,7 +318,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
       tiltAngles[i]   = p.tiltAngle;
       temperatures[i] = p.temperature;
       magnitudes[i]   = Math.min(p.magnitude, 1.0);
-      types[i]        = (p.type === 'STAR') ? 0.0 : 1.0;
+      types[i]        = this.typeToFloat(p.type);
     }
 
     this.uploadBuffer('a_semiMajor', semiMajors);
@@ -330,6 +355,16 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     }
   }
 
+  private typeToFloat(type: string): number {
+    switch (type) {
+      case 'STAR':     return 0.0;
+      case 'DUST':     return 1.0;
+      case 'H2_OUTER': return 3.0;
+      case 'H2_CORE':  return 4.0;
+      default:         return 2.0; // FILAMENT
+    }
+  }
+
   private drawFrame(): void {
     const gl = this.gl!;
     const program = this.program!;
@@ -340,6 +375,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
     gl.uniform1f(gl.getUniformLocation(program, 'u_galaxyRadius'), this.galaxyRadius);
     gl.uniform1f(gl.getUniformLocation(program, 'u_time'), 0.0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.lutTexture);
