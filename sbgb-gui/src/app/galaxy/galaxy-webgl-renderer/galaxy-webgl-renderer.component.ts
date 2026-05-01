@@ -347,6 +347,10 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   @Input() pertN: number = 0;
   @Input() pertAmp: number = 0;
   @Input() size: number = 800;
+  @Input() showStars: boolean = true;
+  @Input() showDust: boolean = true;
+  @Input() showFilaments: boolean = true;
+  @Input() showH2: boolean = true;
 
   private gl: WebGLRenderingContext | null = null;
   private program: WebGLProgram | null = null;
@@ -442,7 +446,8 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     const program = this.program;
     if (!gl || !program || this.particles.length === 0) return;
 
-    const count = this.particles.length;
+    const visible = this.particles.filter(p => this.isParticleVisible(p.type));
+    const count = visible.length;
     const semiMajors   = new Float32Array(count);
     const semiMinors   = new Float32Array(count);
     const thetas       = new Float32Array(count);
@@ -452,7 +457,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     const types        = new Float32Array(count);
 
     for (let i = 0; i < count; i++) {
-      const p = this.particles[i];
+      const p = visible[i];
       semiMajors[i]   = p.semiMajorAxis;
       semiMinors[i]   = p.semiMinorAxis;
       thetas[i]       = p.theta0;
@@ -493,6 +498,16 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     if (loc >= 0) {
       gl.enableVertexAttribArray(loc);
       gl.vertexAttribPointer(loc, 1, gl.FLOAT, false, 0, 0);
+    }
+  }
+
+  private isParticleVisible(type: string): boolean {
+    switch (type) {
+      case 'STAR':     return this.showStars;
+      case 'DUST':     return this.showDust;
+      case 'H2_OUTER':
+      case 'H2_CORE':  return this.showH2;
+      default:         return this.showFilaments; // FILAMENT
     }
   }
 

@@ -10,7 +10,8 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
 import {GalaxyBaseStructureDto, GalaxyRequestCmd, StarParticleDto} from "../galaxy.model";
-import {DensityWaveSectionComponent} from "./sections/density-wave-section.component";
+import { DensityWavePhysicsSectionComponent } from "./sections/density-wave-physics-section.component";
+import { DensityWaveDisplaySectionComponent, DensityWaveDisplayConfig } from "./sections/density-wave-display-section.component";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -50,7 +51,8 @@ import {take} from "rxjs";
     VisualEffectsSectionComponent,
     CosmeticEffectsSectionComponent,
     ColorsSectionComponent,
-    DensityWaveSectionComponent
+    DensityWavePhysicsSectionComponent,
+    DensityWaveDisplaySectionComponent
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
@@ -65,6 +67,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   densityWavePertAmp: number = 0;
   densityWaveDustSize: number = 70;
   densityWaveRenderSize: number = 800;
+  densityWaveDisplayConfig: DensityWaveDisplayConfig = {
+    dustSize: 70, showStars: true, showDust: true, showFilaments: true, showH2: true
+  };
 
   get isDensityWave(): boolean {
     return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
@@ -421,12 +426,18 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDisplayConfigChange(config: DensityWaveDisplayConfig): void {
+    this.densityWaveDisplayConfig = config;
+    this.densityWaveDustSize = config.dustSize;
+  }
+
   private applyDensityWavePreset(
     rad: number, coreRad: number, deltaAng: number,
     ex1: number, ex2: number, numStars: number,
     hasDarkMatter: boolean, pertN: number, pertAmp: number,
     dustSize: number, baseTemp: number): void {
     this.densityWaveDustSize = dustSize;
+    this.densityWaveDisplayConfig = { ...this.densityWaveDisplayConfig, dustSize };
     this.galaxyForm.patchValue({
       galaxyType: 'DENSITY_WAVE',
       densityWaveParameters: {

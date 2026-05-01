@@ -39,7 +39,11 @@
         [galaxyRadius]="densityWaveGalaxyRadius"
         [pertN]="densityWavePertN"
         [pertAmp]="densityWavePertAmp"
-        [dustSize]="densityWaveDustSize"
+        [dustSize]="densityWaveDisplayConfig.dustSize"
+        [showStars]="densityWaveDisplayConfig.showStars"
+        [showDust]="densityWaveDisplayConfig.showDust"
+        [showFilaments]="densityWaveDisplayConfig.showFilaments"
+        [showH2]="densityWaveDisplayConfig.showH2"
         [size]="renderSize">
       </app-galaxy-webgl-renderer>
     } @else {

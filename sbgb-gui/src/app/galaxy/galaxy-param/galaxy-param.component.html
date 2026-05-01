@@ -62,9 +62,14 @@
     }
 
     @if (isDensityWave) {
-    <app-density-wave-section [formGroup]="$any(galaxyForm.get('densityWaveParameters'))"
+    <app-density-wave-physics-section [formGroup]="$any(galaxyForm.get('densityWaveParameters'))"
       [expanded]="allPanelsExpanded">
-    </app-density-wave-section>
+    </app-density-wave-physics-section>
+    <app-density-wave-display-section
+      [expanded]="allPanelsExpanded"
+      [config]="densityWaveDisplayConfig"
+      (configChange)="onDisplayConfigChange($event)">
+    </app-density-wave-display-section>
     }
 
     <!-- 4. CORE PARAMETERS (masqué pour DENSITY_WAVE) -->

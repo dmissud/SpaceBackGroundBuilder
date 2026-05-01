@@ -10,6 +10,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Store } from "@ngrx/store";
+import { DensityWaveDisplayConfig } from "../galaxy-param/sections/density-wave-display-section.component";
 import { selectRenders, selectSelectedRenderId } from "../state/galaxy.selectors";
 import { GalaxyPageActions } from "../state/galaxy.actions";
 
@@ -72,6 +73,10 @@ export class GalaxyShellComponent implements AfterViewInit {
 
   get renderSize(): number {
     return this.paramComponent?.densityWaveRenderSize || 800;
+  }
+
+  get densityWaveDisplayConfig(): DensityWaveDisplayConfig {
+    return this.paramComponent?.densityWaveDisplayConfig || { dustSize: 70, showStars: true, showDust: true, showFilaments: true, showH2: true };
   }
 
   get isDensityWave(): boolean {
