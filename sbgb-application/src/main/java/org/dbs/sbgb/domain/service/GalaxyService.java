@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.dbs.sbgb.common.UseCase;
 import org.dbs.sbgb.domain.model.GalaxyBaseStructure;
 import org.dbs.sbgb.domain.model.GalaxyCosmeticRender;
+import org.dbs.sbgb.domain.model.densitywave.DensityWaveGalaxyGenerator;
+import org.dbs.sbgb.domain.model.densitywave.DensityWaveGalaxyParams;
+import org.dbs.sbgb.domain.model.densitywave.StarParticle;
 import org.dbs.sbgb.port.in.*;
 import org.dbs.sbgb.port.out.GalaxyBaseStructureRepository;
 import org.dbs.sbgb.port.out.GalaxyCosmeticRenderRepository;
@@ -21,7 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeticRenderUseCase,
         FindGalaxyBaseStructuresUseCase, FindGalaxyCosmeticRendersUseCase, DeleteGalaxyCosmeticRenderUseCase,
-        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase, ResolveGalaxyBaseUseCase {
+        DeleteRendersByBaseUseCase, ReapplyGalaxyCosmeticsUseCase, ResolveGalaxyBaseUseCase,
+        GetGalaxyParticlesUseCase {
 
     private final GalaxyBaseStructureRepository baseStructureRepository;
     private final GalaxyCosmeticRenderRepository cosmeticRenderRepository;
@@ -145,6 +149,34 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
         }
 
         return findRendersByBaseId(newBase.id());
+    }
+
+    @Override
+    public List<StarParticleDto> getParticles(GalaxyRequestCmd cmd) {
+        DensityWaveGalaxyParams params = resolveDensityWaveParams(cmd);
+        List<StarParticle> particles = new DensityWaveGalaxyGenerator(params, cmd.getSeed()).generate();
+        return particles.stream().map(this::toStarParticleDto).toList();
+    }
+
+    private DensityWaveGalaxyParams resolveDensityWaveParams(GalaxyRequestCmd cmd) {
+        DensityWaveParameters p = cmd.getDensityWaveParameters();
+        if (p != null) {
+            return new DensityWaveGalaxyParams(
+                    p.galaxyRadius(), p.coreRadius(), p.angleOffset(),
+                    p.eccentricityInner(), p.eccentricityOuter(),
+                    p.starCount(), p.hasDarkMatter(), p.pertN(), p.pertAmp(), p.baseTemp()
+            );
+        }
+        return DensityWaveGalaxyParams.defaultParams(15000.0f, 60000);
+    }
+
+    private StarParticleDto toStarParticleDto(StarParticle p) {
+        return new StarParticleDto(
+                p.theta0(), p.velTheta(), p.tiltAngle(),
+                p.semiMajorAxis(), p.semiMinorAxis(),
+                p.temperature(), p.magnitude(),
+                p.type().name()
+        );
     }
 
     private void validateNote(int note) {

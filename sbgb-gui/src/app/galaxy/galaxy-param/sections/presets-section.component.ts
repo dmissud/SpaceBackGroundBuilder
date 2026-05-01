@@ -85,6 +85,11 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('IRREGULAR_DWARF')">Dwarf</button>
         </div>
       }
+      @if (formGroup.controls['galaxyType'].value === 'DENSITY_WAVE') {
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DENSITY_WAVE')">Density Wave (défaut)</button>
+        </div>
+      }
 
       <!-- Randomization -->
       <h4>Randomisation</h4>

@@ -2,6 +2,7 @@ package org.dbs.sbgb.domain.model;
 
 import lombok.Builder;
 import lombok.Value;
+import org.dbs.sbgb.domain.model.densitywave.DensityWaveGalaxyParams;
 import org.dbs.sbgb.domain.model.parameters.*;
 
 /**
@@ -40,6 +41,7 @@ public class GalaxyParameters {
     LenticularShapeParameters lenticularParameters;
     RingStructureParameters ringParameters;
     IrregularStructureParameters irregularParameters;
+    DensityWaveGalaxyParams densityWaveParams;
 
     /**
      * Create default parameters for a classic spiral galaxy
@@ -482,6 +484,42 @@ public class GalaxyParameters {
                 .irregularity(0.7)
                 .clumpCount(8)
                 .clumpSize(100.0)
+                .build())
+            .build();
+    }
+
+    public static GalaxyParameters createDefaultDensityWave() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.DENSITY_WAVE)
+            .densityWaveParams(DensityWaveGalaxyParams.defaultParams(500.0f, 60000))
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.1)
+                .galaxyRadius(1500.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(4)
+                .persistence(0.5)
+                .lacunarity(2.0)
+                .scale(200.0)
+                .build())
+            .domainWarpParameters(DomainWarpParameters.builder()
+                .warpStrength(0.0)
+                .build())
+            .starFieldParameters(StarFieldParameters.builder()
+                .enabled(false)
+                .starDensity(0.0)
+                .maxStarSize(4)
+                .diffractionSpikes(false)
+                .spikeCount(4)
+                .build())
+            .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                .enabled(false)
+                .macroLayerScale(0.3)
+                .macroLayerWeight(0.5)
+                .mesoLayerScale(1.0)
+                .mesoLayerWeight(0.35)
+                .microLayerScale(3.0)
+                .microLayerWeight(0.15)
                 .build())
             .build();
     }

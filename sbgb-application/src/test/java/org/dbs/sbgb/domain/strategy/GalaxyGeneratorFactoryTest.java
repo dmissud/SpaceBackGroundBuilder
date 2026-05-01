@@ -1,5 +1,7 @@
 package org.dbs.sbgb.domain.strategy;
 
+import de.articdive.jnoise.core.api.functions.Interpolation;
+import de.articdive.jnoise.generators.noise_parameters.fade_functions.FadeFunction;
 import org.dbs.sbgb.domain.model.GalaxyIntensityCalculator;
 import org.dbs.sbgb.domain.model.GalaxyParameters;
 import org.dbs.sbgb.domain.model.GalaxyType;
@@ -11,7 +13,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 
 class GalaxyGeneratorFactoryTest {
 
@@ -26,10 +27,11 @@ class GalaxyGeneratorFactoryTest {
                 new EllipticalGeneratorStrategy(),
                 new RingGeneratorStrategy(),
                 new IrregularGeneratorStrategy(),
-                new LenticularGeneratorStrategy()
+                new LenticularGeneratorStrategy(),
+                new DensityWaveGeneratorStrategy()
         );
         factory = new GalaxyGeneratorFactory(strategies);
-        noiseGenerator = mock(PerlinGenerator.class);
+        noiseGenerator = new PerlinGenerator(Interpolation.LINEAR, FadeFunction.QUINTIC_POLY);
     }
 
     @Test
@@ -107,6 +109,16 @@ class GalaxyGeneratorFactoryTest {
         GalaxyIntensityCalculator calculator = factory.create(GalaxyType.LENTICULAR, context);
 
         // Then
+        assertThat(calculator).isNotNull();
+    }
+
+    @Test
+    void shouldCreateDensityWaveGenerator() {
+        GalaxyParameters params = GalaxyParameters.createDefaultDensityWave();
+        GalaxyGenerationContext context = createContext(params);
+
+        GalaxyIntensityCalculator calculator = factory.create(GalaxyType.DENSITY_WAVE, context);
+
         assertThat(calculator).isNotNull();
     }
 

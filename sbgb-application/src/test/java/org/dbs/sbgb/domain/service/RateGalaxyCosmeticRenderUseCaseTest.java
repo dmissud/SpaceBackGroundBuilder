@@ -30,7 +30,6 @@ import static org.mockito.Mockito.*;
 
 class RateGalaxyCosmeticRenderUseCaseTest {
 
-    @Mock private ImageSerializer imageSerializer;
     @Mock private org.dbs.sbgb.port.out.GalaxyImageComputationPort galaxyImageComputationPort;
 
     private List<GalaxyBaseStructure> baseDb;
@@ -45,6 +44,12 @@ class RateGalaxyCosmeticRenderUseCaseTest {
 
         GalaxyBaseStructureRepository baseRepo = new InMemoryGalaxyBaseStructureRepository(baseDb);
         GalaxyCosmeticRenderRepository renderRepo = new InMemoryGalaxyCosmeticRenderRepository(renderDb);
+        ImageSerializer imageSerializer = new ImageSerializer() {
+            @Override
+            public byte[] toByteArray(BufferedImage image) {
+                return new byte[]{1, 2, 3};
+            }
+        };
 
         galaxyService = new GalaxyService(
                 baseRepo, renderRepo,
@@ -52,7 +57,6 @@ class RateGalaxyCosmeticRenderUseCaseTest {
                 galaxyImageComputationPort);
 
         when(galaxyImageComputationPort.computeImage(anyInt(), any())).thenReturn(new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB));
-        when(imageSerializer.toByteArray(any(BufferedImage.class))).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test

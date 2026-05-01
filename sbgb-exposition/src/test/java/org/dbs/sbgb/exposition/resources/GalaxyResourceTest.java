@@ -62,6 +62,9 @@ class GalaxyResourceTest {
     private ResolveGalaxyBaseUseCase resolveBaseUseCase;
 
     @MockitoBean
+    private GetGalaxyParticlesUseCase getGalaxyParticlesUseCase;
+
+    @MockitoBean
     private GalaxyBaseStructureDTOMapper baseMapper;
 
     @MockitoBean
@@ -136,6 +139,26 @@ class GalaxyResourceTest {
                 .andExpect(status().isNoContent());
 
         verify(deleteRenderUseCase).deleteRender(eq(renderId));
+    }
+
+    @Test
+    void shouldReturnParticlesForDensityWave() throws Exception {
+        GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
+                .galaxyType("DENSITY_WAVE").width(800).height(800).seed(42L).build();
+        List<StarParticleDto> particles = List.of(
+                new StarParticleDto(0.5f, 0.01f, 0.2f, 5000.0f, 4000.0f, 6000.0f, 0.3f, "STAR"),
+                new StarParticleDto(1.2f, 0.02f, 0.5f, 3000.0f, 2500.0f, 4000.0f, 0.1f, "DUST")
+        );
+
+        when(getGalaxyParticlesUseCase.getParticles(any())).thenReturn(particles);
+
+        mockMvc.perform(post("/galaxy/particles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cmd)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].type").value("STAR"))
+                .andExpect(jsonPath("$[1].type").value("DUST"))
+                .andExpect(jsonPath("$").isArray());
     }
 
     private GalaxyBaseStructure buildBase(UUID id) {

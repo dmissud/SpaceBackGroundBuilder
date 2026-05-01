@@ -44,6 +44,7 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } fr
             <mat-option value="ELLIPTICAL">Elliptique</mat-option>
             <mat-option value="RING">Anneau</mat-option>
             <mat-option value="IRREGULAR">Irrégulière</mat-option>
+            <mat-option value="DENSITY_WAVE">Density Wave (physique)</mat-option>
           </mat-select>
           <mat-icon matSuffix matTooltip="Choisissez la structure galactique">help_outline</mat-icon>
         </mat-form-field>

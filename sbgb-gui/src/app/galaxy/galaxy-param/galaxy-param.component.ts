@@ -279,6 +279,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     } else if (galaxyType === 'IRREGULAR') {
       this.galaxyForm.controls['irregularParameters'].enable();
     }
+    // DENSITY_WAVE has no type-specific sub-form — backend handles all params via preset
   }
 
   getParametersSummary(): string {
@@ -1051,6 +1052,18 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           warpStrength: 25,
           starFieldParameters: this.BEAUTIFUL_STARFIELD,
           multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
+        });
+        break;
+      case 'DENSITY_WAVE':
+        this.galaxyForm.patchValue({
+          galaxyType: 'DENSITY_WAVE',
+          preset: 'DENSITY_WAVE',
+          coreSize: 0.1,
+          galaxyRadius: 1500,
+          warpStrength: 0,
+          noiseParameters: { octaves: 4, persistence: 0.5, lacunarity: 2.0, scale: 200 },
+          starFieldParameters: { enabled: false, density: 0, maxStarSize: 4, diffractionSpikes: false, spikeCount: 4 },
+          multiLayerNoiseParameters: { enabled: false }
         });
         break;
       case 'VIBRANT_SPIRAL':
