@@ -1,0 +1,121 @@
+stages:
+  - build-and-test
+  - docker
+  - deploy
+
+variables:
+  REGISTRY: registry.gitlab.com
+  IMAGE_BASE: registry.gitlab.com/dan.missud-group/spacebackgroundbuilder
+
+# ─── Stage 1 : Build & Test ───────────────────────────────────────────────────
+
+build-and-test:
+  stage: build-and-test
+  image: maven:3.9-eclipse-temurin-21
+  tags:
+    - bree
+  cache:
+    key: maven-$CI_COMMIT_REF_SLUG
+    paths:
+      - .m2/repository
+  variables:
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq nodejs npm
+    - cd sbgb-gui && npm install --prefer-offline && cd ..
+  script:
+    - mvn clean install -DskipTests
+    - mvn test
+  artifacts:
+    reports:
+      junit:
+        - "**/target/surefire-reports/TEST-*.xml"
+    expire_in: 7 days
+
+# ─── Stage 2 : Docker Build & Push ───────────────────────────────────────────
+
+.docker-base:
+  stage: docker
+  tags:
+    - bree
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  only:
+    - master
+    - develop
+
+docker-backend:
+  extends: .docker-base
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then TAG="latest"; else TAG="develop"; fi
+      docker build -f Dockerfile.backend -t $IMAGE_BASE/backend:$TAG -t $IMAGE_BASE/backend:$CI_COMMIT_SHA .
+      docker push $IMAGE_BASE/backend:$TAG
+      docker push $IMAGE_BASE/backend:$CI_COMMIT_SHA
+
+docker-frontend:
+  extends: .docker-base
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then TAG="latest"; else TAG="develop"; fi
+      docker build -f Dockerfile.frontend -t $IMAGE_BASE/frontend:$TAG -t $IMAGE_BASE/frontend:$CI_COMMIT_SHA .
+      docker push $IMAGE_BASE/frontend:$TAG
+      docker push $IMAGE_BASE/frontend:$CI_COMMIT_SHA
+
+docker-landing:
+  extends: .docker-base
+  script:
+    - |
+      docker build -f Dockerfile.landing -t $IMAGE_BASE/landing:latest -t $IMAGE_BASE/landing:$CI_COMMIT_SHA .
+      docker push $IMAGE_BASE/landing:latest
+      docker push $IMAGE_BASE/landing:$CI_COMMIT_SHA
+
+# ─── Stage 3 : Deploy ─────────────────────────────────────────────────────────
+
+deploy-bree:
+  stage: deploy
+  tags:
+    - bree
+  only:
+    - master
+    - develop
+  needs:
+    - docker-backend
+    - docker-frontend
+    - docker-landing
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        HELM_RELEASE=sbgb-prod
+        HELM_NAMESPACE=sbgb-prod
+        HELM_VALUES=k8s/helm/sbgb/values-prod.yaml
+      else
+        HELM_RELEASE=sbgb-dev
+        HELM_NAMESPACE=sbgb-dev
+        HELM_VALUES=k8s/helm/sbgb/values-dev.yaml
+      fi
+
+      microk8s kubectl apply -f k8s/infra/postgres-shared.yaml
+
+      microk8s kubectl apply -f k8s/landing/landing.yaml
+      microk8s kubectl rollout restart deployment/sbgb-landing -n sbgb-landing
+      microk8s kubectl rollout status deployment/sbgb-landing -n sbgb-landing --timeout=2m
+
+      if ! microk8s kubectl get secret sbgb-tls-secret -n $HELM_NAMESPACE &>/dev/null; then
+        microk8s kubectl get secret sbgb-tls-secret -n sbgb-landing -o json \
+          | jq 'del(.metadata.namespace,.metadata.resourceVersion,.metadata.uid,.metadata.creationTimestamp)' \
+          | microk8s kubectl apply -n $HELM_NAMESPACE -f -
+      fi
+
+      microk8s helm3 upgrade --install $HELM_RELEASE ./k8s/helm/sbgb \
+        --namespace $HELM_NAMESPACE \
+        --create-namespace \
+        -f $HELM_VALUES \
+        --wait --timeout=5m
+
+      microk8s kubectl rollout restart deployment \
+        $HELM_RELEASE-backend \
+        $HELM_RELEASE-frontend \
+        -n $HELM_NAMESPACE
+      microk8s kubectl rollout status deployment/$HELM_RELEASE-backend \
+        -n $HELM_NAMESPACE --timeout=3m
