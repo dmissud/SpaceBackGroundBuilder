@@ -130,7 +130,10 @@ jobs:
         run: microk8s kubectl apply -f k8s/infra/postgres-shared.yaml
 
       - name: Deploy landing page
-        run: microk8s kubectl apply -f k8s/landing/landing.yaml
+        run: |
+          microk8s kubectl apply -f k8s/landing/landing.yaml
+          microk8s kubectl rollout restart deployment/sbgb-landing -n sbgb-landing
+          microk8s kubectl rollout status deployment/sbgb-landing -n sbgb-landing --timeout=2m
 
       - name: Propagate TLS secret to target namespace
         run: |
