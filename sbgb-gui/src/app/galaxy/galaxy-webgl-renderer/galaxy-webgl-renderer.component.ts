@@ -95,6 +95,7 @@ const VERTEX_SHADER = `
   attribute float a_semiMajor;
   attribute float a_semiMinor;
   attribute float a_theta;
+  attribute float a_velTheta;
   attribute float a_tiltAngle;
   attribute float a_temperature;
   attribute float a_magnitude;
@@ -133,7 +134,7 @@ const VERTEX_SHADER = `
 
   void main() {
     float DEG_TO_RAD = 0.01745329251;
-    float thetaDeg = a_theta + u_time * 0.0001;
+    float thetaDeg = a_theta + a_velTheta * u_time;
     float alpha = thetaDeg * DEG_TO_RAD;
     float beta = -a_tiltAngle;
     float cosAlpha = cos(alpha);
@@ -375,6 +376,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   set h2Scale(value: number) { this._h2Scale = Math.max(0.1, value); }
   get h2Scale(): number { return this._h2Scale; }
   private _h2Scale = 1.0;
+  @Input() timeStep: number = 100000.0;
 
   private gl: WebGLRenderingContext | null = null;
   private program: WebGLProgram | null = null;
@@ -382,8 +384,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   private buffers: { [key: string]: WebGLBuffer } = {};
   private particleCount: number = 0;
   private animationFrameId: number | null = null;
-  private animationTime = 0;
-  private animationStartTimestamp: number | null = null;
+  private galaxyTime = 0;
 
   ngAfterViewInit(): void {
     this.initWebGL();
@@ -401,7 +402,6 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   startAnimation(): void {
     if (this.animationFrameId !== null) return;
     this.isAnimating = true;
-    this.animationStartTimestamp = null;
     this.scheduleFrame();
   }
 
@@ -414,11 +414,8 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   }
 
   private scheduleFrame(): void {
-    this.animationFrameId = requestAnimationFrame((timestamp) => {
-      if (this.animationStartTimestamp === null) {
-        this.animationStartTimestamp = timestamp;
-      }
-      this.animationTime = timestamp - this.animationStartTimestamp;
+    this.animationFrameId = requestAnimationFrame(() => {
+      this.galaxyTime += this.timeStep;
       this.animationFrameId = null;
       if (this.gl && this.program) {
         this.drawFrame();
@@ -518,6 +515,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     const semiMajors   = new Float32Array(count);
     const semiMinors   = new Float32Array(count);
     const thetas       = new Float32Array(count);
+    const velThetas    = new Float32Array(count);
     const tiltAngles   = new Float32Array(count);
     const temperatures = new Float32Array(count);
     const magnitudes   = new Float32Array(count);
@@ -528,6 +526,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
       semiMajors[i]   = p.semiMajorAxis;
       semiMinors[i]   = p.semiMinorAxis;
       thetas[i]       = p.theta0;
+      velThetas[i]    = p.velTheta;
       tiltAngles[i]   = p.tiltAngle;
       temperatures[i] = p.temperature;
       magnitudes[i]   = Math.min(p.magnitude, 1.0);
@@ -537,6 +536,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     this.uploadBuffer('a_semiMajor', semiMajors);
     this.uploadBuffer('a_semiMinor', semiMinors);
     this.uploadBuffer('a_theta', thetas);
+    this.uploadBuffer('a_velTheta', velThetas);
     this.uploadBuffer('a_tiltAngle', tiltAngles);
     this.uploadBuffer('a_temperature', temperatures);
     this.uploadBuffer('a_magnitude', magnitudes);
@@ -598,7 +598,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
     gl.uniform1f(gl.getUniformLocation(program, 'u_galaxyRadius'), this.galaxyRadius);
     gl.uniform1f(gl.getUniformLocation(program, 'u_zoom'), this.zoom);
-    gl.uniform1f(gl.getUniformLocation(program, 'u_time'), this.animationTime);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_time'), this.galaxyTime);
     gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
     gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
     gl.uniform1i(gl.getUniformLocation(program, 'u_pertN'), this.pertN);
@@ -609,7 +609,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     gl.bindTexture(gl.TEXTURE_2D, this.lutTexture);
     gl.uniform1i(gl.getUniformLocation(program, 'u_colorLut'), 0);
 
-    ['a_semiMajor','a_semiMinor','a_theta','a_tiltAngle','a_temperature','a_magnitude','a_type']
+    ['a_semiMajor','a_semiMinor','a_theta','a_velTheta','a_tiltAngle','a_temperature','a_magnitude','a_type']
       .forEach(name => this.bindBuffer(name));
 
     gl.drawArrays(gl.POINTS, 0, this.particleCount);

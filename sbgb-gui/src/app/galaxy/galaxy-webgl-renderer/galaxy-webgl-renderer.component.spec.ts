@@ -394,4 +394,72 @@ describe('GalaxyWebglRendererComponent', () => {
       }).not.toThrow();
     });
   });
+
+  describe('timeStep et galaxyTime', () => {
+    it('should default timeStep to 100000.0 years per frame', () => {
+      expect(component.timeStep).toBe(100000.0);
+    });
+
+    it('should accept custom timeStep value', () => {
+      component.timeStep = 50000.0;
+      expect(component.timeStep).toBe(50000.0);
+    });
+
+    it('should start galaxyTime at 0', () => {
+      expect((component as any).galaxyTime).toBe(0);
+    });
+
+    it('should increment galaxyTime by timeStep on each animation frame', () => {
+      let capturedCallback: FrameRequestCallback = () => {};
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        capturedCallback = cb;
+        return 42;
+      });
+      jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+
+      component.timeStep = 100000.0;
+      component.startAnimation();
+      capturedCallback(performance.now());
+
+      expect((component as any).galaxyTime).toBe(100000.0);
+      component.stopAnimation();
+    });
+
+    it('should accumulate galaxyTime across multiple frames', () => {
+      const callbacks: FrameRequestCallback[] = [];
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        callbacks.push(cb);
+        return callbacks.length;
+      });
+      jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+
+      component.timeStep = 100000.0;
+      component.startAnimation();
+      callbacks[0](performance.now()); // frame 1
+      callbacks[1](performance.now()); // frame 2
+
+      expect((component as any).galaxyTime).toBe(200000.0);
+      component.stopAnimation();
+    });
+
+    it('should not reset galaxyTime when animation is stopped and restarted', () => {
+      let capturedCallback: FrameRequestCallback = () => {};
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+        capturedCallback = cb;
+        return 1;
+      });
+      jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+
+      component.timeStep = 100000.0;
+      component.startAnimation();
+      capturedCallback(performance.now());
+      component.stopAnimation();
+
+      component.startAnimation();
+      capturedCallback(performance.now());
+
+      expect((component as any).galaxyTime).toBe(200000.0);
+      component.stopAnimation();
+    });
+  });
 });
