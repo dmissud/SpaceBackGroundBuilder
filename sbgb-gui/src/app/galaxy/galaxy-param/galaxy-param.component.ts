@@ -768,7 +768,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   }
 
   canDownload(): boolean {
-    return !!this.generatedImageUrl && !this.isModifiedSinceBuild && !this.isGenerating;
+    if (this.isGenerating) return false;
+    if (this.isDensityWave) return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
+    return !!this.generatedImageUrl && !this.isModifiedSinceBuild;
   }
 
   getDownloadTooltip(): string {

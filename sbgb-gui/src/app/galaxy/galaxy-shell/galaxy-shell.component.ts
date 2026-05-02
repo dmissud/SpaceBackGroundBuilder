@@ -33,6 +33,7 @@ import { GalaxyPageActions } from "../state/galaxy.actions";
 export class GalaxyShellComponent implements AfterViewInit {
   @ViewChild(GeneratorShellComponent) shell!: GeneratorShellComponent;
   @ViewChild(GalaxyParamComponent) paramComponent!: GalaxyParamComponent;
+  @ViewChild(GalaxyWebglRendererComponent) private webglRenderer?: GalaxyWebglRendererComponent;
 
   renders = this.store.selectSignal(selectRenders);
   selectedRenderId = this.store.selectSignal(selectSelectedRenderId);
@@ -139,7 +140,7 @@ export class GalaxyShellComponent implements AfterViewInit {
         label: 'Télécharger',
         disabled: !param.canDownload(),
         tooltip: param.getDownloadTooltip(),
-        action: () => param.downloadImage()
+        action: () => this.isDensityWave ? this.downloadDensityWaveImage() : param.downloadImage()
       }
     ];
   }
@@ -151,6 +152,10 @@ export class GalaxyShellComponent implements AfterViewInit {
   getSummary(): string | null {
     const param = this.paramComponent;
     return param && param.generatedImageUrl ? param.getParametersSummary() : null;
+  }
+
+  downloadDensityWaveImage(): void {
+    this.webglRenderer?.exportPng();
   }
 
   onViewRequested(base: GalaxyBaseStructureDto): void {
