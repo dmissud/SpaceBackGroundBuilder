@@ -429,6 +429,15 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     });
   }
 
+  exportPng(filename: string = 'density-wave-galaxy.png'): void {
+    const canvas = this.canvasRef.nativeElement;
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    link.click();
+  }
+
   ngOnDestroy(): void {
     this.stopAnimation();
   }

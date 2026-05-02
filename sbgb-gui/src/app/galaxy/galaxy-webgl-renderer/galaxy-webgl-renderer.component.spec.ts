@@ -315,6 +315,49 @@ describe('GalaxyWebglRendererComponent', () => {
     });
   });
 
+  describe('exportPng', () => {
+    let createElementSpy: jest.SpyInstance;
+    let mockLink: { href: string; download: string; click: jest.Mock };
+
+    beforeEach(() => {
+      mockLink = { href: '', download: '', click: jest.fn() };
+      createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+        if (tag === 'a') return mockLink as unknown as HTMLElement;
+        return document.createElement(tag);
+      });
+      HTMLCanvasElement.prototype.toDataURL = jest.fn().mockReturnValue('data:image/png;base64,ABC');
+    });
+
+    afterEach(() => {
+      createElementSpy.mockRestore();
+    });
+
+    it('should call toDataURL on the canvas', () => {
+      component.exportPng();
+      expect(HTMLCanvasElement.prototype.toDataURL).toHaveBeenCalledWith('image/png');
+    });
+
+    it('should set link href to canvas data URL', () => {
+      component.exportPng();
+      expect(mockLink.href).toBe('data:image/png;base64,ABC');
+    });
+
+    it('should set default download filename to density-wave-galaxy.png', () => {
+      component.exportPng();
+      expect(mockLink.download).toBe('density-wave-galaxy.png');
+    });
+
+    it('should set custom download filename when provided', () => {
+      component.exportPng('my-galaxy.png');
+      expect(mockLink.download).toBe('my-galaxy.png');
+    });
+
+    it('should trigger click on the link', () => {
+      component.exportPng();
+      expect(mockLink.click).toHaveBeenCalled();
+    });
+  });
+
   describe('H2 geometry', () => {
     it('should default h2Scale to 1.0', () => {
       expect(component.h2Scale).toBe(1.0);
