@@ -18,7 +18,7 @@ describe('SbgbShellComponent', () => {
       imports: [SbgbShellComponent],
       providers: [
         provideRouter([]),
-        provideMockStore({ initialState: { sbgbs: { building: false, builtSbgb: null } } }),
+        provideMockStore({ initialState: { sbgbs: { sbgb: null, bases: [], renders: [], selectedRenderId: null, image: null, building: false, infoMessage: '', errorMessage: '' } } }),
         provideMockActions(() => actions$)
       ]
     })
