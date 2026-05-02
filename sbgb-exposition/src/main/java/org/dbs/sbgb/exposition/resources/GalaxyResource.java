@@ -36,6 +36,7 @@ public class GalaxyResource {
     private final DeleteRendersByBaseUseCase deleteRendersByBaseUseCase;
     private final ReapplyGalaxyCosmeticsUseCase reapplyUseCase;
     private final ResolveGalaxyBaseUseCase resolveBaseUseCase;
+    private final GetGalaxyParticlesUseCase getGalaxyParticlesUseCase;
     private final GalaxyBaseStructureDTOMapper baseMapper;
     private final GalaxyCosmeticRenderDTOMapper renderMapper;
 
@@ -93,6 +94,17 @@ public class GalaxyResource {
     public ResponseEntity<Void> deleteRendersByBase(@PathVariable("id") UUID id) {
         deleteRendersByBaseUseCase.deleteRendersByBase(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/particles", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            description = "Get star particles for a density wave galaxy (for WebGL rendering)",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(schema = @Schema(implementation = GalaxyRequestCmd.class)),
+                    description = "Galaxy parameters (galaxyType must be DENSITY_WAVE)"))
+    @LogExecutionTime
+    public ResponseEntity<List<StarParticleDto>> getParticles(@Valid @RequestBody GalaxyRequestCmd cmd) {
+        return ResponseEntity.ok(getGalaxyParticlesUseCase.getParticles(cmd));
     }
 
     @PostMapping(value = "/bases/resolve", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -2,13 +2,15 @@ import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular
 import { GalaxyParamComponent } from "../galaxy-param/galaxy-param.component";
 import { GalaxyHistoryListComponent } from "../galaxy-history-list/galaxy-history-list.component";
 import { GalaxyImageComponent } from "../galaxy-image/galaxy-image.component";
-import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto } from "../galaxy.model";
+import { GalaxyWebglRendererComponent } from "../galaxy-webgl-renderer/galaxy-webgl-renderer.component";
+import { GalaxyBaseStructureDto, GalaxyCosmeticRenderDto, StarParticleDto } from "../galaxy.model";
 import { ActionBarComponent, ActionBarButton } from "../../shared/components/action-bar/action-bar.component";
 import { GeneratorShellComponent } from "../../shared/components/generator-shell/generator-shell.component";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { Store } from "@ngrx/store";
+import { DensityWaveDisplayConfig } from "../galaxy-param/sections/density-wave-display-section.component";
 import { selectRenders, selectSelectedRenderId } from "../state/galaxy.selectors";
 import { GalaxyPageActions } from "../state/galaxy.actions";
 
@@ -19,6 +21,7 @@ import { GalaxyPageActions } from "../state/galaxy.actions";
     GalaxyParamComponent,
     GalaxyHistoryListComponent,
     GalaxyImageComponent,
+    GalaxyWebglRendererComponent,
     ActionBarComponent,
     MatIconModule,
     MatButtonModule,
@@ -46,6 +49,38 @@ export class GalaxyShellComponent implements AfterViewInit {
 
   get generatedImageUrl(): string | null {
     return this.paramComponent?.generatedImageUrl || null;
+  }
+
+  get densityWaveParticles(): StarParticleDto[] | null {
+    return this.paramComponent?.densityWaveParticles || null;
+  }
+
+  get densityWaveGalaxyRadius(): number {
+    return this.paramComponent?.densityWaveGalaxyRadius || 15000;
+  }
+
+  get densityWavePertN(): number {
+    return this.paramComponent?.densityWavePertN || 0;
+  }
+
+  get densityWavePertAmp(): number {
+    return this.paramComponent?.densityWavePertAmp || 0;
+  }
+
+  get densityWaveDustSize(): number {
+    return this.paramComponent?.densityWaveDustSize || 70;
+  }
+
+  get renderSize(): number {
+    return this.paramComponent?.densityWaveRenderSize || 800;
+  }
+
+  get densityWaveDisplayConfig(): DensityWaveDisplayConfig {
+    return this.paramComponent?.densityWaveDisplayConfig || { dustSize: 70, showStars: true, showDust: true, showFilaments: true, showH2: true };
+  }
+
+  get isDensityWave(): boolean {
+    return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
   }
 
   get currentNote(): number {

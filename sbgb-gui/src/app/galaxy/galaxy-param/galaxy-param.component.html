@@ -61,21 +61,39 @@
     </app-irregular-structure-section>
     }
 
-    <!-- 4. CORE PARAMETERS -->
+    @if (isDensityWave) {
+    <app-density-wave-physics-section [formGroup]="$any(galaxyForm.get('densityWaveParameters'))"
+      [expanded]="allPanelsExpanded">
+    </app-density-wave-physics-section>
+    <app-density-wave-display-section
+      [expanded]="allPanelsExpanded"
+      [config]="densityWaveDisplayConfig"
+      (configChange)="onDisplayConfigChange($event)">
+    </app-density-wave-display-section>
+    }
+
+    <!-- 4. CORE PARAMETERS (masqué pour DENSITY_WAVE) -->
+    @if (!isDensityWave) {
     <app-core-radius-section [formGroup]="galaxyForm" [onRandomize]="randomizeCore.bind(this)" [expanded]="allPanelsExpanded">
     </app-core-radius-section>
+    }
 
-    <!-- 5. NOISE TEXTURE -->
+    <!-- 5. NOISE TEXTURE (masqué pour DENSITY_WAVE) -->
+    @if (!isDensityWave) {
     <app-noise-texture-section [formGroup]="$any(galaxyForm.get('noiseParameters'))"
       [onRandomize]="randomizeNoise.bind(this)" [expanded]="allPanelsExpanded">
     </app-noise-texture-section>
+    }
 
-    <!-- 6. STRUCTURAL VISUAL EFFECTS (warping + multi-layer noise) -->
+    <!-- 6. STRUCTURAL VISUAL EFFECTS (masqué pour DENSITY_WAVE) -->
+    @if (!isDensityWave) {
     <app-visual-effects-section [formGroup]="galaxyForm" [onRandomizeWarping]="randomizeWarping.bind(this)"
       [onRandomizeMultiLayerNoise]="randomizeMultiLayerNoise.bind(this)" [expanded]="allPanelsExpanded">
     </app-visual-effects-section>
+    }
 
     <!-- ── COSMÉTIQUES ──────────────────────────────────────────────── -->
+    @if (!isDensityWave) {
     <div class="group-header cosmetic">
       <mat-icon>palette</mat-icon>
       Cosmétiques
@@ -90,6 +108,7 @@
     <!-- 8. COLORS -->
     <app-colors-section [formGroup]="galaxyForm" [onRandomizeCustomColors]="randomizeCustomColors.bind(this)" [expanded]="allPanelsExpanded">
     </app-colors-section>
+    }
 
   </div>
 </form>

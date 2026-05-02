@@ -86,4 +86,7 @@ public class GalaxyRequestCmd {
     @Valid
     @Builder.Default
     private ColorParameters colorParameters = ColorParameters.classicPalette();
+
+    @Valid
+    private DensityWaveParameters densityWaveParameters;
 }

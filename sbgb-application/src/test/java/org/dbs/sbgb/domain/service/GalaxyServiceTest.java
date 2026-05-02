@@ -19,14 +19,21 @@ class GalaxyServiceTest {
 
     @Mock private GalaxyBaseStructureRepository baseStructureRepository;
     @Mock private GalaxyCosmeticRenderRepository cosmeticRenderRepository;
-    @Mock private ImageSerializer imageSerializer;
     @Mock private GalaxyImageComputationPort galaxyImageComputationPort;
 
+    private final byte[] fakeBytes = new byte[]{10, 11, 12};
+    private ImageSerializer imageSerializer;
     private GalaxyService galaxyService;
 
     @BeforeEach
     void setUp() {
         org.mockito.MockitoAnnotations.openMocks(this);
+        imageSerializer = new ImageSerializer() {
+            @Override
+            public byte[] toByteArray(BufferedImage image) {
+                return fakeBytes;
+            }
+        };
         galaxyService = new GalaxyService(baseStructureRepository, cosmeticRenderRepository,
                 imageSerializer, galaxyImageComputationPort);
     }
@@ -39,15 +46,11 @@ class GalaxyServiceTest {
                 .multiLayerNoiseParameters(new org.dbs.sbgb.port.in.MultiLayerNoiseParameters(false, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0))
                 .build();
 
-        BufferedImage mockImage = mock(BufferedImage.class);
-        when(galaxyImageComputationPort.computeImage(anyInt(), eq(cmd))).thenReturn(mockImage);
-
-        byte[] fakeBytes = new byte[]{10, 11, 12};
-        when(imageSerializer.toByteArray(mockImage)).thenReturn(fakeBytes);
+        BufferedImage fakeImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+        when(galaxyImageComputationPort.computeImage(anyInt(), eq(cmd))).thenReturn(fakeImage);
 
         byte[] result = galaxyService.buildGalaxyImage(cmd);
 
         assertThat(result).isEqualTo(fakeBytes);
-        verify(imageSerializer).toByteArray(mockImage);
     }
 }
