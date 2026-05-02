@@ -76,6 +76,7 @@ deploy-bree:
   stage: deploy
   tags:
     - bree
+  when: manual
   only:
     - master
     - develop
