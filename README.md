@@ -4,7 +4,7 @@ Générateur d'images de galaxies réalistes avec différents algorithmes et par
 
 ## 🌌 Fonctionnalités
 
-- **5 types de galaxies** : Spiral, Voronoi Cluster, Elliptical, Ring, Irregular
+- **6 types de galaxies** : Spiral, Voronoi Cluster, Elliptical, Ring, Irregular, **Density Wave** (rendu WebGL temps réel)
 - **Amélirations visuelles** : Domain Warping, Multi-layer Noise, Gradients de couleurs, Champ d'étoiles
 - **Architecture hexagonale** : Clean Code, SOLID, DDD
 - **Stack moderne** : Spring Boot 3.4, Angular 17, PostgreSQL 16
@@ -363,14 +363,33 @@ ports:
   - "5433:5432"  # PostgreSQL sur port 5433
 ```
 
-## 📝 License
+## 📝 Licence
 
-Ce projet est sous licence propriétaire. Tous droits réservés.
+Ce projet est distribué sous licence **BSD 2-Clause**. Voir le fichier [LICENSE](LICENSE) pour les détails.
+
+## 🙏 Références et crédits
+
+Le type de galaxie **Density Wave** est un portage fidèle des travaux d'**Ingo Berg** (beltoforion), distribués sous licence BSD 2-Clause.
+
+### Article de référence
+
+- 🇬🇧 [Simulating a Galaxy with the Density Wave Theory](https://beltoforion.de/en/spiral_galaxy_renderer) — beltoforion.de
+- 🇩🇪 [Rendern von Spiralgalaxien](https://beltoforion.de/de/rendern_von_spiralgalaxien) — beltoforion.de
+
+### Projets sources
+
+| Projet | Langage | Lien |
+|---|---|---|
+| Galaxy-Renderer | C++ / OpenGL | [github.com/beltoforion/Galaxy-Renderer](https://github.com/beltoforion/Galaxy-Renderer) |
+| Galaxy-Renderer-Typescript | TypeScript / WebGL2 | [github.com/beltoforion/Galaxy-Renderer-Typescript](https://github.com/beltoforion/Galaxy-Renderer-Typescript) |
+
+L'algorithme implémenté couvre : distribution radiale par CDF (méthode de Simpson), mécanique orbitale en 3 zones d'eccentricité, 4 types de particules (STAR, DUST, FILAMENT, H2), et rendu GPU via vertex/fragment shaders WebGL.
 
 ## 👤 Auteur
 
 **Daniel Missud**
 - GitHub: [@dmissud](https://github.com/dmissud)
+- GitLab: [@dan.missud-group](https://gitlab.com/dan.missud-group)
 
 ## 🤝 Contribution
 
