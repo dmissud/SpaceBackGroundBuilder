@@ -200,6 +200,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
                 .ellipticalParameters(cmd.getEllipticalParameters())
                 .ringParameters(cmd.getRingParameters())
                 .irregularParameters(cmd.getIrregularParameters())
+                .densityWaveParameters(cmd.getDensityWaveParameters())
                 .starFieldParameters(StarFieldParameters.noStars())
                 .multiLayerNoiseParameters(cmd.getMultiLayerNoiseParameters())
                 .bloomParameters(BloomParameters.disabled())
@@ -353,6 +354,7 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
             case "ELLIPTICAL", "LENTICULAR" -> cmd.getEllipticalParameters();
             case "RING" -> cmd.getRingParameters();
             case "IRREGULAR" -> cmd.getIrregularParameters();
+            case "DENSITY_WAVE" -> cmd.getDensityWaveParameters();
             default -> cmd.getSpiralParameters();
         };
         return typeParams != null ? typeParams.toString() : null;

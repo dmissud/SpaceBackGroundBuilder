@@ -749,13 +749,17 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     return 'Générer l\'image avec les paramètres actuels';
   }
 
+  private hasGeneratedResult(): boolean {
+    return !!this.generatedImageUrl || (!!this.densityWaveParticles && this.densityWaveParticles.length > 0);
+  }
+
   canRate(): boolean {
-    return !!this.generatedImageUrl && !this.isGenerating;
+    return this.hasGeneratedResult() && !this.isGenerating;
   }
 
   getRatingTooltip(): string {
-    if (!this.generatedImageUrl) {
-      return 'Générez d\'abord une image avant de pouvoir la noter et la sauvegarder.';
+    if (!this.hasGeneratedResult()) {
+      return 'Générez d\'abord une galaxie avant de pouvoir la noter et la sauvegarder.';
     }
     if (this.isModifiedSinceBuild) {
       return 'Attribuez une note pour sauvegarder cette galaxie (les paramètres ont été modifiés depuis la dernière génération).';

@@ -8,6 +8,7 @@ import org.dbs.sbgb.domain.strategy.GalaxyGeneratorFactory;
 import org.dbs.sbgb.port.in.GalaxyRequestCmd;
 import org.dbs.sbgb.port.in.BloomParameters;
 import org.dbs.sbgb.port.in.ColorParameters;
+import org.dbs.sbgb.port.in.DensityWaveParameters;
 import org.dbs.sbgb.port.in.NoiseParameters;
 import org.dbs.sbgb.port.in.StarFieldParameters;
 import org.dbs.sbgb.port.in.MultiLayerNoiseParameters;
@@ -116,6 +117,39 @@ class RateGalaxyCosmeticRenderUseCaseTest {
         assertThat(savedBase.armWidth()).isEqualTo(80.0);
         assertThat(savedBase.armRotation()).isEqualTo(4.0);
         assertThat(savedBase.darkLaneOpacity()).isEqualTo(0.0);
+    }
+
+    @Test
+    void shouldStoreDensityWaveParamsInStructureParams() throws IOException {
+        galaxyService.rate(buildDensityWaveCmd(3));
+
+        GalaxyBaseStructure savedBase = baseDb.get(0);
+        assertThat(savedBase.structureParams()).contains("galaxyRadius");
+    }
+
+    @Test
+    void shouldGenerateThumbnailWithDensityWaveParams() throws IOException {
+        GalaxyRequestCmd cmd = buildDensityWaveCmd(3);
+
+        galaxyService.rate(cmd);
+
+        verify(galaxyImageComputationPort, atLeastOnce()).computeImage(anyInt(), argThat(thumbnailCmd ->
+                thumbnailCmd.getDensityWaveParameters() != null
+                        && thumbnailCmd.getDensityWaveParameters().galaxyRadius() == cmd.getDensityWaveParameters().galaxyRadius()
+        ));
+    }
+
+    private GalaxyRequestCmd buildDensityWaveCmd(int note) {
+        return GalaxyRequestCmd.builder()
+                .note(note)
+                .width(100).height(100).seed(42L)
+                .galaxyType("DENSITY_WAVE")
+                .starFieldParameters(StarFieldParameters.noStars())
+                .multiLayerNoiseParameters(MultiLayerNoiseParameters.disabled())
+                .bloomParameters(BloomParameters.disabled())
+                .colorParameters(ColorParameters.builder().colorPalette("#CLASSIC").build())
+                .densityWaveParameters(DensityWaveParameters.defaults())
+                .build();
     }
 
     private GalaxyRequestCmd buildCmd(int note) {
