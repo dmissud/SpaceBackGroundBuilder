@@ -175,6 +175,22 @@ describe('GalaxyParamComponent', () => {
       (component as any).isModifiedSinceBuild = false;
       expect(component.canDownload()).toBeTruthy();
     });
+
+    it('should return true when densityWave particles are loaded and not generating', () => {
+      component.galaxyForm.controls['galaxyType'].setValue('DENSITY_WAVE');
+      component.generatedImageUrl = null;
+      component.densityWaveParticles = [{ theta0: 0, velTheta: 0.01, tiltAngle: 0, semiMajorAxis: 5000, semiMinorAxis: 4000, temperature: 6000, magnitude: 0.8, type: 'STAR' }];
+      component.isGenerating = false;
+      expect(component.canDownload()).toBeTruthy();
+    });
+
+    it('should return false when densityWave particles exist but still generating', () => {
+      component.galaxyForm.controls['galaxyType'].setValue('DENSITY_WAVE');
+      component.generatedImageUrl = null;
+      component.densityWaveParticles = [{ theta0: 0, velTheta: 0.01, tiltAngle: 0, semiMajorAxis: 5000, semiMinorAxis: 4000, temperature: 6000, magnitude: 0.8, type: 'STAR' }];
+      component.isGenerating = true;
+      expect(component.canDownload()).toBeFalsy();
+    });
   });
 
   describe('getDownloadTooltip', () => {
