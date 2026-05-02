@@ -234,6 +234,11 @@ const FRAGMENT_SHADER = `
           <span style="color:white; font-size:12px; min-width:32px; text-align:right;">{{ (zoom * 100).toFixed(0) }}%</span>
         </div>
         <button mat-icon-button
+                (click)="isAnimating ? stopAnimation() : startAnimation()"
+                [matTooltip]="isAnimating ? 'Arrêter' : 'Animer'">
+          <mat-icon>{{ isAnimating ? 'pause' : 'play_arrow' }}</mat-icon>
+        </button>
+        <button mat-icon-button
                 (click)="toggleRealSize()"
                 [matTooltip]="isRealSize ? 'Ajuster à la fenêtre' : 'Taille réelle (1:1)'">
           <mat-icon>{{ isRealSize ? 'close_fullscreen' : 'open_in_full' }}</mat-icon>
@@ -328,6 +333,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
   isRealSize = false;
   isFullscreen = false;
+  isAnimating = false;
   zoom = 0.9;
 
   @HostListener('document:fullscreenchange')
@@ -369,6 +375,9 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   private lutTexture: WebGLTexture | null = null;
   private buffers: { [key: string]: WebGLBuffer } = {};
   private particleCount: number = 0;
+  private animationFrameId: number | null = null;
+  private animationTime = 0;
+  private animationStartTimestamp: number | null = null;
 
   ngAfterViewInit(): void {
     this.initWebGL();
@@ -383,8 +392,39 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     }
   }
 
+  startAnimation(): void {
+    if (this.animationFrameId !== null) return;
+    this.isAnimating = true;
+    this.animationStartTimestamp = null;
+    this.scheduleFrame();
+  }
+
+  stopAnimation(): void {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    this.isAnimating = false;
+  }
+
+  private scheduleFrame(): void {
+    this.animationFrameId = requestAnimationFrame((timestamp) => {
+      if (this.animationStartTimestamp === null) {
+        this.animationStartTimestamp = timestamp;
+      }
+      this.animationTime = timestamp - this.animationStartTimestamp;
+      this.animationFrameId = null;
+      if (this.gl && this.program) {
+        this.drawFrame();
+      }
+      if (this.isAnimating) {
+        this.scheduleFrame();
+      }
+    });
+  }
+
   ngOnDestroy(): void {
-    // no animation loop to cancel
+    this.stopAnimation();
   }
 
   private initWebGL(): void {
@@ -543,7 +583,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
 
     gl.uniform1f(gl.getUniformLocation(program, 'u_galaxyRadius'), this.galaxyRadius);
     gl.uniform1f(gl.getUniformLocation(program, 'u_zoom'), this.zoom);
-    gl.uniform1f(gl.getUniformLocation(program, 'u_time'), 0.0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_time'), this.animationTime);
     gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
     gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
     gl.uniform1i(gl.getUniformLocation(program, 'u_pertN'), this.pertN);

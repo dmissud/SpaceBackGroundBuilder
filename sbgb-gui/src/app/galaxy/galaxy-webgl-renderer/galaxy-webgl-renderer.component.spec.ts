@@ -256,4 +256,62 @@ describe('GalaxyWebglRendererComponent', () => {
       expect((component as any).typeToFloat('UNKNOWN')).toBe(2.0);
     });
   });
+
+  describe('animation loop', () => {
+    let rafSpy: jest.SpyInstance;
+    let cafSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      rafSpy = jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(42 as any);
+      cafSpy = jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      rafSpy.mockRestore();
+      cafSpy.mockRestore();
+    });
+
+    it('should default isAnimating to false', () => {
+      expect(component.isAnimating).toBe(false);
+    });
+
+    it('should set isAnimating to true when startAnimation is called', () => {
+      component.startAnimation();
+      expect(component.isAnimating).toBe(true);
+    });
+
+    it('should schedule a requestAnimationFrame when startAnimation is called', () => {
+      component.startAnimation();
+      expect(rafSpy).toHaveBeenCalled();
+    });
+
+    it('should not schedule a second RAF if animation already running', () => {
+      component.startAnimation();
+      component.startAnimation();
+      expect(rafSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isAnimating to false when stopAnimation is called', () => {
+      component.startAnimation();
+      component.stopAnimation();
+      expect(component.isAnimating).toBe(false);
+    });
+
+    it('should call cancelAnimationFrame when stopAnimation is called', () => {
+      component.startAnimation();
+      component.stopAnimation();
+      expect(cafSpy).toHaveBeenCalledWith(42);
+    });
+
+    it('should not throw when stopAnimation called without prior start', () => {
+      expect(() => component.stopAnimation()).not.toThrow();
+    });
+
+    it('should stop animation on ngOnDestroy', () => {
+      component.startAnimation();
+      component.ngOnDestroy();
+      expect(component.isAnimating).toBe(false);
+      expect(cafSpy).toHaveBeenCalled();
+    });
+  });
 });
