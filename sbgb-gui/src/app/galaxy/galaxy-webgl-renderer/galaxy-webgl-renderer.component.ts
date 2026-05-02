@@ -90,7 +90,7 @@ const TEMPERATURE_LUT_RGB: number[] = [
 const LUT_SIZE = 200;
 
 const VERTEX_SHADER = `
-  precision mediump float;
+  precision highp float;
 
   attribute float a_semiMajor;
   attribute float a_semiMinor;
@@ -235,6 +235,13 @@ const FRAGMENT_SHADER = `
                  (input)="onZoomChange()"
                  style="width:80px; cursor:pointer;">
           <span style="color:white; font-size:12px; min-width:32px; text-align:right;">{{ (zoom * 100).toFixed(0) }}%</span>
+        </div>
+        <div class="zoom-control" matTooltip="Vitesse de rotation">
+          <mat-icon style="color:white; font-size:18px; width:18px; height:18px; line-height:18px;">speed</mat-icon>
+          <input type="range" min="0" max="500000" step="10000"
+                 [(ngModel)]="timeStep"
+                 style="width:80px; cursor:pointer;">
+          <span style="color:white; font-size:12px; min-width:32px; text-align:right;">{{ (timeStep / 1000).toFixed(0) }}k</span>
         </div>
         <button mat-icon-button
                 (click)="isAnimating ? stopAnimation() : startAnimation()"
