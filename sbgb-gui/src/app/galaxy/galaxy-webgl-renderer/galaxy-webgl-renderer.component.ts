@@ -106,6 +106,7 @@ const VERTEX_SHADER = `
   uniform float u_dustSize;
   uniform float u_pertAmp;
   uniform int u_pertN;
+  uniform float u_scale;
   uniform sampler2D u_colorLut;
 
   varying vec4 v_color;
@@ -143,23 +144,31 @@ const VERTEX_SHADER = `
 
     if (a_type < 0.5) {
       // STAR (type 0)
-      gl_PointSize = a_magnitude * 4.0;
+      gl_PointSize = a_magnitude * 4.0 * u_scale;
       v_color = vec4(col * a_magnitude, 1.0);
     } else if (a_type < 1.5) {
       // DUST (type 1)
-      gl_PointSize = a_magnitude * 5.0 * u_dustSize;
+      gl_PointSize = a_magnitude * 5.0 * u_dustSize * u_scale;
       v_color = vec4(col * a_magnitude, 1.0);
     } else if (a_type < 2.5) {
       // FILAMENT (type 2)
-      gl_PointSize = a_magnitude * 2.0 * u_dustSize;
+      gl_PointSize = a_magnitude * 2.0 * u_dustSize * u_scale;
       v_color = vec4(col * a_magnitude, 1.0);
     } else if (a_type < 3.5) {
-      // H2_OUTER (type 3) — rougeâtre
-      gl_PointSize = a_magnitude * 2.0 * u_dustSize;
+      // H2_OUTER (type 3) — taille géométrique identique au TypeScript original
+      float rx2 = (a_semiMajor + 1000.0) * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
+      float ry2 = (a_semiMajor + 1000.0) * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
+      float dst = distance(vec2(rx, ry), vec2(rx2, ry2));
+      float h2Size = ((1000.0 - dst) / 10.0 - 50.0) * u_scale;
+      gl_PointSize = max(h2Size, 1.0);
       v_color = vec4(col * a_magnitude * vec3(2.0, 0.5, 0.5), 1.0);
     } else {
-      // H2_CORE (type 4) — blanc pur
-      gl_PointSize = a_magnitude * u_dustSize * 0.5;
+      // H2_CORE (type 4) — blanc pur, taille géométrique / 10
+      float rx2 = (a_semiMajor + 1000.0) * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
+      float ry2 = (a_semiMajor + 1000.0) * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
+      float dst = distance(vec2(rx, ry), vec2(rx2, ry2));
+      float h2Size = (((1000.0 - dst) / 10.0 - 50.0) / 10.0) * u_scale;
+      gl_PointSize = max(h2Size, 1.0);
       v_color = vec4(1.0, 1.0, 1.0, 1.0);
     }
 
@@ -538,6 +547,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     gl.uniform1f(gl.getUniformLocation(program, 'u_dustSize'), this.dustSize);
     gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
     gl.uniform1i(gl.getUniformLocation(program, 'u_pertN'), this.pertN);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_scale'), this.size / 700.0);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.lutTexture);

@@ -123,10 +123,9 @@ public class DensityWaveGalaxyGenerator {
             float theta0 = (float) (360.0 * random.nextDouble());
             float velTheta = (float) mechanics.orbitalVelocity(radius);
             float temp = params.baseTemp() + a / DUST_TEMP_SCALE;
-            float mag = DUST_MAG_MIN + random.nextFloat() * (DUST_MAG_MAX - DUST_MAG_MIN);
+            float mag = 0.1f + 0.05f * random.nextFloat();
             h2.add(new StarParticle(theta0, velTheta, tilt, a, b, temp, mag, StarParticleType.H2_OUTER));
-            float coreMag = 0.3f + random.nextFloat() * 0.2f;
-            h2.add(new StarParticle(theta0, velTheta, tilt, a, b, temp, coreMag, StarParticleType.H2_CORE));
+            h2.add(new StarParticle(theta0, velTheta, tilt, a, b, temp, mag, StarParticleType.H2_CORE));
         }
         return h2;
     }

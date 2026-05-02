@@ -87,15 +87,15 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
       }
       @if (formGroup.controls['galaxyType'].value === 'DENSITY_WAVE') {
         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_0')">Spirale classique</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_1')">Bras larges</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_2')">Symétrique</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_3')">Excentrique</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_4')">Perturbée</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_5')">Allongée</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_6')">Bulbe géant</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_7')">Petit cœur</button>
-          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_8')">Standard +</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_0')">Sample 1</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_1')">Two arms - 1</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_2')">Two arms - 2</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_3')">Two arms - 3</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_5')">Two arms - 4</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_4')">Two arms; Big Core</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_6')">Eye of Sauron</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_7')">Three arms - cool</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_8')">Three arms - hot</button>
         </div>
       }
 
