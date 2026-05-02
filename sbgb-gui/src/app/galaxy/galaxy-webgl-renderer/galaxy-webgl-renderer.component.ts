@@ -121,17 +121,20 @@ const VERTEX_SHADER = `
   }
 
   void main() {
-    float theta = a_theta + u_time * 0.0001;
-    float cosT = cos(a_tiltAngle);
-    float sinT = sin(a_tiltAngle);
-    float cosTheta = cos(theta);
-    float sinTheta = sin(theta);
-    float rx = a_semiMajor * cosTheta * cosT - a_semiMinor * sinTheta * sinT;
-    float ry = a_semiMajor * cosTheta * sinT + a_semiMinor * sinTheta * cosT;
+    float DEG_TO_RAD = 0.01745329251;
+    float thetaDeg = a_theta + u_time * 0.0001;
+    float alpha = thetaDeg * DEG_TO_RAD;
+    float beta = -a_tiltAngle;
+    float cosAlpha = cos(alpha);
+    float sinAlpha = sin(alpha);
+    float cosBeta = cos(beta);
+    float sinBeta = sin(beta);
+    float rx = a_semiMajor * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
+    float ry = a_semiMajor * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
 
     if (u_pertAmp > 0.0 && u_pertN > 0) {
-      rx += (a_semiMajor / u_pertAmp) * sin(theta * 2.0 * float(u_pertN));
-      ry += (a_semiMajor / u_pertAmp) * cos(theta * 2.0 * float(u_pertN));
+      rx += (a_semiMajor / u_pertAmp) * sin(alpha * 2.0 * float(u_pertN));
+      ry += (a_semiMajor / u_pertAmp) * cos(alpha * 2.0 * float(u_pertN));
     }
 
     gl_Position = vec4((rx / u_galaxyRadius) * u_zoom, (ry / u_galaxyRadius) * u_zoom, 0.0, 1.0);
