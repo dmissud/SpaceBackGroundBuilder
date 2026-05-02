@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class DensityWaveGalaxyGenerator {
 
-    private static final int H2_REGION_COUNT = 400;
+    private static final int[] H2_REGION_COUNTS = {100, 200, 400, 700, 1200};
     private static final int CDF_STEPS = 1000;
     private static final float STAR_BASE_TEMP = 6000.0f;
     private static final float STAR_TEMP_VARIANCE = 2000.0f;
@@ -114,8 +114,10 @@ public class DensityWaveGalaxyGenerator {
     }
 
     private List<StarParticle> generateH2Regions(Random random) {
-        List<StarParticle> h2 = new ArrayList<>(H2_REGION_COUNT * 2);
-        for (int i = 0; i < H2_REGION_COUNT; i++) {
+        int density = Math.max(1, Math.min(5, params.h2Density()));
+        int regionCount = H2_REGION_COUNTS[density - 1];
+        List<StarParticle> h2 = new ArrayList<>(regionCount * 2);
+        for (int i = 0; i < regionCount; i++) {
             float radius = (float) cdf.valFromProb(random.nextDouble());
             float a = radius;
             float b = a * mechanics.eccentricity(radius);

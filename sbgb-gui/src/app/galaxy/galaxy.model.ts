@@ -192,4 +192,5 @@ export interface DensityWaveParameters {
   pertN?: number;
   pertAmp?: number;
   baseTemp?: number;
+  h2Density?: number;
 }

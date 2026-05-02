@@ -56,6 +56,24 @@ class DensityWaveGalaxyGeneratorTest {
     }
 
     @Test
+    void h2_density_1_produces_100_regions() {
+        DensityWaveGalaxyParams params = new DensityWaveGalaxyParams(
+                GALAXY_RADIUS, 2250f, 0.019f, 0.85f, 0.95f, STAR_COUNT, false, 0, 0f, 4000f, 1);
+        List<StarParticle> result = new DensityWaveGalaxyGenerator(params, SEED).generate();
+        long outerCount = result.stream().filter(p -> p.type() == StarParticleType.H2_OUTER).count();
+        assertThat(outerCount).isEqualTo(100);
+    }
+
+    @Test
+    void h2_density_5_produces_1200_regions() {
+        DensityWaveGalaxyParams params = new DensityWaveGalaxyParams(
+                GALAXY_RADIUS, 2250f, 0.019f, 0.85f, 0.95f, STAR_COUNT, false, 0, 0f, 4000f, 5);
+        List<StarParticle> result = new DensityWaveGalaxyGenerator(params, SEED).generate();
+        long outerCount = result.stream().filter(p -> p.type() == StarParticleType.H2_OUTER).count();
+        assertThat(outerCount).isEqualTo(1200);
+    }
+
+    @Test
     void all_particles_have_positive_semi_major_axis() {
         assertThat(particles).allSatisfy(p -> assertThat(p.semiMajorAxis()).isGreaterThanOrEqualTo(0));
     }

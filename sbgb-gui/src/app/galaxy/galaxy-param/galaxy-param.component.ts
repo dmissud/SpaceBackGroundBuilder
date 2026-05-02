@@ -233,7 +233,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         pertN: new FormControl<number | null>(2),
         pertAmp: new FormControl<number | null>(80),
         baseTemp: new FormControl<number | null>(4000),
-        hasDarkMatter: new FormControl<boolean | null>(true)
+        hasDarkMatter: new FormControl<boolean | null>(true),
+        h2Density: new FormControl<number | null>(3)
       })
     });
   }

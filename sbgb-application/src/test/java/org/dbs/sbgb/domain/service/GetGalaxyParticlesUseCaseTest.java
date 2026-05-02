@@ -52,7 +52,7 @@ class GetGalaxyParticlesUseCaseTest {
     @Test
     void getParticles_withCustomParams_shouldRespectStarCount() {
         DensityWaveParameters customParams = new DensityWaveParameters(
-                15000.0f, 2000.0f, 0.019f, 0.85f, 0.95f, 10000, false, 2, 50.0f, 4000.0f
+                15000.0f, 2000.0f, 0.019f, 0.85f, 0.95f, 10000, false, 2, 50.0f, 4000.0f, 3
         );
         GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
                 .galaxyType("DENSITY_WAVE")

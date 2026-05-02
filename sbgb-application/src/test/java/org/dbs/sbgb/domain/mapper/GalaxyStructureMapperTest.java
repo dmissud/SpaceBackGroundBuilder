@@ -58,7 +58,7 @@ class GalaxyStructureMapperTest {
     void toGalaxyParameters_withCustomDensityWaveParams_shouldUseProvidedValues() {
         // Given
         DensityWaveParameters customParams = new DensityWaveParameters(
-                20000.0f, 3000.0f, 0.025f, 0.80f, 0.92f, 40000, false, 3, 60.0f, 5000.0f
+                20000.0f, 3000.0f, 0.025f, 0.80f, 0.92f, 40000, false, 3, 60.0f, 5000.0f, 3
         );
         GalaxyRequestCmd cmd = GalaxyRequestCmd.builder()
                 .galaxyType("DENSITY_WAVE")

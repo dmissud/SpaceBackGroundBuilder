@@ -1,6 +1,9 @@
 server:
   port: 8080
 spring:
+  docker:
+    compose:
+      enabled: false
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db-sbgb}
     username: ${SPRING_DATASOURCE_USERNAME}

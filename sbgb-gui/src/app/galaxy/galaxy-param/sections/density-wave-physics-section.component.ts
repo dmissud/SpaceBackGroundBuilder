@@ -75,6 +75,12 @@ import { MatTooltip } from '@angular/material/tooltip';
           <span>{{ formGroup.get('baseTemp')?.value | number:'1.0-0' }}</span>
         </div>
 
+        <div class="slider-row">
+          <label matTooltip="Densité des régions H2 (nébuleuses) — 1=rare, 5=dense">Densité H2</label>
+          <input type="range" formControlName="h2Density" min="1" max="5" step="1">
+          <span>{{ formGroup.get('h2Density')?.value }}</span>
+        </div>
+
         <div class="toggle-row">
           <mat-slide-toggle formControlName="hasDarkMatter"
             matTooltip="Active l'influence de la matière noire sur la courbe de rotation">

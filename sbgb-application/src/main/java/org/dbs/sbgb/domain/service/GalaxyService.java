@@ -164,7 +164,8 @@ public class GalaxyService implements BuildGalaxyImageUseCase, RateGalaxyCosmeti
             return new DensityWaveGalaxyParams(
                     p.galaxyRadius(), p.coreRadius(), p.angleOffset(),
                     p.eccentricityInner(), p.eccentricityOuter(),
-                    p.starCount(), p.hasDarkMatter(), p.pertN(), p.pertAmp(), p.baseTemp()
+                    p.starCount(), p.hasDarkMatter(), p.pertN(), p.pertAmp(), p.baseTemp(),
+                    p.h2Density()
             );
         }
         return DensityWaveGalaxyParams.defaultParams(15000.0f, 60000);

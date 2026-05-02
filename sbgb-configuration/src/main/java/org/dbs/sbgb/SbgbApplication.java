@@ -1,5 +1,6 @@
 package org.dbs.sbgb;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -18,6 +19,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SbgbApplication {
 
     public static void main(String[] args) {
+        Dotenv.configure().ignoreIfMissing().load()
+                .entries()
+                .forEach(e -> System.setProperty(e.getKey(), e.getValue()));
         SpringApplication.run(SbgbApplication.class, args);
     }
 
