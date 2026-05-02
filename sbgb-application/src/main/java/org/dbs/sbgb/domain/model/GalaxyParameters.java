@@ -2,6 +2,7 @@ package org.dbs.sbgb.domain.model;
 
 import lombok.Builder;
 import lombok.Value;
+import org.dbs.sbgb.domain.model.densitywave.DensityWaveGalaxyParams;
 import org.dbs.sbgb.domain.model.parameters.*;
 
 /**
@@ -40,6 +41,7 @@ public class GalaxyParameters {
     LenticularShapeParameters lenticularParameters;
     RingStructureParameters ringParameters;
     IrregularStructureParameters irregularParameters;
+    DensityWaveGalaxyParams densityWaveParams;
 
     /**
      * Create default parameters for a classic spiral galaxy
@@ -56,6 +58,31 @@ public class GalaxyParameters {
                 .persistence(0.5)
                 .lacunarity(2.0)
                 .scale(200.0)
+                .build())
+            .domainWarpParameters(DomainWarpParameters.builder()
+                .warpStrength(0.0)
+                .build())
+            .starFieldParameters(StarFieldParameters.builder()
+                .enabled(false)
+                .starDensity(0.0)
+                .maxStarSize(4)
+                .diffractionSpikes(false)
+                .spikeCount(4)
+                .build())
+            .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                .enabled(false)
+                .macroLayerScale(0.3)
+                .macroLayerWeight(0.5)
+                .mesoLayerScale(1.0)
+                .mesoLayerWeight(0.35)
+                .microLayerScale(3.0)
+                .microLayerWeight(0.15)
+                .build())
+            .bloomParameters(BloomParameters.builder()
+                .enabled(false)
+                .bloomRadius(10)
+                .bloomIntensity(0.5)
+                .bloomThreshold(0.5)
                 .build())
             .spiralParameters(SpiralStructureParameters.builder()
                 .numberOfArms(2)
@@ -457,6 +484,91 @@ public class GalaxyParameters {
                 .irregularity(0.7)
                 .clumpCount(8)
                 .clumpSize(100.0)
+                .build())
+            .build();
+    }
+
+    public static GalaxyParameters createDefaultDensityWave() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.DENSITY_WAVE)
+            .densityWaveParams(DensityWaveGalaxyParams.defaultParams(500.0f, 60000))
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.1)
+                .galaxyRadius(1500.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(4)
+                .persistence(0.5)
+                .lacunarity(2.0)
+                .scale(200.0)
+                .build())
+            .domainWarpParameters(DomainWarpParameters.builder()
+                .warpStrength(0.0)
+                .build())
+            .starFieldParameters(StarFieldParameters.builder()
+                .enabled(false)
+                .starDensity(0.0)
+                .maxStarSize(4)
+                .diffractionSpikes(false)
+                .spikeCount(4)
+                .build())
+            .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                .enabled(false)
+                .macroLayerScale(0.3)
+                .macroLayerWeight(0.5)
+                .mesoLayerScale(1.0)
+                .mesoLayerWeight(0.35)
+                .microLayerScale(3.0)
+                .microLayerWeight(0.15)
+                .build())
+            .build();
+    }
+
+    /**
+     * Create parameters for a vibrant spiral galaxy with all visual effects enabled
+     */
+    public static GalaxyParameters createVibrantSpiral() {
+        return GalaxyParameters.builder()
+            .galaxyType(GalaxyType.SPIRAL)
+            .coreParameters(CoreParameters.builder()
+                .coreSize(0.06)
+                .galaxyRadius(1500.0)
+                .build())
+            .noiseTextureParameters(NoiseTextureParameters.builder()
+                .octaves(6)
+                .persistence(0.65)
+                .lacunarity(2.3)
+                .scale(170.0)
+                .build())
+            .domainWarpParameters(DomainWarpParameters.builder()
+                .warpStrength(150.0)
+                .build())
+            .multiLayerNoiseParameters(MultiLayerNoiseParameters.builder()
+                .enabled(true)
+                .macroLayerScale(0.3)
+                .macroLayerWeight(0.4)
+                .mesoLayerScale(1.0)
+                .mesoLayerWeight(0.4)
+                .microLayerScale(3.0)
+                .microLayerWeight(0.2)
+                .build())
+            .starFieldParameters(StarFieldParameters.builder()
+                .enabled(true)
+                .starDensity(0.001)
+                .maxStarSize(6)
+                .diffractionSpikes(true)
+                .spikeCount(6)
+                .build())
+            .bloomParameters(BloomParameters.builder()
+                .enabled(true)
+                .bloomRadius(15)
+                .bloomIntensity(0.7)
+                .bloomThreshold(0.4)
+                .build())
+            .spiralParameters(SpiralStructureParameters.builder()
+                .numberOfArms(3)
+                .armWidth(90.0)
+                .armRotation(4.5)
                 .build())
             .build();
     }

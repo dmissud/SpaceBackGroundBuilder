@@ -3,6 +3,7 @@ package org.dbs.sbgb.domain.mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.dbs.sbgb.domain.constant.GalaxyDefaults;
 import org.dbs.sbgb.domain.model.*;
+import org.dbs.sbgb.domain.model.densitywave.DensityWaveGalaxyParams;
 import org.dbs.sbgb.domain.model.parameters.*;
 import org.dbs.sbgb.port.in.*;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,16 @@ public class GalaxyStructureMapper {
         }
 
         public GalaxyParameters toGalaxyParameters(GalaxyRequestCmd cmd) {
+                // If preset is specified, use preset parameters
+                if (cmd.getPreset() != null && !cmd.getPreset().isBlank()) {
+                        return createParametersFromPreset(cmd.getPreset());
+                }
+
+                if ("DENSITY_WAVE".equalsIgnoreCase(cmd.getGalaxyType())) {
+                        return buildDensityWaveParameters(cmd);
+                }
+
+                // Otherwise, build from individual parameters
                 GalaxyType galaxyType = parseGalaxyType(cmd.getGalaxyType());
 
                 return GalaxyParameters.builder()
@@ -263,7 +274,12 @@ public class GalaxyStructureMapper {
 
         private SpiralStructureParameters buildSpiralParameters(SpiralParameters spiral) {
                 if (spiral == null) {
-                        return null;
+                        return SpiralStructureParameters.builder()
+                                        .numberOfArms(GalaxyDefaults.DEFAULT_SPIRAL_ARMS)
+                                        .armWidth(GalaxyDefaults.DEFAULT_ARM_WIDTH)
+                                        .armRotation(GalaxyDefaults.DEFAULT_ARM_ROTATION)
+                                        .darkLaneOpacity(0.0)
+                                        .build();
                 }
                 return SpiralStructureParameters.builder()
                                 .numberOfArms(defaultIfNull(spiral.numberOfArms(), GalaxyDefaults.DEFAULT_SPIRAL_ARMS))
@@ -316,5 +332,106 @@ public class GalaxyStructureMapper {
                                 .clumpCount(irregular.irregularClumpCount())
                                 .clumpSize(irregular.irregularClumpSize())
                                 .build();
+        }
+
+        private GalaxyParameters buildDensityWaveParameters(GalaxyRequestCmd cmd) {
+                DensityWaveGalaxyParams densityWaveParams = cmd.getDensityWaveParameters() != null
+                        ? toDensityWaveGalaxyParams(cmd.getDensityWaveParameters())
+                        : DensityWaveGalaxyParams.defaultParams(15000.0f, 60000);
+                return GalaxyParameters.builder()
+                        .galaxyType(GalaxyType.DENSITY_WAVE)
+                        .densityWaveParams(densityWaveParams)
+                        .noiseTextureParameters(defaultNoiseTexture())
+                        .multiLayerNoiseParameters(disabledMultiLayerNoise())
+                        .domainWarpParameters(DomainWarpParameters.builder().warpStrength(0.0).build())
+                        .starFieldParameters(disabledStarField())
+                        .bloomParameters(disabledBloom())
+                        .build();
+        }
+
+        private NoiseTextureParameters defaultNoiseTexture() {
+                return NoiseTextureParameters.builder()
+                                .octaves(4).persistence(0.5).lacunarity(2.0).scale(200.0)
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters disabledMultiLayerNoise() {
+                return org.dbs.sbgb.domain.model.parameters.MultiLayerNoiseParameters.builder()
+                                .enabled(false)
+                                .macroLayerScale(0).macroLayerWeight(0)
+                                .mesoLayerScale(0).mesoLayerWeight(0)
+                                .microLayerScale(0).microLayerWeight(0)
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.StarFieldParameters disabledStarField() {
+                return org.dbs.sbgb.domain.model.parameters.StarFieldParameters.builder()
+                                .enabled(false)
+                                .starDensity(0).maxStarSize(0).diffractionSpikes(false).spikeCount(0)
+                                .build();
+        }
+
+        private org.dbs.sbgb.domain.model.parameters.BloomParameters disabledBloom() {
+                return org.dbs.sbgb.domain.model.parameters.BloomParameters.builder()
+                                .enabled(false)
+                                .bloomRadius(0).bloomIntensity(0).bloomThreshold(0)
+                                .build();
+        }
+
+        private DensityWaveGalaxyParams toDensityWaveGalaxyParams(DensityWaveParameters p) {
+                return new DensityWaveGalaxyParams(
+                        p.galaxyRadius(), p.coreRadius(), p.angleOffset(),
+                        p.eccentricityInner(), p.eccentricityOuter(),
+                        p.starCount(), p.hasDarkMatter(), p.pertN(), p.pertAmp(), p.baseTemp(),
+                        p.h2Density()
+                );
+        }
+
+        private GalaxyParameters createParametersFromPreset(String preset) {
+                switch (preset.toUpperCase()) {
+                        case "DEFAULT":
+                                return GalaxyParameters.createDefault();
+                        case "BARRED_SPIRAL":
+                                return GalaxyParameters.createBarredSpiral();
+                        case "MULTI_ARM":
+                                return GalaxyParameters.createMultiArm();
+                        case "VIBRANT_SPIRAL":
+                                return GalaxyParameters.createVibrantSpiral();
+                        case "DEFAULT_VORONOI":
+                                return GalaxyParameters.createDefaultVoronoi();
+                        case "DENSE_VORONOI":
+                                return GalaxyParameters.createDenseVoronoi();
+                        case "SPARSE_VORONOI":
+                                return GalaxyParameters.createSparseVoronoi();
+                        case "DEFAULT_ELLIPTICAL":
+                                return GalaxyParameters.createDefaultElliptical();
+                        case "ROUND_ELLIPTICAL":
+                                return GalaxyParameters.createRoundElliptical();
+                        case "FLAT_ELLIPTICAL":
+                                return GalaxyParameters.createFlatElliptical();
+                        case "GIANT_ELLIPTICAL":
+                                return GalaxyParameters.createGiantElliptical();
+                        case "LENTICULAR_ELLIPTICAL":
+                                return GalaxyParameters.createLenticularElliptical();
+                        case "DEFAULT_LENTICULAR":
+                                return GalaxyParameters.createDefaultLenticular();
+                        case "DEFAULT_RING":
+                                return GalaxyParameters.createDefaultRing();
+                        case "WIDE_RING":
+                                return GalaxyParameters.createWideRing();
+                        case "BRIGHT_RING":
+                                return GalaxyParameters.createBrightRing();
+                        case "DEFAULT_IRREGULAR":
+                                return GalaxyParameters.createDefaultIrregular();
+                        case "CHAOTIC_IRREGULAR":
+                                return GalaxyParameters.createChaoticIrregular();
+                        case "DWARF_IRREGULAR":
+                                return GalaxyParameters.createDwarfIrregular();
+                        case "DENSITY_WAVE":
+                                return GalaxyParameters.createDefaultDensityWave();
+                        default:
+                                log.warn("Unknown preset '{}', falling back to DEFAULT", preset);
+                                return GalaxyParameters.createDefault();
+                }
         }
 }

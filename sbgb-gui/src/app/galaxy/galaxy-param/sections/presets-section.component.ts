@@ -49,6 +49,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_FLOCCULENT')">Flocculent</button>
           <button mat-raised-button (click)="onLoadPreset('SPIRAL_TIGHTLY_WOUND')">Tightly Wound</button>
           <button mat-raised-button (click)="onLoadPreset('DUSTY_SPIRAL')">Dusty Spiral</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('VIBRANT_SPIRAL')">Vibrant Spiral</button>
         </div>
       }
       @if (formGroup.controls['galaxyType'].value === 'VORONOI_CLUSTER') {
@@ -82,6 +83,19 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
           <button mat-raised-button (click)="onLoadPreset('IRREGULAR_DEFAULT')">SMC Default</button>
           <button mat-raised-button (click)="onLoadPreset('IRREGULAR_CHAOTIC')">Chaotic</button>
           <button mat-raised-button (click)="onLoadPreset('IRREGULAR_DWARF')">Dwarf</button>
+        </div>
+      }
+      @if (formGroup.controls['galaxyType'].value === 'DENSITY_WAVE') {
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_0')">Sample 1</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_1')">Two arms - 1</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_2')">Two arms - 2</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_3')">Two arms - 3</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_5')">Two arms - 4</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_4')">Two arms; Big Core</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_6')">Eye of Sauron</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_7')">Three arms - cool</button>
+          <button mat-raised-button color="primary" (click)="onLoadPreset('DW_8')">Three arms - hot</button>
         </div>
       }
 

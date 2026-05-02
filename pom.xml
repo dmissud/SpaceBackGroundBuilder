@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dbs.sbgb</groupId>
     <artifactId>SpaceBackGroundBuilder</artifactId>
-    <version>2.0.1</version>
+    <version>2.3.0</version>
     <packaging>pom</packaging>
 
 
@@ -30,6 +30,8 @@
         <postgresql.version>42.7.9</postgresql.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.8.15</springdoc-openapi-starter-webmvc-ui.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <lombok.version>1.18.42</lombok.version>
+        <dotenv.version>3.0.0</dotenv.version>
     </properties>
 
     <modules>
@@ -168,8 +170,38 @@
                 <version>${assertj-core.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
+            <dependency>
+                <groupId>io.github.cdimascio</groupId>
+                <artifactId>dotenv-java</artifactId>
+                <version>${dotenv.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.9.0</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>team</report>
+                            <report>mailing-lists</report>
+                            <report>scm</report>
+                            <report>issue-management</report>
+                            <report>licenses</report>
+                            <report>summary</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <build>
         <pluginManagement>
@@ -188,6 +220,27 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -9,7 +9,9 @@ import {Actions, ofType} from "@ngrx/effects";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {GalaxyPageActions} from "../state/galaxy.actions";
 import {GalaxyService} from "../galaxy.service";
-import {GalaxyBaseStructureDto, GalaxyRequestCmd} from "../galaxy.model";
+import {GalaxyBaseStructureDto, GalaxyRequestCmd, StarParticleDto} from "../galaxy.model";
+import { DensityWavePhysicsSectionComponent } from "./sections/density-wave-physics-section.component";
+import { DensityWaveDisplaySectionComponent, DensityWaveDisplayConfig } from "./sections/density-wave-display-section.component";
 import {BasicInfoSectionComponent} from "./sections/basic-info-section.component";
 import {PresetsSectionComponent} from "./sections/presets-section.component";
 import {SpiralStructureSectionComponent} from "./sections/spiral-structure-section.component";
@@ -48,7 +50,9 @@ import {take} from "rxjs";
     NoiseTextureSectionComponent,
     VisualEffectsSectionComponent,
     CosmeticEffectsSectionComponent,
-    ColorsSectionComponent
+    ColorsSectionComponent,
+    DensityWavePhysicsSectionComponent,
+    DensityWaveDisplaySectionComponent
   ],
   templateUrl: './galaxy-param.component.html',
   styleUrl: './galaxy-param.component.scss'
@@ -57,6 +61,19 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
 
   galaxyForm: FormGroup;
   generatedImageUrl: string | null = null;
+  densityWaveParticles: StarParticleDto[] | null = null;
+  densityWaveGalaxyRadius: number = 15000;
+  densityWavePertN: number = 0;
+  densityWavePertAmp: number = 0;
+  densityWaveDustSize: number = 70;
+  densityWaveRenderSize: number = 800;
+  densityWaveDisplayConfig: DensityWaveDisplayConfig = {
+    dustSize: 70, showStars: true, showDust: true, showFilaments: true, showH2: true
+  };
+
+  get isDensityWave(): boolean {
+    return this.galaxyForm.controls['galaxyType'].value === 'DENSITY_WAVE';
+  }
   isGenerating = false;
   currentNote: number = 0;
   allPanelsExpanded = false;
@@ -140,6 +157,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       height: new FormControl<number | null>(4000, [Validators.required, Validators.min(100)]),
       seed: new FormControl<number | null>(Math.floor(Math.random() * 1000000)),
       galaxyType: new FormControl<string | null>('SPIRAL'),
+      preset: new FormControl<string | null>(null),
       coreSize: new FormControl<number | null>(0.05, [Validators.required]),
       galaxyRadius: new FormControl<number | null>(1500, [Validators.required]),
       warpStrength: new FormControl<number | null>(0, [Validators.min(0), Validators.max(300)]),
@@ -204,6 +222,19 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         coreColor: new FormControl<string | null>('#FFFADC'),
         armColor: new FormControl<string | null>('#B4C8FF'),
         outerColor: new FormControl<string | null>('#3C5078')
+      }),
+      densityWaveParameters: this.fb.group({
+        galaxyRadius: new FormControl<number | null>(15000),
+        coreRadius: new FormControl<number | null>(3000),
+        starCount: new FormControl<number | null>(60000),
+        angleOffset: new FormControl<number | null>(0.025),
+        eccentricityInner: new FormControl<number | null>(0.85),
+        eccentricityOuter: new FormControl<number | null>(0.95),
+        pertN: new FormControl<number | null>(2),
+        pertAmp: new FormControl<number | null>(80),
+        baseTemp: new FormControl<number | null>(4000),
+        hasDarkMatter: new FormControl<boolean | null>(true),
+        h2Density: new FormControl<number | null>(3)
       })
     });
   }
@@ -278,6 +309,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     } else if (galaxyType === 'IRREGULAR') {
       this.galaxyForm.controls['irregularParameters'].enable();
     }
+    // DENSITY_WAVE has no type-specific sub-form — backend handles all params via preset
   }
 
   getParametersSummary(): string {
@@ -379,6 +411,7 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   private executeBuild(): void {
     this.isGenerating = true;
     this.generatedImageUrl = null;
+    this.densityWaveParticles = null;
     const request: GalaxyRequestCmd = this.galaxyForm.value;
     request.description = this.getParametersSummary();
     request.note = 0;
@@ -387,6 +420,65 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
       request.id = this.builtGalaxyParams.id;
     }
 
+    if (this.galaxyForm.value.galaxyType === 'DENSITY_WAVE') {
+      this.executeDensityWaveBuild(request);
+    } else {
+      this.executeStandardBuild(request);
+    }
+  }
+
+  onDisplayConfigChange(config: DensityWaveDisplayConfig): void {
+    this.densityWaveDisplayConfig = config;
+    this.densityWaveDustSize = config.dustSize;
+  }
+
+  private applyDensityWavePreset(
+    rad: number, coreRad: number, deltaAng: number,
+    ex1: number, ex2: number, numStars: number,
+    hasDarkMatter: boolean, pertN: number, pertAmp: number,
+    dustSize: number, baseTemp: number): void {
+    this.densityWaveDustSize = dustSize;
+    this.densityWaveDisplayConfig = { ...this.densityWaveDisplayConfig, dustSize };
+    this.galaxyForm.patchValue({
+      galaxyType: 'DENSITY_WAVE',
+      densityWaveParameters: {
+        galaxyRadius: rad,
+        coreRadius: coreRad,
+        angleOffset: deltaAng,
+        eccentricityInner: ex1,
+        eccentricityOuter: ex2,
+        starCount: numStars,
+        hasDarkMatter,
+        pertN,
+        pertAmp,
+        baseTemp
+      }
+    });
+  }
+
+  private executeDensityWaveBuild(request: GalaxyRequestCmd): void {
+    this.galaxyService.getParticles(request).subscribe({
+      next: (particles) => {
+        this.densityWaveParticles = particles;
+        this.densityWaveGalaxyRadius = request.densityWaveParameters?.galaxyRadius || 15000;
+        this.densityWavePertN = request.densityWaveParameters?.pertN || 0;
+        this.densityWavePertAmp = request.densityWaveParameters?.pertAmp || 0;
+        this.densityWaveRenderSize = request.width || 800;
+        this.isGenerating = false;
+        this.isModifiedSinceBuild = false;
+        this.builtGalaxyParams = {...request};
+        this.saveCurrentState();
+        this.snackBar.open(`Galaxy generated — ${particles.length} particles`, 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error generating density wave galaxy:', error);
+        this.snackBar.open('Error generating galaxy', 'Close', { duration: 3000 });
+        this.isGenerating = false;
+      }
+    });
+  }
+
+  private executeStandardBuild(request: GalaxyRequestCmd): void {
     this.galaxyService.buildGalaxy(request).subscribe({
       next: (blob) => {
         this.generatedImageUrl = URL.createObjectURL(blob);
@@ -657,13 +749,17 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
     return 'Générer l\'image avec les paramètres actuels';
   }
 
+  private hasGeneratedResult(): boolean {
+    return !!this.generatedImageUrl || (!!this.densityWaveParticles && this.densityWaveParticles.length > 0);
+  }
+
   canRate(): boolean {
-    return !!this.generatedImageUrl && !this.isGenerating;
+    return this.hasGeneratedResult() && !this.isGenerating;
   }
 
   getRatingTooltip(): string {
-    if (!this.generatedImageUrl) {
-      return 'Générez d\'abord une image avant de pouvoir la noter et la sauvegarder.';
+    if (!this.hasGeneratedResult()) {
+      return 'Générez d\'abord une galaxie avant de pouvoir la noter et la sauvegarder.';
     }
     if (this.isModifiedSinceBuild) {
       return 'Attribuez une note pour sauvegarder cette galaxie (les paramètres ont été modifiés depuis la dernière génération).';
@@ -672,7 +768,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   }
 
   canDownload(): boolean {
-    return !!this.generatedImageUrl && !this.isModifiedSinceBuild && !this.isGenerating;
+    if (this.isGenerating) return false;
+    if (this.isDensityWave) return !!(this.densityWaveParticles && this.densityWaveParticles.length > 0);
+    return !!this.generatedImageUrl && !this.isModifiedSinceBuild;
   }
 
   getDownloadTooltip(): string {
@@ -791,6 +889,9 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
   };
 
   loadPreset(preset: string): void {
+    // Set the preset field for backend preset handling
+    this.galaxyForm.patchValue({ preset: preset });
+
     switch (preset) {
       case 'CLASSIC':
         this.galaxyForm.patchValue({
@@ -1036,6 +1137,59 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           irregularParameters: { irregularity: 0.8, irregularClumpCount: 12, irregularClumpSize: 60 },
           noiseParameters: { octaves: 5, persistence: 0.65, lacunarity: 2.2, scale: 200 },
           starFieldParameters: this.BEAUTIFUL_STARFIELD
+        });
+        break;
+      case 'DUSTY_SPIRAL':
+        this.galaxyForm.patchValue({
+          coreSize: 0.05,
+          galaxyRadius: 1500,
+          spiralParameters: { numberOfArms: 2, armWidth: 85, armRotation: 3.8, darkLaneOpacity: 0.6 },
+          noiseParameters: { octaves: 5, persistence: 0.55, lacunarity: 2.1, scale: 190 },
+          warpStrength: 25,
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
+        });
+        break;
+      case 'DENSITY_WAVE':
+      case 'DW_0': this.applyDensityWavePreset(13000, 4000, 0.0004, 0.85, 0.95, 40000, true, 2, 40, 70, 4000); break;
+      case 'DW_1': this.applyDensityWavePreset(16000, 4000, 0.0003, 0.80, 0.85, 40000, true, 0, 40, 58, 4500); break;
+      case 'DW_2': this.applyDensityWavePreset(13000, 4000, 0.00064, 0.90, 0.90, 40000, true, 0, 0, 75, 4100); break;
+      case 'DW_3': this.applyDensityWavePreset(13000, 4000, 0.0004, 1.35, 1.05, 40000, true, 0, 0, 70, 4500); break;
+      case 'DW_4': this.applyDensityWavePreset(13000, 4500, 0.0002, 0.65, 0.95, 40000, true, 3, 72, 80, 4000); break;
+      case 'DW_5': this.applyDensityWavePreset(15000, 4000, 0.0003, 1.45, 1.00, 40000, true, 0, 0, 80, 4500); break;
+      case 'DW_6': this.applyDensityWavePreset(14000, 12500, 0.0002, 0.65, 0.95, 40000, true, 3, 72, 85, 2200); break;
+      case 'DW_7': this.applyDensityWavePreset(13000, 1500, 0.0004, 1.10, 1.00, 40000, true, 1, 20, 80, 2800); break;
+      case 'DW_8': this.applyDensityWavePreset(13000, 4000, 0.0004, 0.85, 0.95, 40000, true, 1, 20, 80, 4500); break;
+      case 'VIBRANT_SPIRAL':
+        this.galaxyForm.patchValue({
+          galaxyType: 'SPIRAL',
+          coreSize: 0.06,
+          galaxyRadius: 1500,
+          warpStrength: 150,
+          noiseParameters: { octaves: 6, persistence: 0.65, lacunarity: 2.3, scale: 170 },
+          spiralParameters: { numberOfArms: 3, armWidth: 90, armRotation: 4.5, darkLaneOpacity: 0 },
+          starFieldParameters: {
+            enabled: true,
+            density: 0.001,
+            maxStarSize: 6,
+            diffractionSpikes: true,
+            spikeCount: 6
+          },
+          bloomParameters: {
+            enabled: true,
+            bloomRadius: 15,
+            bloomIntensity: 0.7,
+            bloomThreshold: 0.4
+          },
+          multiLayerNoiseParameters: {
+            enabled: true,
+            macroLayerScale: 0.3,
+            macroLayerWeight: 0.4,
+            mesoLayerScale: 1.0,
+            mesoLayerWeight: 0.4,
+            microLayerScale: 3.0,
+            microLayerWeight: 0.2
+          }
         });
         break;
     }

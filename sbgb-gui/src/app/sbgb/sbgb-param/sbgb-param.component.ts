@@ -12,7 +12,7 @@ import {
   selectInfoMessage,
   selectRenders
 } from "../state/sbgb.selectors";
-import {filter, Subject, take, takeUntil} from "rxjs";
+import {filter, pairwise, startWith, Subject, take, takeUntil} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Store} from "@ngrx/store";
 import {ImageApiActions, SbgbPageActions} from "../state/sbgb.actions";
@@ -166,8 +166,25 @@ export class SbgbParamComponent implements OnInit, OnDestroy {
     this.setupRenderCosmeticsLoader();
 
     this.baseFormSnapshot = this.baseForm.value;
-    this.baseForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(newValue => {
-      this.baseFormSnapshot = newValue;
+    this.baseForm.valueChanges.pipe(
+      startWith(this.baseForm.value),
+      pairwise(),
+      takeUntil(this.destroy$)
+    ).subscribe(([previousValue, currentValue]) => {
+      this.baseFormSnapshot = currentValue;
+      if (this.renders.length > 0) {
+        this.dialog.open(SbgbStructuralChangeDialogComponent, {
+          data: {rendersCount: this.renders.length}
+        }).afterClosed().subscribe((choice: StructuralChangeChoice | undefined) => {
+          if (choice === StructuralChangeChoice.REAPPLY) {
+            this.reapplyRendersWithNewBase();
+          } else if (choice === StructuralChangeChoice.CLEAR) {
+            this.renders.forEach(r => this.store.dispatch(SbgbPageActions.deleteRender({renderId: r.id})));
+          } else if (choice === StructuralChangeChoice.CANCEL) {
+            this.baseForm.patchValue(previousValue, {emitEvent: false});
+          }
+        });
+      }
     });
 
     this.baseForm.get(SbgbParamComponent.CONTROL_PRESET)?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(preset => {

@@ -60,10 +60,10 @@ spec:
   ingressClassName: public
   tls:
     - hosts:
-        - bree
+        - bree.local
       secretName: sbgb-tls-secret
   rules:
-    - host: bree
+    - host: bree.local
       http:
         paths:
           - path: /sbgb
@@ -80,20 +80,42 @@ metadata:
   name: sbgb-root-redirect
   namespace: sbgb-landing
   annotations:
-    nginx.ingress.kubernetes.io/permanent-redirect: "https://bree/sbgb/"
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://bree.local/sbgb/"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: public
   tls:
     - hosts:
-        - bree
+        - bree.local
       secretName: sbgb-tls-secret
+  rules:
+    - host: bree.local
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: sbgb-landing
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sbgb-bree-redirect
+  namespace: sbgb-landing
+  annotations:
+    nginx.ingress.kubernetes.io/permanent-redirect: "https://bree.local/sbgb/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: public
   rules:
     - host: bree
       http:
         paths:
           - path: /
-            pathType: Exact
+            pathType: Prefix
             backend:
               service:
                 name: sbgb-landing

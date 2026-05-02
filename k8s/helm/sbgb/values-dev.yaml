@@ -17,5 +17,5 @@ frontend:
   apiUrl: /sbgb/dev/api
 
 ingress:
-  host: bree
+  host: bree.local
   basePath: /sbgb/dev

@@ -6,5 +6,6 @@ public enum GalaxyType {
     ELLIPTICAL,
     LENTICULAR,
     RING,
-    IRREGULAR
+    IRREGULAR,
+    DENSITY_WAVE
 }
