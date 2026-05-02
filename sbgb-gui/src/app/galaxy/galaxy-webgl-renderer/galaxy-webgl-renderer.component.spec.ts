@@ -314,4 +314,41 @@ describe('GalaxyWebglRendererComponent', () => {
       expect(cafSpy).toHaveBeenCalled();
     });
   });
+
+  describe('H2 geometry', () => {
+    it('should default h2Scale to 1.0', () => {
+      expect(component.h2Scale).toBe(1.0);
+    });
+
+    it('should accept h2Scale input', () => {
+      component.h2Scale = 2.0;
+      expect(component.h2Scale).toBe(2.0);
+    });
+
+    it('should clamp h2Scale to minimum 0.1 to avoid invisible H2 regions', () => {
+      component.h2Scale = 0.0;
+      fixture.detectChanges();
+      expect(component.h2Scale).toBeGreaterThanOrEqual(0.1);
+    });
+
+    it('should not throw when particles include H2_OUTER type', () => {
+      const h2Particles: StarParticleDto[] = [
+        { theta0: 0.5, velTheta: 0.01, tiltAngle: 0.2, semiMajorAxis: 8000, semiMinorAxis: 6000, temperature: 7000, magnitude: 0.9, type: 'H2_OUTER' }
+      ];
+      expect(() => {
+        component.particles = h2Particles;
+        fixture.detectChanges();
+      }).not.toThrow();
+    });
+
+    it('should not throw when particles include H2_CORE type', () => {
+      const h2Particles: StarParticleDto[] = [
+        { theta0: 0.5, velTheta: 0.01, tiltAngle: 0.2, semiMajorAxis: 8000, semiMinorAxis: 6000, temperature: 10000, magnitude: 1.0, type: 'H2_CORE' }
+      ];
+      expect(() => {
+        component.particles = h2Particles;
+        fixture.detectChanges();
+      }).not.toThrow();
+    });
+  });
 });

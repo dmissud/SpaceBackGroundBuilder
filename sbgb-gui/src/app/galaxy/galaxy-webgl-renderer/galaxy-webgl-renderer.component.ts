@@ -107,10 +107,20 @@ const VERTEX_SHADER = `
   uniform float u_pertAmp;
   uniform int u_pertN;
   uniform float u_scale;
+  uniform float u_h2Scale;
   uniform sampler2D u_colorLut;
 
   varying vec4 v_color;
   varying float v_type;
+
+  float h2PointSize(float rx, float ry, float cosAlpha, float sinAlpha, float cosBeta, float sinBeta) {
+    float offset = u_galaxyRadius * 0.067;
+    float rx2 = (a_semiMajor + offset) * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
+    float ry2 = (a_semiMajor + offset) * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
+    float dst = distance(vec2(rx, ry), vec2(rx2, ry2));
+    float normalized = 100.0 * (1.0 - dst / offset) - 50.0;
+    return max(normalized * u_scale * u_h2Scale, 1.0);
+  }
 
   vec3 colorFromTemperature(float temp) {
     float minTemp = 1000.0;
@@ -155,20 +165,12 @@ const VERTEX_SHADER = `
       gl_PointSize = a_magnitude * 2.0 * u_dustSize * u_scale;
       v_color = vec4(col * a_magnitude, 1.0);
     } else if (a_type < 3.5) {
-      // H2_OUTER (type 3) — taille géométrique identique au TypeScript original
-      float rx2 = (a_semiMajor + 1000.0) * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
-      float ry2 = (a_semiMajor + 1000.0) * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
-      float dst = distance(vec2(rx, ry), vec2(rx2, ry2));
-      float h2Size = ((1000.0 - dst) / 10.0 - 50.0) * u_scale;
-      gl_PointSize = max(h2Size, 1.0);
+      // H2_OUTER (type 3)
+      gl_PointSize = h2PointSize(rx, ry, cosAlpha, sinAlpha, cosBeta, sinBeta);
       v_color = vec4(col * a_magnitude * vec3(2.0, 0.5, 0.5), 1.0);
     } else {
-      // H2_CORE (type 4) — blanc pur, taille géométrique / 10
-      float rx2 = (a_semiMajor + 1000.0) * cosAlpha * cosBeta - a_semiMinor * sinAlpha * sinBeta;
-      float ry2 = (a_semiMajor + 1000.0) * cosAlpha * sinBeta + a_semiMinor * sinAlpha * cosBeta;
-      float dst = distance(vec2(rx, ry), vec2(rx2, ry2));
-      float h2Size = (((1000.0 - dst) / 10.0 - 50.0) / 10.0) * u_scale;
-      gl_PointSize = max(h2Size, 1.0);
+      // H2_CORE (type 4) — core is 10× smaller than outer
+      gl_PointSize = h2PointSize(rx, ry, cosAlpha, sinAlpha, cosBeta, sinBeta) / 10.0;
       v_color = vec4(1.0, 1.0, 1.0, 1.0);
     }
 
@@ -369,6 +371,10 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
   @Input() showDust: boolean = true;
   @Input() showFilaments: boolean = true;
   @Input() showH2: boolean = true;
+  @Input()
+  set h2Scale(value: number) { this._h2Scale = Math.max(0.1, value); }
+  get h2Scale(): number { return this._h2Scale; }
+  private _h2Scale = 1.0;
 
   private gl: WebGLRenderingContext | null = null;
   private program: WebGLProgram | null = null;
@@ -588,6 +594,7 @@ export class GalaxyWebglRendererComponent implements AfterViewInit, OnChanges, O
     gl.uniform1f(gl.getUniformLocation(program, 'u_pertAmp'), this.pertAmp);
     gl.uniform1i(gl.getUniformLocation(program, 'u_pertN'), this.pertN);
     gl.uniform1f(gl.getUniformLocation(program, 'u_scale'), this.size / 700.0);
+    gl.uniform1f(gl.getUniformLocation(program, 'u_h2Scale'), this._h2Scale);
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.lutTexture);
