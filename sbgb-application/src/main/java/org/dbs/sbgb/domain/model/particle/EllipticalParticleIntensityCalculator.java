@@ -9,9 +9,9 @@ import java.util.List;
 @Slf4j
 public class EllipticalParticleIntensityCalculator implements GalaxyIntensityCalculator {
 
-    private static final float ZOOM_FACTOR = 0.5f;
-    private static final float GAMMA = 0.5f;
-    private static final int BLUR_PASSES = 2;
+    private static final float ZOOM_FACTOR = 0.35f;
+    private static final float GAMMA = 0.45f;
+    private static final int BLUR_PASSES = 3;
 
     private final DensityGrid grid;
 
@@ -29,11 +29,11 @@ public class EllipticalParticleIntensityCalculator implements GalaxyIntensityCal
                         .centerX(width / 2)
                         .centerY(height / 2)
                         .scale(scale)
-                        .splatRadius(2)
+                        .splatRadius(3)
                         .build(),
                 RasterPostProcessor.builder()
                         .blurPasses(BLUR_PASSES)
-                        .blurRadius(Math.max(3, width / 400))
+                        .blurRadius(Math.max(5, width / 300))
                         .gamma(GAMMA)
                         .build()
         ).render(particles, width, height);

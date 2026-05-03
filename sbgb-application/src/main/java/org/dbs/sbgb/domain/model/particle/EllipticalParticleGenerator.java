@@ -55,10 +55,10 @@ public class EllipticalParticleGenerator {
     }
 
     private CumulativeDistributionFunction buildCdf() {
-        double coreRadius = galaxyRadius * 0.1;
-        double discScale = galaxyRadius * 0.4;
+        double coreRadius = galaxyRadius * 0.2;
+        double discScale = galaxyRadius * 0.15;
         CumulativeDistributionFunction distribution = new CumulativeDistributionFunction();
-        distribution.setupRealistic(1.0, 0.01, discScale, coreRadius, 0.0, galaxyRadius * 2.5, CDF_STEPS);
+        distribution.setupRealistic(1.0, 0.05, discScale, coreRadius, 0.0, galaxyRadius * 2.0, CDF_STEPS);
         return distribution;
     }
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EllipticalGeneratorStrategy implements GalaxyGeneratorStrategy {
 
-    private static final float PARTICLES_PER_PIXEL = 1.0f / 80.0f;
+    private static final float PARTICLES_PER_PIXEL = 1.0f / 40.0f;
 
     @Override
     public GalaxyIntensityCalculator create(GalaxyGenerationContext context) {
