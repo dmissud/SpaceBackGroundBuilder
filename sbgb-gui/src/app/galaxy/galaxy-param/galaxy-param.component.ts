@@ -677,6 +677,13 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         ringWidth: Math.floor(80 + Math.random() * 200),
         ringIntensity: +(0.6 + Math.random() * 1).toFixed(1),
         coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)
+      },
+      colorParameters: {
+        colorPalette: 'CUSTOM',
+        spaceBackgroundColor: '#020208',
+        coreColor: '#FFFCF0',
+        armColor: '#88CCFF',
+        outerColor: '#1A3A6A'
       }
     });
   }
