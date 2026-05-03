@@ -657,6 +657,13 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         sersicIndex: +(1 + Math.random() * 7).toFixed(1),
         axisRatio: +(0.3 + Math.random() * 0.7).toFixed(2),
         orientationAngle: Math.floor(Math.random() * 360)
+      },
+      colorParameters: {
+        colorPalette: 'CUSTOM',
+        spaceBackgroundColor: '#050508',
+        coreColor: '#FFF8E7',
+        armColor: '#E8C870',
+        outerColor: '#7A4020'
       }
     });
   }
