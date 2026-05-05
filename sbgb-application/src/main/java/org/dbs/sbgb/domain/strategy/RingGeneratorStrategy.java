@@ -3,7 +3,7 @@ package org.dbs.sbgb.domain.strategy;
 import org.dbs.sbgb.domain.model.GalaxyIntensityCalculator;
 import org.dbs.sbgb.domain.model.GalaxyParameters;
 import org.dbs.sbgb.domain.model.GalaxyType;
-import org.dbs.sbgb.domain.model.RingGalaxyGenerator;
+import org.dbs.sbgb.domain.model.particle.RingParticleIntensityCalculator;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,13 +13,11 @@ public class RingGeneratorStrategy implements GalaxyGeneratorStrategy {
     public GalaxyIntensityCalculator create(GalaxyGenerationContext context) {
         GalaxyParameters parameters = context.getParameters();
 
-        return RingGalaxyGenerator.builder()
-                .width(context.getWidth())
-                .height(context.getHeight())
-                .noiseGenerator(context.getNoiseGenerator())
-                .coreParameters(parameters.getCoreParameters())
-                .ringParameters(parameters.getRingParameters())
-                .build();
+        return new RingParticleIntensityCalculator(
+                context.getWidth(), context.getHeight(),
+                parameters.getCoreParameters(),
+                parameters.getRingParameters(),
+                context.getSeed());
     }
 
     @Override

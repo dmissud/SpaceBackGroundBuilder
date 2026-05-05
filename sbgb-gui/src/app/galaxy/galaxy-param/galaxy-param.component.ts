@@ -657,6 +657,13 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         sersicIndex: +(1 + Math.random() * 7).toFixed(1),
         axisRatio: +(0.3 + Math.random() * 0.7).toFixed(2),
         orientationAngle: Math.floor(Math.random() * 360)
+      },
+      colorParameters: {
+        colorPalette: 'CUSTOM',
+        spaceBackgroundColor: '#050508',
+        coreColor: '#FFF8E7',
+        armColor: '#E8C870',
+        outerColor: '#7A4020'
       }
     });
   }
@@ -670,6 +677,13 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
         ringWidth: Math.floor(80 + Math.random() * 200),
         ringIntensity: +(0.6 + Math.random() * 1).toFixed(1),
         coreToRingRatio: +(0.1 + Math.random() * 0.6).toFixed(2)
+      },
+      colorParameters: {
+        colorPalette: 'CUSTOM',
+        spaceBackgroundColor: '#020208',
+        coreColor: '#FFFCF0',
+        armColor: '#88CCFF',
+        outerColor: '#1A3A6A'
       }
     });
   }
@@ -1006,7 +1020,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           galaxyRadius: 1500,
           ellipticalParameters: { sersicIndex: 4.0, axisRatio: 0.7, orientationAngle: 45 },
           noiseParameters: { octaves: 3, persistence: 0.3, lacunarity: 2.0, scale: 220 },
-          starFieldParameters: this.DENSE_STARFIELD
+          starFieldParameters: this.DENSE_STARFIELD,
+          colorParameters: { colorPalette: 'CUSTOM', spaceBackgroundColor: '#050508', coreColor: '#FFF8E7', armColor: '#E8C870', outerColor: '#7A4020' }
         });
         break;
       case 'ELLIPTICAL_ROUND':
@@ -1015,7 +1030,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           galaxyRadius: 1600,
           ellipticalParameters: { sersicIndex: 3.5, axisRatio: 0.95, orientationAngle: 0 },
           noiseParameters: { octaves: 3, persistence: 0.25, lacunarity: 2.0, scale: 250 },
-          starFieldParameters: this.DENSE_STARFIELD
+          starFieldParameters: this.DENSE_STARFIELD,
+          colorParameters: { colorPalette: 'CUSTOM', spaceBackgroundColor: '#050508', coreColor: '#FFFFFF', armColor: '#F0D890', outerColor: '#905030' }
         });
         break;
       case 'ELLIPTICAL_FLAT':
@@ -1024,7 +1040,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           galaxyRadius: 1500,
           ellipticalParameters: { sersicIndex: 5.0, axisRatio: 0.35, orientationAngle: 30 },
           noiseParameters: { octaves: 4, persistence: 0.4, lacunarity: 2.2, scale: 200 },
-          starFieldParameters: this.BEAUTIFUL_STARFIELD
+          starFieldParameters: this.BEAUTIFUL_STARFIELD,
+          colorParameters: { colorPalette: 'CUSTOM', spaceBackgroundColor: '#04040A', coreColor: '#FFF0C8', armColor: '#C89048', outerColor: '#603818' }
         });
         break;
       case 'ELLIPTICAL_GIANT':
@@ -1039,7 +1056,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
             maxStarSize: 2,
             diffractionSpikes: false,
             spikeCount: 4
-          }
+          },
+          colorParameters: { colorPalette: 'CUSTOM', spaceBackgroundColor: '#020205', coreColor: '#FFFAEE', armColor: '#D4A860', outerColor: '#884828' }
         });
         break;
       case 'ELLIPTICAL_LENTICULAR':
@@ -1049,7 +1067,8 @@ export class GalaxyParamComponent implements OnInit, OnDestroy {
           ellipticalParameters: { sersicIndex: 1.5, axisRatio: 0.25, orientationAngle: 90 },
           noiseParameters: { octaves: 3, persistence: 0.35, lacunarity: 2.0, scale: 230 },
           starFieldParameters: this.DENSE_STARFIELD,
-          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE
+          multiLayerNoiseParameters: this.BEAUTIFUL_MULTILAYER_NOISE,
+          colorParameters: { colorPalette: 'CUSTOM', spaceBackgroundColor: '#050508', coreColor: '#FFF0D8', armColor: '#B88840', outerColor: '#583010' }
         });
         break;
       case 'RING_DEFAULT':
