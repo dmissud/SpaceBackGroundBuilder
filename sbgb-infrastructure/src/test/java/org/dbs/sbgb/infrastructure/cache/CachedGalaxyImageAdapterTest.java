@@ -1,4 +1,4 @@
-je ne vois paspackage org.dbs.sbgb.infrastructure.cache;
+package org.dbs.sbgb.infrastructure.cache;
 
 import org.dbs.sbgb.domain.factory.NoiseGeneratorFactory;
 import org.dbs.sbgb.domain.mapper.GalaxyStructureMapper;
